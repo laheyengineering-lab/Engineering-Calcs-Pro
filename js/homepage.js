@@ -2,21 +2,45 @@ const container = document.querySelector(".card-container");
 
 if (container) {
 
-    calculators.forEach(calculator => {
+    const categories = [
+        "Mechanical",
+        "Fasteners",
+        "Materials",
+        "Manufacturing"
+    ];
+
+    categories.forEach(category => {
 
         const card = document.createElement("div");
 
         card.className = "card";
 
-        card.innerHTML = `
-            <h3>${calculator.name}</h3>
+        const heading = document.createElement("h3");
+        heading.textContent = category;
 
-            <p>${calculator.description}</p>
+        card.appendChild(heading);
 
-            <a href="${calculator.link}">
-                Open Calculator
-            </a>
-        `;
+        const list = document.createElement("ul");
+
+        calculators
+            .filter(calc => calc.category === category)
+            .forEach(calc => {
+
+                const item = document.createElement("li");
+
+                const link = document.createElement("a");
+
+                link.textContent = calc.name;
+
+                link.href = calc.link;
+
+                item.appendChild(link);
+
+                list.appendChild(item);
+
+            });
+
+        card.appendChild(list);
 
         container.appendChild(card);
 
