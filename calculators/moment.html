@@ -1,40 +1,199 @@
-<a href="../index.html">← Home</a>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <title>Moment Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Moment Calculator | Engineering Calcs Pro</title>
+
     <link rel="stylesheet" href="../css/style.css">
+
 </head>
+
 <body>
 
-    <div class="card">
-    <h1>Engineering Toolbox Pro</h1>
+<div class="container">
 
-    <h2>Moment Calculator</h2>
+    <a href="../index.html" class="back-link">
+        ← Back to Engineering Calcs Pro
+    </a>
 
-    <label>Force (lb)</label>
-    <br>
-    <input id="force" type="number">
 
-    <br><br>
+    <header class="calculator-header">
 
-    <label>Distance (in)</label>
-    <br>
-    <input id="distance" type="number">
+        <h1>Moment Calculator</h1>
 
-    <br><br>
+        <p>
+            Calculate the moment (torque) created by a force acting at a
+            perpendicular distance from a pivot point.
+        </p>
 
-    <button onclick="calculateMoment()">
+    </header>
 
-        Calculate
 
-    </button>
+    <section class="calculator-section">
 
-    <h3 id="result"></h3>
-    </div>
+        <h2>Equation</h2>
 
-</body>
+        <div class="formula-box">
+
+            M = F × d
+
+        </div>
+
+        <p>
+
+            Where:
+
+        </p>
+
+        <ul>
+
+            <li><strong>M</strong> = Moment</li>
+            <li><strong>F</strong> = Applied force</li>
+            <li><strong>d</strong> = Perpendicular distance</li>
+
+        </ul>
+
+    </section>
+
+
+
+    <section class="calculator-section">
+
+        <h2>Calculator</h2>
+
+
+        <label>
+            Force (N)
+        </label>
+
+        <input id="force" type="number" placeholder="Enter force">
+
+
+        <label>
+            Distance (mm)
+        </label>
+
+        <input id="distance" type="number" placeholder="Enter distance">
+
+
+        <button onclick="calculateMoment()">
+            Calculate
+        </button>
+
+
+        <div id="result" class="result-box">
+
+            Enter values and calculate.
+
+        </div>
+
+
+    </section>
+
+
+
+    <section class="calculator-section">
+
+        <h2>Worked Example</h2>
+
+        <div class="example-box">
+
+            <p>
+                Given:
+            </p>
+
+            <p>
+                Force = 100 N
+            </p>
+
+            <p>
+                Distance = 25 mm
+            </p>
+
+            <p>
+                M = 100 × 25
+            </p>
+
+            <p>
+                <strong>
+                    M = 2500 N·mm
+                </strong>
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <section class="calculator-section">
+
+        <h2>Engineering Notes</h2>
+
+        <ul>
+
+            <li>
+                Moment depends on perpendicular distance from the pivot.
+            </li>
+
+            <li>
+                Keep units consistent throughout the calculation.
+            </li>
+
+            <li>
+                Sign convention depends on the direction of rotation.
+            </li>
+
+        </ul>
+
+    </section>
+
+
+
+    <section class="calculator-section">
+
+        <h2>Applications</h2>
+
+        <ul>
+
+            <li>Machine design</li>
+            <li>Statics problems</li>
+            <li>Fastener loading</li>
+            <li>Shaft and lever analysis</li>
+
+        </ul>
+
+    </section>
+
+
+
+    <section class="calculator-section">
+
+        <h2>Related Calculators</h2>
+
+        <ul>
+
+            <li>Beam Deflection (Coming Soon)</li>
+
+            <li>Bolt Torque (Coming Soon)</li>
+
+            <li>Stress Calculator (Coming Soon)</li>
+
+        </ul>
+
+    </section>
+
+
+</div>
+
+
 <script src="../js/moment.js"></script>
+
+
 </body>
+
 </html>

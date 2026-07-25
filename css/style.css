@@ -108,5 +108,133 @@ header p {
 
     margin: 0;
     color: #666;
+.back-link {
+
+    display: inline-block;
+    margin-bottom: 25px;
+    text-decoration: none;
+    color: #0b5394;
+
+}
+
+
+.calculator-header {
+
+    margin-bottom: 30px;
+
+}
+
+
+
+.calculator-section {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 12px;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+
+}
+
+
+.calculator-section h2 {
+
+    margin-top: 0;
+
+    color: #0b5394;
+
+}
+
+
+.formula-box {
+
+    background: #f5f5f5;
+
+    padding: 20px;
+
+    border-radius: 8px;
+
+    font-size: 24px;
+
+    text-align: center;
+
+}
+
+
+.calculator-section input {
+
+    display: block;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px;
+
+    margin-bottom: 15px;
+
+    border-radius: 6px;
+
+    border: 1px solid #ccc;
+
+}
+
+
+.calculator-section button {
+
+    padding: 12px 25px;
+
+    background: #0b5394;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+}
+
+
+.calculator-section button:hover {
+
+    opacity: .85;
+
+}
+
+
+.result-box {
+
+    margin-top: 20px;
+
+    padding: 20px;
+
+    background: #f7fbff;
+
+    border-radius: 8px;
+
+    border: 1px solid #ddd;
+
+}
+
+
+.example-box {
+
+    background: #f5f5f5;
+
+    padding: 20px;
+
+    border-radius: 8px;
+
+}
+
+
 
 }
