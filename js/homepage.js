@@ -1,49 +1,57 @@
 const container = document.querySelector(".card-container");
+const searchInput = document.getElementById("searchInput");
 
-if (container) {
+function buildHomepage(searchText = "") {
 
-    const categories = [
-        "Mechanical",
-        "Fasteners",
-        "Materials",
-        "Manufacturing"
-    ];
+    container.innerHTML = "";
+
+    const categories = [...new Set(calculators.map(c => c.category))];
 
     categories.forEach(category => {
 
+        const categoryCalcs = calculators.filter(calc =>
+            calc.category === category &&
+            calc.name.toLowerCase().includes(searchText.toLowerCase())
+        );
+
+        if (categoryCalcs.length === 0)
+            return;
+
         const card = document.createElement("div");
+        card.className = "category-card";
 
-        card.className = "card";
+        card.innerHTML = `<h2>${category}</h2>`;
 
-        const heading = document.createElement("h3");
-        heading.textContent = category;
+        categoryCalcs.forEach(calc => {
 
-        card.appendChild(heading);
+            const calcCard = document.createElement("a");
 
-        const list = document.createElement("ul");
+            calcCard.className = "calculator-card";
 
-        calculators
-            .filter(calc => calc.category === category)
-            .forEach(calc => {
+            calcCard.href = calc.link;
 
-                const item = document.createElement("li");
+            calcCard.innerHTML = `
 
-                const link = document.createElement("a");
+                <h3>${calc.name}</h3>
 
-                link.textContent = calc.name;
+                <p>${calc.description}</p>
 
-                link.href = calc.link;
+            `;
 
-                item.appendChild(link);
+            card.appendChild(calcCard);
 
-                list.appendChild(item);
-
-            });
-
-        card.appendChild(list);
+        });
 
         container.appendChild(card);
 
     });
 
 }
+
+buildHomepage();
+
+searchInput.addEventListener("input", () => {
+
+    buildHomepage(searchInput.value);
+
+});

@@ -15,6 +15,13 @@ const calculators = [
     },
 
     {
+        name: "Bearing PV",
+        category: "Mechanical",
+        description: "Coming Soon",
+        link: "#"
+    },
+
+    {
         name: "Bolt Torque",
         category: "Fasteners",
         description: "Coming Soon",
