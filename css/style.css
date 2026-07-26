@@ -1,8 +1,12 @@
-/* =====================================================
+/* =========================================
    Engineering Calcs Pro
-   Global Styles
-===================================================== */
+   Main Stylesheet
+========================================= */
 
+
+/* =====================
+   GLOBAL
+===================== */
 
 body {
 
@@ -12,32 +16,39 @@ body {
 
     background: #f5f5f5;
 
+    color: #333;
+
 }
 
 
 .container {
 
-    max-width: 1100px;
+    max-width: 1000px;
 
     margin: auto;
 
-    padding: 40px;
+    padding: 30px 25px;
 
 }
+
+
+/* =====================
+   HEADERS
+===================== */
 
 
 h1 {
 
     color: #0b5394;
 
-    margin-bottom: 10px;
+    margin: 0 0 10px 0;
 
 }
 
 
-header {
+h2 {
 
-    margin-bottom: 30px;
+    color: #0b5394;
 
 }
 
@@ -46,140 +57,9 @@ header p {
 
     color: #555;
 
-}
+    font-size: 17px;
 
-
-
-/* =====================================================
-   Homepage
-===================================================== */
-
-
-.search-box {
-
-    margin-bottom: 35px;
-
-}
-
-
-.search-box input {
-
-    width: 100%;
-
-    padding: 14px;
-
-    font-size: 16px;
-
-    border-radius: 8px;
-
-    border: 1px solid #ccc;
-
-    box-sizing: border-box;
-
-}
-
-
-.card-container {
-
-    display: grid;
-
-    gap: 30px;
-
-}
-
-
-
-.category-card {
-
-    background: white;
-
-    border-radius: 12px;
-
-    padding: 25px;
-
-    box-shadow: 0 2px 10px rgba(0,0,0,.1);
-
-}
-
-
-.category-card h2 {
-
-    margin-top: 0;
-
-    color: #0b5394;
-
-}
-
-
-
-.calculator-card {
-
-    display: block;
-
-    text-decoration: none;
-
-    color: inherit;
-
-    border: 1px solid #ddd;
-
-    border-radius: 8px;
-
-    padding: 16px;
-
-    margin-top: 15px;
-
-    transition: .2s;
-
-}
-
-
-
-.calculator-card:hover {
-
-    background: #f7fbff;
-
-    border-color: #0b5394;
-
-    transform: translateY(-2px);
-
-}
-
-
-
-.calculator-card h3 {
-
-    margin: 0 0 6px 0;
-
-}
-
-
-
-.calculator-card p {
-
-    margin: 0;
-
-    color: #666;
-
-}
-
-
-
-/* =====================================================
-   Calculator Pages
-===================================================== */
-
-
-.back-link {
-
-    display: inline-block;
-
-    margin-bottom: 25px;
-
-    text-decoration: none;
-
-    color: #0b5394;
-
-    font-weight: bold;
+    line-height: 1.5;
 
 }
 
@@ -187,343 +67,213 @@ header p {
 
 .calculator-header {
 
-    margin-bottom: 35px;
+    margin-bottom: 25px;
 
 }
 
 
 
-.calculator-header h1 {
+/* =====================
+   LINKS
+===================== */
 
-    margin-bottom: 15px;
+
+.back-link {
+
+    display: inline-block;
+
+    margin-bottom: 20px;
+
+    color: #0b5394;
+
+    text-decoration: none;
+
+    font-weight: bold;
 
 }
 
 
 
-.calculator-header p {
+/* =====================
+   SEARCH
+===================== */
 
-    font-size: 18px;
 
-    line-height: 1.6;
+.search-box {
 
-    color: #555;
+    margin-bottom: 25px;
+
+}
+
+
+.search-box input {
+
+    width:100%;
+
+    padding:12px;
+
+    font-size:16px;
+
+    border-radius:8px;
+
+    border:1px solid #ccc;
+
+    box-sizing:border-box;
 
 }
 
 
 
-/* Main section cards */
+/* =====================
+   HOMEPAGE CARDS
+===================== */
+
+
+.card-container {
+
+    display:grid;
+
+    gap:25px;
+
+}
+
+
+.category-card {
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:12px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+
+}
+
+
+.category-card h2 {
+
+    margin-top:0;
+
+}
+
+
+
+.calculator-card {
+
+    display:block;
+
+    text-decoration:none;
+
+    color:inherit;
+
+    background:#fbfdff;
+
+    border:1px solid #ddd;
+
+    border-radius:10px;
+
+    padding:15px;
+
+    margin-top:15px;
+
+    transition:.2s;
+
+}
+
+
+
+.calculator-card:hover {
+
+    background:#f7fbff;
+
+    border-color:#0b5394;
+
+    transform:translateY(-2px);
+
+}
+
+
+
+.calculator-card h3 {
+
+    margin:0 0 8px 0;
+
+}
+
+
+.calculator-card p {
+
+    margin:0;
+
+    color:#666;
+
+}
+
+
+
+
+/* =====================
+   CONTENT CARDS
+===================== */
+
 
 .content-card {
 
-    background: white;
+    background:white;
 
-    border-radius: 12px;
+    border-radius:12px;
 
-    padding: 35px;
+    padding:22px;
 
-    margin-bottom: 40px;
+    margin-bottom:25px;
 
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
 
 }
-
 
 
 .content-card h2 {
 
-    margin-top: 0;
+    margin-top:0;
 
-    margin-bottom: 30px;
-
-    color: #0b5394;
-
-    font-size: 24px;
+    margin-bottom:15px;
 
 }
 
 
 
-/* Main calculator card */
-
-.calculator-box {
-
-    background: #fbfdff;
-
-    border: 2px solid #d8e9ff;
-
-}
-
-
-
-/* Equation section */
-
-.formula-card {
-
-    text-align: center;
-
-}
+/* =====================
+   EQUATION
+===================== */
 
 
 .formula-box {
 
-    font-size: 36px;
+    background:#f5f5f5;
 
-    font-weight: bold;
+    border-radius:10px;
 
-    background: #f5f5f5;
+    padding:18px;
 
-    border-radius: 10px;
+    margin:15px 0;
 
-    padding: 30px;
+    text-align:center;
 
-    margin: 25px 0;
+    font-size:28px;
 
-}
-
-
-
-/* =====================================================
-   Calculator Inputs
-===================================================== */
-
-
-.input-label {
-
-    display: block;
-
-    font-size: 17px;
-
-    font-weight: bold;
-
-    margin-bottom: 12px;
-
-    margin-top: 25px;
-
-    color: #444;
+    font-weight:bold;
 
 }
 
 
-
-.input-row {
-
-    display: flex;
-
-    gap: 20px;
-
-    margin-bottom: 35px;
-
-}
-
-
-
-.input-row input {
-
-    flex: 1;
-
-    padding: 15px;
-
-    font-size: 16px;
-
-    border-radius: 6px;
-
-    border: 1px solid #ccc;
-
-}
-
-
-
-.input-row select {
-
-    width: 130px;
-
-    padding: 15px;
-
-    font-size: 16px;
-
-    border-radius: 6px;
-
-    border: 1px solid #ccc;
-
-}
-
-
-
-.output-select {
-
-    width: 220px;
-
-    padding: 15px;
-
-    font-size: 16px;
-
-    margin-bottom: 40px;
-
-    border-radius: 6px;
-
-    border: 1px solid #ccc;
-
-}
-
-
-
-/* =====================================================
-   Buttons
-===================================================== */
-
-
-.button-row {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 18px;
-
-    margin-top: 20px;
-
-    margin-bottom: 40px;
-
-}
-
-
-
-.calculator-box button {
-
-    padding: 16px;
-
-    font-size: 17px;
-
-    border-radius: 8px;
-
-    background: #0b5394;
-
-    color: white;
-
-    border: none;
-
-    cursor: pointer;
-
-}
-
-
-
-.calculator-box button:hover {
-
-    opacity: .85;
-
-}
-
-
-
-.secondary-button {
-
-    background: #e8e8e8 !important;
-
-    color: #333 !important;
-
-}
-
-
-
-/* =====================================================
-   Results
-===================================================== */
-
-
-.result-panel {
-
-    margin-top: 30px;
-
-    padding: 30px;
-
-    background: #f7fbff;
-
-    border-radius: 12px;
-
-    border: 1px solid #d4e5fa;
-
-}
-
-
-
-.result-panel h3 {
-
-    margin-top: 0;
-
-}
-
-
-
-.result-value {
-
-    font-size: 38px;
-
-    font-weight: bold;
-
-    color: #0b5394;
-
-    margin: 15px 0 25px;
-
-}
-
-
-
-/* =====================================================
-   Supporting Sections
-===================================================== */
-
-
-.example-box {
-
-    background: #f8f8f8;
-
-    border-left: 5px solid #0b5394;
-
-    padding: 18px;
-
-    border-radius: 8px;
-
-}
-
-
-
-.content-card ul {
-
-    padding-left: 22px;
-
-}
-
-
-
-.content-card li {
-
-    margin-bottom: 10px;
-
-}
-
-
-
-hr {
-
-    margin: 40px 0;
-
-}
-
-/* Engineering Diagrams */
 
 
 .engineering-diagram {
 
-    margin-top:40px;
+    max-width:600px;
 
-    padding:25px;
-
-    background:#fafafa;
-
-    border-radius:12px;
+    margin:10px auto;
 
 }
 
@@ -532,33 +282,279 @@ hr {
 
     width:100%;
 
-    max-width:600px;
+    height:auto;
+
+}
+
+
+
+/* =====================
+   CALCULATOR INPUTS
+===================== */
+
+
+.calculator-section {
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:12px;
+
+    margin-bottom:25px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+
+}
+
+
+
+.input-label {
 
     display:block;
 
-    margin:auto;
+    font-size:17px;
 
-}
+    font-weight:bold;
 
-.content-card ul {
+    margin-top:18px;
 
-    line-height:1.8;
+    margin-bottom:8px;
 
-}
-
-.equation-description {
-
-    margin-top:30px;
-
-    margin-bottom:30px;
-
-    text-align:left;
+    color:#444;
 
 }
 
 
-.equation-description ul {
 
-    line-height:1.8;
+.input-row {
+
+    display:flex;
+
+    gap:15px;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.input-row input {
+
+    flex:1;
+
+    padding:12px;
+
+    font-size:16px;
+
+    border-radius:6px;
+
+    border:1px solid #ccc;
+
+}
+
+
+
+.input-row select {
+
+    width:120px;
+
+    padding:12px;
+
+    font-size:16px;
+
+    border-radius:6px;
+
+    border:1px solid #ccc;
+
+}
+
+
+
+.output-select {
+
+    width:220px;
+
+    padding:12px;
+
+    font-size:16px;
+
+    border-radius:6px;
+
+    border:1px solid #ccc;
+
+}
+
+
+
+
+.section-divider {
+
+    border:none;
+
+    border-top:1px solid #ddd;
+
+    margin:25px 0;
+
+}
+
+
+
+
+/* =====================
+   BUTTONS
+===================== */
+
+
+.button-row {
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:25px;
+
+    margin-bottom:25px;
+
+}
+
+
+
+button {
+
+    padding:14px 25px;
+
+    background:#0b5394;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+}
+
+
+
+button:hover {
+
+    opacity:.85;
+
+}
+
+
+
+.secondary-button {
+
+    background:#e8e8e8 !important;
+
+    color:#333 !important;
+
+}
+
+
+
+/* =====================
+   RESULTS
+===================== */
+
+
+.result-panel {
+
+    background:#f7fbff;
+
+    border:1px solid #d4e5fa;
+
+    border-radius:10px;
+
+    padding:22px;
+
+    margin-top:25px;
+
+}
+
+
+
+.result-value {
+
+    font-size:34px;
+
+    font-weight:bold;
+
+    color:#0b5394;
+
+    margin:15px 0;
+
+}
+
+
+
+
+/* =====================
+   EXAMPLES / NOTES
+===================== */
+
+
+.example-box {
+
+    background:#f8f8f8;
+
+    border-left:5px solid #0b5394;
+
+    padding:15px;
+
+    border-radius:8px;
+
+}
+
+
+
+.content-card li {
+
+    margin-bottom:8px;
+
+}
+
+
+
+/* =====================
+   MOBILE
+===================== */
+
+
+@media(max-width:700px){
+
+
+    .container {
+
+        padding:20px 15px;
+
+    }
+
+
+    .input-row {
+
+        flex-direction:column;
+
+    }
+
+
+    .input-row select {
+
+        width:100%;
+
+    }
+
+
+    .button-row {
+
+        flex-direction:column;
+
+    }
+
 
 }
