@@ -274,5 +274,69 @@ header p {
     font-size: 15px;
 
 }
+.input-grid{
 
+display:grid;
+
+grid-template-columns:140px 1fr 110px;
+
+gap:15px;
+
+align-items:center;
+
+margin-bottom:25px;
+
+}
+
+
+
+.button-row{
+
+display:flex;
+
+gap:15px;
+
+margin-bottom:25px;
+
+}
+
+
+
+.secondary-button{
+
+background:#e8e8e8 !important;
+
+color:#333 !important;
+
+}
+
+
+
+.result-panel{
+
+margin-top:20px;
+
+padding:25px;
+
+background:#f8fbff;
+
+border:1px solid #cddff6;
+
+border-radius:10px;
+
+}
+
+
+
+.result-value{
+
+font-size:34px;
+
+font-weight:bold;
+
+color:#0b5394;
+
+margin-bottom:20px;
+
+}
 }

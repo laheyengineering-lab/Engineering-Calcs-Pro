@@ -1,15 +1,19 @@
 function calculateMoment() {
 
-    const force =
-        Number(document.getElementById("force").value);
+    const force = Number(document.getElementById("force").value);
 
-    const distance =
-        Number(document.getElementById("distance").value);
+    const distance = Number(document.getElementById("distance").value);
+
+    const result = document.getElementById("result");
+
 
     if (isNaN(force) || isNaN(distance)) {
 
-        document.getElementById("result").innerHTML =
-            "Please enter valid numbers.";
+        result.innerHTML = `
+            <h3>Invalid Input</h3>
+
+            <p>Please enter valid numeric values.</p>
+        `;
 
         return;
 
@@ -32,33 +36,66 @@ function calculateMoment() {
     const distanceM =
         convertDistance(distance, distanceUnit);
 
-
     const momentNm =
         forceN * distanceM;
-
 
     const output =
         convertMoment(momentNm, outputUnit);
 
 
-    document.getElementById("result").innerHTML = `
+    result.innerHTML = `
 
         <h3>Result</h3>
 
-        <p>
+        <div class="result-value">
 
-            <strong>
-
-            ${output.toLocaleString(undefined, {
-                maximumFractionDigits: 3
+            ${output.toLocaleString(undefined,{
+                maximumFractionDigits:3
             })}
 
             ${outputUnit}
 
-            </strong>
+        </div>
+
+        <hr>
+
+        <p>
+
+        <strong>Calculation Summary</strong>
+
+        </p>
+
+        <p>
+
+        ${force} ${forceUnit}
+        ×
+        ${distance} ${distanceUnit}
+
+        </p>
+
+        <p>
+
+        =
+        ${output.toLocaleString(undefined,{
+            maximumFractionDigits:3
+        })}
+
+        ${outputUnit}
 
         </p>
 
     `;
+
+}
+
+
+
+function resetToSI() {
+
+    document.getElementById("forceUnit").value="N";
+
+    document.getElementById("distanceUnit").value="m";
+
+    document.getElementById("momentUnit").value="N·m";
 
 }

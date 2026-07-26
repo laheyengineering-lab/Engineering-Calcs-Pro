@@ -63,89 +63,87 @@
 
     <section class="calculator-section">
 
-        <h2>Calculator</h2>
+    <h2>Calculator</h2>
+
+    <div class="input-grid">
 
         <label>Force</label>
 
-        <div class="input-row">
-
         <input
-        id="force"
-        type="number"
-        placeholder="Enter force"
+            id="force"
+            type="number"
+            placeholder="Enter value"
         >
 
         <select id="forceUnit">
 
-        <option>N</option>
-
-        <option>kN</option>
-
-        <option>lbf</option>
+            <option>N</option>
+            <option>kN</option>
+            <option>lbf</option>
 
         </select>
-
-        </div>
 
 
         <label>Distance</label>
 
-        <div class="input-row">
-
         <input
-        id="distance"
-        type="number"
-        placeholder="Enter distance"
+            id="distance"
+            type="number"
+            placeholder="Enter value"
         >
 
         <select id="distanceUnit">
 
-        <option>mm</option>
-
-        <option>cm</option>
-
-        <option>m</option>
-
-        <option>in</option>
-
-        <option>ft</option>
+            <option>mm</option>
+            <option>cm</option>
+            <option>m</option>
+            <option>in</option>
+            <option>ft</option>
 
         </select>
 
-        </div>
 
+        <label>Output</label>
 
-        <label>Output Units</label>
+        <div></div>
 
         <select id="momentUnit">
 
-        <option>N·mm</option>
-
-        <option>N·m</option>
-
-        <option>kN·m</option>
-
-        <option>lbf·in</option>
-
-        <option>lbf·ft</option>
+            <option>N·mm</option>
+            <option>N·m</option>
+            <option>kN·m</option>
+            <option>lbf·in</option>
+            <option>lbf·ft</option>
 
         </select>
 
-
-        <br><br>
-
-        <button onclick="calculateMoment()">
-
-        Calculate Moment
-
-        </button>
+    </div>
 
 
-        <div id="result" class="result-box">
+    <div class="button-row">
 
-        Enter values and press Calculate Moment.
+    <button onclick="calculateMoment()">
 
-        </div>
+    Calculate Moment
+
+    </button>
+
+    <button
+    class="secondary-button"
+    onclick="resetToSI()">
+
+    Reset to SI
+
+    </button>
+
+    </div>
+
+
+    <div id="result" class="result-panel">
+
+    Ready to calculate.
+
+    </div>
 
     </section>
 
