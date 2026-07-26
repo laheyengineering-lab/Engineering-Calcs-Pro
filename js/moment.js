@@ -71,5 +71,4 @@ function resetToSI(){
     document.getElementById("result").innerHTML =
     "Ready to calculate.";
 
-
 }
