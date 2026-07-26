@@ -65,32 +65,87 @@
 
         <h2>Calculator</h2>
 
+        <label>Force</label>
 
-        <label>
-            Force (N)
-        </label>
+        <div class="input-row">
 
-        <input id="force" type="number" placeholder="Enter force">
+        <input
+        id="force"
+        type="number"
+        placeholder="Enter force"
+        >
+
+        <select id="forceUnit">
+
+        <option>N</option>
+
+        <option>kN</option>
+
+        <option>lbf</option>
+
+        </select>
+
+        </div>
 
 
-        <label>
-            Distance (mm)
-        </label>
+        <label>Distance</label>
 
-        <input id="distance" type="number" placeholder="Enter distance">
+        <div class="input-row">
 
+        <input
+        id="distance"
+        type="number"
+        placeholder="Enter distance"
+        >
+
+        <select id="distanceUnit">
+
+        <option>mm</option>
+
+        <option>cm</option>
+
+        <option>m</option>
+
+        <option>in</option>
+
+        <option>ft</option>
+
+        </select>
+
+        </div>
+
+
+        <label>Output Units</label>
+
+        <select id="momentUnit">
+
+        <option>N·mm</option>
+
+        <option>N·m</option>
+
+        <option>kN·m</option>
+
+        <option>lbf·in</option>
+
+        <option>lbf·ft</option>
+
+        </select>
+
+
+        <br><br>
 
         <button onclick="calculateMoment()">
-            Calculate
+
+        Calculate Moment
+
         </button>
 
 
         <div id="result" class="result-box">
 
-            Enter values and calculate.
+        Enter values and press Calculate Moment.
 
         </div>
-
 
     </section>
 
@@ -190,7 +245,7 @@
 
 </div>
 
-
+<script src="../js/units.js"></script>
 <script src="../js/moment.js"></script>
 
 

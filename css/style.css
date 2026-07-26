@@ -235,6 +235,44 @@ header p {
 
 }
 
+.input-row {
 
+    display: flex;
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+
+}
+
+.input-row input {
+
+    flex: 1;
+
+}
+
+.input-row select {
+
+    width: 120px;
+
+    padding: 12px;
+
+    border-radius: 6px;
+
+    border: 1px solid #ccc;
+
+}
+
+.calculator-section select {
+
+    padding: 12px;
+
+    border-radius: 6px;
+
+    border: 1px solid #ccc;
+
+    font-size: 15px;
+
+}
 
 }
