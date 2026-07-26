@@ -61,89 +61,115 @@
 
 
 
-    <section class="calculator-section">
+   <section class="calculator-section">
 
-    <h2>Calculator</h2>
+        <h2>Calculator</h2>
 
-    <div class="input-grid">
+        <label class="input-label">
 
-        <label>Force</label>
+        Force
+
+        </label>
+
+        <div class="input-row">
 
         <input
-            id="force"
-            type="number"
-            placeholder="Enter value"
+        id="force"
+        type="number"
+        placeholder="Enter force"
         >
 
         <select id="forceUnit">
 
-            <option>N</option>
-            <option>kN</option>
-            <option>lbf</option>
+        <option>N</option>
+        <option>kN</option>
+        <option>lbf</option>
 
         </select>
 
+        </div>
 
-        <label>Distance</label>
+
+
+        <label class="input-label">
+
+        Distance
+
+        </label>
+
+        <div class="input-row">
 
         <input
-            id="distance"
-            type="number"
-            placeholder="Enter value"
+        id="distance"
+        type="number"
+        placeholder="Enter distance"
         >
 
         <select id="distanceUnit">
 
-            <option>mm</option>
-            <option>cm</option>
-            <option>m</option>
-            <option>in</option>
-            <option>ft</option>
+        <option>mm</option>
+        <option>cm</option>
+        <option>m</option>
+        <option>in</option>
+        <option>ft</option>
+
+        </select>
+
+        </div>
+
+
+
+        <hr class="section-divider">
+
+
+
+        <label class="input-label">
+
+        Output Units
+
+        </label>
+
+        <select
+        id="momentUnit"
+        class="output-select">
+
+        <option>N·mm</option>
+        <option>N·m</option>
+        <option>kN·m</option>
+        <option>lbf·in</option>
+        <option>lbf·ft</option>
 
         </select>
 
 
-        <label>Output</label>
 
-        <div></div>
+        <div class="button-row">
 
-        <select id="momentUnit">
+        <button onclick="calculateMoment()">
 
-            <option>N·mm</option>
-            <option>N·m</option>
-            <option>kN·m</option>
-            <option>lbf·in</option>
-            <option>lbf·ft</option>
+        Calculate Moment
 
-        </select>
+        </button>
 
-    </div>
+        <button
+        class="secondary-button"
+        onclick="resetToSI()">
 
+        Reset to SI
 
-    <div class="button-row">
+        </button>
 
-    <button onclick="calculateMoment()">
-
-    Calculate Moment
-
-    </button>
-
-    <button
-    class="secondary-button"
-    onclick="resetToSI()">
-
-    Reset to SI
-
-    </button>
-
-    </div>
+        </div>
 
 
-    <div id="result" class="result-panel">
 
-    Ready to calculate.
+        <div
+        id="result"
+        class="result-panel">
 
-    </div>
+        Ready to calculate.
+
+        </div>
 
     </section>
 
