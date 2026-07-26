@@ -130,14 +130,15 @@ fill="#0b5394"
 
 
 <text
-x="110"
-y="135"
+x="75"
+y="210"
 font-size="24"
 fill="#0b5394">
 
 Pivot
 
 </text>
+
 
 
 
@@ -185,46 +186,57 @@ F
 
 <!-- =====================
      MOMENT ROTATION ARROW
-     10 o'clock to 2 o'clock
 ===================== -->
-
-
-<path
-d="
-M 95 115
-A 80 80 0 0 1 205 115
-"
-fill="none"
-stroke="#0b5394"
-stroke-width="6"
-/>
-
-
-<!-- Arrowhead at end of rotation arc -->
-
-<polygon
-points="
-205,115
-185,105
-190,130
-"
-fill="#0b5394"
-/>
-
 
 
 <!-- Moment label -->
 
 <text
-x="135"
-y="55"
+x="130"
+y="90"
 font-size="42"
-fill="#0b5394"
-font-weight="bold">
+font-weight="bold"
+fill="#0b5394">
 
 M
 
 </text>
+
+
+
+<!-- Same curve shape, moved downward -->
+
+<path
+
+d="
+M 95 160
+C 95 85, 205 85, 205 160
+"
+
+fill="none"
+
+stroke="#0b5394"
+
+stroke-width="6"
+
+/>
+
+
+
+<!-- Arrowhead moved to end of arc -->
+
+<polygon
+
+points="
+220,160
+190,150
+198,175
+"
+"
+
+fill="#0b5394"
+
+/>
 
 
 
@@ -279,8 +291,6 @@ stroke-width="3"
 
 
 
-<!-- Left arrow -->
-
 <polygon
 points="
 150,260
@@ -290,8 +300,6 @@ fill="#555"
 />
 
 
-
-<!-- Right arrow -->
 
 <polygon
 points="
@@ -303,8 +311,6 @@ fill="#555"
 
 
 
-
-<!-- Dimension label -->
 
 <text
 x="265"
