@@ -10,50 +10,16 @@ function calculateMoment() {
     if (isNaN(force) || isNaN(distance)) {
 
         result.innerHTML = `
-            <h3>Invalid Input</h3>
-
-            <p>Please enter valid numeric values.</p>
-        `;
-
-        return;
-
-    }
-
-
-    const forceUnit =
-        document.getElementById("forceUnit").value;
-
-    const distanceUnit =
-        document.getElementById("distanceUnit").value;
-
-    const outputUnit =
-        document.getElementById("momentUnit").value;
-
-
-    const forceN =
-        convertForce(force, forceUnit);
-
-    const distanceM =
-        convertDistance(distance, distanceUnit);
-
-    const momentNm =
-        forceN * distanceM;
-
-    const output =
-        convertMoment(momentNm, outputUnit);
-
-
-    result.innerHTML = `
 
         <h3>Result</h3>
 
         <div class="result-value">
 
-            ${output.toLocaleString(undefined,{
-                maximumFractionDigits:3
-            })}
+        ${output.toLocaleString(undefined,{
+        maximumFractionDigits:3
+        })}
 
-            ${outputUnit}
+        ${outputUnit}
 
         </div>
 
@@ -68,7 +34,9 @@ function calculateMoment() {
         <p>
 
         ${force} ${forceUnit}
+
         ×
+
         ${distance} ${distanceUnit}
 
         </p>
@@ -76,15 +44,20 @@ function calculateMoment() {
         <p>
 
         =
+
+        <strong>
+
         ${output.toLocaleString(undefined,{
-            maximumFractionDigits:3
+        maximumFractionDigits:3
         })}
 
         ${outputUnit}
 
+        </strong>
+
         </p>
 
-    `;
+        `;
 
 }
 
