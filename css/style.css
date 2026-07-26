@@ -511,3 +511,37 @@ hr {
     margin: 40px 0;
 
 }
+
+/* Engineering Diagrams */
+
+
+.engineering-diagram {
+
+    margin-top:40px;
+
+    padding:25px;
+
+    background:#fafafa;
+
+    border-radius:12px;
+
+}
+
+
+.engineering-diagram svg {
+
+    width:100%;
+
+    max-width:600px;
+
+    display:block;
+
+    margin:auto;
+
+}
+
+.content-card ul {
+
+    line-height:1.8;
+
+}
