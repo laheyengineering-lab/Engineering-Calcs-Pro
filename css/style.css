@@ -271,15 +271,17 @@ header p {
 
 .engineering-diagram {
 
-    max-width:600px;
+    max-width:450px;
 
-    margin:10px auto;
+    margin:5px auto;
 
 }
 
 
 .engineering-diagram svg {
 
+    display:block;
+    
     width:100%;
 
     height:auto;
