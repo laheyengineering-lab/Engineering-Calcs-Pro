@@ -3,417 +3,516 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>Moment Calculator | Engineering Calcs Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="../css/style.css">
+<title>Moment Calculator | Engineering Calcs Pro</title>
+
+<link rel="stylesheet" href="../css/style.css">
 
 </head>
 
+
 <body>
 
+
 <div class="container">
 
-    <a href="../index.html" class="back-link">
-        ← Back to Engineering Calcs Pro
-    </a>
+
+<a href="../index.html" class="back-link">
+    ← Back to Engineering Calcs Pro
+</a>
 
 
-    <header class="calculator-header">
 
-        <h1>Moment Calculator</h1>
+<header class="calculator-header">
 
-        <p>
-            Calculate the moment (torque) created by a force acting at a
-            perpendicular distance from a pivot point.
-        </p>
+    <h1>Moment Calculator</h1>
 
-    </header>
-<div class="container">
+    <p>
+        Calculate the moment (torque) created by a force acting at a
+        perpendicular distance from a pivot point.
+    </p>
 
-    <!-- Page title / introduction -->
-    <header class="calculator-header">
-
-        <h1>Moment Calculator</h1>
-
-        <p>
-            Calculate the moment created by a force acting at a distance.
-        </p>
-
-    </header>
+</header>
 
 
-    <!-- NEW: Calculator Information card -->
-    <section class="content-card">
-
-        <h2>Calculator Information</h2>
-
-        <ul>
-
-            <li><strong>Category:</strong> Mechanical Engineering</li>
-
-            <li><strong>Primary Equation:</strong> M = F × d</li>
-
-            <li><strong>SI Units:</strong> Newton-meters (N·m)</li>
-
-            <li><strong>Applications:</strong> Levers, shafts, brackets, fasteners, beams</li>
-
-        </ul>
-
-    </section>
 
 
-    <!-- Equation card -->
-    <section class="content-card formula-card">
 
-        ...
-
-    </section>
+<!-- =========================
+     EQUATION SECTION
+========================= -->
 
 
-    <!-- Calculator card -->
-    <section class="content-card calculator-box">
-
-        ...
-
-    </section>
+<section class="content-card formula-card">
 
 
-    <!-- Example -->
-    <section class="content-card">
+<h2>Equation</h2>
 
-        ...
 
-    </section>
+<div class="formula-box">
+
+M = F × d
+
+</div>
+
+
+
+<div class="engineering-diagram">
+
+
+<svg 
+viewBox="0 0 500 250"
+xmlns="http://www.w3.org/2000/svg">
+
+
+<!-- Beam -->
+
+<line 
+x1="80"
+y1="150"
+x2="420"
+y2="150"
+stroke="black"
+stroke-width="6"
+/>
+
+
+
+<!-- Pivot -->
+
+<circle
+cx="80"
+cy="150"
+r="18"
+fill="#0b5394"
+/>
+
+
+
+<!-- Force Arrow -->
+
+<line
+x1="250"
+y1="50"
+x2="250"
+y2="125"
+stroke="#cc0000"
+stroke-width="5"
+/>
+
+
+<polygon
+points="235,125 265,125 250,150"
+fill="#cc0000"
+/>
+
+
+
+<!-- Distance Line -->
+
+<line
+x1="80"
+y1="200"
+x2="250"
+y2="200"
+stroke="#555"
+stroke-width="3"
+/>
+
+
+
+<text
+x="155"
+y="225"
+font-size="24"
+fill="#555">
+
+d
+
+</text>
+
+
+
+<text
+x="260"
+y="80"
+font-size="24"
+fill="#cc0000">
+
+F
+
+</text>
+
+
+
+<text
+x="35"
+y="190"
+font-size="20">
+
+Pivot
+
+</text>
+
+
+</svg>
 
 
 </div>
 
-<section class="content-card formula-card">
-
-    <h2>Equation</h2>
-
-
-    <div class="formula-box">
-
-    M = F × d
-
-    </div>
-
-
-    <div class="engineering-diagram">
-
-
-    <svg 
-    viewBox="0 0 500 250"
-    xmlns="http://www.w3.org/2000/svg">
-
-
-    <!-- Beam -->
-
-    <line 
-    x1="80"
-    y1="150"
-    x2="420"
-    y2="150"
-    stroke="black"
-    stroke-width="6"
-    />
-
-
-    <!-- Pivot -->
-
-    <circle
-    cx="80"
-    cy="150"
-    r="18"
-    fill="#0b5394"
-    />
-
-
-    <!-- Force Arrow -->
-
-    <line
-    x1="250"
-    y1="50"
-    x2="250"
-    y2="125"
-    stroke="#cc0000"
-    stroke-width="5"
-    />
-
-
-    <polygon
-    points="235,125 265,125 250,150"
-    fill="#cc0000"
-    />
-
-
-    <!-- Distance Line -->
-
-    <line
-    x1="80"
-    y1="200"
-    x2="250"
-    y2="200"
-    stroke="#555"
-    stroke-width="3"
-    />
-
-
-    <text
-    x="155"
-    y="225"
-    font-size="24"
-    fill="#555">
-
-    d
-
-    </text>
-
-
-    <text
-    x="260"
-    y="80"
-    font-size="24"
-    fill="#cc0000">
-
-    F
-
-    </text>
-
-
-    <text
-    x="55"
-    y="190"
-    font-size="20">
-
-    Pivot
-
-    </text>
-
-
-    </svg>
-
-
-    </div>
 
 </section>
 
 
 
-   <section class="content-card calculator-box">
 
-        <h2>Calculator</h2>
 
-        <label class="input-label">
 
-        Force
 
-        </label>
+<!-- =========================
+     CALCULATOR SECTION
+========================= -->
 
-        <div class="input-row">
 
-        <input
-        id="force"
-        type="number"
-        placeholder="Enter force"
-        >
+<section class="content-card calculator-box">
 
-        <select id="forceUnit">
 
-        <option>N</option>
-        <option>kN</option>
-        <option>lbf</option>
+<h2>Calculator</h2>
 
-        </select>
 
-        </div>
 
 
+<label class="input-label">
 
-        <label class="input-label">
+Force
 
-        Distance
+</label>
 
-        </label>
 
-        <div class="input-row">
+<div class="input-row">
 
-        <input
-        id="distance"
-        type="number"
-        placeholder="Enter distance"
-        >
 
-        <select id="distanceUnit">
+<input
+id="force"
+type="number"
+placeholder="Enter force"
+>
 
-        <option>mm</option>
-        <option>cm</option>
-        <option>m</option>
-        <option>in</option>
-        <option>ft</option>
 
-        </select>
+<select id="forceUnit">
 
-        </div>
+<option>N</option>
 
+<option>kN</option>
 
+<option>lbf</option>
 
-        <hr class="section-divider">
-
-
-
-        <label class="input-label">
-
-        Output Units
-
-        </label>
-
-        <select
-        id="momentUnit"
-        class="output-select">
-
-        <option>N·mm</option>
-        <option>N·m</option>
-        <option>kN·m</option>
-        <option>lbf·in</option>
-        <option>lbf·ft</option>
-
-        </select>
-
-
-
-        <div class="button-row">
-
-        <button onclick="calculateMoment()">
-
-        Calculate Moment
-
-        </button>
-
-        <button
-        class="secondary-button"
-        onclick="resetToSI()">
-
-        Reset to SI
-
-        </button>
-
-        </div>
-
-
-
-        <div
-        id="result"
-        class="result-panel">
-
-        Ready to calculate.
-
-        </div>
-
-    </section>
-
-
-
-    <section class="content-card">
-
-        <h2>Worked Example</h2>
-
-        <div class="example-box">
-
-            <p>
-                Given:
-            </p>
-
-            <p>
-                Force = 100 N
-            </p>
-
-            <p>
-                Distance = 25 mm
-            </p>
-
-            <p>
-                M = 100 × 25
-            </p>
-
-            <p>
-                <strong>
-                    M = 2500 N·mm
-                </strong>
-            </p>
-
-        </div>
-
-    </section>
-
-
-
-    <section class="content-card">
-
-        <h2>Engineering Notes</h2>
-
-        <ul>
-
-            <li>
-                Moment depends on perpendicular distance from the pivot.
-            </li>
-
-            <li>
-                Keep units consistent throughout the calculation.
-            </li>
-
-            <li>
-                Sign convention depends on the direction of rotation.
-            </li>
-
-        </ul>
-
-    </section>
-
-
-
-    <section class="content-card">
-
-        <h2>Applications</h2>
-
-        <ul>
-
-            <li>Machine design</li>
-            <li>Statics problems</li>
-            <li>Fastener loading</li>
-            <li>Shaft and lever analysis</li>
-
-        </ul>
-
-    </section>
-
-
-
-    <section class="content-card">
-
-        <h2>Related Calculators</h2>
-
-        <ul>
-
-            <li>Beam Deflection (Coming Soon)</li>
-
-            <li>Bolt Torque (Coming Soon)</li>
-
-            <li>Stress Calculator (Coming Soon)</li>
-
-        </ul>
-
-    </section>
+</select>
 
 
 </div>
 
+
+
+
+
+
+<label class="input-label">
+
+Distance
+
+</label>
+
+
+<div class="input-row">
+
+
+<input
+id="distance"
+type="number"
+placeholder="Enter distance"
+>
+
+
+<select id="distanceUnit">
+
+<option>mm</option>
+
+<option>cm</option>
+
+<option>m</option>
+
+<option>in</option>
+
+<option>ft</option>
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+
+<label class="input-label">
+
+Output Units
+
+</label>
+
+
+
+<select
+id="momentUnit"
+class="output-select">
+
+
+<option>N·mm</option>
+
+<option selected>N·m</option>
+
+<option>kN·m</option>
+
+<option>lbf·in</option>
+
+<option>lbf·ft</option>
+
+
+</select>
+
+
+
+
+
+
+
+<div class="button-row">
+
+
+<button onclick="calculateMoment()">
+
+Calculate Moment
+
+</button>
+
+
+
+<button
+class="secondary-button"
+onclick="resetToSI()">
+
+Reset to SI
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<div
+id="result"
+class="result-panel">
+
+Ready to calculate.
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- =========================
+     WORKED EXAMPLE
+========================= -->
+
+
+<section class="content-card">
+
+
+<h2>Worked Example</h2>
+
+
+<div class="example-box">
+
+
+<p>
+Given:
+</p>
+
+
+<p>
+Force = 100 N
+</p>
+
+
+<p>
+Distance = 25 mm
+</p>
+
+
+<p>
+M = 100 × 25
+</p>
+
+
+<p>
+
+<strong>
+
+M = 2500 N·mm
+
+</strong>
+
+</p>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- =========================
+     ENGINEERING NOTES
+========================= -->
+
+
+<section class="content-card">
+
+
+<h2>Engineering Notes</h2>
+
+
+<ul>
+
+
+<li>
+Moment depends on perpendicular distance from the pivot.
+</li>
+
+
+<li>
+Keep units consistent throughout the calculation.
+</li>
+
+
+<li>
+Sign convention depends on the direction of rotation.
+</li>
+
+
+</ul>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- =========================
+     APPLICATIONS
+========================= -->
+
+
+<section class="content-card">
+
+
+<h2>Applications</h2>
+
+
+<ul>
+
+<li>Machine design</li>
+
+<li>Statics problems</li>
+
+<li>Fastener loading</li>
+
+<li>Shaft and lever analysis</li>
+
+
+</ul>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- =========================
+     RELATED CALCULATORS
+========================= -->
+
+
+<section class="content-card">
+
+
+<h2>Related Calculators</h2>
+
+
+<ul>
+
+<li>Beam Deflection (Coming Soon)</li>
+
+<li>Bolt Torque (Coming Soon)</li>
+
+<li>Stress Calculator (Coming Soon)</li>
+
+
+</ul>
+
+
+</section>
+
+
+
+
+
+</div>
+
+
+
+
+
 <script src="../js/units.js"></script>
+
 <script src="../js/moment.js"></script>
+
 
 
 </body>
