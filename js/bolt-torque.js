@@ -1,25 +1,28 @@
 function calculateBoltTorque() {
 
-    const boltDiameter = Number(document.getElementById("boltDiameter").value);
+    const boltDiameter = getBoltDiameterFromSelection();
     const clampLoad = Number(document.getElementById("clampLoad").value);
     const nutFactor = Number(document.getElementById("nutFactor").value);
 
     const result = document.getElementById("result");
 
-    if (isNaN(boltDiameter) || isNaN(clampLoad) || isNaN(nutFactor) || 
-        boltDiameter === 0 || clampLoad === 0 || nutFactor === 0) {
+    if (isNaN(boltDiameter) || boltDiameter === 0 || isNaN(clampLoad) || isNaN(nutFactor) || 
+        clampLoad === 0 || nutFactor === 0) {
 
         result.innerHTML = `
             <h3>Invalid Input</h3>
-            <p>Please enter valid values for bolt diameter, clamp load, and nut factor.</p>
+            <p>Please select a bolt size, enter clamp load, and verify nut factor.</p>
         `;
 
         return;
     }
 
-    const diameterUnit = document.getElementById("diameterUnit").value;
+    const unitSystem = document.getElementById("unitSystem").value;
     const loadUnit = document.getElementById("loadUnit").value;
     const outputUnit = document.getElementById("torqueUnit").value;
+
+    // Determine diameter unit based on system
+    const diameterUnit = unitSystem === "metric" ? "mm" : "in";
 
     // Convert to base units (meters and Newtons)
     const diameterM = convertDistance(boltDiameter, diameterUnit);
@@ -72,36 +75,35 @@ function calculateBoltTorque() {
     `;
 }
 
+function updateDiameterDisplay() {
+
+    const boltDiameter = getBoltDiameterFromSelection();
+    const unitSystem = document.getElementById("unitSystem").value;
+    const unitDisplay = unitSystem === "metric" ? "mm" : "in";
+
+    if (boltDiameter) {
+        document.getElementById("diameterDisplay").textContent = boltDiameter.toFixed(3);
+    } else {
+        document.getElementById("diameterDisplay").textContent = "--";
+    }
+
+}
+
 function resetTorqueCalculator(){
 
-    document.getElementById("boltDiameter").value="";
+    document.getElementById("boltSize").value = "";
 
-    document.getElementById("clampLoad").value="";
+    document.getElementById("clampLoad").value = "";
 
-    document.getElementById("nutFactor").value="0.20";
+    document.getElementById("nutFactor").value = "0.20";
 
-    document.getElementById("diameterUnit").value="mm";
+    document.getElementById("diameterDisplay").textContent = "--";
 
-    document.getElementById("loadUnit").value="N";
-
-    document.getElementById("torqueUnit").value="N·m";
-
-    document.getElementById("unitSystem").value="metric";
-
-    document.getElementById("result").innerHTML =
-    "Ready to calculate.";
+    document.getElementById("result").innerHTML = "Ready to calculate.";
 
 }
 
-function updateBoltSizes(){
-
-    const unitSystem = document.getElementById("unitSystem").value;
-    
-    if(unitSystem === "metric"){
-        document.getElementById("diameterUnit").value = "mm";
-        document.getElementById("loadUnit").value = "N";
-    } else {
-        document.getElementById("diameterUnit").value = "in";
-        document.getElementById("loadUnit").value = "lbf";
-    }
-}
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", function() {
+    populateBoltSizes();
+});
