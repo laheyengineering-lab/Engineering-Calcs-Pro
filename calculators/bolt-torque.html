@@ -214,11 +214,11 @@ Unit System
 </label>
 
 
-<select id="unitSystem" class="output-select" onchange="updateBoltSizes()">
+<select id="unitSystem" class="output-select" onchange="updateBoltCalculator()">
 
-<option value="metric" selected>Metric (mm)</option>
+<option value="metric" selected>Metric (ISO)</option>
 
-<option value="imperial">Imperial (in)</option>
+<option value="imperial">Imperial (UTS)</option>
 
 </select>
 
@@ -227,30 +227,22 @@ Unit System
 
 <label class="input-label">
 
-Bolt Diameter
+Bolt Size
 
 </label>
 
 
-<div class="input-row">
+<select id="boltSize" class="output-select" onchange="updateDiameterDisplay()">
 
-<input
-id="boltDiameter"
-type="number"
-placeholder="Enter bolt diameter"
-step="0.1"
->
-
-<select id="diameterUnit">
-
-<option>mm</option>
-
-<option>cm</option>
-
-<option>in</option>
+<option value="">-- Select Bolt Size --</option>
 
 </select>
 
+
+<div style="background-color: #f9f9f9; padding: 10px; margin: 10px 0; border-radius: 6px; border-left: 3px solid #0b5394;">
+    <p style="margin: 0; font-size: 14px; color: #666;">
+        <strong>Diameter:</strong> <span id="diameterDisplay">--</span> <span id="diameterUnitDisplay">mm</span>
+    </p>
 </div>
 
 
@@ -406,6 +398,11 @@ class="output-select">
 
 <p>
 <strong>Given:</strong>
+</p>
+
+
+<p>
+Bolt Size: M10
 </p>
 
 
@@ -580,6 +577,7 @@ Use calibrated torque wrenches for critical fastening operations.
 </div>
 
 <script src="../js/units.js"></script>
+<script src="../js/bolt-database.js"></script>
 <script src="../js/bolt-torque.js"></script>
 
 </body>
