@@ -309,164 +309,163 @@
         <section class="content-card calculator-box">
 
 
-            <h2>Calculator</h2>
+    <h2>Calculator</h2>
 
 
 
+    <h3>Inputs</h3>
 
 
-            <label class="input-label">
 
-            Force
+    <label class="input-label">
 
-            </label>
+    Force
 
+    </label>
 
 
-            <div class="input-row">
+    <div class="input-row">
 
 
-                <input
-                id="force"
-                type="number"
-                placeholder="Enter force"
-                >
+        <input
+        id="force"
+        type="number"
+        placeholder="Enter force"
+        >
 
 
+        <select id="forceUnit">
 
-                <select id="forceUnit">
+            <option>N</option>
 
-                    <option>N</option>
+            <option>kN</option>
 
-                    <option>kN</option>
+            <option>lbf</option>
 
-                    <option>lbf</option>
+        </select>
 
-                </select>
 
+    </div>
 
-            </div>
 
 
 
 
+    <label class="input-label">
 
-            <label class="input-label">
+    Distance
 
-            Distance
+    </label>
 
-            </label>
 
+    <div class="input-row">
 
 
-            <div class="input-row">
+        <input
+        id="distance"
+        type="number"
+        placeholder="Enter distance"
+        >
 
 
-                <input
-                id="distance"
-                type="number"
-                placeholder="Enter distance"
-                >
+        <select id="distanceUnit">
 
+            <option>mm</option>
 
+            <option>cm</option>
 
-                <select id="distanceUnit">
+            <option selected>m</option>
 
-                    <option>mm</option>
+            <option>in</option>
 
-                    <option>cm</option>
+            <option>ft</option>
 
-                    <option>m</option>
+        </select>
 
-                    <option>in</option>
 
-                    <option>ft</option>
+    </div>
 
-                </select>
 
 
-            </div>
 
 
+    <hr>
 
 
 
-            <hr>
 
 
+    <h3>Output</h3>
 
 
 
-            <label class="input-label">
+    <label class="input-label">
 
-            Output Units
+    Moment Units
 
-            </label>
+    </label>
 
 
+    <select
+    id="momentUnit"
+    class="output-select">
 
 
-            <select
-            id="momentUnit"
-            class="output-select">
+        <option>N·mm</option>
 
+        <option selected>N·m</option>
 
-                <option>N·mm</option>
+        <option>kN·m</option>
 
-                <option selected>N·m</option>
+        <option>lbf·in</option>
 
-                <option>kN·m</option>
+        <option>lbf·ft</option>
 
-                <option>lbf·in</option>
 
-                <option>lbf·ft</option>
+    </select>
 
 
-            </select>
 
 
 
+    <div class="button-row">
 
 
+        <button onclick="calculateMoment()">
 
+        Calculate Moment
 
-            <div class="button-row">
+        </button>
 
 
-                <button onclick="calculateMoment()">
 
-                Calculate Moment
+        <button
+        class="secondary-button"
+        onclick="resetToSI()">
 
-                </button>
+        Reset to SI
 
+        </button>
 
 
-                <button
-                class="secondary-button"
-                onclick="resetToSI()">
+    </div>
 
-                Reset to SI
 
-                </button>
 
 
-            </div>
 
+    <div
+    id="result"
+    class="result-panel">
 
 
+        Ready to calculate.
 
 
+    </div>
 
-            <div
-            id="result"
-            class="result-panel">
 
-            Ready to calculate.
-
-            </div>
-
-
-        </section>
+</section>
 
 
     </div>
