@@ -22,11 +22,11 @@ const calculators = [
     },
 
     {
-        name: "Bolt Torque",
-        category: "Fasteners",
-        description: "Coming Soon",
-        link: "#"
-    },
+    name: "Bolt Torque Calculator",
+    category: "Mechanical Engineering",
+    link: "calculators/bolt-torque.html",
+    description: "Calculate tightening torque for threaded fasteners."
+}
 
     {
         name: "Bolt Preload",
