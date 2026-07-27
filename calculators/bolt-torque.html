@@ -66,8 +66,8 @@
 
             <p>
 
-                Moment is calculated by multiplying the applied force by the
-                perpendicular distance from the pivot point.
+                Bolt torque is calculated by multiplying the nut factor (friction coefficient), 
+                the nominal bolt diameter, and the desired clamp load.
 
             </p>
             
@@ -80,7 +80,7 @@
                 </li>
 
                 <li>
-                    <strong>K</strong> = Nut factor (friction coefficient)
+                    <strong>K</strong> = Nut factor (friction coefficient, typically 0.15-0.25)
                 </li>
 
                 <li>
@@ -98,22 +98,87 @@
             <div class="engineering-diagram">
 
 
-            Bolt Torque Diagram Coming Soon
+                <svg
+                viewBox="0 0 500 350"
+                xmlns="http://www.w3.org/2000/svg">
+
+
+                <!-- Bolt Head -->
+                <circle cx="250" cy="100" r="45" fill="#c0c0c0" stroke="#333" stroke-width="2"/>
+
+
+                <!-- Bolt Head Hexagon Pattern -->
+                <polygon points="250,60 280,80 280,130 250,150 220,130 220,80" 
+                         fill="none" stroke="#333" stroke-width="2"/>
+
+
+                <!-- Wrench/Socket -->
+                <rect x="160" y="50" width="180" height="40" fill="none" stroke="#0b5394" stroke-width="3" rx="5"/>
+                <text x="250" y="80" text-anchor="middle" font-size="24" font-weight="bold" fill="#0b5394">
+                    T (Torque)
+                </text>
+
+
+                <!-- Bolt Shaft -->
+                <line x1="250" y1="145" x2="250" y2="280" stroke="#666" stroke-width="8"/>
+
+
+                <!-- Thread Pattern -->
+                <line x1="242" y1="160" x2="258" y2="160" stroke="#999" stroke-width="2"/>
+                <line x1="242" y1="180" x2="258" y2="180" stroke="#999" stroke-width="2"/>
+                <line x1="242" y1="200" x2="258" y2="200" stroke="#999" stroke-width="2"/>
+                <line x1="242" y1="220" x2="258" y2="220" stroke="#999" stroke-width="2"/>
+                <line x1="242" y1="240" x2="258" y2="240" stroke="#999" stroke-width="2"/>
+
+
+                <!-- Clamp Force Arrow -->
+                <line x1="330" y1="250" x2="410" y2="250" stroke="#cc0000" stroke-width="5"/>
+                <polygon points="410,250 390,240 395,260" fill="#cc0000"/>
+                <text x="360" y="280" font-size="24" fill="#cc0000" font-weight="bold">
+                    F (Clamp Load)
+                </text>
+
+
+                <!-- Nut -->
+                <polygon points="250,300 230,320 270,320" fill="#999" stroke="#333" stroke-width="2"/>
+                <text x="250" y="315" text-anchor="middle" font-size="18" fill="#fff">
+                    Nut
+                </text>
+
+
+                <!-- Diameter Dimension -->
+                <line x1="150" y1="100" x2="200" y2="100" stroke="#555" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="150" y1="95" x2="150" y2="105" stroke="#555" stroke-width="2"/>
+                <line x1="200" y1="95" x2="200" y2="105" stroke="#555" stroke-width="2"/>
+                <text x="170" y="85" font-size="16" fill="#555">
+                    D
+                </text>
+
+
+                </svg>
 
 
             </div>
           
-          <h3>Notes</h3>
+          <h3>Nut Factor Guidelines</h3>
 
           <ul>
 
                <li>
-                    Distance must be measured perpendicular to the force direction.
-               </li>
+                    <strong>Clean, dry:</strong> K ≈ 0.15-0.17
+                </li>
 
                <li>
-                    Keep force and distance units consistent.
-               </li>
+                    <strong>Lubricated:</strong> K ≈ 0.12-0.15
+                </li>
+
+               <li>
+                    <strong>Lightly oiled:</strong> K ≈ 0.18-0.20
+                </li>
+
+               <li>
+                    <strong>Galvanized:</strong> K ≈ 0.20-0.25
+                </li>
 
           </ul>
 
@@ -149,11 +214,11 @@ Unit System
 </label>
 
 
-<select id="unitSystem" class="output-select">
+<select id="unitSystem" class="output-select" onchange="updateBoltSizes()">
 
-<option selected>Metric</option>
+<option value="metric" selected>Metric (mm)</option>
 
-<option>Imperial</option>
+<option value="imperial">Imperial (in)</option>
 
 </select>
 
@@ -162,22 +227,31 @@ Unit System
 
 <label class="input-label">
 
-Bolt Size
+Bolt Diameter
 
 </label>
 
 
-<select id="boltSize" class="output-select">
+<div class="input-row">
 
-<option>M6</option>
+<input
+id="boltDiameter"
+type="number"
+placeholder="Enter bolt diameter"
+step="0.1"
+>
 
-<option>M8</option>
+<select id="diameterUnit">
 
-<option>M10</option>
+<option>mm</option>
 
-<option>M12</option>
+<option>cm</option>
+
+<option>in</option>
 
 </select>
+
+</div>
 
 
 
@@ -201,9 +275,9 @@ placeholder="Enter clamp load"
 
 <select id="loadUnit">
 
-<option>kN</option>
-
 <option>N</option>
+
+<option>kN</option>
 
 <option>lbf</option>
 
@@ -227,14 +301,14 @@ id="nutFactor"
 type="number"
 value="0.20"
 step="0.01"
+min="0.10"
+max="0.30"
 >
 
 
 
 
-
     <hr>
-
 
 
 
@@ -245,68 +319,66 @@ step="0.01"
 
    <label class="input-label">
 
-    Torque Units
+     Torque Units
 
-    </label>
+     </label>
 
 
-    <select
+     <select
 id="torqueUnit"
 class="output-select">
 
 
-        <option selected>N·m</option>
+         <option>N·mm</option>
 
-<option>N·mm</option>
+         <option selected>N·m</option>
 
-<option>kN·m</option>
+         <option>kN·m</option>
 
-<option>lbf·in</option>
+         <option>lbf·in</option>
 
-<option>lbf·ft</option>
-
-
-    </select>
+         <option>lbf·ft</option>
 
 
-
-
-
-    <div class="button-row">
-
-
-        <button onclick="calculateMoment()">
-
-        Calculate Torque
-
-        </button>
-
-
-
-        <button
-        class="secondary-button"
-        onclick="resetToSI()">
-
-        Reset to SI
-
-        </button>
-
-
-    </div>
+     </select>
 
 
 
 
-
-    <div
-    id="result"
-    class="result-panel">
+     <div class="button-row">
 
 
-        Ready to calculate.
+         <button onclick="calculateBoltTorque()">
+
+         Calculate Torque
+
+         </button>
 
 
-    </div>
+
+         <button
+         class="secondary-button"
+         onclick="resetTorqueCalculator()">
+
+         Reset
+
+         </button>
+
+
+     </div>
+
+
+
+
+     <div
+     id="result"
+     class="result-panel">
+
+
+         Ready to calculate.
+
+
+     </div>
 
 
 </section>
@@ -333,22 +405,39 @@ class="output-select">
 
 
 <p>
-Given:
+<strong>Given:</strong>
 </p>
 
 
 <p>
-Force = 100 N
+Bolt Diameter (D) = 10 mm
 </p>
 
 
 <p>
-Distance = 25 mm
+Clamp Load (F) = 50 kN = 50,000 N
 </p>
 
 
 <p>
-M = 100 × 25
+Nut Factor (K) = 0.20
+</p>
+
+
+<p>
+<strong>Calculation:</strong>
+</p>
+
+<p>
+T = K × D × F
+</p>
+
+<p>
+T = 0.20 × 0.010 m × 50,000 N
+</p>
+
+<p>
+T = 100 N·m
 </p>
 
 
@@ -356,7 +445,7 @@ M = 100 × 25
 
 <strong>
 
-M = 2500 N·mm
+Result: T = 100 N·m
 
 </strong>
 
@@ -382,17 +471,22 @@ M = 2500 N·mm
 
 
 <li>
-Moment depends on perpendicular distance from the pivot.
+The nut factor (K) depends on surface finish, lubrication, and bolt material.
 </li>
 
 
 <li>
-Keep units consistent throughout the calculation.
+This calculation provides the torque needed to achieve a specific clamp load.
 </li>
 
 
 <li>
-Sign convention depends on the direction of rotation.
+Always verify bolt specifications and torque values with engineering standards (ISO, SAE, etc.).
+</li>
+
+
+<li>
+Use calibrated torque wrenches for critical fastening operations.
 </li>
 
 
@@ -402,27 +496,54 @@ Sign convention depends on the direction of rotation.
 </section>
 
 <!-- =========================
-     APPLICATIONS
+     STANDARDS REFERENCE
 ========================= -->
 
 <section class="content-card">
 
 
-<h2>Applications</h2>
+<h2>Common Bolt Specifications</h2>
 
 
-<ul>
+<table style="width: 100%; border-collapse: collapse;">
 
-<li>Machine design</li>
+<tr style="background-color: #f0f0f0;">
+<th style="border: 1px solid #ccc; padding: 8px;">Bolt Size (ISO)</th>
+<th style="border: 1px solid #ccc; padding: 8px;">Diameter (mm)</th>
+<th style="border: 1px solid #ccc; padding: 8px;">Typical Clamp Load (kN)</th>
+</tr>
 
-<li>Statics problems</li>
+<tr>
+<td style="border: 1px solid #ccc; padding: 8px;">M6</td>
+<td style="border: 1px solid #ccc; padding: 8px;">6</td>
+<td style="border: 1px solid #ccc; padding: 8px;">5-10</td>
+</tr>
 
-<li>Fastener loading</li>
+<tr>
+<td style="border: 1px solid #ccc; padding: 8px;">M8</td>
+<td style="border: 1px solid #ccc; padding: 8px;">8</td>
+<td style="border: 1px solid #ccc; padding: 8px;">10-20</td>
+</tr>
 
-<li>Shaft and lever analysis</li>
+<tr>
+<td style="border: 1px solid #ccc; padding: 8px;">M10</td>
+<td style="border: 1px solid #ccc; padding: 8px;">10</td>
+<td style="border: 1px solid #ccc; padding: 8px;">20-40</td>
+</tr>
 
+<tr>
+<td style="border: 1px solid #ccc; padding: 8px;">M12</td>
+<td style="border: 1px solid #ccc; padding: 8px;">12</td>
+<td style="border: 1px solid #ccc; padding: 8px;">30-60</td>
+</tr>
 
-</ul>
+<tr>
+<td style="border: 1px solid #ccc; padding: 8px;">M16</td>
+<td style="border: 1px solid #ccc; padding: 8px;">16</td>
+<td style="border: 1px solid #ccc; padding: 8px;">60-100</td>
+</tr>
+
+</table>
 
 
 </section>
@@ -441,9 +562,11 @@ Sign convention depends on the direction of rotation.
 
 <ul>
 
+<li><a href="moment.html">Moment Calculator</a></li>
+
 <li>Beam Deflection (Coming Soon)</li>
 
-<li>Bolt Torque (Coming Soon)</li>
+<li>Bolt Preload (Coming Soon)</li>
 
 <li>Stress Calculator (Coming Soon)</li>
 
@@ -457,7 +580,7 @@ Sign convention depends on the direction of rotation.
 </div>
 
 <script src="../js/units.js"></script>
-<script src="../js/moment.js"></script>
+<script src="../js/bolt-torque.js"></script>
 
 </body>
 
