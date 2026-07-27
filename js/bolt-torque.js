@@ -1,37 +1,43 @@
-function calculateMoment() {
+function calculateBoltTorque() {
 
-    const force = Number(document.getElementById("force").value);
-    const distance = Number(document.getElementById("distance").value);
+    const boltDiameter = Number(document.getElementById("boltDiameter").value);
+    const clampLoad = Number(document.getElementById("clampLoad").value);
+    const nutFactor = Number(document.getElementById("nutFactor").value);
 
     const result = document.getElementById("result");
 
-    if (isNaN(force) || isNaN(distance) || force === 0 || distance === 0) {
+    if (isNaN(boltDiameter) || isNaN(clampLoad) || isNaN(nutFactor) || 
+        boltDiameter === 0 || clampLoad === 0 || nutFactor === 0) {
 
         result.innerHTML = `
             <h3>Invalid Input</h3>
-            <p>Please enter both a force and a distance.</p>
+            <p>Please enter valid values for bolt diameter, clamp load, and nut factor.</p>
         `;
 
         return;
     }
 
-    const forceUnit = document.getElementById("forceUnit").value;
-    const distanceUnit = document.getElementById("distanceUnit").value;
-    const outputUnit = document.getElementById("momentUnit").value;
+    const diameterUnit = document.getElementById("diameterUnit").value;
+    const loadUnit = document.getElementById("loadUnit").value;
+    const outputUnit = document.getElementById("torqueUnit").value;
 
-    const forceN = convertForce(force, forceUnit);
-    const distanceM = convertDistance(distance, distanceUnit);
+    // Convert to base units (meters and Newtons)
+    const diameterM = convertDistance(boltDiameter, diameterUnit);
+    const loadN = convertForce(clampLoad, loadUnit);
 
-    const momentNm = forceN * distanceM;
+    // Calculate torque in N·m
+    // T = K × D × F
+    const torqueNm = nutFactor * diameterM * loadN;
 
-    const output = convertMoment(momentNm, outputUnit);
+    // Convert to output unit
+    const output = convertMoment(torqueNm, outputUnit);
 
     result.innerHTML = `
         <h3>Result</h3>
 
         <div class="result-value">
             ${output.toLocaleString(undefined, {
-                maximumFractionDigits: 3
+                maximumFractionDigits: 2
             })}
             ${outputUnit}
         </div>
@@ -41,34 +47,61 @@ function calculateMoment() {
         <p><strong>Calculation Summary</strong></p>
 
         <p>
-            ${force} ${forceUnit} × ${distance} ${distanceUnit}
+            T = K × D × F
         </p>
 
         <p>
-            =
-            <strong>
-                ${output.toLocaleString(undefined, {
-                    maximumFractionDigits: 3
-                })}
-                ${outputUnit}
-            </strong>
+            T = ${nutFactor} × ${boltDiameter} ${diameterUnit} × ${clampLoad} ${loadUnit}
+        </p>
+
+        <p>
+            T = ${nutFactor} × ${diameterM.toFixed(4)} m × ${loadN.toLocaleString()} N
+        </p>
+
+        <p>
+            = <strong>${torqueNm.toLocaleString(undefined, {
+                maximumFractionDigits: 2
+            })} N·m</strong>
+        </p>
+
+        <p>
+            = <strong>${output.toLocaleString(undefined, {
+                maximumFractionDigits: 2
+            })} ${outputUnit}</strong>
         </p>
     `;
 }
 
-function resetToSI(){
+function resetTorqueCalculator(){
 
-    document.getElementById("force").value="";
+    document.getElementById("boltDiameter").value="";
 
-    document.getElementById("distance").value="";
+    document.getElementById("clampLoad").value="";
 
-    document.getElementById("forceUnit").value="N";
+    document.getElementById("nutFactor").value="0.20";
 
-    document.getElementById("distanceUnit").value="m";
+    document.getElementById("diameterUnit").value="mm";
 
-    document.getElementById("momentUnit").value="N·m";
+    document.getElementById("loadUnit").value="N";
+
+    document.getElementById("torqueUnit").value="N·m";
+
+    document.getElementById("unitSystem").value="metric";
 
     document.getElementById("result").innerHTML =
     "Ready to calculate.";
 
+}
+
+function updateBoltSizes(){
+
+    const unitSystem = document.getElementById("unitSystem").value;
+    
+    if(unitSystem === "metric"){
+        document.getElementById("diameterUnit").value = "mm";
+        document.getElementById("loadUnit").value = "N";
+    } else {
+        document.getElementById("diameterUnit").value = "in";
+        document.getElementById("loadUnit").value = "lbf";
+    }
 }
