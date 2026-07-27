@@ -26,7 +26,7 @@ const calculators = [
     category: "Mechanical Engineering",
     link: "calculators/bolt-torque.html",
     description: "Calculate tightening torque for threaded fasteners."
-}
+    },
 
     {
         name: "Bolt Preload",
