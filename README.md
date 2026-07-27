@@ -1,6 +1,6 @@
-# Engineering-Calcs-Pro
+# Engineering Calcs Pro
 
-A collection of engineering calculators and design tools for professional engineers and designers.
+**Practical engineering calculators and design tools for mechanical engineers, designers, machinists, and students.**
 
 **Live Demo:** https://engineering-calcs-pro.vercel.app
 
@@ -8,7 +8,22 @@ A collection of engineering calculators and design tools for professional engine
 
 ## 📋 Purpose
 
-Engineering-Calcs-Pro provides a suite of web-based calculators and design tools specifically tailored for engineers. Whether you're performing structural calculations, material analysis, or system design, this platform offers quick, reliable computational tools to streamline your engineering workflow.
+Engineering Calcs Pro provides a collection of web-based calculators designed to streamline common engineering calculations. Whether you're working on fastener torque specifications, moment calculations, or other mechanical design tasks, this platform offers quick, reliable tools accessible directly from your browser.
+
+---
+
+## ✨ Available Calculators
+
+### Currently Live
+- **Moment Calculator** - Calculate torque from force and perpendicular distance
+- **Bolt Torque Calculator** - Calculate tightening torque for threaded fasteners
+
+### Coming Soon
+- **Beam Deflection** - Structural analysis tool
+- **Bearing PV** - Bearing performance calculations
+- **Bolt Preload** - Fastener preload analysis
+- **Stress Analysis** - Materials and stress calculations
+- **Deep Drawing** - Manufacturing process simulations
 
 ---
 
@@ -16,22 +31,36 @@ Engineering-Calcs-Pro provides a suite of web-based calculators and design tools
 
 ```
 Engineering-Calcs-Pro/
-├── index.html          # Main entry point
-├── styles/             # CSS stylesheets
-├── scripts/            # JavaScript functionality
-├── calculators/        # Individual calculator modules
-├── assets/             # Images, icons, and media files
-└── README.md          # This file
+├── index.html                    # Homepage with calculator directory
+├── css/
+│   └── style.css                # Responsive styling and themes
+├── js/
+│   ├── calculator-data.js        # Calculator metadata and catalog
+│   ├── homepage.js               # Homepage search and display logic
+│   ├── bolt-torque.js            # Bolt torque calculations
+│   ├── moment.js                 # Moment/torque calculations
+│   └── units.js                  # Unit conversion utilities
+├── calculators/
+│   ├── bolt-torque.html          # Bolt torque calculator page
+│   └── moment.html               # Moment calculator page
+└── README.md                     # This file
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: HTML, CSS, JavaScript
-- **Deployment**: Vercel
-- **Repository**: GitHub
-- **Hosting**: Vercel (serverless)
+- **Frontend:** Vanilla HTML, CSS, JavaScript (no frameworks)
+- **Styling:** Custom CSS with responsive grid layouts
+- **Hosting:** Vercel
+- **Repository:** GitHub
+
+### Key Features
+- **Zero Dependencies:** Pure vanilla JavaScript—no npm packages or build tools required
+- **Responsive Design:** Mobile-friendly layouts with CSS media queries
+- **Search Functionality:** Built-in calculator search on homepage
+- **Unit Conversion:** Support for multiple unit systems (metric, imperial)
+- **Professional Styling:** Clean, modern UI with accessibility considerations
 
 ---
 
@@ -39,55 +68,70 @@ Engineering-Calcs-Pro/
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, Edge)
-- No installation required for basic use
+- No installation or build process required
 
-### Installation for Development
+### Running Locally
+
+**Option 1: Using Python**
 ```bash
 # Clone the repository
 git clone https://github.com/laheyengineering-lab/Engineering-Calcs-Pro.git
-
-# Navigate to the project directory
 cd Engineering-Calcs-Pro
 
-# Serve locally (using Python 3)
+# Start a local server
 python -m http.server 8000
+```
 
-# Or using Node.js (if installed)
+**Option 2: Using Node.js**
+```bash
+# Clone the repository
+git clone https://github.com/laheyengineering-lab/Engineering-Calcs-Pro.git
+cd Engineering-Calcs-Pro
+
+# Start a local server
 npx http-server
 ```
 
-Then visit `http://localhost:8000` in your browser.
+Then open `http://localhost:8000` in your browser.
 
 ---
 
-## 📚 Features
+## 📚 How to Use
 
-- **Multiple Calculators**: Various engineering calculation tools
-- **User-Friendly Interface**: Intuitive design for quick calculations
-- **Accurate Results**: Reliable computational algorithms
-- **Responsive Design**: Works on desktop and mobile devices
-- **No Dependencies**: Pure HTML, CSS, and JavaScript
+1. **Browse calculators** on the homepage—organized by category (Mechanical, Fasteners, Materials, Manufacturing)
+2. **Search** for specific calculators using the search box
+3. **Select a calculator** and enter your input parameters
+4. **View results** with support for multiple output units
+5. **Return** to the homepage to try another tool
 
 ---
 
 ## 🔗 Links
 
-- **Live Site**: https://engineering-calcs-pro.vercel.app
-- **Repository**: https://github.com/laheyengineering-lab/Engineering-Calcs-Pro
-- **Issues**: https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues
+- **Live Site:** https://engineering-calcs-pro.vercel.app
+- **Repository:** https://github.com/laheyengineering-lab/Engineering-Calcs-Pro
+- **Issues & Requests:** https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues
 
 ---
 
 ## 📝 License
 
-This project is currently unlicensed. For more information, see the LICENSE file (if applicable).
+This project is currently unlicensed. For licensing inquiries, please contact the repository owner.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit issues and enhancement requests.
+Contributions are welcome! If you have ideas for new calculators, bug fixes, or improvements:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Make your changes
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
 
 ---
 
 **Built with ❤️ by laheyengineering-lab**
+
+*Empowering engineers with practical, accessible calculation tools.*
