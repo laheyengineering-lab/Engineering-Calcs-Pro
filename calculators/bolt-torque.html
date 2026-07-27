@@ -99,88 +99,142 @@
 
 
                 <svg
-                viewBox="0 0 700 350"
-                xmlns="http://www.w3.org/2000/svg">
+                viewBox="0 0 600 500"
+                xmlns="http://www.w3.org/2000/svg"
+                style="background-color: white;">
 
+                <defs>
+                  <!-- Hatch pattern for section -->
+                  <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+                    <line x1="0" y1="0" x2="0" y2="6" stroke="#000000" stroke-width="1.2"/>
+                  </pattern>
 
-                <!-- Bolt Axis (vertical center line) -->
-                <line x1="350" y1="50" x2="350" y2="300" stroke="#ddd" stroke-width="1" stroke-dasharray="3,3"/>
+                  <!-- Dimension arrow marker -->
+                  <marker id="dimensionArrow" markerWidth="10" markerHeight="10" refX="5" refY="2" orient="auto">
+                    <polygon points="0,0 10,2 0,4" fill="#000000"/>
+                  </marker>
 
+                  <!-- Force arrow marker -->
+                  <marker id="forceArrow" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+                    <polygon points="0,0 10,3 0,6" fill="#000000"/>
+                  </marker>
 
-                <!-- Bolt Head (Hexagon) -->
-                <polygon points="350,130 385,105 420,115 420,145 385,165 350,155" 
-                         fill="none" stroke="#333" stroke-width="3"/>
-                
-                <!-- Hex bolt face shading -->
-                <polygon points="350,130 365,122 375,128 370,138 360,142" 
-                         fill="#f0f0f0" stroke="none"/>
+                  <!-- Torque arrow marker -->
+                  <marker id="torqueArrow" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+                    <polygon points="0,0 10,3 0,6" fill="#000000"/>
+                  </marker>
 
+                  <!-- Clip path for hatch on top plate -->
+                  <clipPath id="topPlateClip">
+                    <polygon points="280,140 320,140 330,150 330,200 270,200 270,150"/>
+                  </clipPath>
 
-                <!-- Bolt Shaft -->
-                <line x1="340" y1="155" x2="360" y2="155" stroke="#333" stroke-width="2"/>
-                <line x1="335" y1="200" x2="365" y2="200" stroke="#333" stroke-width="4"/>
-                
-                <!-- Thread indicator -->
-                <line x1="330" y1="180" x2="370" y2="180" stroke="#999" stroke-width="1"/>
-                <line x1="330" y1="220" x2="370" y2="220" stroke="#999" stroke-width="1"/>
+                  <!-- Clip path for hatch on bottom plate -->
+                  <clipPath id="bottomPlateClip">
+                    <polygon points="280,310 320,310 330,320 330,370 270,370 270,320"/>
+                  </clipPath>
+                </defs>
 
-
-                <!-- Socket Wrench -->
-                <g id="wrench">
-                  <!-- Socket body -->
-                  <rect x="280" y="80" width="60" height="50" fill="none" stroke="#0b5394" stroke-width="2" rx="3"/>
-                  <!-- Socket opening -->
-                  <polygon points="310,100 325,95 330,110 315,115" fill="none" stroke="#0b5394" stroke-width="2"/>
-                  <!-- Handle -->
-                  <line x1="250" y1="95" x2="280" y2="95" stroke="#0b5394" stroke-width="3"/>
-                  <circle cx="245" cy="95" r="3" fill="#0b5394"/>
+                <!-- ====== TORQUE ARROW (Top) ====== -->
+                <g id="torqueArrowGroup">
+                  <!-- Curved torque arrow - counterclockwise arc -->
+                  <path d="M 350 80 A 70 70 0 0 0 280 120" 
+                        stroke="#000000" stroke-width="1.2" fill="none" marker-end="url(#torqueArrow)"/>
+                  <!-- Torque label -->
+                  <text x="300" y="170" font-family="Times New Roman, Georgia, serif" font-size="14" font-weight="bold" text-anchor="middle">
+                    Torque Applied
+                  </text>
                 </g>
 
+                <!-- ====== NUT (Top) ====== -->
+                <g id="nut">
+                  <rect x="285" y="55" width="60" height="20" stroke="#000000" stroke-width="2" fill="none"/>
+                  <!-- Hex representation on nut -->
+                  <line x1="290" y1="55" x2="290" y2="75" stroke="#000000" stroke-width="1.2"/>
+                  <line x1="310" y1="55" x2="310" y2="75" stroke="#000000" stroke-width="1.2"/>
+                </g>
 
-                <!-- Torque Arrow (curved) -->
-                <defs>
-                  <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                    <polygon points="0 0, 10 3, 0 6" fill="#cc0000" />
-                  </marker>
-                </defs>
-                
-                <!-- Curved torque arrow -->
-                <path d="M 420 120 A 80 80 0 0 1 480 180" 
-                      fill="none" stroke="#cc0000" stroke-width="4" marker-end="url(#arrowhead)"/>
-                
-                <!-- Torque label -->
-                <text x="500" y="135" font-size="32" font-weight="bold" fill="#cc0000">
-                    T
-                </text>
+                <!-- ====== BOLT SHANK (Main Vertical) ====== -->
+                <g id="bolt">
+                  <!-- Unthreaded shank above top plate -->
+                  <rect x="290" y="75" width="20" height="65" stroke="#000000" stroke-width="2" fill="none"/>
 
+                  <!-- ====== THREADS ====== -->
+                  <g id="threads">
+                    <!-- Thread crests and valleys -->
+                    <line x1="283" y1="200" x2="317" y2="200" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="285" y1="210" x2="315" y2="210" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="283" y1="220" x2="317" y2="220" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="285" y1="230" x2="315" y2="230" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="283" y1="240" x2="317" y2="240" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="285" y1="250" x2="315" y2="250" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="283" y1="260" x2="317" y2="260" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="285" y1="270" x2="315" y2="270" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="283" y1="280" x2="317" y2="280" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="285" y1="290" x2="315" y2="290" stroke="#000000" stroke-width="1.2"/>
+                    <line x1="283" y1="300" x2="317" y2="300" stroke="#000000" stroke-width="1.2"/>
+                  </g>
 
-                <!-- Clamp Force Arrow -->
-                <line x1="380" y1="260" x2="450" y2="260" stroke="#0066cc" stroke-width="4"/>
-                <polygon points="450,260 435,255 435,265" fill="#0066cc"/>
-                
-                <line x1="310" y1="260" x2="240" y2="260" stroke="#0066cc" stroke-width="4"/>
-                <polygon points="240,260 255,255 255,265" fill="#0066cc"/>
-                
-                <!-- Clamp force label -->
-                <text x="345" y="285" font-size="24" font-weight="bold" fill="#0066cc" text-anchor="middle">
-                    F (Clamp Load)
-                </text>
+                  <!-- Unthreaded shank below bottom plate -->
+                  <rect x="290" y="370" width="20" height="60" stroke="#000000" stroke-width="2" fill="none"/>
+                </g>
 
+                <!-- ====== TOP PLATE ====== -->
+                <g id="topPlate">
+                  <!-- Plate outline with wavy edges -->
+                  <polygon points="270,150 330,150 332,155 332,200 268,200 268,155" 
+                           stroke="#000000" stroke-width="2" fill="none" stroke-linejoin="round"/>
+                  <!-- Hatch pattern inside plate -->
+                  <rect x="268" y="150" width="64" height="50" fill="url(#hatch)" clip-path="url(#topPlateClip)"/>
+                </g>
 
-                <!-- Diameter Dimension -->
-                <line x1="200" y1="145" x2="250" y2="145" stroke="#555" stroke-width="2" stroke-dasharray="4,4"/>
-                <line x1="200" y1="140" x2="200" y2="150" stroke="#555" stroke-width="2"/>
-                <line x1="250" y1="140" x2="250" y2="150" stroke="#555" stroke-width="2"/>
-                
-                <text x="225" y="135" font-size="20" fill="#555" text-anchor="middle" font-style="italic">
-                    D
-                </text>
+                <!-- ====== BOTTOM PLATE ====== -->
+                <g id="bottomPlate">
+                  <!-- Plate outline with wavy edges -->
+                  <polygon points="270,320 330,320 332,325 332,370 268,370 268,325" 
+                           stroke="#000000" stroke-width="2" fill="none" stroke-linejoin="round"/>
+                  <!-- Hatch pattern inside plate -->
+                  <rect x="268" y="320" width="64" height="50" fill="url(#hatch)" clip-path="url(#bottomPlateClip)"/>
+                </g>
 
+                <!-- ====== UPWARD FORCE ARROW (Top) ====== -->
+                <g id="upwardArrow">
+                  <line x1="420" y1="230" x2="420" y2="110" stroke="#000000" stroke-width="1.2" marker-end="url(#forceArrow)"/>
+                </g>
 
-                <!-- Dimension lines for clamp force -->
-                <line x1="380" y1="270" x2="380" y2="300" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-                <line x1="310" y1="270" x2="310" y2="300" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
+                <!-- ====== DOWNWARD FORCE ARROW (Bottom) ====== -->
+                <g id="downwardArrow">
+                  <line x1="420" y1="290" x2="420" y2="410" stroke="#000000" stroke-width="1.2" marker-end="url(#forceArrow)"/>
+                  <!-- Force label below -->
+                  <text x="420" y="435" font-family="Times New Roman, Georgia, serif" font-size="12" text-anchor="middle">
+                    Axial Tension
+                  </text>
+                  <text x="420" y="450" font-family="Times New Roman, Georgia, serif" font-size="12" text-anchor="middle">
+                    Force
+                  </text>
+                </g>
 
+                <!-- ====== MAJOR DIAMETER DIMENSION (Right) ====== -->
+                <g id="dimensioning">
+                  <!-- Extension lines -->
+                  <line x1="317" y1="200" x2="360" y2="200" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2"/>
+                  <line x1="283" y1="300" x2="360" y2="300" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2"/>
+                  
+                  <!-- Dimension line -->
+                  <line x1="360" y1="200" x2="360" y2="300" stroke="#000000" stroke-width="1.2"/>
+                  
+                  <!-- Dimension arrows (inward pointing) -->
+                  <polygon points="360,205 357,200 363,200" fill="#000000"/>
+                  <polygon points="360,295 357,300 363,300" fill="#000000"/>
+                  
+                  <!-- Dimension text -->
+                  <text x="390" y="255" font-family="Times New Roman, Georgia, serif" font-size="12" font-weight="bold">
+                    Major
+                  </text>
+                  <text x="390" y="270" font-family="Times New Roman, Georgia, serif" font-size="12" font-weight="bold">
+                    Diameter
+                  </text>
+                </g>
 
                 </svg>
 
