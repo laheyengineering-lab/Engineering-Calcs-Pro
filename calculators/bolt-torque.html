@@ -99,60 +99,87 @@
 
 
                 <svg
-                viewBox="0 0 500 350"
+                viewBox="0 0 700 350"
                 xmlns="http://www.w3.org/2000/svg">
 
 
-                <!-- Bolt Head -->
-                <circle cx="250" cy="100" r="45" fill="#c0c0c0" stroke="#333" stroke-width="2"/>
+                <!-- Bolt Axis (vertical center line) -->
+                <line x1="350" y1="50" x2="350" y2="300" stroke="#ddd" stroke-width="1" stroke-dasharray="3,3"/>
 
 
-                <!-- Bolt Head Hexagon Pattern -->
-                <polygon points="250,60 280,80 280,130 250,150 220,130 220,80" 
-                         fill="none" stroke="#333" stroke-width="2"/>
-
-
-                <!-- Wrench/Socket -->
-                <rect x="160" y="50" width="180" height="40" fill="none" stroke="#0b5394" stroke-width="3" rx="5"/>
-                <text x="250" y="80" text-anchor="middle" font-size="24" font-weight="bold" fill="#0b5394">
-                    T (Torque)
-                </text>
+                <!-- Bolt Head (Hexagon) -->
+                <polygon points="350,130 385,105 420,115 420,145 385,165 350,155" 
+                         fill="none" stroke="#333" stroke-width="3"/>
+                
+                <!-- Hex bolt face shading -->
+                <polygon points="350,130 365,122 375,128 370,138 360,142" 
+                         fill="#f0f0f0" stroke="none"/>
 
 
                 <!-- Bolt Shaft -->
-                <line x1="250" y1="145" x2="250" y2="280" stroke="#666" stroke-width="8"/>
+                <line x1="340" y1="155" x2="360" y2="155" stroke="#333" stroke-width="2"/>
+                <line x1="335" y1="200" x2="365" y2="200" stroke="#333" stroke-width="4"/>
+                
+                <!-- Thread indicator -->
+                <line x1="330" y1="180" x2="370" y2="180" stroke="#999" stroke-width="1"/>
+                <line x1="330" y1="220" x2="370" y2="220" stroke="#999" stroke-width="1"/>
 
 
-                <!-- Thread Pattern -->
-                <line x1="242" y1="160" x2="258" y2="160" stroke="#999" stroke-width="2"/>
-                <line x1="242" y1="180" x2="258" y2="180" stroke="#999" stroke-width="2"/>
-                <line x1="242" y1="200" x2="258" y2="200" stroke="#999" stroke-width="2"/>
-                <line x1="242" y1="220" x2="258" y2="220" stroke="#999" stroke-width="2"/>
-                <line x1="242" y1="240" x2="258" y2="240" stroke="#999" stroke-width="2"/>
+                <!-- Socket Wrench -->
+                <g id="wrench">
+                  <!-- Socket body -->
+                  <rect x="280" y="80" width="60" height="50" fill="none" stroke="#0b5394" stroke-width="2" rx="3"/>
+                  <!-- Socket opening -->
+                  <polygon points="310,100 325,95 330,110 315,115" fill="none" stroke="#0b5394" stroke-width="2"/>
+                  <!-- Handle -->
+                  <line x1="250" y1="95" x2="280" y2="95" stroke="#0b5394" stroke-width="3"/>
+                  <circle cx="245" cy="95" r="3" fill="#0b5394"/>
+                </g>
+
+
+                <!-- Torque Arrow (curved) -->
+                <defs>
+                  <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#cc0000" />
+                  </marker>
+                </defs>
+                
+                <!-- Curved torque arrow -->
+                <path d="M 420 120 A 80 80 0 0 1 480 180" 
+                      fill="none" stroke="#cc0000" stroke-width="4" marker-end="url(#arrowhead)"/>
+                
+                <!-- Torque label -->
+                <text x="500" y="135" font-size="32" font-weight="bold" fill="#cc0000">
+                    T
+                </text>
 
 
                 <!-- Clamp Force Arrow -->
-                <line x1="330" y1="250" x2="410" y2="250" stroke="#cc0000" stroke-width="5"/>
-                <polygon points="410,250 390,240 395,260" fill="#cc0000"/>
-                <text x="360" y="280" font-size="24" fill="#cc0000" font-weight="bold">
+                <line x1="380" y1="260" x2="450" y2="260" stroke="#0066cc" stroke-width="4"/>
+                <polygon points="450,260 435,255 435,265" fill="#0066cc"/>
+                
+                <line x1="310" y1="260" x2="240" y2="260" stroke="#0066cc" stroke-width="4"/>
+                <polygon points="240,260 255,255 255,265" fill="#0066cc"/>
+                
+                <!-- Clamp force label -->
+                <text x="345" y="285" font-size="24" font-weight="bold" fill="#0066cc" text-anchor="middle">
                     F (Clamp Load)
                 </text>
 
 
-                <!-- Nut -->
-                <polygon points="250,300 230,320 270,320" fill="#999" stroke="#333" stroke-width="2"/>
-                <text x="250" y="315" text-anchor="middle" font-size="18" fill="#fff">
-                    Nut
-                </text>
-
-
                 <!-- Diameter Dimension -->
-                <line x1="150" y1="100" x2="200" y2="100" stroke="#555" stroke-width="2" stroke-dasharray="5,5"/>
-                <line x1="150" y1="95" x2="150" y2="105" stroke="#555" stroke-width="2"/>
-                <line x1="200" y1="95" x2="200" y2="105" stroke="#555" stroke-width="2"/>
-                <text x="170" y="85" font-size="16" fill="#555">
+                <line x1="200" y1="145" x2="250" y2="145" stroke="#555" stroke-width="2" stroke-dasharray="4,4"/>
+                <line x1="200" y1="140" x2="200" y2="150" stroke="#555" stroke-width="2"/>
+                <line x1="250" y1="140" x2="250" y2="150" stroke="#555" stroke-width="2"/>
+                
+                <text x="225" y="135" font-size="20" fill="#555" text-anchor="middle" font-style="italic">
                     D
                 </text>
+
+
+                <!-- Dimension lines for clamp force -->
+                <line x1="380" y1="270" x2="380" y2="300" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
+                <line x1="310" y1="270" x2="310" y2="300" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
 
 
                 </svg>
