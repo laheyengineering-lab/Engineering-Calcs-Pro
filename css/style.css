@@ -281,7 +281,7 @@ header p {
 .engineering-diagram svg {
 
     display:block;
-    
+
     width:100%;
 
     height:auto;
@@ -557,6 +557,37 @@ button:hover {
         flex-direction:column;
 
     }
+
+.calculator-layout {
+
+    display:grid;
+
+    grid-template-columns:0.9fr 1.1fr;
+
+    gap:25px;
+
+    align-items:start;
+
+}
+
+
+.theory-column,
+.calculator-column {
+
+    min-width:0;
+
+}
+
+
+@media(max-width:900px){
+
+    .calculator-layout {
+
+        grid-template-columns:1fr;
+
+    }
+
+}
 
 
 }

@@ -13,18 +13,13 @@
 
 </head>
 
-
 <body>
 
-
 <div class="container">
-
 
 <a href="../index.html" class="back-link">
     ← Back to Engineering Calcs Pro
 </a>
-
-
 
 <header class="calculator-header">
 
@@ -36,10 +31,6 @@
     </p>
 
 </header>
-
-
-
-
 
 <!-- =========================
      EQUATION SECTION
@@ -333,12 +324,6 @@ d
 
 </section>
 
-
-
-
-
-
-
 <!-- =========================
      CALCULATOR SECTION
 ========================= -->
@@ -347,175 +332,444 @@ d
 <section class="content-card calculator-box">
 
 
-<h2>Calculator</h2>
+    <div class="calculator-layout">
+
+
+    <!-- =====================
+         LEFT COLUMN
+         EQUATION + DIAGRAM
+    ====================== -->
+
+    <div class="theory-column">
+
+
+        <section class="content-card formula-card">
+
+
+            <h2>Equation</h2>
+
+
+            <div class="formula-box">
+
+                M = F × d
+
+            </div>
+
+
+            <p>
+
+                Moment is calculated by multiplying the applied force by the
+                perpendicular distance from the pivot point.
+
+            </p>
+
+
+            <ul>
+
+                <li>
+                    <strong>F</strong> = applied force
+                </li>
+
+                <li>
+                    <strong>d</strong> = perpendicular distance from pivot
+                </li>
+
+                <li>
+                    <strong>M</strong> = resulting moment
+                </li>
+
+            </ul>
+
+
+
+            <div class="engineering-diagram">
+
+
+                <svg
+                viewBox="0 0 700 300"
+                xmlns="http://www.w3.org/2000/svg">
+
+
+                <!-- Lever Arm -->
+
+                <line
+                x1="150"
+                y1="180"
+                x2="600"
+                y2="180"
+                stroke="black"
+                stroke-width="8"
+                />
+
+
+
+                <!-- Pivot -->
+
+                <circle
+                cx="150"
+                cy="180"
+                r="22"
+                fill="#0b5394"
+                />
+
+
+
+                <text
+                x="75"
+                y="210"
+                font-size="24"
+                fill="#0b5394">
+
+                Pivot
+
+                </text>
+
+
+
+                <!-- Force -->
+
+                <line
+                x1="400"
+                y1="50"
+                x2="400"
+                y2="155"
+                stroke="#cc0000"
+                stroke-width="6"
+                />
+
+
+
+                <polygon
+                points="
+                380,155
+                420,155
+                400,185"
+                fill="#cc0000"
+                />
+
+
+
+                <text
+                x="415"
+                y="90"
+                font-size="30"
+                fill="#cc0000"
+                font-weight="bold">
+
+                F
+
+                </text>
+
+
+
+                <!-- Moment -->
+
+                <text
+                x="135"
+                y="55"
+                font-size="42"
+                font-weight="bold"
+                fill="#0b5394">
+
+                M
+
+                </text>
+
+
+
+                <path
+
+                d="
+                M 95 160
+                C 95 85, 205 85, 205 160
+                "
+
+                fill="none"
+
+                stroke="#0b5394"
+
+                stroke-width="6"
+
+                />
+
+
+
+                <polygon
+
+                points="
+                220,160
+                190,150
+                198,175"
+
+                fill="#0b5394"
+
+                />
+
+
+
+                <!-- Dimension Lines -->
+
+                <line
+                x1="150"
+                y1="180"
+                x2="150"
+                y2="250"
+                stroke="#555"
+                stroke-width="2"
+                stroke-dasharray="8,6"
+                />
+
+
+
+                <line
+                x1="400"
+                y1="180"
+                x2="400"
+                y2="250"
+                stroke="#555"
+                stroke-width="2"
+                stroke-dasharray="8,6"
+                />
+
+
+
+                <line
+                x1="150"
+                y1="235"
+                x2="400"
+                y2="235"
+                stroke="#555"
+                stroke-width="3"
+                />
+
+
+
+                <polygon
+                points="
+                150,235
+                170,225
+                170,245"
+                fill="#555"
+                />
+
+
+
+                <polygon
+                points="
+                400,235
+                380,225
+                380,245"
+                fill="#555"
+                />
+
+
+
+                <text
+                x="265"
+                y="275"
+                font-size="32"
+                fill="#555"
+                font-style="italic">
+
+                d
+
+                </text>
+
+
+                </svg>
+
+
+            </div>
+
+
+        </section>
+
+
+    </div>
+
+
+    <!-- =====================
+         RIGHT COLUMN
+         CALCULATOR
+    ====================== -->
+
+
+    <div class="calculator-column">
+
+
+        <section class="content-card calculator-box">
+
+
+            <h2>Calculator</h2>
 
 
 
 
-<label class="input-label">
 
-Force
+            <label class="input-label">
 
-</label>
+            Force
 
-
-<div class="input-row">
+            </label>
 
 
-<input
-id="force"
-type="number"
-placeholder="Enter force"
->
+
+            <div class="input-row">
 
 
-<select id="forceUnit">
+                <input
+                id="force"
+                type="number"
+                placeholder="Enter force"
+                >
 
-<option>N</option>
 
-<option>kN</option>
 
-<option>lbf</option>
+                <select id="forceUnit">
 
-</select>
+                    <option>N</option>
+
+                    <option>kN</option>
+
+                    <option>lbf</option>
+
+                </select>
+
+
+            </div>
+
+
+
+
+
+            <label class="input-label">
+
+            Distance
+
+            </label>
+
+
+
+            <div class="input-row">
+
+
+                <input
+                id="distance"
+                type="number"
+                placeholder="Enter distance"
+                >
+
+
+
+                <select id="distanceUnit">
+
+                    <option>mm</option>
+
+                    <option>cm</option>
+
+                    <option>m</option>
+
+                    <option>in</option>
+
+                    <option>ft</option>
+
+                </select>
+
+
+            </div>
+
+
+
+
+
+            <hr>
+
+
+
+
+
+            <label class="input-label">
+
+            Output Units
+
+            </label>
+
+
+
+
+            <select
+            id="momentUnit"
+            class="output-select">
+
+
+                <option>N·mm</option>
+
+                <option selected>N·m</option>
+
+                <option>kN·m</option>
+
+                <option>lbf·in</option>
+
+                <option>lbf·ft</option>
+
+
+            </select>
+
+
+
+
+
+
+
+            <div class="button-row">
+
+
+                <button onclick="calculateMoment()">
+
+                Calculate Moment
+
+                </button>
+
+
+
+                <button
+                class="secondary-button"
+                onclick="resetToSI()">
+
+                Reset to SI
+
+                </button>
+
+
+            </div>
+
+
+
+
+
+
+            <div
+            id="result"
+            class="result-panel">
+
+            Ready to calculate.
+
+            </div>
+
+
+        </section>
+
+
+    </div>
 
 
 </div>
-
-
-
-
-
-
-<label class="input-label">
-
-Distance
-
-</label>
-
-
-<div class="input-row">
-
-
-<input
-id="distance"
-type="number"
-placeholder="Enter distance"
->
-
-
-<select id="distanceUnit">
-
-<option>mm</option>
-
-<option>cm</option>
-
-<option>m</option>
-
-<option>in</option>
-
-<option>ft</option>
-
-</select>
-
-
-</div>
-
-
-
-
-
-
-<hr>
-
-
-
-
-
-
-<label class="input-label">
-
-Output Units
-
-</label>
-
-
-
-<select
-id="momentUnit"
-class="output-select">
-
-
-<option>N·mm</option>
-
-<option selected>N·m</option>
-
-<option>kN·m</option>
-
-<option>lbf·in</option>
-
-<option>lbf·ft</option>
-
-
-</select>
-
-
-
-
-
-
-
-<div class="button-row">
-
-
-<button onclick="calculateMoment()">
-
-Calculate Moment
-
-</button>
-
-
-
-<button
-class="secondary-button"
-onclick="resetToSI()">
-
-Reset to SI
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-
-<div
-id="result"
-class="result-panel">
-
-Ready to calculate.
-
-</div>
-
-
-
 
 </section>
-
-
-
-
-
-
 
 <!-- =========================
      WORKED EXAMPLE
 ========================= -->
-
 
 <section class="content-card">
 
@@ -562,16 +816,9 @@ M = 2500 N·mm
 
 </section>
 
-
-
-
-
-
-
 <!-- =========================
      ENGINEERING NOTES
 ========================= -->
-
 
 <section class="content-card">
 
@@ -602,16 +849,9 @@ Sign convention depends on the direction of rotation.
 
 </section>
 
-
-
-
-
-
-
 <!-- =========================
      APPLICATIONS
 ========================= -->
-
 
 <section class="content-card">
 
@@ -634,11 +874,6 @@ Sign convention depends on the direction of rotation.
 
 
 </section>
-
-
-
-
-
 
 
 <!-- =========================
@@ -666,21 +901,11 @@ Sign convention depends on the direction of rotation.
 
 </section>
 
-
-
-
-
+ 
 </div>
 
-
-
-
-
 <script src="../js/units.js"></script>
-
 <script src="../js/moment.js"></script>
-
-
 
 </body>
 
