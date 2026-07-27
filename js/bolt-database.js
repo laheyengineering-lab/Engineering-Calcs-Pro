@@ -1,0 +1,98 @@
+// ======================================================
+// Engineering Calcs Pro
+// Bolt Database & Specifications
+// ======================================================
+
+const boltDatabase = {
+
+    metric: [
+        { size: "M4", diameter: 4.0, pitch: 0.7 },
+        { size: "M5", diameter: 5.0, pitch: 0.8 },
+        { size: "M6", diameter: 6.0, pitch: 1.0 },
+        { size: "M8", diameter: 8.0, pitch: 1.25 },
+        { size: "M10", diameter: 10.0, pitch: 1.5 },
+        { size: "M12", diameter: 12.0, pitch: 1.75 },
+        { size: "M14", diameter: 14.0, pitch: 2.0 },
+        { size: "M16", diameter: 16.0, pitch: 2.0 },
+        { size: "M18", diameter: 18.0, pitch: 2.5 },
+        { size: "M20", diameter: 20.0, pitch: 2.5 },
+        { size: "M24", diameter: 24.0, pitch: 3.0 },
+        { size: "M30", diameter: 30.0, pitch: 3.5 },
+        { size: "M36", diameter: 36.0, pitch: 4.0 }
+    ],
+
+    imperial: [
+        { size: '#10-24', diameter: 0.190, pitch: 24 },
+        { size: '#10-32', diameter: 0.190, pitch: 32 },
+        { size: '1/4"-20', diameter: 0.250, pitch: 20 },
+        { size: '1/4"-28', diameter: 0.250, pitch: 28 },
+        { size: '5/16"-18', diameter: 0.3125, pitch: 18 },
+        { size: '5/16"-24', diameter: 0.3125, pitch: 24 },
+        { size: '3/8"-16', diameter: 0.375, pitch: 16 },
+        { size: '3/8"-24', diameter: 0.375, pitch: 24 },
+        { size: '1/2"-13', diameter: 0.500, pitch: 13 },
+        { size: '1/2"-20', diameter: 0.500, pitch: 20 },
+        { size: '5/8"-11', diameter: 0.625, pitch: 11 },
+        { size: '5/8"-18', diameter: 0.625, pitch: 18 },
+        { size: '3/4"-10', diameter: 0.750, pitch: 10 },
+        { size: '3/4"-16', diameter: 0.750, pitch: 16 },
+        { size: '7/8"-9', diameter: 0.875, pitch: 9 },
+        { size: '7/8"-14', diameter: 0.875, pitch: 14 },
+        { size: '1"-8', diameter: 1.000, pitch: 8 },
+        { size: '1"-12', diameter: 1.000, pitch: 12 }
+    ]
+
+};
+
+function populateBoltSizes() {
+
+    const unitSystem = document.getElementById("unitSystem").value;
+    const boltSizeSelect = document.getElementById("boltSize");
+    
+    // Clear existing options
+    boltSizeSelect.innerHTML = '<option value="">-- Select Bolt Size --</option>';
+    
+    // Get the appropriate database
+    const bolts = boltDatabase[unitSystem];
+    
+    // Populate dropdown
+    bolts.forEach(bolt => {
+        const option = document.createElement("option");
+        option.value = bolt.diameter;
+        option.textContent = bolt.size + " (∅ " + (unitSystem === 'metric' ? bolt.diameter + "mm" : bolt.diameter + '"') + ")";
+        boltSizeSelect.appendChild(option);
+    });
+
+    // Update diameter unit display
+    if(unitSystem === "metric"){
+        document.getElementById("diameterUnitDisplay").textContent = "mm";
+    } else {
+        document.getElementById("diameterUnitDisplay").textContent = "in";
+    }
+
+}
+
+function updateBoltCalculator(){
+
+    const unitSystem = document.getElementById("unitSystem").value;
+    
+    // Populate bolt sizes for selected unit system
+    populateBoltSizes();
+    
+    // Update force and torque units
+    if(unitSystem === "metric"){
+        document.getElementById("loadUnit").value = "N";
+        document.getElementById("torqueUnit").value = "N·m";
+    } else {
+        document.getElementById("loadUnit").value = "lbf";
+        document.getElementById("torqueUnit").value = "lbf·in";
+    }
+
+}
+
+function getBoltDiameterFromSelection() {
+
+    const boltSizeSelect = document.getElementById("boltSize");
+    return Number(boltSizeSelect.value);
+
+}
