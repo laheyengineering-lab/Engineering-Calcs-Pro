@@ -1,14 +1,16 @@
 const container = document.querySelector(".card-container");
 const searchInput = document.getElementById("searchInput");
 
-function buildHomepage(searchText = "") {
+// Cache static categories
+const CATEGORIES = [...new Set(calculators.map(c => c.category))];
 
+// Debounce timer for search
+let searchDebounceTimer;
+
+function buildHomepage(searchText = "") {
     container.innerHTML = "";
 
-    const categories = [...new Set(calculators.map(c => c.category))];
-
-    categories.forEach(category => {
-
+    CATEGORIES.forEach(category => {
         const categoryCalcs = calculators.filter(calc =>
             calc.category === category &&
             calc.name.toLowerCase().includes(searchText.toLowerCase())
@@ -20,38 +22,37 @@ function buildHomepage(searchText = "") {
         const card = document.createElement("div");
         card.className = "category-card";
 
-        card.innerHTML = `<h2>${category}</h2>`;
+        const categoryHeading = document.createElement("h2");
+        categoryHeading.textContent = category;
+        card.appendChild(categoryHeading);
 
+        // Batch append with fragment for better performance
+        const fragment = document.createDocumentFragment();
         categoryCalcs.forEach(calc => {
-
             const calcCard = document.createElement("a");
-
             calcCard.className = "calculator-card";
-
             calcCard.href = calc.link;
 
-            calcCard.innerHTML = `
+            const heading = document.createElement("h3");
+            heading.textContent = calc.name;
+            const desc = document.createElement("p");
+            desc.textContent = calc.description;
 
-                <h3>${calc.name}</h3>
-
-                <p>${calc.description}</p>
-
-            `;
-
-            card.appendChild(calcCard);
-
+            calcCard.appendChild(heading);
+            calcCard.appendChild(desc);
+            fragment.appendChild(calcCard);
         });
-
+        card.appendChild(fragment);
         container.appendChild(card);
-
     });
-
 }
 
 buildHomepage();
 
+// Debounce search input to reduce rebuilds
 searchInput.addEventListener("input", () => {
-
-    buildHomepage(searchInput.value);
-
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+        buildHomepage(searchInput.value);
+    }, 300);
 });

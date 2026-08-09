@@ -79,54 +79,50 @@ const boltDatabase = {
 };
 
 function populateBoltSizes() {
-
     const unitSystem = document.getElementById("unitSystem").value;
     const boltSizeSelect = document.getElementById("boltSize");
-    
-    // Clear existing options
+
+    // Clear and reset
     boltSizeSelect.innerHTML = '<option value="">-- Select Bolt Size --</option>';
-    
+
     // Get the appropriate database
     const bolts = boltDatabase[unitSystem];
-    
-    // Populate dropdown
+    const suffix = unitSystem === 'metric' ? 'mm' : '"';
+
+    // Use DocumentFragment for batch DOM operations (much faster than individual appends)
+    const fragment = document.createDocumentFragment();
     bolts.forEach(bolt => {
         const option = document.createElement("option");
         option.value = bolt.diameter;
-        option.textContent = bolt.size + " (∅ " + (unitSystem === 'metric' ? bolt.diameter + "mm" : bolt.diameter + '"') + ")";
-        boltSizeSelect.appendChild(option);
+        option.textContent = `${bolt.size} (∅ ${bolt.diameter}${suffix})`;
+        fragment.appendChild(option);
     });
+    boltSizeSelect.appendChild(fragment);
 
     // Update diameter unit display
-    if(unitSystem === "metric"){
-        document.getElementById("diameterUnitDisplay").textContent = "mm";
-    } else {
-        document.getElementById("diameterUnitDisplay").textContent = "in";
-    }
-
+    const diameterUnitDisplay = document.getElementById("diameterUnitDisplay");
+    diameterUnitDisplay.textContent = unitSystem === "metric" ? "mm" : "in";
 }
 
-function updateBoltCalculator(){
-
+function updateBoltCalculator() {
     const unitSystem = document.getElementById("unitSystem").value;
-    
+
     // Populate bolt sizes for selected unit system
     populateBoltSizes();
-    
-    // Update force and torque units
-    if(unitSystem === "metric"){
-        document.getElementById("loadUnit").value = "N";
-        document.getElementById("torqueUnit").value = "N·m";
-    } else {
-        document.getElementById("loadUnit").value = "lbf";
-        document.getElementById("torqueUnit").value = "lbf·in";
-    }
 
+    // Update force and torque units
+    const loadUnitSelect = document.getElementById("loadUnit");
+    const torqueUnitSelect = document.getElementById("torqueUnit");
+    if (unitSystem === "metric") {
+        loadUnitSelect.value = "N";
+        torqueUnitSelect.value = "N·m";
+    } else {
+        loadUnitSelect.value = "lbf";
+        torqueUnitSelect.value = "lbf·in";
+    }
 }
 
 function getBoltDiameterFromSelection() {
-
     const boltSizeSelect = document.getElementById("boltSize");
     return Number(boltSizeSelect.value);
-
 }
