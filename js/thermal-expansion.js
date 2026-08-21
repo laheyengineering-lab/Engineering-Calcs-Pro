@@ -16,51 +16,18 @@ const thermalModulusUnitSelect = document.getElementById("modulusUnit");
 const thermalOutputLengthUnitSelect = document.getElementById("outputLengthUnit");
 const thermalStressUnitSelect = document.getElementById("stressUnit");
 
-// Material thermal expansion coefficients (1/°C)
-const materialAlphaValues = {
-    "carbon-steel": 12.0e-6,
-    "stainless-steel": 15.9e-6,
-    "aluminum": 23.6e-6,
-    "copper": 16.5e-6,
-    "brass": 19.0e-6,
-    "titanium": 8.6e-6
-};
-
 // Update thermal expansion coefficient when material is selected
 function updateMaterialAlpha() {
     const material = thermalMaterialSelect.value;
     
-    if (material && materialAlphaValues[material]) {
-        thermalAlphaInput.value = materialAlphaValues[material];
-        thermalAlphaUnitSelect.value = "1/°C";
+    if (material) {
+        const alphaValue = getMaterialProperty(material, "thermalExpansionCoefficient");
+        if (alphaValue !== null) {
+            // Thermal expansion coefficient is already in 1/°C
+            thermalAlphaInput.value = alphaValue;
+            thermalAlphaUnitSelect.value = "1/°C";
+        }
     }
-}
-
-// Stress conversion helper
-function convertStress(valueInPa, outputUnit) {
-    const stressUnits = {
-        "Pa": 1,
-        "MPa": 1e6,
-        "GPa": 1e9,
-        "psi": 6894.757,
-        "ksi": 6894757
-    };
-    return valueInPa / stressUnits[outputUnit];
-}
-
-// Modulus conversion (stress units)
-function convertModulus(valueInPa, outputUnit) {
-    return convertStress(valueInPa, outputUnit);
-}
-
-// Convert temperature change
-function convertTemperatureChange(value, unit) {
-    if (unit === "°F") {
-        // Convert Fahrenheit interval to Celsius interval (divide by 1.8)
-        return value / 1.8;
-    }
-    // °C and K intervals are equivalent
-    return value;
 }
 
 function calculateThermalExpansion() {
@@ -86,7 +53,7 @@ function calculateThermalExpansion() {
     }
     
     try {
-        // Convert inputs to SI base units
+        // Convert inputs to SI base units using engineering-units.js
         const originalLengthM = convertDistance(originalLength, lengthUnit);
         const deltaTC = convertTemperatureChange(temperatureChange, temperatureUnit);
         
@@ -102,18 +69,18 @@ function calculateThermalExpansion() {
         const thermalStrain = alpha * deltaTC;
         
         // Convert output lengths
-        const deltaLOutput = deltaLM / convertDistance(1, outputLengthUnit);
-        const finalLengthOutput = finalLengthM / convertDistance(1, outputLengthUnit);
+        const deltaLOutput = convertDistanceToUnit(deltaLM, outputLengthUnit);
+        const finalLengthOutput = convertDistanceToUnit(finalLengthM, outputLengthUnit);
         
         // Calculate restrained thermal stress (optional)
         let thermalStressPa = null;
         let thermalStressOutput = null;
         
         if (!isNaN(youngsModulus) && youngsModulus !== 0) {
-            const modulusPa = convertModulus(youngsModulus, modulusUnit);
+            const modulusPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
             // σ = E·α·ΔT
             thermalStressPa = modulusPa * alpha * deltaTC;
-            thermalStressOutput = convertStress(thermalStressPa, stressUnit);
+            thermalStressOutput = convertStressToUnit(thermalStressPa, stressUnit);
         }
         
         // Build result HTML
