@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Thermal Expansion Calculator | Engineering Calcs Pro</title>
+
+<link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="../index.html" class="back-link">
+    ← Back to Engineering Calcs Pro
+</a>
+
+<header class="calculator-header">
+
+    <h1>Thermal Expansion Calculator</h1>
+
+    <p>
+        Calculate linear thermal expansion or contraction for materials due to temperature changes.
+        Includes free expansion and optional restrained member thermal stress analysis.
+    </p>
+
+</header>
+
+
+<!-- =========================
+     CALCULATOR SECTION
+========================= -->
+
+
+<section class="content-card calculator-box">
+
+
+    <div class="calculator-layout">
+
+
+    <!-- =====================
+         LEFT COLUMN
+         EQUATION + DIAGRAM
+    ====================== -->
+
+    <div class="theory-column">
+
+
+        <section class="content-card formula-card">
+
+
+            <h2>Theory</h2>
+
+
+            <div class="formula-box">
+
+                ΔL = α·L₀·ΔT
+
+            </div>
+
+            <div class="formula-box">
+
+                L<sub>f</sub> = L₀ + ΔL
+
+            </div>
+
+            <div class="formula-box">
+
+                ε<sub>thermal</sub> = α·ΔT
+
+            </div>
+
+
+            <p>
+
+                Linear thermal expansion describes the change in length of a material due to 
+                temperature change. The change in length is proportional to the original length,
+                coefficient of linear thermal expansion, and temperature change. For a restrained
+                member (fully fixed), thermal stress can develop.
+
+            </p>
+            
+
+          <h3>Variables</h3>
+
+          <ul>
+
+                <li>
+                     <strong>ΔL</strong> = Change in length
+                </li>
+
+                <li>
+                     <strong>α</strong> = Coefficient of linear thermal expansion
+                </li>
+
+                <li>
+                     <strong>L₀</strong> = Original length
+                </li>
+
+                <li>
+                     <strong>ΔT</strong> = Temperature change (can be positive or negative)
+                </li>
+
+                <li>
+                     <strong>L<sub>f</sub></strong> = Final length
+                </li>
+
+                <li>
+                     <strong>ε<sub>thermal</sub></strong> = Thermal strain (dimensionless)
+                </li>
+
+                <li>
+                     <strong>σ<sub>thermal</sub></strong> = Thermal stress (fully restrained member)
+                </li>
+
+                <li>
+                     <strong>E</strong> = Young's modulus
+                </li>
+
+          </ul>
+
+
+            <div class="engineering-diagram">
+
+                <svg
+                viewBox="0 0 700 400"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <!-- Title -->
+                <text x="350" y="25" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">
+                    Linear Thermal Expansion
+                </text>
+
+                <!-- Free Expansion (top) -->
+                <g id="free-expansion">
+                    <text x="100" y="50" font-size="14" font-weight="bold" fill="#0b5394">Free Expansion</text>
+                    
+                    <!-- Original member -->
+                    <rect x="80" y="80" width="150" height="30" fill="none" stroke="#0b5394" stroke-width="2"/>
+                    <text x="155" y="130" font-size="14" fill="#0b5394" text-anchor="middle">L₀, T₁</text>
+                    
+                    <!-- Arrow -->
+                    <line x1="260" y1="95" x2="310" y2="95" stroke="#999" stroke-width="2"/>
+                    <polygon points="310,95 300,85 305,95 300,105" fill="#999"/>
+                    <text x="285" y="85" font-size="12" fill="#999">Heat ↑ΔT</text>
+                    
+                    <!-- Expanded member -->
+                    <rect x="330" y="80" width="190" height="30" fill="none" stroke="#cc6600" stroke-width="2" stroke-dasharray="5,5"/>
+                    <text x="425" y="130" font-size="14" fill="#cc6600" text-anchor="middle">L<sub>f</sub> = L₀ + ΔL, T₂</text>
+                    
+                    <!-- Dimension: Original length -->
+                    <line x1="80" y1="140" x2="230" y2="140" stroke="#555" stroke-width="2"/>
+                    <line x1="80" y1="135" x2="80" y2="145" stroke="#555" stroke-width="2"/>
+                    <line x1="230" y1="135" x2="230" y2="145" stroke="#555" stroke-width="2"/>
+                    <text x="155" y="160" font-size="12" fill="#555" text-anchor="middle">L₀</text>
+                    
+                    <!-- Dimension: Expansion ΔL -->
+                    <line x1="230" y1="140" x2="330" y2="140" stroke="#cc0000" stroke-width="2"/>
+                    <line x1="230" y1="135" x2="230" y2="145" stroke="#cc0000" stroke-width="2"/>
+                    <line x1="330" y1="135" x2="330" y2="145" stroke="#cc0000" stroke-width="2"/>
+                    <text x="280" y="160" font-size="12" fill="#cc0000" text-anchor="middle" font-weight="bold">ΔL</text>
+                    
+                    <!-- Dimension: Final length -->
+                    <line x1="330" y1="140" x2="520" y2="140" stroke="#0b5394" stroke-width="1" stroke-dasharray="4,4"/>
+                    <line x1="330" y1="135" x2="330" y2="145" stroke="#0b5394" stroke-width="2"/>
+                    <line x1="520" y1="135" x2="520" y2="145" stroke="#0b5394" stroke-width="2"/>
+                    <text x="425" y="160" font-size="12" fill="#0b5394" text-anchor="middle" font-style="italic">L<sub>f</sub></text>
+                </g>
+
+                <!-- Restrained Expansion (bottom) -->
+                <g id="restrained-expansion">
+                    <text x="100" y="220" font-size="14" font-weight="bold" fill="#0b5394">Fully Restrained</text>
+                    <text x="100" y="240" font-size="12" fill="#0b5394">(Thermal Stress Develops)</text>
+                    
+                    <!-- Fixed supports -->
+                    <line x1="70" y1="270" x2="90" y2="270" stroke="#000" stroke-width="2"/>
+                    <line x1="70" y1="280" x2="90" y2="280" stroke="#000" stroke-width="2"/>
+                    <line x1="70" y1="290" x2="90" y2="290" stroke="#000" stroke-width="2"/>
+                    
+                    <!-- Fixed member -->
+                    <rect x="90" y="270" width="150" height="30" fill="none" stroke="#0b5394" stroke-width="2"/>
+                    
+                    <!-- Fixed support (right) -->
+                    <line x1="240" y1="270" x2="260" y2="270" stroke="#000" stroke-width="2"/>
+                    <line x1="240" y1="280" x2="260" y2="280" stroke="#000" stroke-width="2"/>
+                    <line x1="240" y1="290" x2="260" y2="290" stroke="#000" stroke-width="2"/>
+                    
+                    <!-- Internal stress arrow -->
+                    <line x1="140" y1="320" x2="110" y2="320" stroke="#cc0000" stroke-width="3"/>
+                    <polygon points="110,320 120,310 120,330" fill="#cc0000"/>
+                    <text x="150" y="325" font-size="12" fill="#cc0000">σ<sub>thermal</sub></text>
+                    
+                    <!-- Temperature increase -->
+                    <path d="M 290 280 L 310 260 L 330 280" fill="none" stroke="#cc6600" stroke-width="2"/>
+                    <path d="M 290 285 L 310 265 L 330 285" fill="none" stroke="#cc6600" stroke-width="2"/>
+                    <text x="350" y="285" font-size="12" fill="#cc6600">Heat ↑ΔT</text>
+                </g>
+
+                </svg>
+
+            </div>
+          
+          <h3>Assumptions</h3>
+
+          <ul>
+
+                <li>
+                     Uniform material properties (constant α and E)
+                </li>
+
+                <li>
+                     Linear relationship between temperature and expansion
+                </li>
+
+                <li>
+                     Small thermal strains
+                </li>
+
+                <li>
+                     Temperature change is applied uniformly
+                </li>
+
+                <li>
+                     Restrained member analysis assumes fixed end conditions and linear elasticity
+                </li>
+
+          </ul>
+
+        </section>
+
+
+    </div>
+
+
+    <!-- =====================
+         RIGHT COLUMN
+         CALCULATOR
+    ====================== -->
+
+
+    <div class="calculator-column">
+
+
+        <section class="content-card calculator-box">
+
+
+    <h2>Calculation</h2>
+
+
+    <h3>Material & Expansion Coefficient</h3>
+
+    <label class="input-label">
+        Material (Thermal Expansion Coefficient α)
+    </label>
+
+    <select id="material" class="output-select" onchange="updateMaterialAlpha()">
+        <option value="">-- Select Material or Enter Custom --</option>
+        <option value="carbon-steel">Carbon Steel (12.0 × 10⁻⁶ /°C)</option>
+        <option value="stainless-steel">Stainless Steel 304 (15.9 × 10⁻⁶ /°C)</option>
+        <option value="aluminum">Aluminum 6061 (23.6 × 10⁻⁶ /°C)</option>
+        <option value="copper">Copper (16.5 × 10⁻⁶ /°C)</option>
+        <option value="brass">Brass (19.0 × 10⁻⁶ /°C)</option>
+        <option value="titanium">Titanium Grade 2 (8.6 × 10⁻⁶ /°C)</option>
+    </select>
+
+
+    <label class="input-label">
+        Coefficient of Linear Thermal Expansion (α) - Manual Override
+    </label>
+
+    <div class="input-row">
+        <input id="alpha" type="number" placeholder="Enter α value" step="1e-6">
+        <select id="alphaUnit">
+            <option selected>1/°C</option>
+            <option>1/K</option>
+        </select>
+    </div>
+
+    <p style="font-size: 12px; color: #666; margin-top: 8px;">
+        Reference values shown are typical. Verify for your specific material and temperature range.
+    </p>
+
+
+    <h3>Inputs</h3>
+
+    <!-- Original Length -->
+    <label class="input-label">
+        Original Length (L₀)
+    </label>
+
+    <div class="input-row">
+        <input id="originalLength" type="number" placeholder="Enter original length">
+        <select id="lengthUnit">
+            <option>mm</option>
+            <option>cm</option>
+            <option selected>m</option>
+            <option>in</option>
+            <option>ft</option>
+        </select>
+    </div>
+
+
+    <!-- Temperature Change -->
+    <label class="input-label">
+        Temperature Change (ΔT)
+    </label>
+
+    <div class="input-row">
+        <input id="temperatureChange" type="number" placeholder="Enter temperature change">
+        <select id="temperatureUnit">
+            <option selected>°C</option>
+            <option>K</option>
+            <option>°F</option>
+        </select>
+    </div>
+
+    <p style="font-size: 12px; color: #666; margin-top: 8px;">
+        Positive for heating, negative for cooling. °C and K increments are equivalent.
+    </p>
+
+
+    <!-- Young's Modulus (for restrained analysis) -->
+    <label class="input-label">
+        Young's Modulus (E) - For Restrained Stress Calc
+    </label>
+
+    <div class="input-row">
+        <input id="youngsModulus" type="number" placeholder="Enter Young's modulus">
+        <select id="modulusUnit">
+            <option>Pa</option>
+            <option>MPa</option>
+            <option selected>GPa</option>
+            <option>psi</option>
+            <option>ksi</option>
+        </select>
+    </div>
+
+
+    <hr>
+
+
+    <h3>Output</h3>
+
+    <label class="input-label">
+        Length Units
+    </label>
+
+    <select id="outputLengthUnit" class="output-select">
+        <option>mm</option>
+        <option selected>m</option>
+        <option>in</option>
+    </select>
+
+    <label class="input-label">
+        Stress Units (if calculating restrained stress)
+    </label>
+
+    <select id="stressUnit" class="output-select">
+        <option selected>MPa</option>
+        <option>GPa</option>
+        <option>Pa</option>
+        <option>psi</option>
+        <option>ksi</option>
+    </select>
+
+
+    <div class="button-row">
+        <button onclick="calculateThermalExpansion()">
+            Calculate
+        </button>
+
+        <button class="secondary-button" onclick="resetThermalExpansionCalculator()">
+            Reset
+        </button>
+    </div>
+
+
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+
+
+</section>
+
+
+    </div>
+
+
+</div>
+
+</section>
+
+<!-- =========================
+     WORKED EXAMPLE
+========================= -->
+
+<section class="content-card">
+
+<h2>Worked Example</h2>
+
+<div class="example-box">
+
+<p>
+<strong>Given:</strong>
+</p>
+
+<p>
+Material: Steel rod
+</p>
+
+<p>
+Original Length: L₀ = 2 m
+</p>
+
+<p>
+Temperature Change: ΔT = +50°C (heating)
+</p>
+
+<p>
+Coefficient of Linear Thermal Expansion: α = 12.0 × 10⁻⁶ /°C
+</p>
+
+<p>
+Young's Modulus: E = 200 GPa
+</p>
+
+<p>
+<strong>Find: Free expansion and restrained thermal stress</strong>
+</p>
+
+<p>
+<strong>Solution (Free Expansion):</strong>
+</p>
+
+<p>
+ΔL = α·L₀·ΔT = 12.0 × 10⁻⁶ × 2 × 50 = 0.0012 m = 1.2 mm
+</p>
+
+<p>
+L<sub>f</sub> = L₀ + ΔL = 2 + 0.0012 = 2.0012 m
+</p>
+
+<p>
+ε<sub>thermal</sub> = α·ΔT = 12.0 × 10⁻⁶ × 50 = 0.0006
+</p>
+
+<p>
+<strong>Solution (Fully Restrained):</strong>
+</p>
+
+<p>
+σ<sub>thermal</sub> = E·α·ΔT = 200 × 10⁹ Pa × 12.0 × 10⁻⁶ /°C × 50°C = 120 MPa
+</p>
+
+</div>
+
+</section>
+
+<!-- =========================
+     ENGINEERING NOTES
+========================= -->
+
+<section class="content-card">
+
+<h2>Notes</h2>
+
+<ul>
+
+<li>
+<strong>Free Expansion:</strong> If the member can expand freely, no stress develops; only dimensional change occurs.
+</li>
+
+<li>
+<strong>Fully Restrained:</strong> If the member is rigidly fixed and cannot expand, thermal stress develops equal to E·α·ΔT.
+</li>
+
+<li>
+In reality, many systems fall between these extremes (partially restrained), developing intermediate stresses.
+</li>
+
+<li>
+Thermal expansion coefficient α varies with temperature; reference values shown are typical room-temperature values.
+</li>
+
+<li>
+Cooling (negative ΔT) causes contraction and compressive thermal stresses in restrained members.
+</li>
+
+<li>
+Consider thermal expansion in pipe routing, bridge joints, machine assemblies, and precision instruments.
+</li>
+
+</ul>
+
+</section>
+
+<!-- =========================
+     APPLICATIONS
+========================= -->
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+
+<li>Piping and HVAC system design</li>
+
+<li>Bridge and building thermal joint design</li>
+
+<li>Precision machine assembly and tolerance stack-up</li>
+
+<li>Thermal stress analysis in automotive engines</li>
+
+<li>Electronic component mounting</li>
+
+<li>Cryogenic equipment design</li>
+
+</ul>
+
+</section>
+
+
+<!-- =========================
+     RELATED CALCULATORS
+========================= -->
+
+
+<section class="content-card">
+
+<h2>Related Calculators</h2>
+
+<ul>
+
+<li><a href="stress-strain.html">Stress & Strain</a></li>
+
+<li><a href="shaft-torsion.html">Shaft Torsion</a></li>
+
+<li><a href="beam-deflection.html">Beam Deflection</a></li>
+
+<li><a href="moment.html">Moment Calculator</a></li>
+
+</ul>
+
+</section>
+
+ 
+</div>
+
+<script src="../js/units.js"></script>
+<script src="../js/materials-database.js"></script>
+<script src="../js/thermal-expansion.js"></script>
+
+</body>
+
+</html>
