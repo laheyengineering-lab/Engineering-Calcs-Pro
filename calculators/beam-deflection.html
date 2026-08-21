@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Beam Deflection Calculator | Engineering Calcs Pro</title>
+
+<link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="../index.html" class="back-link">
+    ← Back to Engineering Calcs Pro
+</a>
+
+<header class="calculator-header">
+
+    <h1>Beam Deflection Calculator</h1>
+
+    <p>
+        Calculate maximum beam deflection, bending moment, and slope for common static loading cases
+        using Euler-Bernoulli beam theory.
+    </p>
+
+</header>
+
+
+<!-- =========================
+     CALCULATOR SECTION
+========================= -->
+
+
+<section class="content-card calculator-box">
+
+
+    <div class="calculator-layout">
+
+
+    <!-- =====================
+         LEFT COLUMN
+         EQUATION + DIAGRAM
+    ====================== -->
+
+    <div class="theory-column">
+
+
+        <section class="content-card formula-card">
+
+
+            <h2>Theory</h2>
+
+
+            <p>
+                Beam deflection depends on load type, boundary conditions, material stiffness (E·I),
+                and geometry. This calculator covers four standard cases with closed-form solutions
+                from Euler-Bernoulli beam theory.
+            </p>
+
+
+            <h3>Loading Cases</h3>
+
+            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+                <strong>Case 1: Simply Supported, Center Point Load</strong><br>
+                δ<sub>max</sub> = P·L³ / (48·E·I)
+            </div>
+
+            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+                <strong>Case 2: Simply Supported, Uniform Distributed Load</strong><br>
+                δ<sub>max</sub> = 5·w·L⁴ / (384·E·I)
+            </div>
+
+            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+                <strong>Case 3: Cantilever, Point Load at Free End</strong><br>
+                δ<sub>max</sub> = P·L³ / (3·E·I)
+            </div>
+
+            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+                <strong>Case 4: Cantilever, Uniform Distributed Load</strong><br>
+                δ<sub>max</sub> = w·L⁴ / (8·E·I)
+            </div>
+
+
+            <div class="engineering-diagram">
+
+                <svg
+                viewBox="0 0 700 480"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <!-- Case 1: Simply Supported Center Point Load -->
+                <g id="case1">
+                    <text x="50" y="25" font-size="14" font-weight="bold" fill="#0b5394">Case 1: SS + Center Point Load</text>
+                    
+                    <!-- Left support -->
+                    <polygon points="50,80 40,95 60,95" fill="#333"/>
+                    <!-- Right support -->
+                    <polygon points="300,80 290,95 310,95" fill="#333"/>
+                    
+                    <!-- Beam -->
+                    <line x1="50" y1="80" x2="300" y2="80" stroke="#0b5394" stroke-width="3"/>
+                    
+                    <!-- Center load -->
+                    <line x1="175" y1="50" x2="175" y2="75" stroke="#cc0000" stroke-width="3"/>
+                    <polygon points="175,50 165,65 185,65" fill="#cc0000"/>
+                    <text x="190" y="60" font-size="12" fill="#cc0000">P</text>
+                    
+                    <!-- Deflection curve (exaggerated) -->
+                    <path d="M 50 80 Q 175 110 300 80" fill="none" stroke="#cc6600" stroke-width="2" stroke-dasharray="4,4"/>
+                    
+                    <!-- Dimension L -->
+                    <line x1="50" y1="130" x2="300" y2="130" stroke="#555" stroke-width="1"/>
+                    <line x1="50" y1="125" x2="50" y2="135" stroke="#555" stroke-width="2"/>
+                    <line x1="300" y1="125" x2="300" y2="135" stroke="#555" stroke-width="2"/>
+                    <text x="175" y="150" font-size="12" fill="#555" text-anchor="middle">L</text>
+                </g>
+
+                <!-- Case 2: Simply Supported UDL -->
+                <g id="case2">
+                    <text x="380" y="25" font-size="14" font-weight="bold" fill="#0b5394">Case 2: SS + UDL</text>
+                    
+                    <!-- Left support -->
+                    <polygon points="380,80 370,95 390,95" fill="#333"/>
+                    <!-- Right support -->
+                    <polygon points="630,80 620,95 640,95" fill="#333"/>
+                    
+                    <!-- Beam -->
+                    <line x1="380" y1="80" x2="630" y2="80" stroke="#0b5394" stroke-width="3"/>
+                    
+                    <!-- Distributed load (arrow pattern) -->
+                    <line x1="390" y1="40" x2="390" y2="75" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="390,40 385,50 395,50" fill="#cc0000"/>
+                    <line x1="430" y1="35" x2="430" y2="75" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="430,35 425,45 435,45" fill="#cc0000"/>
+                    <line x1="470" y1="35" x2="470" y2="75" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="470,35 465,45 475,45" fill="#cc0000"/>
+                    <line x1="510" y1="40" x2="510" y2="75" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="510,40 505,50 515,50" fill="#cc0000"/>
+                    <line x1="550" y1="35" x2="550" y2="75" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="550,35 545,45 555,45" fill="#cc0000"/>
+                    <line x1="590" y1="40" x2="590" y2="75" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="590,40 585,50 595,50" fill="#cc0000"/>
+                    <line x1="385" y1="42" x2="595" y2="42" stroke="#cc0000" stroke-width="1"/>
+                    <text x="620" y="50" font-size="12" fill="#cc0000">w</text>
+                    
+                    <!-- Deflection curve -->
+                    <path d="M 380 80 Q 505 115 630 80" fill="none" stroke="#cc6600" stroke-width="2" stroke-dasharray="4,4"/>
+                    
+                    <!-- Dimension L -->
+                    <line x1="380" y1="130" x2="630" y2="130" stroke="#555" stroke-width="1"/>
+                    <line x1="380" y1="125" x2="380" y2="135" stroke="#555" stroke-width="2"/>
+                    <line x1="630" y1="125" x2="630" y2="135" stroke="#555" stroke-width="2"/>
+                    <text x="505" y="150" font-size="12" fill="#555" text-anchor="middle">L</text>
+                </g>
+
+                <!-- Case 3: Cantilever Point Load -->
+                <g id="case3">
+                    <text x="50" y="210" font-size="14" font-weight="bold" fill="#0b5394">Case 3: Cantilever + Point Load</text>
+                    
+                    <!-- Fixed support (hatched) -->
+                    <rect x="30" y="270" width="20" height="30" fill="none" stroke="#000" stroke-width="2"/>
+                    <line x1="32" y1="270" x2="48" y2="300" stroke="#000" stroke-width="1"/>
+                    <line x1="32" y1="280" x2="48" y2="290" stroke="#000" stroke-width="1"/>
+                    <line x1="32" y1="290" x2="48" y2="280" stroke="#000" stroke-width="1"/>
+                    
+                    <!-- Beam -->
+                    <line x1="50" y1="285" x2="280" y2="285" stroke="#0b5394" stroke-width="3"/>
+                    
+                    <!-- End load -->
+                    <line x1="280" y1="245" x2="280" y2="280" stroke="#cc0000" stroke-width="3"/>
+                    <polygon points="280,245 270,260 290,260" fill="#cc0000"/>
+                    <text x="295" y="255" font-size="12" fill="#cc0000">P</text>
+                    
+                    <!-- Deflection curve -->
+                    <path d="M 50 285 Q 165 330 280 320" fill="none" stroke="#cc6600" stroke-width="2" stroke-dasharray="4,4"/>
+                    
+                    <!-- Dimension L -->
+                    <line x1="50" y1="340" x2="280" y2="340" stroke="#555" stroke-width="1"/>
+                    <line x1="50" y1="335" x2="50" y2="345" stroke="#555" stroke-width="2"/>
+                    <line x1="280" y1="335" x2="280" y2="345" stroke="#555" stroke-width="2"/>
+                    <text x="165" y="360" font-size="12" fill="#555" text-anchor="middle">L</text>
+                </g>
+
+                <!-- Case 4: Cantilever UDL -->
+                <g id="case4">
+                    <text x="380" y="210" font-size="14" font-weight="bold" fill="#0b5394">Case 4: Cantilever + UDL</text>
+                    
+                    <!-- Fixed support (hatched) -->
+                    <rect x="360" y="270" width="20" height="30" fill="none" stroke="#000" stroke-width="2"/>
+                    <line x1="362" y1="270" x2="378" y2="300" stroke="#000" stroke-width="1"/>
+                    <line x1="362" y1="280" x2="378" y2="290" stroke="#000" stroke-width="1"/>
+                    <line x1="362" y1="290" x2="378" y2="280" stroke="#000" stroke-width="1"/>
+                    
+                    <!-- Beam -->
+                    <line x1="380" y1="285" x2="610" y2="285" stroke="#0b5394" stroke-width="3"/>
+                    
+                    <!-- Distributed load -->
+                    <line x1="390" y1="245" x2="390" y2="280" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="390,245 385,255 395,255" fill="#cc0000"/>
+                    <line x1="430" y1="240" x2="430" y2="280" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="430,240 425,250 435,250" fill="#cc0000"/>
+                    <line x1="470" y1="240" x2="470" y2="280" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="470,240 465,250 475,250" fill="#cc0000"/>
+                    <line x1="510" y1="245" x2="510" y2="280" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="510,245 505,255 515,255" fill="#cc0000"/>
+                    <line x1="550" y1="240" x2="550" y2="280" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="550,240 545,250 555,250" fill="#cc0000"/>
+                    <line x1="590" y1="245" x2="590" y2="280" stroke="#cc0000" stroke-width="2"/>
+                    <polygon points="590,245 585,255 595,255" fill="#cc0000"/>
+                    <line x1="385" y1="247" x2="595" y2="247" stroke="#cc0000" stroke-width="1"/>
+                    <text x="620" y="255" font-size="12" fill="#cc0000">w</text>
+                    
+                    <!-- Deflection curve -->
+                    <path d="M 380 285 Q 495 330 610 315" fill="none" stroke="#cc6600" stroke-width="2" stroke-dasharray="4,4"/>
+                    
+                    <!-- Dimension L -->
+                    <line x1="380" y1="340" x2="610" y2="340" stroke="#555" stroke-width="1"/>
+                    <line x1="380" y1="335" x2="380" y2="345" stroke="#555" stroke-width="2"/>
+                    <line x1="610" y1="335" x2="610" y2="345" stroke="#555" stroke-width="2"/>
+                    <text x="495" y="360" font-size="12" fill="#555" text-anchor="middle">L</text>
+                </g>
+
+                </svg>
+
+            </div>
+          
+          <h3>Assumptions</h3>
+
+          <ul>
+
+                <li>
+                     Linear elastic material behavior
+                </li>
+
+                <li>
+                     Prismatic beam (constant cross-section)
+                </li>
+
+                <li>
+                     Constant E and I along span
+                </li>
+
+                <li>
+                     Small deflection theory
+                </li>
+
+                <li>
+                     No shear deformation (Euler-Bernoulli theory)
+                </li>
+
+                <li>
+                     Static loading only
+                </li>
+
+                <li>
+                     Ideal support conditions (pin/roller or fixed)
+                </li>
+
+          </ul>
+
+        </section>
+
+
+    </div>
+
+
+    <!-- =====================
+         RIGHT COLUMN
+         CALCULATOR
+    ====================== -->
+
+
+    <div class="calculator-column">
+
+
+        <section class="content-card calculator-box">
+
+
+    <h2>Calculation</h2>
+
+
+    <h3>Loading Case</h3>
+
+    <label class="input-label">
+        Select Loading Case
+    </label>
+
+    <select id="loadingCase" class="output-select" onchange="updateBeamDeflectionMode()">
+        <option value="ss-point">Simply Supported + Center Point Load</option>
+        <option value="ss-udl">Simply Supported + Uniform Distributed Load</option>
+        <option value="cant-point">Cantilever + Point Load at Free End</option>
+        <option value="cant-udl">Cantilever + Uniform Distributed Load</option>
+    </select>
+
+
+    <h3>Inputs</h3>
+
+    <!-- Beam Length -->
+    <label class="input-label">
+        Beam Length (L)
+    </label>
+
+    <div class="input-row">
+        <input id="beamLength" type="number" placeholder="Enter beam length">
+        <select id="lengthUnit">
+            <option>mm</option>
+            <option>cm</option>
+            <option selected>m</option>
+            <option>in</option>
+            <option>ft</option>
+        </select>
+    </div>
+
+
+    <!-- Point Load (for point load cases) -->
+    <div id="pointLoadContainer">
+        <label class="input-label">
+            Point Load (P)
+        </label>
+
+        <div class="input-row">
+            <input id="pointLoad" type="number" placeholder="Enter point load">
+            <select id="loadUnit">
+                <option>N</option>
+                <option>kN</option>
+                <option>lbf</option>
+            </select>
+        </div>
+    </div>
+
+
+    <!-- Distributed Load (for UDL cases) -->
+    <div id="distributedLoadContainer" style="display: none;">
+        <label class="input-label">
+            Distributed Load (w)
+        </label>
+
+        <div class="input-row">
+            <input id="distributedLoad" type="number" placeholder="Enter distributed load">
+            <select id="distributedLoadUnit">
+                <option>N/m</option>
+                <option>kN/m</option>
+                <option>lbf/ft</option>
+            </select>
+        </div>
+    </div>
+
+
+    <!-- Young's Modulus -->
+    <label class="input-label">
+        Young's Modulus (E)
+    </label>
+
+    <div class="input-row">
+        <input id="youngsModulus" type="number" placeholder="Enter Young's modulus">
+        <select id="modulusUnit">
+            <option>Pa</option>
+            <option>MPa</option>
+            <option selected>GPa</option>
+            <option>psi</option>
+            <option>ksi</option>
+        </select>
+    </div>
+
+
+    <!-- Area Moment of Inertia -->
+    <label class="input-label">
+        Area Moment of Inertia (I)
+    </label>
+
+    <div class="input-row">
+        <input id="areamomentinertia" type="number" placeholder="Enter area moment of inertia">
+        <select id="inertiaUnit">
+            <option>mm⁴</option>
+            <option>cm⁴</option>
+            <option selected>m⁴</option>
+            <option>in⁴</option>
+        </select>
+    </div>
+
+    <p style="font-size: 12px; color: #666; margin-top: 8px;">
+        For rectangular section: I = b·h³/12<br>
+        For circular: I = π·d⁴/64
+    </p>
+
+
+    <hr>
+
+
+    <h3>Output</h3>
+
+    <label class="input-label">
+        Deflection Units
+    </label>
+
+    <select id="deflectionUnit" class="output-select">
+        <option>mm</option>
+        <option selected>m</option>
+        <option>in</option>
+    </select>
+
+
+    <div class="button-row">
+        <button onclick="calculateBeamDeflection()">
+            Calculate
+        </button>
+
+        <button class="secondary-button" onclick="resetBeamDeflectionCalculator()">
+            Reset
+        </button>
+    </div>
+
+
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+
+
+</section>
+
+
+    </div>
+
+
+</div>
+
+</section>
+
+<!-- =========================
+     WORKED EXAMPLE
+========================= -->
+
+<section class="content-card">
+
+<h2>Worked Example</h2>
+
+<div class="example-box">
+
+<p>
+<strong>Given (Simply Supported Beam, Center Point Load):</strong>
+</p>
+
+<p>
+Beam Length: L = 3 m
+</p>
+
+<p>
+Point Load: P = 10,000 N
+</p>
+
+<p>
+Young's Modulus: E = 200 GPa = 200 × 10⁹ Pa
+</p>
+
+<p>
+Area Moment of Inertia: I = 5 × 10⁻⁵ m⁴
+</p>
+
+<p>
+<strong>Find: Maximum deflection and maximum moment</strong>
+</p>
+
+<p>
+<strong>Solution:</strong>
+</p>
+
+<p>
+δ<sub>max</sub> = P·L³ / (48·E·I) = 10,000 × 3³ / (48 × 200 × 10⁹ × 5 × 10⁻⁵)
+</p>
+
+<p>
+δ<sub>max</sub> = 270,000 / (48 × 10⁷) = 0.00562 m = 5.62 mm
+</p>
+
+<p>
+M<sub>max</sub> = P·L / 4 = 10,000 × 3 / 4 = 7,500 N·m
+</p>
+
+</div>
+
+</section>
+
+<!-- =========================
+     ENGINEERING NOTES
+========================= -->
+
+<section class="content-card">
+
+<h2>Notes</h2>
+
+<ul>
+
+<li>
+This calculator uses closed-form solutions for four common cases only. Other loading conditions require more advanced analysis.
+</li>
+
+<li>
+For point loads, deflection is typically maximum at midspan (simply supported) or free end (cantilever).
+</li>
+
+<li>
+Area moment of inertia I has units of length⁴ (mm⁴, m⁴, in⁴, etc.). Pay careful attention to unit conversion.
+</li>
+
+<li>
+The stiffness E·I (flexural rigidity) directly affects deflection; doubling I halves the deflection.
+</li>
+
+<li>
+Check deflection limits against serviceability criteria (e.g., L/240 or L/360 depending on application).
+</li>
+
+<li>
+For distributed loads, verify the load is truly uniform across the span. Partial or varying loads require different formulas.
+</li>
+
+<li>
+This calculator does not account for lateral-torsional buckling, support settlement, or dynamic effects.
+</li>
+
+</ul>
+
+</section>
+
+<!-- =========================
+     APPLICATIONS
+========================= -->
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+
+<li>Floor and roof beam design</li>
+
+<li>Bridge span analysis</li>
+
+<li>Cantilever overhang design</li>
+
+<li>Serviceability checks (deflection limits)</li>
+
+<li>Machine frame analysis</li>
+
+<li>Support structure verification</li>
+
+</ul>
+
+</section>
+
+
+<!-- =========================
+     RELATED CALCULATORS
+========================= -->
+
+
+<section class="content-card">
+
+<h2>Related Calculators</h2>
+
+<ul>
+
+<li><a href="stress-strain.html">Stress & Strain</a></li>
+
+<li><a href="shaft-torsion.html">Shaft Torsion</a></li>
+
+<li><a href="thermal-expansion.html">Thermal Expansion</a></li>
+
+<li><a href="moment.html">Moment Calculator</a></li>
+
+</ul>
+
+</section>
+
+ 
+</div>
+
+<script src="../js/units.js"></script>
+<script src="../js/beam-deflection.js"></script>
+
+</body>
+
+</html>
