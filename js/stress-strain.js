@@ -17,6 +17,7 @@ const stressStrainDeltaLengthUnitSelect = document.getElementById("deltaLengthUn
 const stressStrainModulusUnitSelect = document.getElementById("modulusUnit");
 const stressStrainOutputUnitSelect = document.getElementById("outputUnit");
 const stressStrainModeSelect = document.getElementById("calculationMode");
+const stressStrainMaterialSelect = document.getElementById("material");
 
 // Update visible inputs based on calculation mode
 function updateStressStrainMode() {
@@ -39,21 +40,19 @@ function updateStressStrainMode() {
     stressStrainResultPanel.innerHTML = "Ready to calculate.";
 }
 
-// Stress conversion helper
-function convertStress(valueInPa, outputUnit) {
-    const stressUnits = {
-        "Pa": 1,
-        "MPa": 1e6,
-        "GPa": 1e9,
-        "psi": 6894.757,
-        "ksi": 6894757
-    };
-    return valueInPa / stressUnits[outputUnit];
-}
-
-// Modulus conversion (stress units)
-function convertModulus(valueInPa, outputUnit) {
-    return convertStress(valueInPa, outputUnit);
+// Update Young's modulus when material is selected
+function updateMaterialYoungsModulus() {
+    const material = stressStrainMaterialSelect.value;
+    
+    if (material) {
+        const youngsModulusValue = getMaterialProperty(material, "youngsModulus");
+        if (youngsModulusValue !== null) {
+            // Convert from SI (Pa) to GPa for display
+            const youngsModulusGPa = youngsModulusValue / 1e9;
+            stressStrainYoungsModulusInput.value = youngsModulusGPa;
+            stressStrainModulusUnitSelect.value = "GPa";
+        }
+    }
 }
 
 // Area conversion helper - SQUARED
@@ -95,7 +94,7 @@ function calculateStressStrain() {
             const forceN = convertForce(force, forceUnit);
             const areaM2 = convertArea(area, areaUnit);
             const stressPa = forceN / areaM2;
-            const stressOutput = convertStress(stressPa, outputUnit);
+            const stressOutput = convertStressToUnit(stressPa, outputUnit);
             
             resultHTML = `
                 <h3>Result</h3>
@@ -159,7 +158,7 @@ function calculateStressStrain() {
             const areaM2 = convertArea(area, areaUnit);
             const stressPa = forceN / areaM2;
             const modulusPa = stressPa / strainValue;
-            const modulusOutput = convertModulus(modulusPa, outputUnit);
+            const modulusOutput = convertStressToUnit(modulusPa, outputUnit);
             
             resultHTML = `
                 <h3>Result</h3>
@@ -193,9 +192,9 @@ function calculateStressStrain() {
             const forceN = convertForce(force, forceUnit);
             const areaM2 = convertArea(area, areaUnit);
             const originalLengthM = convertDistance(originalLength, lengthUnit);
-            const modolusPa = convertModulus(youngsModulus, modulusUnit);
+            const modulusPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
             
-            const deltaLM = (forceN * originalLengthM) / (areaM2 * modolusPa);
+            const deltaLM = (forceN * originalLengthM) / (areaM2 * modulusPa);
             const deltaLmm = deltaLM * 1000; // Convert to mm for display
             
             resultHTML = `
@@ -208,7 +207,7 @@ function calculateStressStrain() {
                 <p><strong>Calculation Summary</strong></p>
                 <p>ΔL = (F·L₀) / (A·E)</p>
                 <p>ΔL = (${force} ${forceUnit} · ${originalLength} ${lengthUnit}) / (${area} ${areaUnit} · ${youngsModulus} ${modulusUnit})</p>
-                <p>ΔL = (${forceN.toLocaleString(undefined, { maximumFractionDigits: 2 })} N · ${originalLengthM.toLocaleString(undefined, { maximumFractionDigits: 6 })} m) / (${areaM2.toLocaleString(undefined, { maximumFractionDigits: 6 })} m² · ${modolusPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa)</p>
+                <p>ΔL = (${forceN.toLocaleString(undefined, { maximumFractionDigits: 2 })} N · ${originalLengthM.toLocaleString(undefined, { maximumFractionDigits: 6 })} m) / (${areaM2.toLocaleString(undefined, { maximumFractionDigits: 6 })} m² · ${modulusPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa)</p>
                 <p>= <strong>${deltaLM.toLocaleString(undefined, { maximumFractionDigits: 6 })} m (${deltaLmm.toLocaleString(undefined, { maximumFractionDigits: 3 })} mm)</strong></p>
             `;
         }
@@ -235,9 +234,10 @@ function resetStressStrainCalculator() {
     stressStrainAreaUnitSelect.value = "mm²";
     stressStrainLengthUnitSelect.value = "m";
     stressStrainDeltaLengthUnitSelect.value = "m";
-    stressStrainModulusUnitSelect.value = "MPa";
+    stressStrainModulusUnitSelect.value = "GPa";
     stressStrainOutputUnitSelect.value = "MPa";
     stressStrainModeSelect.value = "stress";
+    stressStrainMaterialSelect.value = "";
     
     updateStressStrainMode();
     stressStrainResultPanel.innerHTML = "Ready to calculate.";
