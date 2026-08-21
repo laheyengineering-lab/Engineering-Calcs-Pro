@@ -18,16 +18,6 @@ const torsionModulusUnitSelect = document.getElementById("modulusUnit");
 const torsionStressUnitSelect = document.getElementById("stressUnit");
 const torsionMaterialSelect = document.getElementById("material");
 
-// Material shear modulus database
-const materialShearModuli = {
-    "carbon-steel": 80,      // GPa
-    "stainless-steel": 77,
-    "aluminum": 26,
-    "copper": 44,
-    "brass": 37,
-    "titanium": 39
-};
-
 // Update visible inputs based on shaft type
 function updateShaftTorsionMode() {
     const shaftType = torsionShaftTypeSelect.value;
@@ -46,40 +36,15 @@ function updateShaftTorsionMode() {
 function updateMaterialShearModulus() {
     const material = torsionMaterialSelect.value;
     
-    if (material && materialShearModuli[material]) {
-        torsionShearModulusInput.value = materialShearModuli[material];
-        torsionModulusUnitSelect.value = "GPa";
+    if (material) {
+        const shearModulusValue = getMaterialProperty(material, "shearModulus");
+        if (shearModulusValue !== null) {
+            // Convert from SI (Pa) to GPa for display
+            const shearModulusGPa = shearModulusValue / 1e9;
+            torsionShearModulusInput.value = shearModulusGPa;
+            torsionModulusUnitSelect.value = "GPa";
+        }
     }
-}
-
-// Stress conversion helper
-function convertStress(valueInPa, outputUnit) {
-    const stressUnits = {
-        "Pa": 1,
-        "MPa": 1e6,
-        "GPa": 1e9,
-        "psi": 6894.757,
-        "ksi": 6894757
-    };
-    return valueInPa / stressUnits[outputUnit];
-}
-
-// Modulus conversion (stress units)
-function convertModulus(valueInPa, outputUnit) {
-    return convertStress(valueInPa, outputUnit);
-}
-
-// Fourth-power distance conversion for polar moment
-// J = π·D⁴/32 requires D in consistent units
-function convertDistanceFourthPower(value, unit) {
-    const distanceUnits = {
-        "mm": 0.001,
-        "cm": 0.01,
-        "m": 1,
-        "in": 0.0254
-    };
-    const base = distanceUnits[unit];
-    return base * base * base * base; // Fourth power
 }
 
 function calculateShaftTorsion() {
@@ -118,11 +83,11 @@ function calculateShaftTorsion() {
     }
     
     try {
-        // Convert inputs to SI base units
+        // Convert inputs to SI base units using engineering-units.js
         const torqueNm = convertMoment(torque, torqueUnit); // Convert to N·m
         const outerDiameterM = convertDistance(outerDiameter, diameterUnit);
         const lengthM = convertDistance(length, lengthUnit);
-        const modulusPa = convertModulus(shearModulus, modulusUnit);
+        const modulusPa = convertModulus(shearModulus, modulusUnit); // FIXED: Now uses centralized conversion
         
         // Calculate polar moment of inertia J (m⁴)
         let J;
@@ -143,7 +108,7 @@ function calculateShaftTorsion() {
         
         // Calculate maximum shear stress: τ_max = T·c/J = T·(D/2)/J
         const tauMaxPa = (torqueNm * outerRadius) / J;
-        const tauMaxOutput = convertStress(tauMaxPa, stressUnit);
+        const tauMaxOutput = convertStressToUnit(tauMaxPa, stressUnit);
         
         // Calculate angle of twist: θ = T·L/(G·J) (in radians)
         const thetaRadians = (torqueNm * lengthM) / (modulusPa * J);
@@ -166,7 +131,7 @@ function calculateShaftTorsion() {
             <p>τ<sub>max</sub> = T·c / J = ${torqueNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N·m × ${outerRadius.toLocaleString(undefined, { maximumFractionDigits: 6 })} m / ${J.toLocaleString(undefined, { maximumFractionDigits: 8 })} m⁴</p>
             <p>= <strong>${tauMaxOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${stressUnit}</strong></p>
             <p><strong>Angle of Twist:</strong></p>
-            <p>θ = T·L / (G·J) = ${torqueNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N·m × ${lengthM.toLocaleString(undefined, { maximumFractionDigits: 3 })} m / (${modulusPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa × ${J.toLocaleString(undefined, { maximumFractionDigits: 8 })} m⁴)</p>
+            <p>θ = T·L / (G·J) = ${torqueNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N·m × ${lengthM.toLocaleString(undefined, { maximumFractionDigits: 3 })} m / (${(modulusPa / 1e9).toLocaleString(undefined, { maximumFractionDigits: 2 })} GPa × ${J.toLocaleString(undefined, { maximumFractionDigits: 8 })} m⁴)</p>
             <p>= <strong>${thetaRadians.toLocaleString(undefined, { maximumFractionDigits: 6 })} rad</strong></p>
             <p>= <strong>${thetaDegrees.toLocaleString(undefined, { maximumFractionDigits: 3 })}°</strong></p>
             <p><strong>Torsional Stiffness:</strong></p>
