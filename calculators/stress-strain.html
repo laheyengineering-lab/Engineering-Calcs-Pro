@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Stress & Strain Calculator | Engineering Calcs Pro</title>
+
+<link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="../index.html" class="back-link">
+    ← Back to Engineering Calcs Pro
+</a>
+
+<header class="calculator-header">
+
+    <h1>Stress & Strain Calculator</h1>
+
+    <p>
+        Calculate axial normal stress, strain, Young's modulus, and elastic deformation
+        for a prismatic member under uniaxial loading.
+    </p>
+
+</header>
+
+
+<!-- =========================
+     CALCULATOR SECTION
+========================= -->
+
+
+<section class="content-card calculator-box">
+
+
+    <div class="calculator-layout">
+
+
+    <!-- =====================
+         LEFT COLUMN
+         EQUATION + DIAGRAM
+    ====================== -->
+
+    <div class="theory-column">
+
+
+        <section class="content-card formula-card">
+
+
+            <h2>Theory</h2>
+
+
+            <div class="formula-box">
+
+                σ = F / A
+
+            </div>
+
+            <div class="formula-box">
+
+                ε = ΔL / L₀
+
+            </div>
+
+            <div class="formula-box">
+
+                σ = E·ε
+
+            </div>
+
+            <div class="formula-box">
+
+                ΔL = (F·L₀) / (A·E)
+
+            </div>
+
+
+            <p>
+
+                Under uniaxial linear-elastic loading, normal stress is force divided by
+                area, strain is deformation divided by original length, and Young's modulus
+                relates stress and strain. The axial deformation depends on force, original
+                length, cross-sectional area, and material stiffness.
+
+            </p>
+            
+
+          <h3>Variables</h3>
+
+          <ul>
+
+                <li>
+                     <strong>σ</strong> = Normal stress
+                </li>
+
+                <li>
+                     <strong>F</strong> = Axial force
+                </li>
+
+                <li>
+                     <strong>A</strong> = Cross-sectional area
+                </li>
+
+                <li>
+                     <strong>ε</strong> = Strain
+                </li>
+
+                <li>
+                     <strong>ΔL</strong> = Change in length
+                </li>
+
+                <li>
+                     <strong>L₀</strong> = Original length
+                </li>
+
+                <li>
+                     <strong>E</strong> = Young's modulus
+                </li>
+
+          </ul>
+
+
+            <div class="engineering-diagram">
+
+                <svg
+                viewBox="0 0 700 450"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <!-- Title -->
+                <text x="350" y="25" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">
+                    Axial Member Under Tensile Loading
+                </text>
+
+                <!-- Original member (left) -->
+                <g id="original-member">
+                    <!-- Undeformed bar -->
+                    <rect x="80" y="100" width="40" height="200" stroke="#0b5394" stroke-width="2" fill="none"/>
+                    
+                    <!-- Left fixed support -->
+                    <line x1="60" y1="100" x2="80" y2="100" stroke="#000" stroke-width="2"/>
+                    <line x1="60" y1="110" x2="80" y2="110" stroke="#000" stroke-width="2"/>
+                    <line x1="60" y1="120" x2="80" y2="120" stroke="#000" stroke-width="2"/>
+                    <line x1="60" y1="130" x2="80" y2="130" stroke="#000" stroke-width="2"/>
+                    <line x1="60" y1="140" x2="80" y2="140" stroke="#000" stroke-width="2"/>
+                    
+                    <!-- Right force arrow -->
+                    <line x1="120" y1="200" x2="160" y2="200" stroke="#cc0000" stroke-width="4"/>
+                    <polygon points="160,200 145,190 145,210" fill="#cc0000"/>
+                    <text x="175" y="205" font-size="20" font-weight="bold" fill="#cc0000">F</text>
+                    
+                    <!-- Dimension line - original length -->
+                    <line x1="180" y1="100" x2="180" y2="300" stroke="#555" stroke-width="1" stroke-dasharray="5,5"/>
+                    <line x1="170" y1="100" x2="190" y2="100" stroke="#555" stroke-width="2"/>
+                    <line x1="170" y1="300" x2="190" y2="300" stroke="#555" stroke-width="2"/>
+                    <text x="215" y="205" font-size="18" fill="#555" font-style="italic">L₀</text>
+                </g>
+
+                <!-- Deformed member (right) -->
+                <g id="deformed-member">
+                    <!-- Deformed bar (longer) -->
+                    <rect x="420" y="80" width="40" height="240" stroke="#cc6600" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+                    
+                    <!-- Left fixed support -->
+                    <line x1="400" y1="80" x2="420" y2="80" stroke="#000" stroke-width="2"/>
+                    <line x1="400" y1="90" x2="420" y2="90" stroke="#000" stroke-width="2"/>
+                    <line x1="400" y1="100" x2="420" y2="100" stroke="#000" stroke-width="2"/>
+                    <line x1="400" y1="110" x2="420" y2="110" stroke="#000" stroke-width="2"/>
+                    <line x1="400" y1="120" x2="420" y2="120" stroke="#000" stroke-width="2"/>
+                    
+                    <!-- Right force arrow -->
+                    <line x1="460" y1="200" x2="500" y2="200" stroke="#cc0000" stroke-width="4"/>
+                    <polygon points="500,200 485,190 485,210" fill="#cc0000"/>
+                    <text x="515" y="205" font-size="20" font-weight="bold" fill="#cc0000">F</text>
+                    
+                    <!-- Dimension line - original length -->
+                    <line x1="520" y1="80" x2="520" y2="320" stroke="#555" stroke-width="1" stroke-dasharray="5,5"/>
+                    <line x1="510" y1="80" x2="530" y2="80" stroke="#555" stroke-width="2"/>
+                    <line x1="510" y1="320" x2="530" y2="320" stroke="#555" stroke-width="2"/>
+                    <text x="555" y="205" font-size="18" fill="#555" font-style="italic">L₀</text>
+                    
+                    <!-- Dimension line - elongation ΔL -->
+                    <line x1="580" y1="320" x2="580" y2="340" stroke="#cc0000" stroke-width="2"/>
+                    <line x1="570" y1="340" x2="590" y2="340" stroke="#cc0000" stroke-width="2"/>
+                    <text x="600" y="345" font-size="18" font-weight="bold" fill="#cc0000">ΔL</text>
+                </g>
+
+                <!-- Label: Cross-section A -->
+                <text x="120" y="350" font-size="16" fill="#0b5394">Area = A</text>
+
+                <!-- Annotation arrows -->
+                <line x1="280" y1="150" x2="360" y2="150" stroke="#999" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#small-arrow)"/>
+                <text x="315" y="140" font-size="14" fill="#999">Deformation shown (exaggerated)</text>
+
+                </svg>
+
+            </div>
+          
+          <h3>Assumptions</h3>
+
+          <ul>
+
+                <li>
+                     Uniform prismatic member (constant cross-section)
+                </li>
+
+                <li>
+                     Linear elastic material behavior
+                </li>
+
+                <li>
+                     Small deformation (deformation ≪ original length)
+                </li>
+
+                <li>
+                     Uniform uniaxial loading
+                </li>
+
+                <li>
+                     No stress concentrations or buckling
+                </li>
+
+                <li>
+                     No plastic deformation
+                </li>
+
+          </ul>
+
+        </section>
+
+
+    </div>
+
+
+    <!-- =====================
+         RIGHT COLUMN
+         CALCULATOR
+    ====================== -->
+
+
+    <div class="calculator-column">
+
+
+        <section class="content-card calculator-box">
+
+
+    <h2>Calculation</h2>
+
+
+    <h3>Calculation Mode</h3>
+
+    <label class="input-label">
+        What would you like to solve for?
+    </label>
+
+    <select id="calculationMode" class="output-select" onchange="updateStressStrainMode()">
+        <option value="stress">Stress (σ = F / A)</option>
+        <option value="strain">Strain (ε = ΔL / L₀)</option>
+        <option value="youngsModulus">Young's Modulus (E = σ / ε)</option>
+        <option value="deformation">Axial Deformation (ΔL = F·L₀ / (A·E))</option>
+    </select>
+
+
+    <h3>Inputs</h3>
+
+    <!-- Force Input -->
+    <label class="input-label">
+        Force
+    </label>
+
+    <div class="input-row">
+        <input id="force" type="number" placeholder="Enter force">
+        <select id="forceUnit">
+            <option>N</option>
+            <option>kN</option>
+            <option>lbf</option>
+        </select>
+    </div>
+
+
+    <!-- Area Input -->
+    <label class="input-label">
+        Cross-Sectional Area
+    </label>
+
+    <div class="input-row">
+        <input id="area" type="number" placeholder="Enter area">
+        <select id="areaUnit">
+            <option>mm²</option>
+            <option>cm²</option>
+            <option selected>m²</option>
+            <option>in²</option>
+        </select>
+    </div>
+
+
+    <!-- Original Length Input -->
+    <label class="input-label">
+        Original Length
+    </label>
+
+    <div class="input-row">
+        <input id="originalLength" type="number" placeholder="Enter original length">
+        <select id="lengthUnit">
+            <option>mm</option>
+            <option>cm</option>
+            <option selected>m</option>
+            <option>in</option>
+            <option>ft</option>
+        </select>
+    </div>
+
+
+    <!-- Change in Length Input (conditionally shown) -->
+    <div id="deltaLContainer" style="display: none;">
+        <label class="input-label">
+            Change in Length (ΔL)
+        </label>
+
+        <div class="input-row">
+            <input id="deltaLength" type="number" placeholder="Enter change in length">
+            <select id="deltaLengthUnit">
+                <option>mm</option>
+                <option>cm</option>
+                <option selected>m</option>
+                <option>in</option>
+            </select>
+        </div>
+    </div>
+
+
+    <!-- Young's Modulus Input (conditionally shown) -->
+    <div id="youngsModulusContainer" style="display: none;">
+        <label class="input-label">
+            Young's Modulus (E)
+        </label>
+
+        <div class="input-row">
+            <input id="youngsModulus" type="number" placeholder="Enter Young's modulus">
+            <select id="modulusUnit">
+                <option>Pa</option>
+                <option>MPa</option>
+                <option>GPa</option>
+                <option>psi</option>
+                <option>ksi</option>
+            </select>
+        </div>
+    </div>
+
+
+    <!-- Strain Input (conditionally shown) -->
+    <div id="strainContainer" style="display: none;">
+        <label class="input-label">
+            Strain (ε)
+        </label>
+
+        <input id="strain" type="number" placeholder="Enter strain (dimensionless)">
+        
+        <p style="font-size: 12px; color: #666; margin-top: 8px;">
+            Strain is dimensionless (mm/mm or in/in)
+        </p>
+    </div>
+
+
+    <hr>
+
+
+    <h3>Output</h3>
+
+    <label class="input-label">
+        Result Units
+    </label>
+
+    <select id="outputUnit" class="output-select">
+        <option selected>MPa</option>
+        <option>GPa</option>
+        <option>Pa</option>
+        <option>psi</option>
+        <option>ksi</option>
+    </select>
+
+
+    <div class="button-row">
+        <button onclick="calculateStressStrain()">
+            Calculate
+        </button>
+
+        <button class="secondary-button" onclick="resetStressStrainCalculator()">
+            Reset
+        </button>
+    </div>
+
+
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+
+
+</section>
+
+
+    </div>
+
+
+</div>
+
+</section>
+
+<!-- =========================
+     WORKED EXAMPLE
+========================= -->
+
+<section class="content-card">
+
+<h2>Worked Example</h2>
+
+<div class="example-box">
+
+<p>
+<strong>Given:</strong>
+</p>
+
+<p>
+Force: F = 10,000 N
+</p>
+
+<p>
+Cross-sectional Area: A = 100 mm²
+</p>
+
+<p>
+Original Length: L₀ = 500 mm
+</p>
+
+<p>
+Young's Modulus: E = 200 GPa = 200,000 MPa
+</p>
+
+<p>
+<strong>Find: Stress, Strain, and Deformation</strong>
+</p>
+
+<p>
+<strong>Solution:</strong>
+</p>
+
+<p>
+Stress: σ = F / A = 10,000 N / 100 mm² = 100 N/mm² = 100 MPa
+</p>
+
+<p>
+Strain: ε = σ / E = 100 MPa / 200,000 MPa = 0.0005
+</p>
+
+<p>
+Deformation: ΔL = ε·L₀ = 0.0005 × 500 mm = 0.25 mm
+</p>
+
+<p>
+<strong>Result:</strong>
+</p>
+
+<p>
+σ = 100 MPa, ε = 0.0005, ΔL = 0.25 mm
+</p>
+
+</div>
+
+</section>
+
+<!-- =========================
+     ENGINEERING NOTES
+========================= -->
+
+<section class="content-card">
+
+<h2>Notes</h2>
+
+<ul>
+
+<li>
+This calculator applies only to the linear-elastic region. Plastic deformation or yield is not considered.
+</li>
+
+<li>
+Stress is force divided by original (undeformed) area.
+</li>
+
+<li>
+Strain is a dimensionless ratio; positive for tension, negative for compression.
+</li>
+
+<li>
+Young's modulus is a material property; verify value for your specific material, alloy, and temperature.
+</li>
+
+<li>
+Deformation calculation assumes constant E; non-linear materials require different analysis.
+</li>
+
+<li>
+Small-deformation assumption means ΔL ≪ L₀; large deformations require nonlinear analysis.
+</li>
+
+</ul>
+
+</section>
+
+<!-- =========================
+     APPLICATIONS
+========================= -->
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+
+<li>Structural member design (cables, rods, bars)</li>
+
+<li>Elastic deformation analysis</li>
+
+<li>Material characterization</li>
+
+<li>Service life prediction under static load</li>
+
+<li>Tensile and compressive testing</li>
+
+</ul>
+
+</section>
+
+
+<!-- =========================
+     RELATED CALCULATORS
+========================= -->
+
+
+<section class="content-card">
+
+<h2>Related Calculators</h2>
+
+<ul>
+
+<li><a href="moment.html">Moment Calculator</a></li>
+
+<li><a href="beam-deflection.html">Beam Deflection</a></li>
+
+<li><a href="shaft-torsion.html">Shaft Torsion</a></li>
+
+<li><a href="thermal-expansion.html">Thermal Expansion</a></li>
+
+</ul>
+
+</section>
+
+ 
+</div>
+
+<script src="../js/units.js"></script>
+<script src="../js/stress-strain.js"></script>
+
+</body>
+
+</html>
