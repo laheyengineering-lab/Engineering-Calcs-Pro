@@ -336,6 +336,26 @@
     </div>
 
 
+    <!-- Material Selection -->
+    <label class="input-label">
+        Material (Optional - auto-fills Young's Modulus)
+    </label>
+
+    <select id="material" onchange="updateMaterialYoungsModulus()">
+        <option value="">-- Select a material --</option>
+        <option value="carbon-steel">Carbon Steel (ASTM A36)</option>
+        <option value="stainless-steel">Stainless Steel 304</option>
+        <option value="aluminum">Aluminum 6061-T6</option>
+        <option value="copper">Copper (Pure)</option>
+        <option value="brass">Brass (Cu-30Zn)</option>
+        <option value="titanium">Titanium Grade 2</option>
+        <option value="mild-steel">Mild Steel</option>
+        <option value="high-strength-steel">High Strength Steel (ASTM A514)</option>
+        <option value="cast-iron">Cast Iron (Gray)</option>
+        <option value="magnesium">Magnesium AZ91D</option>
+    </select>
+
+
     <!-- Young's Modulus Input (conditionally shown) -->
     <div id="youngsModulusContainer" style="display: none;">
         <label class="input-label">
@@ -564,7 +584,7 @@ Small-deformation assumption means ΔL ≪ L₀; large deformations require nonl
  
 </div>
 
-<script src="../js/units.js"></script>
+<script src="../js/engineering-units.js"></script>
 <script src="../js/stress-strain.js"></script>
 
 </body>
