@@ -8,10 +8,31 @@ const calculators = [
     },
 
     {
-        name: "Beam Deflection",
+        name: "Stress & Strain Calculator",
+        category: "Materials",
+        description: "Calculate axial stress, strain, Young's modulus, and elastic deformation.",
+        link: "calculators/stress-strain.html"
+    },
+
+    {
+        name: "Shaft Torsion Calculator",
         category: "Mechanical",
-        description: "Coming Soon",
-        link: "#"
+        description: "Analyze circular shafts under torsion. Calculate shear stress and angle of twist.",
+        link: "calculators/shaft-torsion.html"
+    },
+
+    {
+        name: "Thermal Expansion Calculator",
+        category: "Materials",
+        description: "Calculate linear thermal expansion and restrained thermal stress.",
+        link: "calculators/thermal-expansion.html"
+    },
+
+    {
+        name: "Beam Deflection Calculator",
+        category: "Mechanical",
+        description: "Calculate beam deflection for simply supported and cantilever beams.",
+        link: "calculators/beam-deflection.html"
     },
 
     {
@@ -31,13 +52,6 @@ const calculators = [
     {
         name: "Bolt Preload",
         category: "Fasteners",
-        description: "Coming Soon",
-        link: "#"
-    },
-
-    {
-        name: "Stress",
-        category: "Materials",
         description: "Coming Soon",
         link: "#"
     },
