@@ -37,42 +37,6 @@ function updateBeamDeflectionMode() {
     beamResultPanel.innerHTML = "Ready to calculate.";
 }
 
-// Distributed load conversion helper
-// Converts load/length to N/m
-function convertDistributedLoad(value, unit) {
-    const baseLoad = convertForce(value, unit.split("/")[0]); // Extract force part
-    const baseLength = convertDistance(1, "m");
-    return baseLoad / baseLength;
-}
-
-// Inertia conversion helper - FOURTH POWER
-function convertInertia(value, unit) {
-    const inertiaUnits = {
-        "mm⁴": 1e-12,           // (0.001)^4 = 1e-12 m⁴
-        "cm⁴": 1e-8,            // (0.01)^4 = 1e-8 m⁴
-        "m⁴": 1,
-        "in⁴": 4.1623e-7        // (0.0254)^4 m⁴
-    };
-    return value * inertiaUnits[unit];
-}
-
-// Stress conversion helper
-function convertStress(valueInPa, outputUnit) {
-    const stressUnits = {
-        "Pa": 1,
-        "MPa": 1e6,
-        "GPa": 1e9,
-        "psi": 6894.757,
-        "ksi": 6894757
-    };
-    return valueInPa / stressUnits[outputUnit];
-}
-
-// Modulus conversion
-function convertModulus(valueInPa, outputUnit) {
-    return convertStress(valueInPa, outputUnit);
-}
-
 function calculateBeamDeflection() {
     const loadingCase = loadingCaseSelect.value;
     const beamLength = Number(beamLengthInput.value);
@@ -97,10 +61,10 @@ function calculateBeamDeflection() {
     }
     
     try {
-        // Convert inputs to SI base units
+        // Convert inputs to SI base units using engineering-units.js
         const LM = convertDistance(beamLength, lengthUnit);
-        const EPa = convertModulus(youngsModulus, modulusUnit);
-        const IM4 = convertInertia(areamomentinertia, inertiaUnit);
+        const EPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
+        const IM4 = convertAreaMomentInertia(areamomentinertia, inertiaUnit);
         const EI = EPa * IM4;
         
         let load = 0;
@@ -127,7 +91,7 @@ function calculateBeamDeflection() {
             maxMomentNm = (PN * LM) / 4;
             deflectionLocationPercent = 50;
             
-            const deflectionOutput = maxDeflectionM / convertDistance(1, deflectionUnit);
+            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
             
             resultHTML = `
                 <h3>Result - Simply Supported + Center Point Load</h3>
@@ -156,9 +120,8 @@ function calculateBeamDeflection() {
                 return;
             }
             
-            // Convert N/m format: e.g., "N/m" → extract load unit and convert
-            const loadPartUnit = distributedLoadUnit.split("/")[0]; // e.g., "N"
-            const wNm = convertForce(load, loadPartUnit); // Force per unit length in N/m (base unit)
+            // Convert N/m format using convertDistributedLoad from engineering-units.js
+            const wNm = convertDistributedLoad(load, distributedLoadUnit);
             
             // δ_max = 5·w·L⁴ / (384·E·I)
             maxDeflectionM = (5 * wNm * Math.pow(LM, 4)) / (384 * EI);
@@ -166,7 +129,7 @@ function calculateBeamDeflection() {
             maxMomentNm = (wNm * Math.pow(LM, 2)) / 8;
             deflectionLocationPercent = 50;
             
-            const deflectionOutput = maxDeflectionM / convertDistance(1, deflectionUnit);
+            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
             
             resultHTML = `
                 <h3>Result - Simply Supported + Uniform Distributed Load</h3>
@@ -202,7 +165,7 @@ function calculateBeamDeflection() {
             maxMomentNm = PN * LM;
             deflectionLocationPercent = 100;
             
-            const deflectionOutput = maxDeflectionM / convertDistance(1, deflectionUnit);
+            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
             
             resultHTML = `
                 <h3>Result - Cantilever + Point Load</h3>
@@ -231,8 +194,7 @@ function calculateBeamDeflection() {
                 return;
             }
             
-            const loadPartUnit = distributedLoadUnit.split("/")[0];
-            const wNm = convertForce(load, loadPartUnit);
+            const wNm = convertDistributedLoad(load, distributedLoadUnit);
             
             // δ_max = w·L⁴ / (8·E·I)
             maxDeflectionM = (wNm * Math.pow(LM, 4)) / (8 * EI);
@@ -240,7 +202,7 @@ function calculateBeamDeflection() {
             maxMomentNm = (wNm * Math.pow(LM, 2)) / 2;
             deflectionLocationPercent = 100;
             
-            const deflectionOutput = maxDeflectionM / convertDistance(1, deflectionUnit);
+            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
             
             resultHTML = `
                 <h3>Result - Cantilever + Uniform Distributed Load</h3>
