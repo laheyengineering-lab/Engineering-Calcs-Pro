@@ -318,7 +318,7 @@ function getMaterial(materialKey) {
  */
 function getMaterialProperty(materialKey, propertyName) {
     const material = materialDatabase[materialKey];
-    if (!material || !material[propertyName]) {
+    if (!material || !(propertyName in material)) {
         return null;
     }
     return material[propertyName];

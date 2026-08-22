@@ -39,7 +39,7 @@ Engineering-Calcs-Pro/
 │   ├── homepage.js               # Homepage search and display logic
 │   ├── bolt-torque.js            # Bolt torque calculations
 │   ├── moment.js                 # Moment/torque calculations
-│   └── units.js                  # Unit conversion utilities
+│   └── engineering-units.js      # Shared unit conversions + material data
 ├── calculators/
 │   ├── bolt-torque.html          # Bolt torque calculator page
 │   └── moment.html               # Moment calculator page
