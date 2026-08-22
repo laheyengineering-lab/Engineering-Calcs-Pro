@@ -36,13 +36,22 @@ Engineering-Calcs-Pro/
 │   └── style.css                # Responsive styling and themes
 ├── js/
 │   ├── calculator-data.js        # Calculator metadata and catalog
+│   ├── engineering-units.js      # Shared unit conversions + material data
 │   ├── homepage.js               # Homepage search and display logic
+│   ├── bolt-database.js          # Bolt sizes and thread data
 │   ├── bolt-torque.js            # Bolt torque calculations
 │   ├── moment.js                 # Moment/torque calculations
-│   └── units.js                  # Unit conversion utilities
+│   ├── stress-strain.js          # Stress/strain calculations
+│   ├── shaft-torsion.js          # Shaft torsion calculations
+│   ├── beam-deflection.js        # Beam deflection calculations
+│   └── thermal-expansion.js      # Thermal expansion calculations
 ├── calculators/
 │   ├── bolt-torque.html          # Bolt torque calculator page
-│   └── moment.html               # Moment calculator page
+│   ├── moment.html               # Moment calculator page
+│   ├── stress-strain.html        # Stress/strain calculator page
+│   ├── shaft-torsion.html        # Shaft torsion calculator page
+│   ├── beam-deflection.html      # Beam deflection calculator page
+│   └── thermal-expansion.html    # Thermal expansion calculator page
 └── README.md                     # This file
 ```
 

@@ -40,7 +40,7 @@ function calculateBoltTorque() {
     const torqueNm = nutFactor * diameterM * loadN;
 
     // Convert to output unit
-    const output = convertMoment(torqueNm, outputUnit);
+    const output = convertMomentToUnit(torqueNm, outputUnit);
 
     // Format values once, reuse them
     const formattedOutput = output.toLocaleString(undefined, { maximumFractionDigits: 2 });
