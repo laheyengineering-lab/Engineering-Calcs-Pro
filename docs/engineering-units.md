@@ -26,6 +26,7 @@ Each unit category is defined as a plain JavaScript object whose keys are unit s
 | Stress / Pressure | Pascal (Pa) | `Pa`, `MPa`, `GPa`, `psi`, `ksi` |
 | Area Moment of Inertia | m⁴ | `mm⁴`, `cm⁴`, `m⁴`, `in⁴` |
 | Distributed Load | N/m | `N/m`, `kN/m`, `lbf/ft` |
+| Rotational Speed | rpm | `rpm`, `rps` |
 | Temperature Change | °C / K increment | `°C`, `K`, `°F` |
 
 Temperature changes are handled separately because converting a *temperature interval* (e.g., a 10 °F rise) is different from converting an *absolute temperature*. A Fahrenheit interval is divided by 1.8 to convert to a Celsius interval; Kelvin intervals are already equal to Celsius intervals.
@@ -55,6 +56,7 @@ Each unit category has a corresponding conversion function. These functions acce
 | `convertModulus(value, fromUnit)` | Pascals (Pa) — alias for `convertStress` |
 | `convertAreaMomentInertia(value, fromUnit)` | Meters⁴ (m⁴) |
 | `convertDistributedLoad(value, fromUnit)` | Newtons per meter (N/m) |
+| `convertRotationalSpeed(value, fromUnit)` | Revolutions per minute (rpm) |
 | `convertTemperatureChange(value, fromUnit)` | Celsius increment (°C) |
 | `convertMaterialProperty(value, fromUnit, propertyType)` | SI units (varies by property type) |
 
