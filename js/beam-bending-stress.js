@@ -19,6 +19,15 @@ const bendingStressUnitSelect = document.getElementById("stressUnit");
 const bendingInertiaUnitSelect = document.getElementById("inertiaUnit");
 const bendingResultPanel = document.getElementById("result");
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function updateBeamBendingStressMode() {
     const sectionType = bendingSectionTypeSelect.value;
 
@@ -98,28 +107,35 @@ function calculateBeamBendingStress() {
         }
 
         const stressPa = (momentNm * cM) / inertiaM4;
-        const stressOutput = convertStressToUnit(stressPa, bendingStressUnitSelect.value);
-        const inertiaOutput = convertAreaMomentInertiaToUnit(inertiaM4, bendingInertiaUnitSelect.value);
+        const stressUnit = bendingStressUnitSelect.value;
+        const inertiaUnit = bendingInertiaUnitSelect.value;
+        const stressOutput = convertStressToUnit(stressPa, stressUnit);
+        const inertiaOutput = convertAreaMomentInertiaToUnit(inertiaM4, inertiaUnit);
         const cOutput = convertDistanceToUnit(cM, displayLengthUnit);
         const sectionModulusM3 = inertiaM4 / cM;
-        const sectionModulusInSectionUnits = sectionModulusM3 / Math.pow(convertDistance(1, displayLengthUnit), 3);
+        let sectionModulusDisplay = `${sectionModulusM3.toExponential(6)} m³`;
+        if (sectionType !== "rectangular" || bendingRectWidthUnitSelect.value === bendingRectHeightUnitSelect.value) {
+            const sectionModulusInSectionUnits = sectionModulusM3 / Math.pow(convertDistance(1, displayLengthUnit), 3);
+            sectionModulusDisplay += ` (${sectionModulusInSectionUnits.toExponential(6)} ${escapeHtml(displayLengthUnit)}³)`;
+        }
+        const safeSummaryLine = escapeHtml(summaryLine);
 
         bendingResultPanel.innerHTML = `
             <h3>Result</h3>
-            <div class="result-value">σ<sub>max</sub> = ${stressOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${bendingStressUnitSelect.value}</div>
+            <div class="result-value">σ<sub>max</sub> = ${stressOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(stressUnit)}</div>
             <hr>
-            <p><strong>Area Moment of Inertia:</strong> I = ${inertiaOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${bendingInertiaUnitSelect.value}</p>
-            <p><strong>Distance to Outermost Fiber:</strong> c = ${cOutput.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${displayLengthUnit}</p>
-            <p><strong>Section Modulus:</strong> S = I/c = ${sectionModulusM3.toExponential(6)} m³ (${sectionModulusInSectionUnits.toExponential(6)} ${displayLengthUnit}³)</p>
+            <p><strong>Area Moment of Inertia:</strong> I = ${inertiaOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${escapeHtml(inertiaUnit)}</p>
+            <p><strong>Distance to Outermost Fiber:</strong> c = ${cOutput.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${escapeHtml(displayLengthUnit)}</p>
+            <p><strong>Section Modulus:</strong> S = I/c = ${sectionModulusDisplay}</p>
             <hr>
             <p><strong>Calculation Summary</strong></p>
             <p>σ = M·c / I</p>
-            <p>${summaryLine}</p>
+            <p>${safeSummaryLine}</p>
             <p>σ = ${momentNm.toLocaleString(undefined, { maximumFractionDigits: 6 })} N·m × ${cM.toExponential(6)} m / ${inertiaM4.toExponential(6)} m⁴</p>
-            <p>= <strong>${stressOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${bendingStressUnitSelect.value}</strong></p>
+            <p>= <strong>${stressOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(stressUnit)}</strong></p>
         `;
     } catch (error) {
-        bendingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${error.message}</p>`;
+        bendingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
     }
 }
 

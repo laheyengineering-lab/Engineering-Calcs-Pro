@@ -23,6 +23,15 @@ const boundaryConditionFactors = {
     "fixed-fixed": 0.5
 };
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function updateColumnBucklingMode() {
     const isHollow = bucklingSectionTypeSelect.value === "hollow";
     document.getElementById("innerDiameterContainer").style.display = isHollow ? "block" : "none";
@@ -102,6 +111,7 @@ function calculateColumnBuckling() {
         const forceUnit = bucklingForceUnitSelect.value;
         const inertiaUnit = bucklingInertiaUnitSelect.value;
         const modulusUnit = bucklingModulusUnitSelect.value;
+        const lengthUnit = bucklingLengthUnitSelect.value;
 
         const criticalLoadOutput = convertForceToUnit(criticalLoadN, forceUnit);
         const inertiaOutput = convertAreaMomentInertiaToUnit(inertiaM4, inertiaUnit);
@@ -109,24 +119,25 @@ function calculateColumnBuckling() {
         const youngsModulusOutput = convertModulusToUnit(youngsModulusPa, modulusUnit);
 
         const materialData = getMaterial(material);
+        const materialDisplay = materialData ? materialData.displayName : material;
 
         bucklingResultPanel.innerHTML = `
             <h3>Result</h3>
-            <div class="result-value">P<sub>cr</sub> = ${criticalLoadOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${forceUnit}</div>
+            <div class="result-value">P<sub>cr</sub> = ${criticalLoadOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(forceUnit)}</div>
             <hr>
-            <p><strong>Section Inertia:</strong> I = ${inertiaOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${inertiaUnit}</p>
-            <p><strong>Effective Length:</strong> KL = ${effectiveLengthOutput.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${bucklingLengthUnitSelect.value}</p>
+            <p><strong>Section Inertia:</strong> I = ${inertiaOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${escapeHtml(inertiaUnit)}</p>
+            <p><strong>Effective Length:</strong> KL = ${effectiveLengthOutput.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${escapeHtml(lengthUnit)}</p>
             <p><strong>Effective Length Factor:</strong> K = ${kFactor}</p>
-            <p><strong>Selected Material:</strong> ${materialData ? materialData.displayName : material}</p>
-            <p><strong>Young's Modulus:</strong> ${youngsModulusOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${modulusUnit}</p>
+            <p><strong>Selected Material:</strong> ${escapeHtml(materialDisplay)}</p>
+            <p><strong>Young's Modulus:</strong> ${youngsModulusOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(modulusUnit)}</p>
             <hr>
             <p><strong>Calculation Summary</strong></p>
             <p>P<sub>cr</sub> = π²EI / (KL)²</p>
             <p>P<sub>cr</sub> = π² × ${youngsModulusPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa × ${inertiaM4.toExponential(6)} m⁴ / (${kFactor} × ${lengthM.toLocaleString(undefined, { maximumFractionDigits: 6 })} m)²</p>
-            <p>= <strong>${criticalLoadOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${forceUnit}</strong></p>
+            <p>= <strong>${criticalLoadOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(forceUnit)}</strong></p>
         `;
     } catch (error) {
-        bucklingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${error.message}</p>`;
+        bucklingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
     }
 }
 

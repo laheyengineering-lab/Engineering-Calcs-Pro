@@ -15,6 +15,15 @@ const fosAppliedLoadInput = document.getElementById("appliedLoad");
 const fosAppliedLoadUnitSelect = document.getElementById("appliedLoadUnit");
 const fosResultPanel = document.getElementById("result");
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function populateFoSMaterials() {
     const materials = getMaterialListFormatted();
     fosMaterialSelect.innerHTML = '<option value="">-- Select Material --</option>';
@@ -99,16 +108,18 @@ function calculateFactorOfSafety() {
             const fosValue = strengthPa / appliedStressPa;
 
             const interpretation = getFoSInterpretation(fosValue);
-            const strengthDisplay = convertStressToUnit(strengthPa, fosStrengthUnitSelect.value);
-            const appliedDisplay = convertStressToUnit(appliedStressPa, fosAppliedStressUnitSelect.value);
+            const strengthUnit = fosStrengthUnitSelect.value;
+            const appliedStressUnit = fosAppliedStressUnitSelect.value;
+            const strengthDisplay = convertStressToUnit(strengthPa, strengthUnit);
+            const appliedDisplay = convertStressToUnit(appliedStressPa, appliedStressUnit);
 
             fosResultPanel.innerHTML = `
                 <h3>Result</h3>
                 <div class="result-value">FoS = ${fosValue.toLocaleString(undefined, { maximumFractionDigits: 6 })}</div>
                 <hr>
-                <p><strong>Capacity/Strength:</strong> ${strengthDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${fosStrengthUnitSelect.value}</p>
-                <p><strong>Applied Stress:</strong> ${appliedDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${fosAppliedStressUnitSelect.value}</p>
-                <p><strong>Interpretation:</strong> ${interpretation}</p>
+                <p><strong>Capacity/Strength:</strong> ${strengthDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(strengthUnit)}</p>
+                <p><strong>Applied Stress:</strong> ${appliedDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(appliedStressUnit)}</p>
+                <p><strong>Interpretation:</strong> ${escapeHtml(interpretation)}</p>
                 <hr>
                 <p><strong>Calculation Summary</strong></p>
                 <p>FoS = Strength / Applied Stress</p>
@@ -131,16 +142,18 @@ function calculateFactorOfSafety() {
         const fosValue = failureLoadN / appliedLoadN;
 
         const interpretation = getFoSInterpretation(fosValue);
-        const failureDisplay = convertForceToUnit(failureLoadN, fosFailureLoadUnitSelect.value);
-        const appliedDisplay = convertForceToUnit(appliedLoadN, fosAppliedLoadUnitSelect.value);
+        const failureLoadUnit = fosFailureLoadUnitSelect.value;
+        const appliedLoadUnit = fosAppliedLoadUnitSelect.value;
+        const failureDisplay = convertForceToUnit(failureLoadN, failureLoadUnit);
+        const appliedDisplay = convertForceToUnit(appliedLoadN, appliedLoadUnit);
 
         fosResultPanel.innerHTML = `
             <h3>Result</h3>
             <div class="result-value">FoS = ${fosValue.toLocaleString(undefined, { maximumFractionDigits: 6 })}</div>
             <hr>
-            <p><strong>Capacity/Failure Load:</strong> ${failureDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${fosFailureLoadUnitSelect.value}</p>
-            <p><strong>Applied Load:</strong> ${appliedDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${fosAppliedLoadUnitSelect.value}</p>
-            <p><strong>Interpretation:</strong> ${interpretation}</p>
+            <p><strong>Capacity/Failure Load:</strong> ${failureDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(failureLoadUnit)}</p>
+            <p><strong>Applied Load:</strong> ${appliedDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(appliedLoadUnit)}</p>
+            <p><strong>Interpretation:</strong> ${escapeHtml(interpretation)}</p>
             <hr>
             <p><strong>Calculation Summary</strong></p>
             <p>FoS = Failure Load / Applied Load</p>
@@ -148,7 +161,7 @@ function calculateFactorOfSafety() {
             <p>= <strong>${fosValue.toLocaleString(undefined, { maximumFractionDigits: 6 })}</strong></p>
         `;
     } catch (error) {
-        fosResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${error.message}</p>`;
+        fosResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
     }
 }
 

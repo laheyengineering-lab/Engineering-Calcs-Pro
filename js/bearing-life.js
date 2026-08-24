@@ -16,6 +16,15 @@ const bearingLifeExponents = {
     roller: 10 / 3
 };
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function calculateBearingLife() {
     const bearingType = bearingTypeSelect.value;
     const dynamicLoadRating = Number(bearingDynamicRatingInput.value);
@@ -41,6 +50,7 @@ function calculateBearingLife() {
         const lifeMillionRevolutions = Math.pow(dynamicLoadRatingN / equivalentLoadN, exponent);
         const lifeRevolutions = lifeMillionRevolutions * 1e6;
         const lifeHours = lifeRevolutions / (60 * speedRpm);
+        const safeBearingType = escapeHtml(bearingType);
 
         const loadWarning = equivalentLoadN >= dynamicLoadRatingN
             ? `<p style="color:#b00020;"><strong>Load Warning:</strong> P ≥ C. The basic rating life is at or below 1 million revolutions and may indicate the selected condition is beyond typical rating assumptions. Verify the application and manufacturer guidance.</p>`
@@ -52,7 +62,7 @@ function calculateBearingLife() {
             <hr>
             <p><strong>Life in Revolutions:</strong> ${lifeRevolutions.toLocaleString(undefined, { maximumFractionDigits: 2 })} rev</p>
             <p><strong>Life in Operating Hours:</strong> ${lifeHours.toLocaleString(undefined, { maximumFractionDigits: 3 })} h</p>
-            <p><strong>Selected Exponent:</strong> p = ${exponent.toLocaleString(undefined, { maximumFractionDigits: 6 })} (${bearingType} bearing)</p>
+            <p><strong>Selected Exponent:</strong> p = ${exponent.toLocaleString(undefined, { maximumFractionDigits: 6 })} (${safeBearingType} bearing)</p>
             ${loadWarning}
             <hr>
             <p><strong>Calculation Summary</strong></p>
@@ -64,7 +74,7 @@ function calculateBearingLife() {
             <p>= <strong>${lifeHours.toLocaleString(undefined, { maximumFractionDigits: 3 })} h</strong></p>
         `;
     } catch (error) {
-        bearingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${error.message}</p>`;
+        bearingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
     }
 }
 
