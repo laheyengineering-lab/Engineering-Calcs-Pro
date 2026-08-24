@@ -150,6 +150,143 @@
 </div>
 </section>
 
+
+<!-- =========================
+     WORKED EXAMPLE
+========================= -->
+
+<section class="content-card">
+
+<h2>Worked Example</h2>
+
+<div class="example-box">
+
+<p>
+<strong>Given (Rectangular Cross-Section):</strong>
+</p>
+
+<p>
+Bending Moment: M = 5,000 N·m
+</p>
+
+<p>
+Width: b = 50 mm
+</p>
+
+<p>
+Height: h = 100 mm
+</p>
+
+<p>
+<strong>Find: Maximum bending stress</strong>
+</p>
+
+<p>
+<strong>Solution:</strong>
+</p>
+
+<p>
+I = b·h³ / 12 = 50 × 100³ / 12 = 4,166,667 mm⁴
+</p>
+
+<p>
+c = h / 2 = 100 / 2 = 50 mm
+</p>
+
+<p>
+σ = M·c / I = 5,000,000 N·mm × 50 mm / 4,166,667 mm⁴ = <strong>60 MPa</strong>
+</p>
+
+</div>
+
+</section>
+
+<!-- =========================
+     ENGINEERING NOTES
+========================= -->
+
+<section class="content-card">
+
+<h2>Notes</h2>
+
+<ul>
+
+<li>
+This calculator assumes linear elastic behavior and small deformations.
+</li>
+
+<li>
+Maximum stress occurs at the outermost fiber, furthest from the neutral axis.
+</li>
+
+<li>
+This calculator computes bending stress only — it does not calculate beam deflection.
+</li>
+
+<li>
+For hollow sections, both outer and inner dimensions are required to determine I and c correctly.
+</li>
+
+<li>
+Always compare the calculated stress against the material's allowable or yield strength using an appropriate factor of safety.
+</li>
+
+<li>
+Stress concentrations (holes, notches, fillets) are not accounted for in this calculation.
+</li>
+
+</ul>
+
+</section>
+
+<!-- =========================
+     APPLICATIONS
+========================= -->
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+
+<li>Structural beam sizing and verification</li>
+
+<li>Machine component bending analysis</li>
+
+<li>Floor joist and rafter design</li>
+
+<li>Bridge girder stress checking</li>
+
+<li>Crane and lifting beam design</li>
+
+<li>Shaft bending stress evaluation</li>
+
+</ul>
+
+</section>
+
+<!-- =========================
+     RELATED CALCULATORS
+========================= -->
+
+<section class="content-card">
+
+<h2>Related Calculators</h2>
+
+<ul>
+
+<li><a href="beam-deflection.html">Beam Deflection</a></li>
+
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+
+<li><a href="factor-of-safety.html">Factor of Safety</a></li>
+
+<li><a href="moment.html">Moment Calculator</a></li>
+
+</ul>
+
+</section>
+
 </div>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/beam-bending-stress.js"></script>
