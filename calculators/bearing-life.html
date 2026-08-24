@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bearing Life Calculator | Engineering Calcs Pro</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Engineering Calcs Pro</a>
+<header class="calculator-header">
+    <h1>Bearing Life Calculator</h1>
+    <p>Calculate basic rolling-element bearing rating life (L10) from dynamic rating, equivalent load, and speed.</p>
+</header>
+
+<section class="content-card calculator-box">
+<div class="calculator-layout">
+
+<div class="theory-column">
+<section class="content-card formula-card">
+    <h2>Theory</h2>
+    <div class="formula-box">L<sub>10</sub> = (C / P)<sup>p</sup></div>
+    <div class="formula-box" style="font-size:18px;">L<sub>10h</sub> = (L<sub>10</sub> × 10⁶) / (60n)</div>
+
+    <p>This is a basic rating-life calculation where L<sub>10</sub> corresponds to 90% reliability.</p>
+
+    <h3>Exponents</h3>
+    <ul>
+        <li><strong>Ball bearings:</strong> p = 3</li>
+        <li><strong>Roller bearings:</strong> p = 10/3</li>
+    </ul>
+
+    <div class="engineering-diagram">
+        <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+            <text x="350" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">Rolling-Element Bearing Life Inputs</text>
+
+            <circle cx="260" cy="220" r="120" fill="none" stroke="#0b5394" stroke-width="6"/>
+            <circle cx="260" cy="220" r="65" fill="none" stroke="#0b5394" stroke-width="4"/>
+
+            <circle cx="260" cy="100" r="12" fill="#cc6600"/>
+            <circle cx="345" cy="135" r="12" fill="#cc6600"/>
+            <circle cx="380" cy="220" r="12" fill="#cc6600"/>
+            <circle cx="345" cy="305" r="12" fill="#cc6600"/>
+            <circle cx="260" cy="340" r="12" fill="#cc6600"/>
+            <circle cx="175" cy="305" r="12" fill="#cc6600"/>
+            <circle cx="140" cy="220" r="12" fill="#cc6600"/>
+            <circle cx="175" cy="135" r="12" fill="#cc6600"/>
+
+            <line x1="80" y1="120" x2="80" y2="205" stroke="#cc0000" stroke-width="4"/>
+            <polygon points="80,205 70,190 90,190" fill="#cc0000"/>
+            <text x="92" y="165" font-size="16" fill="#cc0000">P</text>
+
+            <path d="M 230 210 A 40 40 0 0 1 290 210" fill="none" stroke="#0b5394" stroke-width="4"/>
+            <polygon points="287,200 300,208 285,216" fill="#0b5394"/>
+            <text x="302" y="214" font-size="14" fill="#0b5394">n</text>
+
+            <rect x="460" y="110" width="200" height="200" fill="none" stroke="#ddd"/>
+            <text x="560" y="145" text-anchor="middle" font-size="15" fill="#0b5394" font-weight="bold">Inputs</text>
+            <text x="475" y="180" font-size="14">C: Dynamic load rating</text>
+            <text x="475" y="210" font-size="14">P: Equivalent dynamic load</text>
+            <text x="475" y="240" font-size="14">n: Rotational speed</text>
+            <text x="475" y="275" font-size="13" fill="#666">Output: L10 in rev and hours</text>
+        </svg>
+    </div>
+
+    <h3>Notes</h3>
+    <ul>
+        <li>Basic rating life is a statistical rating, not guaranteed field life.</li>
+        <li>Actual life depends on lubrication, contamination, alignment, installation, load variation, and temperature.</li>
+        <li>Manufacturer methods may include additional factors not used here.</li>
+    </ul>
+</section>
+</div>
+
+<div class="calculator-column">
+<section class="content-card calculator-box">
+    <h2>Calculation</h2>
+
+    <h3>Bearing Type</h3>
+    <select id="bearingType" class="output-select">
+        <option value="ball">Ball Bearing (p = 3)</option>
+        <option value="roller">Roller Bearing (p = 10/3)</option>
+    </select>
+
+    <h3>Inputs</h3>
+
+    <label class="input-label">Dynamic Load Rating (C)</label>
+    <div class="input-row">
+        <input id="dynamicLoadRating" type="number" placeholder="Enter C">
+        <select id="dynamicLoadRatingUnit"><option>N</option><option selected>kN</option><option>lbf</option></select>
+    </div>
+
+    <label class="input-label">Equivalent Dynamic Load (P)</label>
+    <div class="input-row">
+        <input id="equivalentDynamicLoad" type="number" placeholder="Enter P">
+        <select id="equivalentDynamicLoadUnit"><option>N</option><option selected>kN</option><option>lbf</option></select>
+    </div>
+
+    <label class="input-label">Rotational Speed (n)</label>
+    <div class="input-row">
+        <input id="speed" type="number" placeholder="Enter speed">
+        <select id="speedUnit"><option selected>rpm</option><option>rps</option></select>
+    </div>
+
+    <div class="button-row">
+        <button onclick="calculateBearingLife()">Calculate</button>
+        <button class="secondary-button" onclick="resetBearingLifeCalculator()">Reset</button>
+    </div>
+
+    <div id="result" class="result-panel">Ready to calculate.</div>
+</section>
+</div>
+
+</div>
+</section>
+
+</div>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/bearing-life.js"></script>
+</body>
+</html>

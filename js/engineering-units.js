@@ -103,6 +103,17 @@ function convertDistributedLoad(value, fromUnit) {
     return value * distributedLoadUnits[fromUnit];
 }
 
+// ========== ROTATIONAL SPEED (Base: Revolutions per Minute) ==========
+const rotationalSpeedUnits = {
+    rpm: 1,
+    rps: 60
+};
+
+function convertRotationalSpeed(value, fromUnit) {
+    // Returns value in rpm
+    return value * rotationalSpeedUnits[fromUnit];
+}
+
 // ========== REVERSE CONVERSIONS (FROM SI TO OUTPUT UNIT) ==========
 
 function convertForceToUnit(valueSI, toUnit) {
@@ -138,6 +149,11 @@ function convertAreaMomentInertiaToUnit(valueSI, toUnit) {
 function convertDistributedLoadToUnit(valueSI, toUnit) {
     // Takes value in N/m, converts to output unit
     return valueSI / distributedLoadUnits[toUnit];
+}
+
+function convertRotationalSpeedToUnit(valueSI, toUnit) {
+    // Takes value in rpm, converts to output unit
+    return valueSI / rotationalSpeedUnits[toUnit];
 }
 
 // ======================================================

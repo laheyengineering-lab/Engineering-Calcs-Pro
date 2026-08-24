@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Column Buckling Calculator | Engineering Calcs Pro</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Engineering Calcs Pro</a>
+<header class="calculator-header">
+    <h1>Column Buckling Calculator</h1>
+    <p>Calculate Euler critical buckling load for solid and hollow circular columns with idealized end conditions.</p>
+</header>
+
+<section class="content-card calculator-box">
+<div class="calculator-layout">
+
+<div class="theory-column">
+<section class="content-card formula-card">
+    <h2>Theory</h2>
+    <div class="formula-box">P<sub>cr</sub> = π²EI / (KL)²</div>
+    <div class="formula-box" style="font-size: 18px;">I<sub>solid</sub> = πd⁴/64 &nbsp;&nbsp; I<sub>hollow</sub> = π(D⁴ - d⁴)/64</div>
+
+    <p>This calculator applies ideal Euler elastic buckling for slender columns under axial compression.</p>
+
+    <h3>Variables</h3>
+    <ul>
+        <li><strong>P<sub>cr</sub></strong> = Critical buckling load</li>
+        <li><strong>E</strong> = Young's modulus</li>
+        <li><strong>I</strong> = Area moment of inertia</li>
+        <li><strong>K</strong> = Effective length factor</li>
+        <li><strong>L</strong> = Unsupported column length</li>
+    </ul>
+
+    <div class="engineering-diagram">
+        <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+            <text x="350" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">Euler Column Buckling Concept</text>
+
+            <line x1="220" y1="80" x2="220" y2="340" stroke="#0b5394" stroke-width="8"/>
+            <path d="M220 80 Q250 170 220 260 Q190 330 220 340" fill="none" stroke="#cc6600" stroke-width="4" stroke-dasharray="6,4"/>
+
+            <line x1="220" y1="50" x2="220" y2="75" stroke="#cc0000" stroke-width="4"/>
+            <polygon points="220,50 210,65 230,65" fill="#cc0000"/>
+            <line x1="220" y1="370" x2="220" y2="345" stroke="#cc0000" stroke-width="4"/>
+            <polygon points="220,370 210,355 230,355" fill="#cc0000"/>
+            <text x="240" y="62" font-size="16" fill="#cc0000">P</text>
+            <text x="240" y="362" font-size="16" fill="#cc0000">P</text>
+
+            <line x1="170" y1="80" x2="170" y2="340" stroke="#555" stroke-width="1"/>
+            <line x1="160" y1="80" x2="180" y2="80" stroke="#555" stroke-width="2"/>
+            <line x1="160" y1="340" x2="180" y2="340" stroke="#555" stroke-width="2"/>
+            <text x="140" y="215" font-size="18" fill="#555" font-style="italic">L</text>
+
+            <rect x="430" y="90" width="200" height="220" fill="none" stroke="#ddd"/>
+            <text x="530" y="120" text-anchor="middle" font-size="15" fill="#0b5394" font-weight="bold">Boundary Condition K</text>
+            <text x="445" y="155" font-size="14">Fixed-Free: 2.0</text>
+            <text x="445" y="185" font-size="14">Pinned-Pinned: 1.0</text>
+            <text x="445" y="215" font-size="14">Fixed-Pinned: 0.699</text>
+            <text x="445" y="245" font-size="14">Fixed-Fixed: 0.5</text>
+            <text x="445" y="285" font-size="13" fill="#666">K·L controls buckling capacity</text>
+        </svg>
+    </div>
+
+    <h3>Assumptions & Notes</h3>
+    <ul>
+        <li>Ideal Euler buckling (slender column, linear elastic material).</li>
+        <li>Straight member with ideal geometry and axial compression.</li>
+        <li>Idealized support boundary conditions.</li>
+        <li>Real design may require yielding, inelastic buckling, imperfections, eccentricity, local buckling, residual stress, safety factors, and code checks.</li>
+    </ul>
+</section>
+</div>
+
+<div class="calculator-column">
+<section class="content-card calculator-box">
+    <h2>Calculation</h2>
+
+    <h3>Section Type</h3>
+    <select id="sectionType" class="output-select" onchange="updateColumnBucklingMode()">
+        <option value="solid">Solid Circular</option>
+        <option value="hollow">Hollow Circular</option>
+    </select>
+
+    <h3>Inputs</h3>
+
+    <label class="input-label">Material</label>
+    <select id="material" class="output-select"></select>
+
+    <label class="input-label">Unsupported Length (L)</label>
+    <div class="input-row">
+        <input id="length" type="number" placeholder="Enter unsupported length">
+        <select id="lengthUnit">
+            <option>mm</option><option>cm</option><option selected>m</option><option>in</option><option>ft</option>
+        </select>
+    </div>
+
+    <label class="input-label">Outer Diameter (D)</label>
+    <div class="input-row">
+        <input id="outerDiameter" type="number" placeholder="Enter outer diameter">
+        <select id="outerDiameterUnit">
+            <option>mm</option><option>cm</option><option selected>m</option><option>in</option><option>ft</option>
+        </select>
+    </div>
+
+    <div id="innerDiameterContainer" style="display:none;">
+        <label class="input-label">Inner Diameter (d)</label>
+        <div class="input-row">
+            <input id="innerDiameter" type="number" placeholder="Enter inner diameter">
+            <select id="innerDiameterUnit">
+                <option>mm</option><option>cm</option><option selected>m</option><option>in</option><option>ft</option>
+            </select>
+        </div>
+    </div>
+
+    <label class="input-label">Boundary Condition</label>
+    <select id="boundaryCondition" class="output-select">
+        <option value="fixed-free">Fixed-Free (K = 2.0)</option>
+        <option value="pinned-pinned" selected>Pinned-Pinned (K = 1.0)</option>
+        <option value="fixed-pinned">Fixed-Pinned (K = 0.699)</option>
+        <option value="fixed-fixed">Fixed-Fixed (K = 0.5)</option>
+    </select>
+
+    <hr>
+
+    <h3>Output</h3>
+    <label class="input-label">Critical Load Units</label>
+    <select id="forceUnit" class="output-select">
+        <option>N</option><option selected>kN</option><option>lbf</option>
+    </select>
+
+    <label class="input-label">Inertia Units</label>
+    <select id="inertiaUnit" class="output-select">
+        <option>mm⁴</option><option>cm⁴</option><option selected>m⁴</option><option>in⁴</option>
+    </select>
+
+    <label class="input-label">Young's Modulus Units</label>
+    <select id="modulusUnit" class="output-select">
+        <option>Pa</option><option>MPa</option><option selected>GPa</option><option>psi</option><option>ksi</option>
+    </select>
+
+    <div class="button-row">
+        <button onclick="calculateColumnBuckling()">Calculate</button>
+        <button class="secondary-button" onclick="resetColumnBucklingCalculator()">Reset</button>
+    </div>
+
+    <div id="result" class="result-panel">Ready to calculate.</div>
+</section>
+</div>
+
+</div>
+</section>
+
+</div>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/column-buckling.js"></script>
+</body>
+</html>

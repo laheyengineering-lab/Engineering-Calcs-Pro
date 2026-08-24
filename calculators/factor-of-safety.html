@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factor of Safety Calculator | Engineering Calcs Pro</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Engineering Calcs Pro</a>
+<header class="calculator-header">
+    <h1>Factor of Safety Calculator</h1>
+    <p>Calculate factor of safety using either stress-based or load-based definitions.</p>
+</header>
+
+<section class="content-card calculator-box">
+<div class="calculator-layout">
+
+<div class="theory-column">
+<section class="content-card formula-card">
+    <h2>Theory</h2>
+    <div class="formula-box" style="font-size:20px;">FoS = Strength / Applied Stress</div>
+    <div class="formula-box" style="font-size:20px;">FoS = Failure Load / Applied Load</div>
+
+    <p>This calculator reports a ratio only. Required design factors depend on application, uncertainty, failure mode, standards, and consequences of failure.</p>
+
+    <div class="engineering-diagram">
+        <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+            <text x="350" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">Factor of Safety Flow</text>
+
+            <rect x="180" y="70" width="340" height="70" rx="8" fill="#f7fbff" stroke="#0b5394" stroke-width="2"/>
+            <text x="350" y="110" text-anchor="middle" font-size="16" fill="#0b5394">Applied Load / Applied Stress</text>
+
+            <line x1="350" y1="145" x2="350" y2="190" stroke="#555" stroke-width="3"/>
+            <polygon points="350,190 340,175 360,175" fill="#555"/>
+
+            <rect x="180" y="200" width="340" height="70" rx="8" fill="#f7fbff" stroke="#0b5394" stroke-width="2"/>
+            <text x="350" y="240" text-anchor="middle" font-size="16" fill="#0b5394">Strength / Failure Capacity</text>
+
+            <line x1="350" y1="275" x2="350" y2="320" stroke="#555" stroke-width="3"/>
+            <polygon points="350,320 340,305 360,305" fill="#555"/>
+
+            <rect x="180" y="330" width="340" height="60" rx="8" fill="#e8f3ff" stroke="#0b5394" stroke-width="2"/>
+            <text x="350" y="367" text-anchor="middle" font-size="18" font-weight="bold" fill="#0b5394">Factor of Safety (FoS)</text>
+        </svg>
+    </div>
+
+    <h3>Interpretation</h3>
+    <ul>
+        <li><strong>FoS &gt; 1</strong>: applied condition is below specified capacity.</li>
+        <li><strong>FoS = 1</strong>: applied condition equals specified capacity.</li>
+        <li><strong>FoS &lt; 1</strong>: applied condition exceeds specified capacity.</li>
+    </ul>
+</section>
+</div>
+
+<div class="calculator-column">
+<section class="content-card calculator-box">
+    <h2>Calculation</h2>
+
+    <h3>Mode</h3>
+    <select id="mode" class="output-select" onchange="updateFactorOfSafetyMode()">
+        <option value="stress">Stress-Based FoS</option>
+        <option value="load">Load-Based FoS</option>
+    </select>
+
+    <div id="stressBasedInputs">
+        <h3>Stress-Based Inputs</h3>
+
+        <div id="strengthSourceContainer">
+            <label class="input-label">Strength Source</label>
+            <select id="strengthSource" class="output-select" onchange="updateFactorOfSafetyMode(); updateMaterialStrength();">
+                <option value="direct" selected>Direct Entry</option>
+                <option value="material-yield">Material Yield Strength</option>
+                <option value="material-tensile">Material Tensile Strength</option>
+            </select>
+        </div>
+
+        <div id="materialContainer" style="display:none;">
+            <label class="input-label">Material</label>
+            <select id="material" class="output-select" onchange="updateMaterialStrength()"></select>
+        </div>
+
+        <label class="input-label">Strength</label>
+        <div class="input-row">
+            <input id="strength" type="number" placeholder="Enter strength">
+            <select id="strengthUnit" onchange="updateMaterialStrength()">
+                <option>Pa</option><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option>
+            </select>
+        </div>
+
+        <label class="input-label">Applied Stress</label>
+        <div class="input-row">
+            <input id="appliedStress" type="number" placeholder="Enter applied stress">
+            <select id="appliedStressUnit"><option>Pa</option><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option></select>
+        </div>
+    </div>
+
+    <div id="loadBasedInputs" style="display:none;">
+        <h3>Load-Based Inputs</h3>
+
+        <label class="input-label">Failure Load</label>
+        <div class="input-row">
+            <input id="failureLoad" type="number" placeholder="Enter failure load">
+            <select id="failureLoadUnit"><option>N</option><option selected>kN</option><option>lbf</option></select>
+        </div>
+
+        <label class="input-label">Applied Load</label>
+        <div class="input-row">
+            <input id="appliedLoad" type="number" placeholder="Enter applied load">
+            <select id="appliedLoadUnit"><option>N</option><option selected>kN</option><option>lbf</option></select>
+        </div>
+    </div>
+
+    <div class="button-row">
+        <button onclick="calculateFactorOfSafety()">Calculate</button>
+        <button class="secondary-button" onclick="resetFactorOfSafetyCalculator()">Reset</button>
+    </div>
+
+    <div id="result" class="result-panel">Ready to calculate.</div>
+</section>
+</div>
+
+</div>
+</section>
+
+</div>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/factor-of-safety.js"></script>
+</body>
+</html>

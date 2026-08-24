@@ -36,6 +36,34 @@ const calculators = [
     },
 
     {
+        name: "Column Buckling Calculator",
+        category: "Mechanical",
+        description: "Calculate Euler critical buckling load for circular columns.",
+        link: "calculators/column-buckling.html"
+    },
+
+    {
+        name: "Beam Bending Stress Calculator",
+        category: "Mechanical",
+        description: "Calculate elastic bending stress from moment and section geometry.",
+        link: "calculators/beam-bending-stress.html"
+    },
+
+    {
+        name: "Bearing Life Calculator",
+        category: "Mechanical",
+        description: "Calculate basic L10 bearing life in revolutions and operating hours.",
+        link: "calculators/bearing-life.html"
+    },
+
+    {
+        name: "Factor of Safety Calculator",
+        category: "Materials",
+        description: "Calculate factor of safety from stress- or load-based definitions.",
+        link: "calculators/factor-of-safety.html"
+    },
+
+    {
         name: "Bearing PV",
         category: "Mechanical",
         description: "Coming Soon",
