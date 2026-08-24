@@ -152,6 +152,147 @@
 </div>
 </section>
 
+
+<!-- =========================
+     WORKED EXAMPLE
+========================= -->
+
+<section class="content-card">
+
+<h2>Worked Example</h2>
+
+<div class="example-box">
+
+<p>
+<strong>Given (Steel Solid Circular Column, Pinned-Pinned):</strong>
+</p>
+
+<p>
+Material: Structural Steel — E = 200 GPa = 200 × 10⁹ Pa
+</p>
+
+<p>
+Outer Diameter: d = 50 mm = 0.050 m
+</p>
+
+<p>
+Unsupported Length: L = 2 m
+</p>
+
+<p>
+Boundary Condition: Pinned-Pinned — K = 1.0
+</p>
+
+<p>
+<strong>Find: Euler critical buckling load</strong>
+</p>
+
+<p>
+<strong>Solution:</strong>
+</p>
+
+<p>
+I = π·d⁴ / 64 = π × 0.050⁴ / 64 = 3.068 × 10⁻⁷ m⁴
+</p>
+
+<p>
+P<sub>cr</sub> = π²·E·I / (K·L)² = π² × 200 × 10⁹ × 3.068 × 10⁻⁷ / (1.0 × 2)²
+</p>
+
+<p>
+P<sub>cr</sub> = 605,760 / 4 ≈ <strong>151.4 kN</strong>
+</p>
+
+</div>
+
+</section>
+
+<!-- =========================
+     ENGINEERING NOTES
+========================= -->
+
+<section class="content-card">
+
+<h2>Notes</h2>
+
+<ul>
+
+<li>
+Euler buckling theory applies to slender columns in the elastic range. Short or intermediate columns may yield before buckling.
+</li>
+
+<li>
+The effective length factor K depends on boundary conditions: Fixed-Free = 2.0, Pinned-Pinned = 1.0, Fixed-Pinned = 0.699, Fixed-Fixed = 0.5.
+</li>
+
+<li>
+Real columns have geometric imperfections, residual stresses, and eccentric loading — these reduce actual capacity below the ideal Euler load.
+</li>
+
+<li>
+Check slenderness ratio (KL/r) to verify the column is in the Euler elastic range before applying these results.
+</li>
+
+<li>
+This calculator does not account for inelastic buckling, local plate buckling, or code-specified reduction factors.
+</li>
+
+<li>
+Always apply an appropriate factor of safety to the calculated critical load for design use.
+</li>
+
+</ul>
+
+</section>
+
+<!-- =========================
+     APPLICATIONS
+========================= -->
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+
+<li>Steel column design and slenderness verification</li>
+
+<li>Compression strut analysis in trusses and frames</li>
+
+<li>Scaffold pole and shoring design</li>
+
+<li>Machine frame and press column sizing</li>
+
+<li>Offshore structure leg buckling checks</li>
+
+<li>Slender structural member pre-check before detailed code design</li>
+
+</ul>
+
+</section>
+
+<!-- =========================
+     RELATED CALCULATORS
+========================= -->
+
+<section class="content-card">
+
+<h2>Related Calculators</h2>
+
+<ul>
+
+<li><a href="factor-of-safety.html">Factor of Safety</a></li>
+
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+
+<li><a href="beam-deflection.html">Beam Deflection</a></li>
+
+<li><a href="moment.html">Moment Calculator</a></li>
+
+</ul>
+
+</section>
+
 </div>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/column-buckling.js"></script>
