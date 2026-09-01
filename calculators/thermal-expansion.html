@@ -55,39 +55,44 @@
         <section class="content-card formula-card">
 
 
-            <h2>Theory</h2>
+            <h2>Engineering Theory</h2>
+
+    <h3>Governing Equations</h3>
 
 
             <div class="formula-box">
 
-                ΔL = α·L₀·ΔT
+                \[ \Delta L = \alpha L_0 \Delta T \]
 
             </div>
 
             <div class="formula-box">
 
-                L<sub>f</sub> = L₀ + ΔL
+                \[ L_f = L_0 + \Delta L \]
 
             </div>
 
             <div class="formula-box">
 
-                ε<sub>thermal</sub> = α·ΔT
+                \[ \varepsilon_{\text{thermal}} = \alpha \Delta T \]
+
+            </div>
+
+            <div class="formula-box">
+
+                \[ \sigma_{\text{thermal}} = E \alpha \Delta T \]
 
             </div>
 
 
             <p>
 
-                Linear thermal expansion describes the change in length of a material due to 
-                temperature change. The change in length is proportional to the original length,
-                coefficient of linear thermal expansion, and temperature change. For a restrained
-                member (fully fixed), thermal stress can develop.
+                Thermal strain can appear as free expansion (dimensional change, negligible stress) or restrained response (limited expansion, thermal stress). This calculator reports both free expansion and the fully restrained upper-bound stress model.
 
             </p>
             
 
-          <h3>Variables</h3>
+          <h3>Variable Definitions</h3>
 
           <ul>
 
@@ -125,6 +130,14 @@
 
           </ul>
 
+          <h3>Variable Definitions</h3>
+
+          <ul>
+                <li><strong>\(\alpha\)</strong> = coefficient of linear thermal expansion \(\left[1/^{\circ}\text{C}\right]\)</li>
+                <li><strong>\(\Delta T\)</strong> = temperature change</li>
+                <li><strong>\(\varepsilon_{\text{thermal}}\)</strong> = thermal strain</li>
+                <li><strong>\(\sigma_{\text{thermal}}\)</strong> = restrained thermal stress estimate \(E\alpha\Delta T\)</li>
+          </ul>
 
             <div class="engineering-diagram">
 
@@ -152,7 +165,7 @@
                     
                     <!-- Expanded member -->
                     <rect x="330" y="80" width="190" height="30" fill="none" stroke="#cc6600" stroke-width="2" stroke-dasharray="5,5"/>
-                    <text x="425" y="130" font-size="14" fill="#cc6600" text-anchor="middle">L<sub>f</sub> = L₀ + ΔL, T₂</text>
+                    <text x="425" y="130" font-size="14" fill="#cc6600" text-anchor="middle">L_f = L₀ + ΔL, T₂</text>
                     
                     <!-- Dimension: Original length -->
                     <line x1="80" y1="140" x2="230" y2="140" stroke="#555" stroke-width="2"/>
@@ -206,7 +219,7 @@
 
             </div>
           
-          <h3>Assumptions</h3>
+          <h3>Engineering Notes/Assumptions</h3>
 
           <ul>
 
@@ -439,15 +452,15 @@ Young's Modulus: E = 200 GPa
 </p>
 
 <p>
-ΔL = α·L₀·ΔT = 12.0 × 10⁻⁶ × 2 × 50 = 0.0012 m = 1.2 mm
+\[ \Delta L = \alpha L_0 \Delta T = 12.0 \times 10^{-6} \times 2 \times 50 = 0.0012\ \text{m} = 1.2\ \text{mm} \]
 </p>
 
 <p>
-L<sub>f</sub> = L₀ + ΔL = 2 + 0.0012 = 2.0012 m
+\[ L_f = L_0 + \Delta L = 2 + 0.0012 = 2.0012\ \text{m} \]
 </p>
 
 <p>
-ε<sub>thermal</sub> = α·ΔT = 12.0 × 10⁻⁶ × 50 = 0.0006
+\[ \varepsilon_{\text{thermal}} = \alpha \Delta T = 12.0 \times 10^{-6} \times 50 = 0.0006 \]
 </p>
 
 <p>
@@ -455,7 +468,7 @@ L<sub>f</sub> = L₀ + ΔL = 2 + 0.0012 = 2.0012 m
 </p>
 
 <p>
-σ<sub>thermal</sub> = E·α·ΔT = 200 × 10⁹ Pa × 12.0 × 10⁻⁶ /°C × 50°C = 120 MPa
+\[ \sigma_{\text{thermal}} = E\alpha\Delta T = 200 \times 10^9\ \text{Pa} \times 12.0 \times 10^{-6} \times 50 = 120\ \text{MPa} \]
 </p>
 
 </div>
@@ -468,7 +481,7 @@ L<sub>f</sub> = L₀ + ΔL = 2 + 0.0012 = 2.0012 m
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -528,6 +541,22 @@ Consider thermal expansion in pipe routing, bridge joints, machine assemblies, a
 
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Incropera, F. P., DeWitt, D. P., et al. <em>Fundamentals of Heat and Mass Transfer</em>.</li>
+<li>ASME B31 piping design references (thermal expansion considerations in piping systems).</li>
+<li>Hibbeler, R. C. <em>Mechanics of Materials</em> (thermal strain and constrained stress relations).</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -553,6 +582,7 @@ Consider thermal expansion in pipe routing, bridge joints, machine assemblies, a
  
 </div>
 
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/thermal-expansion.js"></script>
 

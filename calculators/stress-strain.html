@@ -55,45 +55,44 @@
         <section class="content-card formula-card">
 
 
-            <h2>Theory</h2>
+            <h2>Engineering Theory</h2>
+
+    <h3>Governing Equations</h3>
 
 
             <div class="formula-box">
 
-                σ = F / A
+                \[ \sigma = \frac{F}{A} \]
 
             </div>
 
             <div class="formula-box">
 
-                ε = ΔL / L₀
+                \[ \varepsilon = \frac{\Delta L}{L_0} \]
 
             </div>
 
             <div class="formula-box">
 
-                σ = E·ε
+                \[ \sigma = E\varepsilon \]
 
             </div>
 
             <div class="formula-box">
 
-                ΔL = (F·L₀) / (A·E)
+                \[ \Delta L = \frac{F L_0}{A E} \]
 
             </div>
 
 
             <p>
 
-                Under uniaxial linear-elastic loading, normal stress is force divided by
-                area, strain is deformation divided by original length, and Young's modulus
-                relates stress and strain. The axial deformation depends on force, original
-                length, cross-sectional area, and material stiffness.
+                Stress, strain, modulus, and axial deformation are related but distinct: stress is internal force intensity, strain is normalized deformation, and Young's modulus links them in the linear-elastic range through \(\sigma = E\varepsilon\).
 
             </p>
             
 
-          <h3>Variables</h3>
+          <h3>Variable Definitions</h3>
 
           <ul>
 
@@ -127,6 +126,13 @@
 
           </ul>
 
+          <h3>Variable Definitions</h3>
+
+          <ul>
+                <li><strong>\(\sigma\)</strong> = normal stress, typically in \(\text{Pa}, \text{MPa}, \text{or}\ \text{psi}\)</li>
+                <li><strong>\(\varepsilon\)</strong> = engineering strain (dimensionless)</li>
+                <li><strong>\(E\)</strong> = Young's modulus (material stiffness)</li>
+          </ul>
 
             <div class="engineering-diagram">
 
@@ -203,7 +209,7 @@
 
             </div>
           
-          <h3>Assumptions</h3>
+          <h3>Engineering Notes/Assumptions</h3>
 
           <ul>
 
@@ -472,15 +478,15 @@ Young's Modulus: E = 200 GPa = 200,000 MPa
 </p>
 
 <p>
-Stress: σ = F / A = 10,000 N / 100 mm² = 100 N/mm² = 100 MPa
+\[ \sigma = \frac{F}{A} = \frac{10{,}000\ \text{N}}{100\ \text{mm}^2} = 100\ \text{MPa} \]
 </p>
 
 <p>
-Strain: ε = σ / E = 100 MPa / 200,000 MPa = 0.0005
+\[ \varepsilon = \frac{\sigma}{E} = \frac{100\ \text{MPa}}{200{,}000\ \text{MPa}} = 0.0005 \]
 </p>
 
 <p>
-Deformation: ΔL = ε·L₀ = 0.0005 × 500 mm = 0.25 mm
+\[ \Delta L = \varepsilon L_0 = 0.0005 \times 500\ \text{mm} = 0.25\ \text{mm} \]
 </p>
 
 <p>
@@ -501,7 +507,7 @@ Deformation: ΔL = ε·L₀ = 0.0005 × 500 mm = 0.25 mm
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -559,6 +565,22 @@ Small-deformation assumption means ΔL ≪ L₀; large deformations require nonl
 
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Hibbeler, R. C. <em>Mechanics of Materials</em>.</li>
+<li>Beer, F. P., Johnston, E. R., DeWolf, J. T., &amp; Mazurek, D. F. <em>Mechanics of Materials</em>.</li>
+<li>Callister, W. D., &amp; Rethwisch, D. G. <em>Materials Science and Engineering</em> (elastic behavior context).</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -584,6 +606,7 @@ Small-deformation assumption means ΔL ≪ L₀; large deformations require nonl
  
 </div>
 
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/stress-strain.js"></script>
 

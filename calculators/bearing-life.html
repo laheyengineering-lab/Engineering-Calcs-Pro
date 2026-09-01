@@ -19,11 +19,24 @@
 
 <div class="theory-column">
 <section class="content-card formula-card">
-    <h2>Theory</h2>
-    <div class="formula-box">L<sub>10</sub> = (C / P)<sup>p</sup></div>
-    <div class="formula-box" style="font-size:18px;">L<sub>10h</sub> = (L<sub>10</sub> × 10⁶) / (60n)</div>
+    <h2>Engineering Theory</h2>
 
-    <p>This is a basic rating-life calculation where L<sub>10</sub> corresponds to 90% reliability.</p>
+    <h3>Governing Equations</h3>
+    <div class="formula-box">\[ L_{10} = \left(\frac{C}{P}\right)^p \]</div>
+    <div class="formula-box" style="font-size:18px;">\[ L_{10h} = \frac{L_{10} \times 10^6}{60n} \]</div>
+
+    <p>This calculator reports classical basic rating life. \(L_{10}\) is a statistical rating life at 90% reliability and should not be interpreted as guaranteed field service life.</p>
+
+    <h3>Variable Definitions</h3>
+    <ul>
+        <li><strong>\(C\)</strong> = dynamic load rating</li>
+        <li><strong>\(P\)</strong> = equivalent dynamic bearing load</li>
+        <li><strong>\(p\)</strong> = life exponent (bearing-type dependent)</li>
+        <li><strong>\(n\)</strong> = rotational speed</li>
+    </ul>
+
+    <h3>Engineering Notes/Assumptions</h3>
+    <p>Rating life differs from service life because lubrication, contamination, mounting, temperature, and duty cycle are not fully represented in this basic model.</p>
 
     <h3>Exponents</h3>
     <ul>
@@ -64,7 +77,7 @@
         </svg>
     </div>
 
-    <h3>Notes</h3>
+    <h3>Engineering Notes/Assumptions</h3>
     <ul>
         <li>Basic rating life is a statistical rating, not guaranteed field life.</li>
         <li>Actual life depends on lubrication, contamination, alignment, installation, load variation, and temperature.</li>
@@ -151,11 +164,11 @@ Rotational Speed: n = 1,500 rpm
 </p>
 
 <p>
-L<sub>10</sub> = (C / P)<sup>p</sup> = (30 / 10)<sup>3</sup> = 3³ = 27 million revolutions
+\[ L_{10} = \left(\frac{C}{P}\right)^p \] = (30 / 10)<sup>3</sup> = 3³ = 27 million revolutions
 </p>
 
 <p>
-L<sub>10h</sub> = (L<sub>10</sub> × 10⁶) / (60 × n) = (27 × 10⁶) / (60 × 1,500) = <strong>300 hours</strong>
+\[ L_{10h} = \frac{27 \times 10^6}{60 \times 1500} = 300\ \text{h} \]
 </p>
 
 </div>
@@ -168,7 +181,7 @@ L<sub>10h</sub> = (L<sub>10</sub> × 10⁶) / (60 × n) = (27 × 10⁶) / (60 ×
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -227,6 +240,22 @@ This calculator does not apply lubrication, contamination, or application-specif
 </section>
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>ISO 281, <em>Rolling bearings — Dynamic load ratings and rating life</em>.</li>
+<li>SKF Group, <em>Rolling Bearings Catalogue</em> (rating life methodology and application factors).</li>
+<li>Harris, T. A., &amp; Kotzalas, M. N. <em>Rolling Bearing Analysis</em>.</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -249,6 +278,7 @@ This calculator does not apply lubrication, contamination, or application-specif
 </section>
 
 </div>
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/bearing-life.js"></script>
 </body>
