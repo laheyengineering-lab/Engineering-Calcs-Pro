@@ -1,6 +1,9 @@
 (function() {
     const KATEX_VERSION = "0.16.11";
-    const KATEX_BASE_URL = `https://cdn.jsdelivr.net/npm/katex@${KATEX_VERSION}/dist`;
+    const KATEX_BASE_URLS = [
+        `https://cdn.jsdelivr.net/npm/katex@${KATEX_VERSION}/dist`,
+        `https://unpkg.com/katex@${KATEX_VERSION}/dist`
+    ];
 
     function appendStylesheet(href) {
         if (document.querySelector(`link[href="${href}"]`)) {
@@ -43,10 +46,14 @@
         });
     }
 
-    appendStylesheet(`${KATEX_BASE_URL}/katex.min.css`);
+    function loadFromBase(baseUrl) {
+        appendStylesheet(`${baseUrl}/katex.min.css`);
+        return loadScript(`${baseUrl}/katex.min.js`)
+            .then(() => loadScript(`${baseUrl}/contrib/auto-render.min.js`));
+    }
 
-    loadScript(`${KATEX_BASE_URL}/katex.min.js`)
-        .then(() => loadScript(`${KATEX_BASE_URL}/contrib/auto-render.min.js`))
+    loadFromBase(KATEX_BASE_URLS[0])
+        .catch(() => loadFromBase(KATEX_BASE_URLS[1]))
         .then(renderAllMath)
         .catch(() => {});
 })();
