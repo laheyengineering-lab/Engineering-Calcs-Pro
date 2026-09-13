@@ -54,25 +54,25 @@
         <section class="content-card formula-card">
 
 
-            <h2>Theory</h2>
+            <h2>Engineering Theory</h2>
 
+    <h3>Governing Equations</h3>
 
             <div class="formula-box">
 
-                T = K × D × F
+                \[ T = K D F \]
 
             </div>
 
 
             <p>
 
-                Bolt torque is calculated by multiplying the nut factor (friction coefficient), 
-                the nominal bolt diameter, and the desired clamp load.
+                Tightening torque is an indirect preload-control method: input torque overcomes thread/bearing friction, rotates the fastener, stretches the bolt, and generates clamp preload. Because friction dominates, preload scatter is expected for a fixed torque.
 
             </p>
             
 
-        <h3>Variables</h3>
+        <h3>Variable Definitions</h3>
         <ul>
 
                 <li>
@@ -241,6 +241,10 @@
 
             </div>
           
+          <h3>Engineering Notes/Assumptions</h3>
+
+          <p>Use \(K\) only as an estimate. Surface finish, lubrication, coatings, thread condition, and tightening method can significantly change preload for the same commanded torque.</p>
+
           <h3>Nut Factor Guidelines</h3>
 
           <ul>
@@ -507,15 +511,15 @@ Nut Factor (K) = 0.20
 </p>
 
 <p>
-T = K × D × F
+\[ T = K D F \]
 </p>
 
 <p>
-T = 0.20 × 0.010 m × 50,000 N
+\[ T = 0.20 \times 0.010\ \text{m} \times 50{,}000\ \text{N} \]
 </p>
 
 <p>
-T = 100 N·m
+\(T = 100\ \text{N\cdot m}\)
 </p>
 
 
@@ -523,7 +527,7 @@ T = 100 N·m
 
 <strong>
 
-Result: T = 100 N·m
+Result: \(T = 100\ \text{N\cdot m}\)
 
 </strong>
 
@@ -542,7 +546,7 @@ Result: T = 100 N·m
 <section class="content-card">
 
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 
 <ul>
@@ -570,6 +574,22 @@ Use calibrated torque wrenches for critical fastening operations.
 
 </ul>
 
+
+</section>
+
+<!-- =========================
+     APPLICATIONS
+========================= -->
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+<li>Preload targeting for bolted joints in machinery and structures</li>
+<li>Maintenance torque checks where direct tension measurement is unavailable</li>
+<li>Initial sizing studies before detailed joint analysis (e.g., VDI-style methods)</li>
+</ul>
 
 </section>
 
@@ -628,6 +648,22 @@ Use calibrated torque wrenches for critical fastening operations.
 
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Bickford, J. H. <em>An Introduction to the Design and Behavior of Bolted Joints</em>.</li>
+<li>Shigley, J. E., Mischke, C. R., &amp; Budynas, R. G. <em>Mechanical Engineering Design</em> (fastener preload concepts).</li>
+<li>VDI 2230, <em>Systematic calculation of high duty bolted joints</em>.</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -657,6 +693,7 @@ Use calibrated torque wrenches for critical fastening operations.
  
 </div>
 
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/bolt-database.js"></script>
 <script src="../js/bolt-torque.js"></script>

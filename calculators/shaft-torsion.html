@@ -55,31 +55,29 @@
         <section class="content-card formula-card">
 
 
-            <h2>Theory</h2>
+            <h2>Engineering Theory</h2>
 
 
             <div class="formula-box">
 
-                τ = (T·r) / J
+                \[ \tau = \frac{T r}{J} \]
 
             </div>
 
             <div class="formula-box">
 
-                θ = (T·L) / (G·J)
+                \[ \theta = \frac{T L}{G J} \]
 
             </div>
 
             <p>
 
-                For a circular shaft under torque, shear stress depends on the applied torque,
-                radius, and polar moment of inertia. The angle of twist relates torque, shaft
-                length, shear modulus, and polar moment of inertia.
+                Shaft torsion response includes stress \(\tau\), twist \(\theta\), and stiffness \(k = GJ/L\). For a given torque, larger radius increases stress demand, while larger \(J\) and \(G\) increase torsional rigidity.
 
             </p>
             
 
-          <h3>Key Variables</h3>
+          <h3>Governing Equations</h3>
 
           <ul>
 
@@ -114,6 +112,16 @@
           </ul>
 
 
+            <h3>Variable Definitions</h3>
+
+          <ul>
+                <li><strong>\(T\)</strong> = applied torque</li>
+                <li><strong>\(J\)</strong> = polar moment of inertia (geometry-controlled)</li>
+                <li><strong>\(G\)</strong> = shear modulus (material-controlled)</li>
+                <li><strong>\(L\)</strong> = shaft length</li>
+                <li><strong>\(k = GJ/L\)</strong> = torsional stiffness</li>
+          </ul>
+
             <h3>Polar Moment of Inertia</h3>
 
             <p>
@@ -121,7 +129,7 @@
             </p>
 
             <div class="formula-box" style="font-size: 20px;">
-                J = πD⁴ / 32
+                \[ J = \frac{\pi D^4}{32} \]
             </div>
 
             <p>
@@ -129,7 +137,7 @@
             </p>
 
             <div class="formula-box" style="font-size: 20px;">
-                J = π(D<sub>o</sub>⁴ − D<sub>i</sub>⁴) / 32
+                \[ J = \frac{\pi\left(D_o^4 - D_i^4\right)}{32} \]
             </div>
 
 
@@ -218,7 +226,7 @@
 
             </div>
           
-          <h3>Assumptions</h3>
+          <h3>Engineering Notes/Assumptions</h3>
 
           <ul>
 
@@ -463,15 +471,15 @@ Shear Modulus: G = 80 GPa
 </p>
 
 <p>
-Polar moment: J = πD⁴/32 = π(0.050)⁴/32 = 6.136 × 10⁻⁷ m⁴
+\[ J = \frac{\pi D^4}{32} = \frac{\pi (0.050)^4}{32} = 6.136 \times 10^{-7}\ \text{m}^4 \]
 </p>
 
 <p>
-Maximum shear stress: τ<sub>max</sub> = T·c/J = 500 × 0.025 / 6.136 × 10⁻⁷ = 20.37 MPa
+\[ \tau_{\max} = \frac{Tc}{J} = \frac{500 \times 0.025}{6.136 \times 10^{-7}} = 20.37\ \text{MPa} \]
 </p>
 
 <p>
-Angle of twist: θ = TL/(GJ) = 500 × 2 / (80 × 10⁹ × 6.136 × 10⁻⁷) = 0.0204 rad = 1.17°
+\[ \theta = \frac{TL}{GJ} = \frac{500 \times 2}{80 \times 10^9 \times 6.136 \times 10^{-7}} = 0.0204\ \text{rad} = 1.17^{\circ} \]
 </p>
 
 </div>
@@ -484,7 +492,7 @@ Angle of twist: θ = TL/(GJ) = 500 × 2 / (80 × 10⁹ × 6.136 × 10⁻⁷) = 0
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -542,6 +550,22 @@ This calculator uses classical torsion theory and does not account for stress co
 
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Hibbeler, R. C. <em>Mechanics of Materials</em>.</li>
+<li>Gere, J. M., &amp; Goodno, B. J. <em>Mechanics of Materials</em>.</li>
+<li>Shigley, J. E., Mischke, C. R., &amp; Budynas, R. G. <em>Mechanical Engineering Design</em> (shaft design and torsion).</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -567,6 +591,7 @@ This calculator uses classical torsion theory and does not account for stress co
  
 </div>
 
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/shaft-torsion.js"></script>
 

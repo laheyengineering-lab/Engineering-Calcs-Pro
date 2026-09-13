@@ -19,13 +19,16 @@
 
 <div class="theory-column">
 <section class="content-card formula-card">
-    <h2>Theory</h2>
-    <div class="formula-box">P<sub>cr</sub> = π²EI / (KL)²</div>
-    <div class="formula-box" style="font-size: 18px;">I<sub>solid</sub> = πd⁴/64 &nbsp;&nbsp; I<sub>hollow</sub> = π(D⁴ - d⁴)/64</div>
+    <h2>Engineering Theory</h2>
 
-    <p>This calculator applies ideal Euler elastic buckling for slender columns under axial compression.</p>
+    <h3>Governing Equations</h3>
+    <div class="formula-box">\[ P_{\text{cr}} = \frac{\pi^2 E I}{(K L)^2} \]</div>
+    <div class="formula-box" style="font-size: 18px;">\[ I_{\text{solid}} = \frac{\pi d^4}{64},\quad I_{\text{hollow}} = \frac{\pi(D^4-d^4)}{64} \]</div>
 
-    <h3>Variables</h3>
+    <p>This calculator applies the classical Euler elastic instability model for slender columns under axial compression using \(K\)-factored effective length \(KL\).</p>
+
+    <h3>Variable Definitions</h3>
+    <p>Primary equation is valid when the column remains elastic and sufficiently slender; yielding and inelastic effects are outside this model.</p>
     <ul>
         <li><strong>P<sub>cr</sub></strong> = Critical buckling load</li>
         <li><strong>E</strong> = Young's modulus</li>
@@ -63,7 +66,7 @@
         </svg>
     </div>
 
-    <h3>Assumptions & Notes</h3>
+    <h3>Engineering Notes/Assumptions</h3>
     <ul>
         <li>Ideal Euler buckling (slender column, linear elastic material).</li>
         <li>Straight member with ideal geometry and axial compression.</li>
@@ -192,15 +195,15 @@ Boundary Condition: Pinned-Pinned — K = 1.0
 </p>
 
 <p>
-I = π·d⁴ / 64 = π × 0.050⁴ / 64 = 3.068 × 10⁻⁷ m⁴
+\[ I = \frac{\pi d^4}{64} = \frac{\pi (0.050)^4}{64} = 3.068 \times 10^{-7}\ \text{m}^4 \]
 </p>
 
 <p>
-P<sub>cr</sub> = π²·E·I / (K·L)² = π² × 200 × 10⁹ × 3.068 × 10⁻⁷ / (1.0 × 2)²
+\[ P_{\text{cr}} = \frac{\pi^2 E I}{(KL)^2} = \frac{\pi^2 \times 200 \times 10^9 \times 3.068 \times 10^{-7}}{(1.0 \times 2)^2} \]
 </p>
 
 <p>
-P<sub>cr</sub> = 605,760 / 4 ≈ <strong>151.4 kN</strong>
+\[ P_{\text{cr}} \approx 151.4\ \text{kN} \]
 </p>
 
 </div>
@@ -213,7 +216,7 @@ P<sub>cr</sub> = 605,760 / 4 ≈ <strong>151.4 kN</strong>
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -272,6 +275,22 @@ Always apply an appropriate factor of safety to the calculated critical load for
 </section>
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Euler, L. (classical elastic column buckling relation).</li>
+<li>Timoshenko, S. P., &amp; Gere, J. M. <em>Theory of Elastic Stability</em>.</li>
+<li>AISC Steel Construction Manual (design context beyond ideal Euler theory).</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -294,6 +313,7 @@ Always apply an appropriate factor of safety to the calculated critical load for
 </section>
 
 </div>
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/column-buckling.js"></script>
 </body>

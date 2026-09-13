@@ -19,16 +19,26 @@
 
 <div class="theory-column">
 <section class="content-card formula-card">
-    <h2>Theory</h2>
-    <div class="formula-box">σ = M c / I</div>
+    <h2>Engineering Theory</h2>
+
+    <h3>Governing Equations</h3>
+    <div class="formula-box">\[ \sigma = \frac{M c}{I} \]</div>
 
     <p>This calculator evaluates elastic bending stress. It does <strong>not</strong> calculate beam deflection.</p>
 
+    <h3>Variable Definitions</h3>
+    <ul>
+        <li><strong>\(\sigma\)</strong> = bending normal stress</li>
+        <li><strong>\(M\)</strong> = internal bending moment</li>
+        <li><strong>\(c\)</strong> = distance from neutral axis to extreme fiber</li>
+        <li><strong>\(I\)</strong> = second moment of area about the neutral axis</li>
+    </ul>
+
     <h3>Section Relationships</h3>
     <ul>
-        <li><strong>Rectangular:</strong> I = b h³ / 12, c = h/2</li>
-        <li><strong>Solid Circular:</strong> I = πd⁴ / 64, c = d/2</li>
-        <li><strong>Hollow Circular:</strong> I = π(D⁴ - d⁴) / 64, c = D/2</li>
+        <li><strong>Rectangular:</strong> \(I = \frac{b h^3}{12}\), \(c = \frac{h}{2}\)</li>
+        <li><strong>Solid Circular:</strong> \(I = \frac{\pi d^4}{64}\), \(c = \frac{d}{2}\)</li>
+        <li><strong>Hollow Circular:</strong> \(I = \frac{\pi(D^4 - d^4)}{64}\), \(c = \frac{D}{2}\)</li>
     </ul>
 
     <div class="engineering-diagram">
@@ -58,7 +68,7 @@
         </svg>
     </div>
 
-    <h3>Assumptions</h3>
+    <h3>Engineering Notes/Assumptions</h3>
     <ul>
         <li>Linear elastic behavior and small deformation.</li>
         <li>Prismatic section and standard elastic bending relation.</li>
@@ -207,7 +217,7 @@ c = h / 2 = 100 / 2 = 50 mm
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -266,6 +276,22 @@ Stress concentrations (holes, notches, fillets) are not accounted for in this ca
 </section>
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Beer, F. P., Johnston, E. R., DeWolf, J. T., &amp; Mazurek, D. F. <em>Mechanics of Materials</em>.</li>
+<li>Hibbeler, R. C. <em>Mechanics of Materials</em>.</li>
+<li>Roark, R. J., Young, W. C., &amp; Budynas, R. G. <em>Roark's Formulas for Stress and Strain</em>.</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -288,6 +314,7 @@ Stress concentrations (holes, notches, fillets) are not accounted for in this ca
 </section>
 
 </div>
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/beam-bending-stress.js"></script>
 </body>

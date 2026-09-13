@@ -55,36 +55,34 @@
         <section class="content-card formula-card">
 
 
-            <h2>Theory</h2>
+            <h2>Engineering Theory</h2>
 
 
             <p>
-                Beam deflection depends on load type, boundary conditions, material stiffness (E·I),
-                and geometry. This calculator covers four standard cases with closed-form solutions
-                from Euler-Bernoulli beam theory.
+                Deflection magnitude depends on load intensity, span \(L\), and flexural rigidity \(EI\). This page uses four classical closed-form Euler-Bernoulli cases with ideal support conditions.
             </p>
 
 
-            <h3>Loading Cases</h3>
+            <h3>Governing Equations</h3>
 
             <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 1: Simply Supported, Center Point Load</strong><br>
-                δ<sub>max</sub> = P·L³ / (48·E·I)
+                \[ \delta_{\max} = \frac{P L^3}{48 E I} \]
             </div>
 
             <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 2: Simply Supported, Uniform Distributed Load</strong><br>
-                δ<sub>max</sub> = 5·w·L⁴ / (384·E·I)
+                \[ \delta_{\max} = \frac{5 w L^4}{384 E I} \]
             </div>
 
             <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 3: Cantilever, Point Load at Free End</strong><br>
-                δ<sub>max</sub> = P·L³ / (3·E·I)
+                \[ \delta_{\max} = \frac{P L^3}{3 E I} \]
             </div>
 
             <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 4: Cantilever, Uniform Distributed Load</strong><br>
-                δ<sub>max</sub> = w·L⁴ / (8·E·I)
+                \[ \delta_{\max} = \frac{w L^4}{8 E I} \]
             </div>
 
 
@@ -230,7 +228,15 @@
 
             </div>
           
-          <h3>Assumptions</h3>
+          <h3>Variable Definitions</h3>
+
+          <ul>
+                <li><strong>\(P\)</strong> = point load, <strong>\(w\)</strong> = uniform load intensity</li>
+                <li><strong>\(L\)</strong> = span length, <strong>\(E\)</strong> = Young's modulus, <strong>\(I\)</strong> = area moment of inertia</li>
+                <li><strong>\(EI\)</strong> = flexural rigidity</li>
+          </ul>
+
+          <h3>Engineering Notes/Assumptions</h3>
 
           <ul>
 
@@ -471,15 +477,15 @@ Area Moment of Inertia: I = 5 × 10⁻⁵ m⁴
 </p>
 
 <p>
-δ<sub>max</sub> = P·L³ / (48·E·I) = 10,000 × 3³ / (48 × 200 × 10⁹ × 5 × 10⁻⁵)
+\[ \delta_{\max} = \frac{P L^3}{48 E I} \] = 10,000 × 3³ / (48 × 200 × 10⁹ × 5 × 10⁻⁵)
 </p>
 
 <p>
-δ<sub>max</sub> = 270,000 / (48 × 10⁷) = 0.00562 m = 5.62 mm
+\[ \delta_{\max} = 0.00562\ \text{m} = 5.62\ \text{mm} \]
 </p>
 
 <p>
-M<sub>max</sub> = P·L / 4 = 10,000 × 3 / 4 = 7,500 N·m
+\[ M_{\max} = \frac{PL}{4} = 7{,}500\ \text{N\cdot m} \]
 </p>
 
 </div>
@@ -492,7 +498,7 @@ M<sub>max</sub> = P·L / 4 = 10,000 × 3 / 4 = 7,500 N·m
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -556,6 +562,22 @@ This calculator does not account for lateral-torsional buckling, support settlem
 
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Gere, J. M., &amp; Goodno, B. J. <em>Mechanics of Materials</em>.</li>
+<li>Roark, R. J., Young, W. C., &amp; Budynas, R. G. <em>Roark's Formulas for Stress and Strain</em>.</li>
+<li>Hibbeler, R. C. <em>Structural Analysis</em>.</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -581,6 +603,7 @@ This calculator does not account for lateral-torsional buckling, support settlem
  
 </div>
 
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/beam-deflection.js"></script>
 

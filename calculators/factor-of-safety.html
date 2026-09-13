@@ -19,11 +19,13 @@
 
 <div class="theory-column">
 <section class="content-card formula-card">
-    <h2>Theory</h2>
-    <div class="formula-box" style="font-size:20px;">FoS = Strength / Applied Stress</div>
-    <div class="formula-box" style="font-size:20px;">FoS = Failure Load / Applied Load</div>
+    <h2>Engineering Theory</h2>
 
-    <p>This calculator reports a ratio only. Required design factors depend on application, uncertainty, failure mode, standards, and consequences of failure.</p>
+    <h3>Governing Equations</h3>
+    <div class="formula-box" style="font-size:20px;">\[ \text{FoS} = \frac{\text{Strength}}{\text{Applied Stress}} \]</div>
+    <div class="formula-box" style="font-size:20px;">\[ \text{FoS} = \frac{\text{Failure Load}}{\text{Applied Load}} \]</div>
+
+    <p>\(\text{FoS}\) is a comparative ratio, not a universal pass/fail guarantee. Required minimum FoS depends on failure mode, uncertainty, consequence class, and governing design standards.</p>
 
     <div class="engineering-diagram">
         <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
@@ -45,6 +47,13 @@
             <text x="350" y="367" text-anchor="middle" font-size="18" font-weight="bold" fill="#0b5394">Factor of Safety (FoS)</text>
         </svg>
     </div>
+
+    <h3>Variable Definitions</h3>
+    <ul>
+        <li><strong>FoS</strong> = factor of safety (dimensionless)</li>
+        <li><strong>Strength / Failure Load</strong> = selected capacity metric for the governing failure mode</li>
+        <li><strong>Applied Stress / Applied Load</strong> = demand under the evaluated load case</li>
+    </ul>
 
     <h3>Interpretation</h3>
     <ul>
@@ -157,7 +166,7 @@ Applied Stress = 100 MPa
 </p>
 
 <p>
-FoS = Strength / Applied Stress = 250 MPa / 100 MPa = <strong>2.5</strong>
+\[ \text{FoS} = \frac{\text{Strength}}{\text{Applied Stress}} \] = 250 MPa / 100 MPa = <strong>2.5</strong>
 </p>
 
 <p>
@@ -174,7 +183,7 @@ A FoS of 2.5 means the applied stress is 40% of the material's yield strength, p
 
 <section class="content-card">
 
-<h2>Notes</h2>
+<h2>Engineering Notes/Assumptions</h2>
 
 <ul>
 
@@ -233,6 +242,22 @@ A FoS less than 1.0 indicates the applied condition exceeds the specified capaci
 </section>
 
 <!-- =========================
+     REFERENCES
+========================= -->
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Shigley, J. E., Mischke, C. R., &amp; Budynas, R. G. <em>Mechanical Engineering Design</em>.</li>
+<li>Hibbeler, R. C. <em>Mechanics of Materials</em>.</li>
+<li>Applicable project, industry, and jurisdiction design codes for required safety factors.</li>
+</ul>
+
+</section>
+
+<!-- =========================
      RELATED CALCULATORS
 ========================= -->
 
@@ -255,6 +280,7 @@ A FoS less than 1.0 indicates the applied condition exceeds the specified capaci
 </section>
 
 </div>
+<script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/factor-of-safety.js"></script>
 </body>
