@@ -77,6 +77,24 @@ describe('shaft torsion calculator', () => {
         expect(getResultText(document)).toContain('Invalid Input');
     });
 
+    it('rejects mixed-unit hollow geometry when the converted inner diameter exceeds the outer diameter', () => {
+        const { document, window } = setup();
+
+        setSelectValue(document, 'shaftType', 'hollow');
+        window.updateShaftTorsionMode();
+        setInputValue(document, 'torque', 300);
+        setInputValue(document, 'outerDiameter', 2);
+        setInputValue(document, 'innerDiameter', 60);
+        setInputValue(document, 'length', 1.5);
+        setInputValue(document, 'shearModulus', 77);
+        setSelectValue(document, 'diameterUnit', 'in');
+        setSelectValue(document, 'innerDiameterUnit', 'mm');
+
+        window.calculateShaftTorsion();
+
+        expect(getResultText(document)).toContain('inner diameter must be less than outer diameter');
+    });
+
     it('populates materials from the centralized database and updates shear modulus presets', () => {
         const { document, window } = setup();
 

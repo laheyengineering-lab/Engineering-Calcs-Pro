@@ -73,10 +73,10 @@ function calculateShaftTorsion() {
     // For hollow shaft, validate inner diameter
     if (shaftType === "hollow") {
         const innerDiameter = Number(torsionInnerDiameterInput.value);
-        if (!Number.isFinite(innerDiameter) || innerDiameter <= 0) {
+        if (!Number.isFinite(innerDiameter) || innerDiameter < 0) {
             torsionResultPanel.innerHTML = `
                 <h3>Invalid Input</h3>
-                <p>Please enter a positive inner diameter for hollow shafts.</p>
+                <p>Please enter a non-negative inner diameter for hollow shafts.</p>
             `;
             return;
         }
