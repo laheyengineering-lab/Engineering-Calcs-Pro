@@ -18,7 +18,7 @@ The goal is to make fundamental mechanical engineering calculations accessible t
 
 | Feature | Details |
 |---|---|
-| **Zero Dependencies** | Pure vanilla HTML, CSS, and JavaScript—no npm, no build step, no frameworks |
+| **Zero Runtime Dependencies** | Pure vanilla HTML, CSS, and JavaScript in production—no frontend framework or build step |
 | **Dual Unit Systems** | Full metric and imperial support across all calculators |
 | **Shared Engineering Core** | Centralized unit conversion and material database (`js/engineering-units.js`) |
 | **Responsive Design** | Mobile-friendly layouts with CSS grid and media queries |
@@ -87,7 +87,10 @@ Engineering-Calcs-Pro/
 │   ├── beam-deflection.html        # Beam deflection calculator page
 │   └── thermal-expansion.html      # Thermal expansion calculator page
 ├── docs/
-│   └── engineering-units.md        # Detailed documentation for the shared engineering core
+│   ├── engineering-units.md        # Detailed documentation for the shared engineering core
+│   └── testing.md                  # Automated testing setup and philosophy
+├── tests/                          # Vitest + jsdom engineering calculation tests
+├── package.json                    # Test scripts and development dependencies
 └── README.md                       # This file
 ```
 
@@ -119,11 +122,12 @@ This layered loading ensures every calculator has access to consistent unit conv
 ## 🛠️ Tech Stack
 
 - **Frontend:** Vanilla HTML5, CSS3, JavaScript (ES6+)
+- **Testing:** Vitest + jsdom
 - **Styling:** Custom CSS with responsive grid layouts
 - **Hosting:** [Vercel](https://vercel.com)
 - **Source Control:** GitHub
 
-No build pipeline, no package manager, no transpiler. Open a file and it works.
+No frontend build pipeline, no transpiler, and no runtime framework. The browser app still runs as static files; npm is only used for automated tests.
 
 ---
 

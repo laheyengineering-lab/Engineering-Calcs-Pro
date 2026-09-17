@@ -18,7 +18,7 @@ describe('page smoke tests', () => {
     it('loads the homepage and renders calculator cards', () => {
         const { document } = loadCalculatorPage('index.html', ['js/calculator-data.js', 'js/homepage.js']);
 
-        expect(document.querySelectorAll('.calc-card').length).toBeGreaterThan(0);
+        expect(document.querySelectorAll('.calculator-card').length).toBeGreaterThan(0);
     });
 
     it.each(calculatorPages)('loads %s without breaking script initialization', (pagePath, scripts) => {
