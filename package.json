@@ -1,0 +1,24 @@
+{
+  "name": "engineering-calcs-pro",
+  "version": "1.0.0",
+  "description": "**A growing collection of professional-grade, browser-based engineering calculators for mechanical engineers, designers, machinists, and students.**",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://localhost:26831/laheyengineering-lab/Engineering-Calcs-Pro"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jsdom": "^30.1.0",
+    "vitest": "^5.0.1"
+  }
+}
