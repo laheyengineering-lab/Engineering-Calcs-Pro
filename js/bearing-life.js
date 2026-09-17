@@ -16,15 +16,6 @@ const bearingLifeExponents = {
     roller: 10 / 3
 };
 
-function escapeHtml(value) {
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
 function calculateBearingLife() {
     const bearingType = bearingTypeSelect.value;
     const dynamicLoadRating = Number(bearingDynamicRatingInput.value);

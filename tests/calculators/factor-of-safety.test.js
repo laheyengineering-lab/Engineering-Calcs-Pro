@@ -9,7 +9,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/factor-of-safety.js']);
+    return loadCalculatorPage('calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/factor-of-safety.js']);
 }
 
 describe('factor of safety calculator', () => {

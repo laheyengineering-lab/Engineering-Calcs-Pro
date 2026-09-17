@@ -10,7 +10,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/shaft-torsion.html', ['js/engineering-units.js', 'js/shaft-torsion.js']);
+    return loadCalculatorPage('calculators/shaft-torsion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/shaft-torsion.js']);
 }
 
 describe('shaft torsion calculator', () => {
@@ -75,5 +75,18 @@ describe('shaft torsion calculator', () => {
         window.calculateShaftTorsion();
 
         expect(getResultText(document)).toContain('Invalid Input');
+    });
+
+    it('populates materials from the centralized database and updates shear modulus presets', () => {
+        const { document, window } = setup();
+
+        const materialOptions = [...document.getElementById('material').options].map((option) => option.value);
+        expect(materialOptions).toContain('carbon-steel');
+        expect(materialOptions).toContain('magnesium');
+
+        setSelectValue(document, 'material', 'stainless-steel');
+        window.updateMaterialShearModulus();
+
+        expect(Number(document.getElementById('shearModulus').value)).toBeCloseTo(77, 6);
     });
 });

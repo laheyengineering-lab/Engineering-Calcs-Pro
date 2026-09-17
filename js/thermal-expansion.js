@@ -34,7 +34,8 @@ function calculateThermalExpansion() {
     const alpha = Number(thermalAlphaInput.value);
     const originalLength = Number(thermalOriginalLengthInput.value);
     const temperatureChange = Number(thermalTemperatureChangeInput.value);
-    const youngsModulus = Number(thermalYoungsModulusInput.value);
+    const youngsModulusRaw = thermalYoungsModulusInput.value.trim();
+    const youngsModulus = Number(youngsModulusRaw);
     
     const alphaUnit = thermalAlphaUnitSelect.value;
     const lengthUnit = thermalLengthUnitSelect.value;
@@ -44,7 +45,8 @@ function calculateThermalExpansion() {
     const stressUnit = thermalStressUnitSelect.value;
     
     // Validate basic inputs
-    if (isNaN(alpha) || isNaN(originalLength) || isNaN(temperatureChange) || alpha === 0 || originalLength === 0) {
+    if (!Number.isFinite(alpha) || alpha <= 0 || !Number.isFinite(originalLength) || originalLength <= 0 ||
+        !Number.isFinite(temperatureChange)) {
         thermalResultPanel.innerHTML = `
             <h3>Invalid Input</h3>
             <p>Please enter thermal expansion coefficient, original length, and temperature change.</p>
@@ -76,11 +78,17 @@ function calculateThermalExpansion() {
         let thermalStressPa = null;
         let thermalStressOutput = null;
         
-        if (!isNaN(youngsModulus) && youngsModulus !== 0) {
+        if (youngsModulusRaw !== "" && Number.isFinite(youngsModulus) && youngsModulus > 0) {
             const modulusPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
             // σ = E·α·ΔT
             thermalStressPa = modulusPa * alpha * deltaTC;
             thermalStressOutput = convertStressToUnit(thermalStressPa, stressUnit);
+        } else if (youngsModulusRaw !== "") {
+            thermalResultPanel.innerHTML = `
+                <h3>Invalid Input</h3>
+                <p>Young's modulus must be positive when restrained thermal stress is evaluated.</p>
+            `;
+            return;
         }
         
         // Build result HTML
@@ -152,5 +160,13 @@ function resetThermalExpansionCalculator() {
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", function() {
-    // Initialization if needed
+    populateMaterialSelect(thermalMaterialSelect, {
+        placeholderText: "-- Select Material or Enter Custom --",
+        formatLabel(material) {
+            return `${material.displayName} (${(material.thermalExpansionCoefficient * 1e6).toLocaleString(undefined, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            })} × 10⁻⁶ /°C)`;
+        }
+    });
 });

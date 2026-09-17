@@ -14,8 +14,8 @@ function calculateBoltTorque() {
     const clampLoad = Number(clampLoadInput.value);
     const nutFactor = Number(nutFactorInput.value);
 
-    if (isNaN(boltDiameter) || boltDiameter === 0 || isNaN(clampLoad) || isNaN(nutFactor) ||
-        clampLoad === 0 || nutFactor === 0) {
+    if (!Number.isFinite(boltDiameter) || boltDiameter <= 0 || !Number.isFinite(clampLoad) || clampLoad <= 0 ||
+        !Number.isFinite(nutFactor) || nutFactor <= 0) {
 
         resultPanel.innerHTML = `
             <h3>Invalid Input</h3>
@@ -74,12 +74,16 @@ function updateDiameterDisplay() {
     }
 }
 
-function resetTorqueCalculator() {
+function resetBoltTorqueCalculator() {
     boltSizeSelect.value = "";
     clampLoadInput.value = "";
     nutFactorInput.value = "0.20";
     diameterDisplay.textContent = "--";
     resultPanel.innerHTML = "Ready to calculate.";
+}
+
+function resetTorqueCalculator() {
+    resetBoltTorqueCalculator();
 }
 
 // Initialize on page load

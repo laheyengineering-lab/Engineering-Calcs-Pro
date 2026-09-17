@@ -9,7 +9,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/stress-strain.html', ['js/engineering-units.js', 'js/stress-strain.js']);
+    return loadCalculatorPage('calculators/stress-strain.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/stress-strain.js']);
 }
 
 describe('stress and strain calculator', () => {
@@ -88,5 +88,18 @@ describe('stress and strain calculator', () => {
         window.calculateStressStrain();
 
         expect(getResultText(document)).toContain('Invalid Input');
+    });
+
+    it('populates materials from the centralized database and updates modulus presets', () => {
+        const { document, window } = setup();
+
+        const materialOptions = [...document.getElementById('material').options].map((option) => option.value);
+        expect(materialOptions).toContain('carbon-steel');
+        expect(materialOptions).toContain('magnesium');
+
+        setSelectValue(document, 'material', 'aluminum');
+        window.updateMaterialYoungsModulus();
+
+        expect(Number(document.getElementById('youngsModulus').value)).toBeCloseTo(69, 6);
     });
 });
