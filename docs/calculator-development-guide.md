@@ -99,6 +99,7 @@ Use shared helpers for reusable categories such as:
 
 - force
 - distance
+- area
 - moment
 - stress/modulus
 - temperature change

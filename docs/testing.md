@@ -38,6 +38,7 @@ The suite currently covers:
 - centralized material data lookups and representative engineering constants
 - important invalid-input and divide-by-zero paths
 - regression-sensitive conversion behavior, including GPa/MPa scaling
+- shared material dropdown initialization for material-driven calculators
 
 ## Run all tests
 
