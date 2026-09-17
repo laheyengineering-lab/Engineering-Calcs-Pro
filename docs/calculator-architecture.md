@@ -238,7 +238,7 @@ Preferred future standard for this repository:
 
 ## 4. Engineering Core Responsibilities
 
-## Current engineering core
+### Current engineering core
 
 The central engineering core is `js/engineering-units.js`.
 
