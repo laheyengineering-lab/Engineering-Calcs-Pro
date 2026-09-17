@@ -13,17 +13,17 @@ function readRepoFile(relativePath) {
 
 function createDomFromHtml(relativeHtmlPath) {
     return new JSDOM(readRepoFile(relativeHtmlPath), {
-        runScripts: 'outside-only',
+        runScripts: 'dangerously',
         url: `file://${path.join(repoRoot, relativeHtmlPath)}`
     });
 }
 
 function evaluateScripts(window, scriptRelativePaths) {
-    const combinedScript = scriptRelativePaths
-        .map((relativePath) => `${readRepoFile(relativePath)}\n//# sourceURL=${relativePath}`)
-        .join('\n\n');
-
-    window.eval(combinedScript);
+    scriptRelativePaths.forEach((relativePath) => {
+        const script = window.document.createElement('script');
+        script.textContent = `${readRepoFile(relativePath)}\n//# sourceURL=${relativePath}`;
+        window.document.body.appendChild(script);
+    });
 }
 
 function dispatchDomContentLoaded(window) {
@@ -44,7 +44,7 @@ export function loadCalculatorPage(htmlRelativePath, scriptRelativePaths) {
 
 export function loadCore(scriptRelativePaths = ['js/engineering-units.js']) {
     const dom = new JSDOM('<!doctype html><html><body></body></html>', {
-        runScripts: 'outside-only'
+        runScripts: 'dangerously'
     });
 
     evaluateScripts(dom.window, scriptRelativePaths);
