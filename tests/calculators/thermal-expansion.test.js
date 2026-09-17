@@ -9,7 +9,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/thermal-expansion.html', ['js/engineering-units.js', 'js/thermal-expansion.js']);
+    return loadCalculatorPage('calculators/thermal-expansion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thermal-expansion.js']);
 }
 
 describe('thermal expansion calculator', () => {
@@ -60,5 +60,31 @@ describe('thermal expansion calculator', () => {
         window.calculateThermalExpansion();
 
         expect(getResultText(document)).toContain('Invalid Input');
+    });
+
+    it('populates materials from the centralized database and updates alpha presets', () => {
+        const { document, window } = setup();
+
+        const materialOptions = [...document.getElementById('material').options].map((option) => option.value);
+        expect(materialOptions).toContain('carbon-steel');
+        expect(materialOptions).toContain('magnesium');
+
+        setSelectValue(document, 'material', 'titanium');
+        window.updateMaterialAlpha();
+
+        expect(Number(document.getElementById('alpha').value)).toBeCloseTo(8.6e-6, 12);
+    });
+
+    it('rejects non-positive modulus when restrained stress is requested', () => {
+        const { document, window } = setup();
+
+        setInputValue(document, 'alpha', 12e-6);
+        setInputValue(document, 'originalLength', 2);
+        setInputValue(document, 'temperatureChange', 50);
+        setInputValue(document, 'youngsModulus', -1);
+
+        window.calculateThermalExpansion();
+
+        expect(getResultText(document)).toContain('Young\'s modulus must be positive');
     });
 });

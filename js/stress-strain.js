@@ -55,17 +55,6 @@ function updateMaterialYoungsModulus() {
     }
 }
 
-// Area conversion helper - SQUARED
-function convertArea(value, unit) {
-    const areaUnits = {
-        "mm²": 1e-6,           // (0.001)^2 = 1e-6 m²
-        "cm²": 1e-4,           // (0.01)^2 = 1e-4 m²
-        "m²": 1,
-        "in²": 6.4516e-4       // (0.0254)^2 = 6.4516e-4 m²
-    };
-    return value * areaUnits[unit];
-}
-
 function calculateStressStrain() {
     const mode = stressStrainModeSelect.value;
     const forceUnit = stressStrainForceUnitSelect.value;
@@ -83,7 +72,7 @@ function calculateStressStrain() {
             const force = Number(stressStrainForceInput.value);
             const area = Number(stressStrainAreaInput.value);
             
-            if (isNaN(force) || isNaN(area) || force === 0 || area === 0) {
+            if (!Number.isFinite(force) || force === 0 || !Number.isFinite(area) || area <= 0) {
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter both force and cross-sectional area.</p>
@@ -114,7 +103,7 @@ function calculateStressStrain() {
             const deltaL = Number(stressStrainDeltaLInput.value);
             const originalLength = Number(stressStrainLengthInput.value);
             
-            if (isNaN(deltaL) || isNaN(originalLength) || originalLength === 0) {
+            if (!Number.isFinite(deltaL) || !Number.isFinite(originalLength) || originalLength <= 0) {
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter change in length and original length.</p>
@@ -146,7 +135,8 @@ function calculateStressStrain() {
             const area = Number(stressStrainAreaInput.value);
             const strainValue = Number(stressStrainStrainInput.value);
             
-            if (isNaN(force) || isNaN(area) || isNaN(strainValue) || force === 0 || area === 0 || strainValue === 0) {
+            if (!Number.isFinite(force) || force === 0 || !Number.isFinite(area) || area <= 0 ||
+                !Number.isFinite(strainValue) || strainValue === 0) {
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter force, area, and strain.</p>
@@ -180,8 +170,9 @@ function calculateStressStrain() {
             const originalLength = Number(stressStrainLengthInput.value);
             const youngsModulus = Number(stressStrainYoungsModulusInput.value);
             
-            if (isNaN(force) || isNaN(area) || isNaN(originalLength) || isNaN(youngsModulus) ||
-                force === 0 || area === 0 || originalLength === 0 || youngsModulus === 0) {
+            if (!Number.isFinite(force) || force === 0 || !Number.isFinite(area) || area <= 0 ||
+                !Number.isFinite(originalLength) || originalLength <= 0 ||
+                !Number.isFinite(youngsModulus) || youngsModulus <= 0) {
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter force, area, original length, and Young's modulus.</p>
@@ -245,5 +236,8 @@ function resetStressStrainCalculator() {
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", function() {
+    populateMaterialSelect(stressStrainMaterialSelect, {
+        placeholderText: "-- Select a material --"
+    });
     updateStressStrainMode();
 });

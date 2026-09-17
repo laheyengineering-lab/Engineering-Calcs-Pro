@@ -10,7 +10,7 @@ function calculateMoment() {
     const force = Number(momentForceInput.value);
     const distance = Number(momentDistanceInput.value);
 
-    if (isNaN(force) || isNaN(distance) || force === 0 || distance === 0) {
+    if (!Number.isFinite(force) || force === 0 || !Number.isFinite(distance) || distance <= 0) {
         momentResultPanel.innerHTML = `
             <h3>Invalid Input</h3>
             <p>Please enter both a force and a distance.</p>
@@ -42,11 +42,15 @@ function calculateMoment() {
     `;
 }
 
-function resetToSI() {
+function resetMomentCalculator() {
     momentForceInput.value = "";
     momentDistanceInput.value = "";
     momentForceUnitSelect.value = "N";
     momentDistanceUnitSelect.value = "m";
     momentOutputUnitSelect.value = "N·m";
     momentResultPanel.innerHTML = "Ready to calculate.";
+}
+
+function resetToSI() {
+    resetMomentCalculator();
 }

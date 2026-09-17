@@ -9,7 +9,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/column-buckling.html', ['js/engineering-units.js', 'js/column-buckling.js']);
+    return loadCalculatorPage('calculators/column-buckling.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/column-buckling.js']);
 }
 
 function configureBaseInputs(document) {

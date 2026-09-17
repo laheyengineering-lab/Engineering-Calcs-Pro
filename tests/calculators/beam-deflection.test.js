@@ -16,7 +16,7 @@ function setup() {
 function configureCommonInputs(document) {
     setInputValue(document, 'beamLength', 2);
     setInputValue(document, 'youngsModulus', 200);
-    setInputValue(document, 'areamomentinertia', 8.333e6);
+    setInputValue(document, 'areaMomentOfInertia', 8.333e6);
     setSelectValue(document, 'lengthUnit', 'm');
     setSelectValue(document, 'modulusUnit', 'GPa');
     setSelectValue(document, 'inertiaUnit', 'mm⁴');

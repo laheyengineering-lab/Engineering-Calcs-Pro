@@ -7,7 +7,7 @@ const beamLengthInput = document.getElementById("beamLength");
 const pointLoadInput = document.getElementById("pointLoad");
 const distributedLoadInput = document.getElementById("distributedLoad");
 const youngsModulusInput = document.getElementById("youngsModulus");
-const areamomentinertiaInput = document.getElementById("areamomentinertia");
+const areaMomentOfInertiaInput = document.getElementById("areaMomentOfInertia");
 const beamResultPanel = document.getElementById("result");
 const loadingCaseSelect = document.getElementById("loadingCase");
 const lengthUnitSelect = document.getElementById("lengthUnit");
@@ -41,7 +41,7 @@ function calculateBeamDeflection() {
     const loadingCase = loadingCaseSelect.value;
     const beamLength = Number(beamLengthInput.value);
     const youngsModulus = Number(youngsModulusInput.value);
-    const areamomentinertia = Number(areamomentinertiaInput.value);
+    const areaMomentOfInertia = Number(areaMomentOfInertiaInput.value);
     
     const lengthUnit = lengthUnitSelect.value;
     const loadUnit = loadUnitSelect.value;
@@ -51,8 +51,8 @@ function calculateBeamDeflection() {
     const deflectionUnit = deflectionUnitSelect.value;
     
     // Validate basic inputs
-    if (isNaN(beamLength) || isNaN(youngsModulus) || isNaN(areamomentinertia) ||
-        beamLength === 0 || youngsModulus === 0 || areamomentinertia === 0) {
+    if (!Number.isFinite(beamLength) || beamLength <= 0 || !Number.isFinite(youngsModulus) || youngsModulus <= 0 ||
+        !Number.isFinite(areaMomentOfInertia) || areaMomentOfInertia <= 0) {
         beamResultPanel.innerHTML = `
             <h3>Invalid Input</h3>
             <p>Please enter beam length, Young's modulus, and area moment of inertia.</p>
@@ -64,7 +64,7 @@ function calculateBeamDeflection() {
         // Convert inputs to SI base units using engineering-units.js
         const LM = convertDistance(beamLength, lengthUnit);
         const EPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
-        const IM4 = convertAreaMomentInertia(areamomentinertia, inertiaUnit);
+        const IM4 = convertAreaMomentInertia(areaMomentOfInertia, inertiaUnit);
         const EI = EPa * IM4;
         
         let load = 0;
@@ -76,7 +76,7 @@ function calculateBeamDeflection() {
         if (loadingCase === "ss-point") {
             // Simply Supported, Center Point Load
             load = Number(pointLoadInput.value);
-            if (isNaN(load) || load === 0) {
+            if (!Number.isFinite(load) || load === 0) {
                 beamResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter a point load.</p>
@@ -112,7 +112,7 @@ function calculateBeamDeflection() {
         } else if (loadingCase === "ss-udl") {
             // Simply Supported, Uniform Distributed Load
             load = Number(distributedLoadInput.value);
-            if (isNaN(load) || load === 0) {
+            if (!Number.isFinite(load) || load === 0) {
                 beamResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter a distributed load.</p>
@@ -150,7 +150,7 @@ function calculateBeamDeflection() {
         } else if (loadingCase === "cant-point") {
             // Cantilever, Point Load at Free End
             load = Number(pointLoadInput.value);
-            if (isNaN(load) || load === 0) {
+            if (!Number.isFinite(load) || load === 0) {
                 beamResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter a point load.</p>
@@ -186,7 +186,7 @@ function calculateBeamDeflection() {
         } else if (loadingCase === "cant-udl") {
             // Cantilever, Uniform Distributed Load
             load = Number(distributedLoadInput.value);
-            if (isNaN(load) || load === 0) {
+            if (!Number.isFinite(load) || load === 0) {
                 beamResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter a distributed load.</p>
@@ -236,7 +236,7 @@ function resetBeamDeflectionCalculator() {
     pointLoadInput.value = "";
     distributedLoadInput.value = "";
     youngsModulusInput.value = "";
-    areamomentinertiaInput.value = "";
+    areaMomentOfInertiaInput.value = "";
     
     lengthUnitSelect.value = "m";
     loadUnitSelect.value = "N";

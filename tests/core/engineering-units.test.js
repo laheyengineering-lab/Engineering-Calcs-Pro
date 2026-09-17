@@ -14,6 +14,12 @@ describe('engineering-units core conversions', () => {
         expect(window.convertDistanceToUnit(window.convertDistance(2, 'in'), 'mm')).toBeCloseTo(50.8, 10);
     });
 
+    it('converts representative area units', () => {
+        expect(window.convertArea(100, 'mm²')).toBeCloseTo(1e-4, 12);
+        expect(window.convertAreaToUnit(1e-4, 'mm²')).toBeCloseTo(100, 12);
+        expect(window.convertAreaToUnit(window.convertArea(2, 'in²'), 'cm²')).toBeCloseTo(12.9032, 4);
+    });
+
     it('converts representative force units', () => {
         expect(window.convertForce(5, 'kN')).toBeCloseTo(5000, 12);
         expect(window.convertForceToUnit(5000, 'kN')).toBeCloseTo(5, 12);

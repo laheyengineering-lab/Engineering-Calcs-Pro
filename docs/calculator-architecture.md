@@ -186,7 +186,7 @@ Preferred future naming:
 - `update<CalculatorName>Mode()`
 - `populate<CalculatorName><Thing>()`
 
-Current repository mostly follows this, but not perfectly. `resetToSI()` in `js/moment.js` is the clearest naming outlier.
+Current repository now uses the `reset<CalculatorName>Calculator()` pattern for active UI handlers. Legacy aliases may still exist internally when needed for compatibility.
 
 #### Input retrieval
 
@@ -196,7 +196,7 @@ Current repository mostly follows this, but not perfectly. `resetToSI()` in `js/
 
 #### Validation
 
-Current calculators use a mix of `isNaN(...)`, `Number.isFinite(...)`, `=== 0`, and `<= 0` checks.
+Current calculators keep validation calculator-local, but the active repository pattern uses `Number.isFinite(...)`, explicit zero-denominator checks, and geometry/material-domain checks where needed.
 
 Preferred future standard:
 
@@ -398,10 +398,10 @@ Current shared access helpers are:
 
 ### How calculators currently consume materials
 
-Current usage is mixed:
+Current usage follows a shared pattern:
 
-- `js/column-buckling.js` and `js/factor-of-safety.js` populate material dropdowns from `getMaterialListFormatted()`
-- `js/stress-strain.js`, `js/shaft-torsion.js`, and `js/thermal-expansion.js` use centralized property lookup but still hard-code material `<option>` lists in HTML
+- material-driven calculators populate dropdowns from the centralized material database through a shared helper
+- calculators may still format option labels differently when that improves calculator-specific clarity
 - calculators without a material dependency do not use the material database
 
 ### Standard going forward
@@ -464,11 +464,11 @@ This is already the effective internal unit system for most calculators.
 
 ### Current inconsistencies
 
-The overall philosophy is consistent, but implementation details are not fully centralized:
+The overall philosophy is consistent, but some implementation details remain calculator-specific:
 
-- `js/stress-strain.js` defines a local `convertArea()` helper instead of using a shared area conversion utility
 - some secondary displays are hard-coded to a specific unit for readability, such as millimeters for a secondary deformation line
-- some material preset UIs expose only a subset of the central material database
+- result precision still varies by calculator and quantity type
+- not every mode/setup pattern uses identical helper naming or UI flow
 
 ### Preferred standard
 
@@ -664,7 +664,7 @@ Examples:
 - buckling imperfection sensitivity
 - code/standard requirements outside the ideal equation
 
-The current repository often uses a combined “Engineering Notes/Assumptions” label. PR #4 can improve the separation, but this PR should document the distinction first.
+The repository now separates model assumptions from lower-page engineering considerations in the live calculator pages. Future work should keep using that distinction instead of reintroducing combined labels.
 
 ## 10. Calculator Complexity Levels
 
@@ -846,9 +846,7 @@ Current IDs are mostly lower camel case with no separators:
 - `strengthSource`
 - `outputLengthUnit`
 
-Current outlier to standardize later:
-
-- `areamomentinertia`
+Current DOM IDs are aligned with lower camel case, including `areaMomentOfInertia` for beam deflection.
 
 #### Unit IDs
 
@@ -966,50 +964,23 @@ Recommended workflow:
 
 Skip irrelevant steps for simple calculators. The workflow is intended to keep the repository consistent without forcing unnecessary complexity.
 
-## Known Architectural Inconsistencies
+## Remaining Architectural Inconsistencies
 
-These are concrete current inconsistencies that PR #4 should audit and refactor.
+PR #4 resolved the main repository-wide inconsistencies around material dropdown sourcing, duplicated area conversion logic, repeated escaping helpers, reset naming, and the split between assumptions and engineering considerations. The remaining gaps are intentionally smaller:
 
-1. **Material selector implementation is inconsistent.**
-   - `js/column-buckling.js` and `js/factor-of-safety.js` build dropdowns from `getMaterialListFormatted()`.
-   - `stress-strain.html`, `shaft-torsion.html`, and `thermal-expansion.html` hard-code material options directly in HTML, and some expose only a subset of the centralized database.
+1. **Result formatting precision still varies by calculator.**
+   - Primary and secondary outputs use different decimal conventions depending on the engineering quantity.
+   - That is acceptable today, but future calculators should stay deliberate and internally consistent.
 
-2. **Validation style is inconsistent.**
-   - Some calculators use `isNaN(...)` with `=== 0` checks.
-   - Others use `Number.isFinite(...)` with `<= 0` checks.
-   - Negative-value handling is therefore not standardized across the repository.
-
-3. **Some conversion logic is still duplicated outside the core.**
-   - `js/stress-strain.js` defines its own `convertArea()` helper.
-   - The engineering core does not yet provide a shared area conversion utility.
-
-4. **Result formatting precision is inconsistent.**
-   - Primary and secondary outputs use different decimal conventions across calculators.
-   - Some pages mix fixed decimals, locale formatting, and exponential notation without a repository-wide rule.
-
-5. **Naming conventions are mostly good but not fully standardized.**
-   - `areamomentinertia` is a clear DOM ID outlier.
-   - `resetToSI()` in `js/moment.js` does not follow the broader reset naming pattern.
-   - DOM cache variable prefixes are used consistently in some calculators and loosely in others.
-
-6. **Common small helpers are duplicated.**
-   - HTML-escaping helpers are redefined in multiple calculator scripts instead of being centralized.
-
-7. **Content sections are not yet cleanly separated by purpose.**
-   - Many calculators use a combined “Engineering Notes/Assumptions” label.
-   - PR #4 should distinguish model assumptions from practical engineering considerations where that improves clarity.
-
-8. **Dynamic math handling is not standardized.**
+2. **Dynamic math handling remains intentionally static-first.**
    - Static theory content uses KaTeX.
    - Dynamic result content generally uses HTML/Unicode instead of re-rendered TeX.
-   - That is workable today, but it should be treated as an explicit pattern rather than an accidental one.
+   - That is now an explicit repository pattern rather than an accidental inconsistency.
 
-9. **Metadata remains split between homepage data and page-local content.**
+3. **Metadata remains split between homepage data and page-local content.**
    - `js/calculator-data.js` only centralizes homepage catalog data today.
    - Related-calculator relationships, complexity, and richer metadata are still page-local.
 
-10. **Calculator-specific engineering patterns are not yet normalized across similar calculators.**
-    - Mode-based calculators use different naming, initialization, and field-toggle patterns.
-    - Material-assisted calculators use different approaches to preset values and manual overrides.
-
-This PR documents those differences so PR #4 can apply a consistent standard without guessing.
+4. **Calculator-specific engineering patterns still differ where the engineering model differs.**
+   - Multi-mode calculators do not all use identical UI flows.
+   - Material-assisted calculators may prefill different properties while still using the same shared access pattern.

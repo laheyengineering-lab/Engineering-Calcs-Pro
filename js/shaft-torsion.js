@@ -61,8 +61,8 @@ function calculateShaftTorsion() {
     const stressUnit = torsionStressUnitSelect.value;
     
     // Validate basic inputs
-    if (isNaN(torque) || isNaN(outerDiameter) || isNaN(length) || isNaN(shearModulus) ||
-        torque === 0 || outerDiameter === 0 || length === 0 || shearModulus === 0) {
+    if (!Number.isFinite(torque) || torque === 0 || !Number.isFinite(outerDiameter) || outerDiameter <= 0 ||
+        !Number.isFinite(length) || length <= 0 || !Number.isFinite(shearModulus) || shearModulus <= 0) {
         torsionResultPanel.innerHTML = `
             <h3>Invalid Input</h3>
             <p>Please enter torque, diameter, shaft length, and shear modulus.</p>
@@ -73,10 +73,10 @@ function calculateShaftTorsion() {
     // For hollow shaft, validate inner diameter
     if (shaftType === "hollow") {
         const innerDiameter = Number(torsionInnerDiameterInput.value);
-        if (isNaN(innerDiameter) || innerDiameter === 0 || innerDiameter >= outerDiameter) {
+        if (!Number.isFinite(innerDiameter) || innerDiameter < 0) {
             torsionResultPanel.innerHTML = `
                 <h3>Invalid Input</h3>
-                <p>For hollow shaft, inner diameter must be > 0 and < outer diameter.</p>
+                <p>Please enter a non-negative inner diameter for hollow shafts.</p>
             `;
             return;
         }
@@ -101,6 +101,13 @@ function calculateShaftTorsion() {
             // J = π(D_o⁴ - D_i⁴)/32 for hollow shaft
             const innerDiameter = Number(torsionInnerDiameterInput.value);
             const innerDiameterM = convertDistance(innerDiameter, torsionInnerDiameterUnitSelect.value);
+            if (innerDiameterM >= outerDiameterM) {
+                torsionResultPanel.innerHTML = `
+                    <h3>Invalid Input</h3>
+                    <p>For hollow shaft, inner diameter must be less than outer diameter.</p>
+                `;
+                return;
+            }
             const Do4 = Math.pow(outerDiameterM, 4);
             const Di4 = Math.pow(innerDiameterM, 4);
             J = Math.PI * (Do4 - Di4) / 32;
@@ -170,5 +177,13 @@ function resetShaftTorsionCalculator() {
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", function() {
+    populateMaterialSelect(torsionMaterialSelect, {
+        placeholderText: "-- Select Material or Enter Custom --",
+        formatLabel(material) {
+            return `${material.displayName} (${(material.shearModulus / 1e9).toLocaleString(undefined, {
+                maximumFractionDigits: 0
+            })} GPa)`;
+        }
+    });
     updateShaftTorsionMode();
 });

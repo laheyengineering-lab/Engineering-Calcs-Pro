@@ -19,15 +19,6 @@ const bendingStressUnitSelect = document.getElementById("stressUnit");
 const bendingInertiaUnitSelect = document.getElementById("inertiaUnit");
 const bendingResultPanel = document.getElementById("result");
 
-function escapeHtml(value) {
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
 function updateBeamBendingStressMode() {
     const sectionType = bendingSectionTypeSelect.value;
 

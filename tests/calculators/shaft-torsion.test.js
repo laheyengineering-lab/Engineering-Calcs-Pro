@@ -10,7 +10,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/shaft-torsion.html', ['js/engineering-units.js', 'js/shaft-torsion.js']);
+    return loadCalculatorPage('calculators/shaft-torsion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/shaft-torsion.js']);
 }
 
 describe('shaft torsion calculator', () => {
@@ -75,5 +75,36 @@ describe('shaft torsion calculator', () => {
         window.calculateShaftTorsion();
 
         expect(getResultText(document)).toContain('Invalid Input');
+    });
+
+    it('rejects mixed-unit hollow geometry when the converted inner diameter exceeds the outer diameter', () => {
+        const { document, window } = setup();
+
+        setSelectValue(document, 'shaftType', 'hollow');
+        window.updateShaftTorsionMode();
+        setInputValue(document, 'torque', 300);
+        setInputValue(document, 'outerDiameter', 2);
+        setInputValue(document, 'innerDiameter', 60);
+        setInputValue(document, 'length', 1.5);
+        setInputValue(document, 'shearModulus', 77);
+        setSelectValue(document, 'diameterUnit', 'in');
+        setSelectValue(document, 'innerDiameterUnit', 'mm');
+
+        window.calculateShaftTorsion();
+
+        expect(getResultText(document)).toContain('inner diameter must be less than outer diameter');
+    });
+
+    it('populates materials from the centralized database and updates shear modulus presets', () => {
+        const { document, window } = setup();
+
+        const materialOptions = [...document.getElementById('material').options].map((option) => option.value);
+        expect(materialOptions).toContain('carbon-steel');
+        expect(materialOptions).toContain('magnesium');
+
+        setSelectValue(document, 'material', 'stainless-steel');
+        window.updateMaterialShearModulus();
+
+        expect(Number(document.getElementById('shearModulus').value)).toBeCloseTo(77, 6);
     });
 });

@@ -32,6 +32,19 @@ function convertDistance(value, fromUnit) {
     return value * distanceUnits[fromUnit];
 }
 
+// ========== AREA (Base: Square Meters) ==========
+const areaUnits = {
+    "mm²": 1e-6,
+    "cm²": 1e-4,
+    "m²": 1,
+    "in²": 6.4516e-4
+};
+
+function convertArea(value, fromUnit) {
+    // Returns value in Square Meters (SI)
+    return value * areaUnits[fromUnit];
+}
+
 // ========== MOMENT/TORQUE (Base: Newton-Meters) ==========
 const momentUnits = {
     "N·mm": 0.001,
@@ -124,6 +137,11 @@ function convertForceToUnit(valueSI, toUnit) {
 function convertDistanceToUnit(valueSI, toUnit) {
     // Takes value in Meters, converts to output unit
     return valueSI / distanceUnits[toUnit];
+}
+
+function convertAreaToUnit(valueSI, toUnit) {
+    // Takes value in Square Meters, converts to output unit
+    return valueSI / areaUnits[toUnit];
 }
 
 function convertMomentToUnit(valueSI, toUnit) {

@@ -9,7 +9,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/beam-bending-stress.html', ['js/engineering-units.js', 'js/beam-bending-stress.js']);
+    return loadCalculatorPage('calculators/beam-bending-stress.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/beam-bending-stress.js']);
 }
 
 describe('beam bending stress calculator', () => {

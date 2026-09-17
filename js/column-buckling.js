@@ -23,31 +23,10 @@ const boundaryConditionFactors = {
     "fixed-fixed": 0.5
 };
 
-function escapeHtml(value) {
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
 function updateColumnBucklingMode() {
     const isHollow = bucklingSectionTypeSelect.value === "hollow";
     document.getElementById("innerDiameterContainer").style.display = isHollow ? "block" : "none";
     bucklingResultPanel.innerHTML = "Ready to calculate.";
-}
-
-function populateBucklingMaterials() {
-    const materials = getMaterialListFormatted();
-    bucklingMaterialSelect.innerHTML = '<option value="">-- Select Material --</option>';
-
-    materials.forEach((material) => {
-        const option = document.createElement("option");
-        option.value = material.key;
-        option.textContent = material.displayName;
-        bucklingMaterialSelect.appendChild(option);
-    });
 }
 
 function calculateColumnBuckling() {
@@ -161,6 +140,6 @@ function resetColumnBucklingCalculator() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    populateBucklingMaterials();
+    populateMaterialSelect(bucklingMaterialSelect);
     updateColumnBucklingMode();
 });

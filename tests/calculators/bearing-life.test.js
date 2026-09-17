@@ -9,7 +9,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/bearing-life.html', ['js/engineering-units.js', 'js/bearing-life.js']);
+    return loadCalculatorPage('calculators/bearing-life.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/bearing-life.js']);
 }
 
 describe('bearing life calculator', () => {

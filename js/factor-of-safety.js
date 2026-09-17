@@ -15,27 +15,6 @@ const fosAppliedLoadInput = document.getElementById("appliedLoad");
 const fosAppliedLoadUnitSelect = document.getElementById("appliedLoadUnit");
 const fosResultPanel = document.getElementById("result");
 
-function escapeHtml(value) {
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
-function populateFoSMaterials() {
-    const materials = getMaterialListFormatted();
-    fosMaterialSelect.innerHTML = '<option value="">-- Select Material --</option>';
-
-    materials.forEach((material) => {
-        const option = document.createElement("option");
-        option.value = material.key;
-        option.textContent = material.displayName;
-        fosMaterialSelect.appendChild(option);
-    });
-}
-
 function updateFactorOfSafetyMode() {
     const mode = fosModeSelect.value;
     const strengthSource = fosStrengthSourceSelect.value;
@@ -185,6 +164,6 @@ function resetFactorOfSafetyCalculator() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    populateFoSMaterials();
+    populateMaterialSelect(fosMaterialSelect);
     updateFactorOfSafetyMode();
 });
