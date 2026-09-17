@@ -32,19 +32,22 @@
         });
     }
 
-    function renderAllMath() {
-        if (typeof renderMathInElement !== "function") {
-            return;
-        }
-
-        renderMathInElement(document.body, {
-            delimiters: [
-                { left: "\\(", right: "\\)", display: false },
-                { left: "\\[", right: "\\]", display: true }
-            ],
-            throwOnError: false
-        });
+  function renderAllMath() {
+    if (typeof renderMathInElement !== "function") {
+        return;
     }
+
+    renderMathInElement(document.body, {
+        delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true }
+        ],
+        ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+        throwOnError: false
+    });
+}
 
     function loadFromBase(baseUrl) {
         appendStylesheet(`${baseUrl}/katex.min.css`);
