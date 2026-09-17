@@ -176,6 +176,9 @@ Then open [http://localhost:8000](http://localhost:8000) in your browser.
 - **Live Site:** [https://engineering-calcs-pro.vercel.app](https://engineering-calcs-pro.vercel.app)
 - **Repository:** [https://github.com/laheyengineering-lab/Engineering-Calcs-Pro](https://github.com/laheyengineering-lab/Engineering-Calcs-Pro)
 - **Engineering Core Docs:** [`docs/engineering-units.md`](docs/engineering-units.md)
+- **Calculator Architecture:** [`docs/calculator-architecture.md`](docs/calculator-architecture.md)
+- **Calculator Development Guide:** [`docs/calculator-development-guide.md`](docs/calculator-development-guide.md)
+- **Testing Guide:** [`docs/testing.md`](docs/testing.md)
 - **Issues & Feature Requests:** [https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues](https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues)
 
 ---
