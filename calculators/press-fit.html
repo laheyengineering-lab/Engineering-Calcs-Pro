@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Press Fit Calculator | Engineering Calcs Pro</title>
+
+<link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="../index.html" class="back-link">
+    ← Back to Engineering Calcs Pro
+</a>
+
+<header class="calculator-header">
+
+    <h1>Press Fit Calculator</h1>
+
+    <p>
+        Analyze shaft-and-hub interference fits using elastic Lamé thick-cylinder theory. Calculate
+        interface pressure, hoop stresses, press force, and friction torque capacity.
+    </p>
+
+</header>
+
+<section class="content-card calculator-box">
+
+    <div class="calculator-layout">
+
+    <div class="theory-column">
+
+        <section class="content-card formula-card">
+
+            <h2>Engineering Theory</h2>
+
+            <h3>Engineering Context</h3>
+
+            <p>
+                An interference fit creates contact pressure because the shaft is larger than the hub bore: the shaft expands the hub bore and the hub constrains the shaft. The resulting pressure transmits torque and axial load by friction. Common uses include gears on shafts, pulleys, bearings, wheels, bushings, rotors, sleeves, and permanent mechanical joints.
+            </p>
+
+            <p>
+                This is a simplified, preliminary elastic calculation. It is <strong>not</strong> an ISO fit-selection tool; you supply the actual diametral interference.
+            </p>
+
+            <h3>Governing Equations</h3>
+
+            <div class="formula-box">
+                \[ \delta_r = \frac{\Delta d}{2} = u_h + u_s \]
+            </div>
+
+            <div class="formula-box" style="font-size: 18px;">
+                \[ p = \frac{\delta_r}{c\left[\frac{1}{E_h}\left(\frac{b^2+c^2}{b^2-c^2}+\nu_h\right)+\frac{1}{E_s}\left(\frac{c^2+a^2}{c^2-a^2}-\nu_s\right)\right]} \]
+            </div>
+
+            <div class="formula-box">
+                \[ \sigma_{\theta,h} = p\,\frac{b^2+c^2}{b^2-c^2} \qquad \sigma_{\theta,s} = -p\,\frac{c^2+a^2}{c^2-a^2} \]
+            </div>
+
+            <div class="formula-box">
+                \[ F_{press} = \mu p \pi d L \qquad T_{capacity} = \frac{\mu p \pi d^2 L}{2} \]
+            </div>
+
+            <div class="formula-box">
+                \[ FoS_h = \frac{S_{y,h}}{\sigma_{\theta,h}} \qquad FoS_s = \frac{S_{y,s}}{\left|\sigma_{\theta,s}\right|} \]
+            </div>
+
+            <p>
+                For a solid shaft \(a = 0\), so the shaft term becomes \((1-\nu_s)/E_s\) and \(\sigma_{\theta,s} = -p\). The shaft hoop stress is compressive (negative).
+            </p>
+
+            <h3>Variable Definitions</h3>
+
+            <ul>
+                <li><strong>\(d\)</strong>, <strong>\(c = d/2\)</strong> = interface diameter / radius</li>
+                <li><strong>\(D\)</strong>, <strong>\(b = D/2\)</strong> = hub outer diameter / radius</li>
+                <li><strong>\(d_i\)</strong>, <strong>\(a = d_i/2\)</strong> = shaft bore diameter / radius (0 for solid)</li>
+                <li><strong>\(\Delta d\)</strong> = diametral interference (shaft OD − hub bore ID)</li>
+                <li><strong>\(\delta_r\)</strong> = radial interference</li>
+                <li><strong>\(E_h, E_s\)</strong> = hub / shaft Young's modulus</li>
+                <li><strong>\(\nu_h, \nu_s\)</strong> = hub / shaft Poisson's ratio</li>
+                <li><strong>\(p\)</strong> = interface (contact) pressure</li>
+                <li><strong>\(\sigma_{\theta,h}\)</strong>, <strong>\(\sigma_{\theta,s}\)</strong> = hoop stress at hub bore / shaft surface</li>
+                <li><strong>\(\mu\)</strong> = assumed interface friction coefficient</li>
+                <li><strong>\(L\)</strong> = engagement length</li>
+                <li><strong>\(S_y\)</strong> = yield strength</li>
+            </ul>
+
+            <h3>Assumptions &amp; Limitations</h3>
+
+            <ul>
+                <li>Linear elastic, isotropic material behavior; elastic deformation only</li>
+                <li>Uniform nominal interface pressure and perfect cylindrical geometry</li>
+                <li>The nominal interference supplied by the user is used directly</li>
+                <li>No surface roughness / asperity flattening correction</li>
+                <li>No local chamfer or end-effect correction</li>
+                <li>No thermal residual stress and no plastic interference</li>
+                <li>No stress concentration from keyways, grooves, shoulders, reliefs, etc.</li>
+                <li>Friction coefficient is user supplied</li>
+                <li>Torque and press-force results represent ideal friction capacity</li>
+                <li>Actual fit design should account for manufacturing tolerances and applicable fit standards</li>
+                <li>Only Lamé interface hoop stress is reported; no 3D / von Mises analysis</li>
+            </ul>
+
+        </section>
+
+    </div>
+
+    <div class="calculator-column">
+
+        <section class="content-card calculator-box">
+
+    <h2>Calculation</h2>
+
+    <h3>Geometry</h3>
+
+    <label class="input-label">Distance Units (diameters &amp; length)</label>
+    <select id="distanceUnit" class="output-select">
+        <option selected>mm</option>
+        <option>cm</option>
+        <option>m</option>
+        <option>in</option>
+        <option>ft</option>
+    </select>
+
+    <label class="input-label">Interface Diameter (d)</label>
+    <div class="input-row">
+        <input id="interfaceDiameter" type="number" placeholder="Enter interface diameter">
+    </div>
+
+    <label class="input-label">Diametral Interference (shaft OD − hub bore ID)</label>
+    <div class="input-row">
+        <input id="diametralInterference" type="number" placeholder="Enter diametral interference">
+        <select id="interferenceUnit">
+            <option selected>mm</option>
+            <option>µm</option>
+            <option>in</option>
+        </select>
+    </div>
+
+    <label class="input-label">Hub Outer Diameter (D)</label>
+    <div class="input-row">
+        <input id="hubOuterDiameter" type="number" placeholder="Enter hub outer diameter">
+    </div>
+
+    <label class="input-label">Shaft Bore Diameter (d<sub>i</sub>, 0 = solid shaft)</label>
+    <div class="input-row">
+        <input id="shaftBoreDiameter" type="number" value="0" placeholder="0 for solid shaft">
+    </div>
+
+    <label class="input-label">Engagement Length (L)</label>
+    <div class="input-row">
+        <input id="engagementLength" type="number" placeholder="Enter engagement length">
+    </div>
+
+    <h3>Materials</h3>
+
+    <label class="input-label">Hub Material</label>
+    <select id="hubMaterial" class="output-select"></select>
+
+    <label class="input-label">Shaft Material</label>
+    <select id="shaftMaterial" class="output-select"></select>
+
+    <h3>Friction</h3>
+
+    <label class="input-label">Assumed Interface Friction Coefficient (μ)</label>
+    <div class="input-row">
+        <input id="frictionCoefficient" type="number" step="any" value="0.12">
+    </div>
+    <p><small>0.12 is only an assumed starting value. Lubrication, surface finish, coating, temperature, assembly method and material pairing can change friction significantly.</small></p>
+
+    <hr>
+
+    <h3>Output</h3>
+
+    <label class="input-label">Pressure / Stress Units</label>
+    <select id="stressUnit" class="output-select">
+        <option selected>MPa</option>
+        <option>GPa</option>
+        <option>psi</option>
+        <option>ksi</option>
+    </select>
+
+    <label class="input-label">Force Units</label>
+    <select id="forceUnit" class="output-select">
+        <option>N</option>
+        <option selected>kN</option>
+        <option>lbf</option>
+    </select>
+
+    <label class="input-label">Torque Units</label>
+    <select id="torqueUnit" class="output-select">
+        <option selected>N·m</option>
+        <option>N·mm</option>
+        <option>kN·m</option>
+        <option>lbf·in</option>
+        <option>lbf·ft</option>
+    </select>
+
+    <div class="button-row">
+        <button onclick="calculatePressFit()">
+            Calculate
+        </button>
+
+        <button class="secondary-button" onclick="resetPressFitCalculator()">
+            Reset
+        </button>
+    </div>
+
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+
+</section>
+
+    </div>
+
+</div>
+
+</section>
+
+<section class="content-card">
+
+<h2>Worked Example</h2>
+
+<div class="example-box">
+
+<p><strong>Given:</strong> d = 50 mm, Δd = 0.05 mm, D = 100 mm, solid shaft (d<sub>i</sub> = 0), L = 50 mm, μ = 0.12, hub and shaft Carbon Steel.</p>
+
+<p>
+Using the database values for Carbon Steel (E = 200 GPa, ν = 0.27). For identical hub and shaft materials with a solid shaft, Poisson's ratio cancels, so:
+</p>
+
+<p>
+\[ p = \frac{25\times10^{-6}}{0.025\left[\frac{1}{E}\left(\frac{5}{3}+\nu\right)+\frac{1-\nu}{E}\right]} = \frac{E\,\delta_r}{c\,(8/3)} = 75.0\ \mathrm{MPa} \]
+</p>
+
+<p>
+\[ \sigma_{\theta,h} = p\,\frac{5}{3} = 125.0\ \mathrm{MPa}, \quad F_{press} = 70.686\ \mathrm{kN}, \quad T_{capacity} = 1767.15\ \mathrm{N\cdot m} \]
+</p>
+
+<p>
+Hub-material stress ratio against the database yield strength (170 MPa) gives FoS<sub>h</sub> = 170 / 125 = 1.36. Results differ when the materials differ or the shaft is hollow.
+</p>
+
+</div>
+
+</section>
+
+<section class="content-card">
+
+<h2>Engineering Considerations</h2>
+
+<ul>
+<li>Friction coefficient strongly depends on lubrication, surface finish, coating, temperature, assembly method and material pairing; do not treat 0.12 as universally valid.</li>
+<li>The interference entered should reflect the actual (worst-case) tolerance condition, not just the nominal fit.</li>
+<li>A factor of safety below 1 is a legitimate result and indicates the elastic hoop stress exceeds yield.</li>
+<li>The factor of safety shown is an elastic/yield stress screening factor of safety only, not a complete press-fit design-code safety factor.</li>
+<li>Rotating, thermal, fatigue and keyway effects are not included.</li>
+<li>This calculator is not a replacement for a complete tolerance/fit design according to the applicable standard.</li>
+</ul>
+
+</section>
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+<li>Gears and pulleys on shafts</li>
+<li>Bearing inner/outer ring seats</li>
+<li>Wheels, rotors, and sleeves</li>
+<li>Bushings</li>
+<li>Permanent mechanical joints</li>
+</ul>
+
+</section>
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>Budynas, R. G., &amp; Nisbett, J. K. <em>Shigley's Mechanical Engineering Design</em> (press and shrink fits; stresses in cylinders).</li>
+<li>RoyMech, <em>Thick-Walled Cylinders</em> and interference fits (Lamé equations).</li>
+<li>DIN 7190-1, <em>Interference fits – Calculation and design rules for cylindrical self-holding interference fits</em>.</li>
+</ul>
+
+</section>
+
+<section class="content-card">
+
+<h2>Related Calculators</h2>
+
+<ul>
+
+<li><a href="shaft-torsion.html">Shaft Torsion Calculator</a></li>
+
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+
+<li><a href="factor-of-safety.html">Factor of Safety</a></li>
+
+<li><a href="thermal-expansion.html">Thermal Expansion</a></li>
+
+</ul>
+
+</section>
+
+</div>
+
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/press-fit.js"></script>
+
+</body>
+
+</html>

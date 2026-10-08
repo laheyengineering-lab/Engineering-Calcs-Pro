@@ -20,6 +20,7 @@ function convertForce(value, fromUnit) {
 
 // ========== DISTANCE/LENGTH (Base: Meters) ==========
 const distanceUnits = {
+    "µm": 0.000001,
     mm: 0.001,
     cm: 0.01,
     m: 1,
