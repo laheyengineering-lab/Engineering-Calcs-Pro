@@ -42,6 +42,30 @@ It will usually also require:
 - an entry in `js/calculator-data.js`
 - possible updates to `docs/testing.md` only if testing workflow changed
 
+### Register calculator metadata
+
+Add every calculator, including planned calculators, to the `calculators` array in `js/calculator-data.js`. The registry is the canonical source for homepage metadata and calculator discovery; do not duplicate homepage descriptions or search terms in other shared files.
+
+Each entry must include:
+
+| Field | Requirement |
+| --- | --- |
+| `id` | Required, unique, stable lowercase kebab-case identifier, such as `stress-strain`. Base it on the calculator concept, not its display title. |
+| `name` | Required display name, such as `Stress & Strain Calculator`. |
+| `shortDescription` | Required concise, one-line summary used on the homepage card. |
+| `description` | Required fuller calculator description, suitable for a calculator page header. |
+| `category` | Required homepage category. Use an existing category where appropriate. |
+| `path` | Required relative path to the calculator HTML page. |
+| `related` | Required array of IDs for meaningful related calculators; an empty array is valid. |
+| `keywords` | Required, manually curated array of concise engineer-facing search terms; an empty array is valid. |
+| `status` | Optional. Set to `"coming-soon"` when the planned page does not exist yet; use its intended path. |
+
+Keep IDs unique and stable after publishing; changing a display name does not require changing its ID. Related links are one-way references: include only useful conceptual relationships and ensure each referenced ID exists. Do not force reciprocal relationships. Choose keywords based on terms engineers may search for, including useful synonyms and common terminology; do not generate them automatically from descriptions.
+
+Keep `shortDescription` brief for the homepage card and use `description` for the more complete page-header explanation. For a Coming Soon entry, retain all required metadata, set `status` to `"coming-soon"`, use the intended future `path`, and leave `related` empty until meaningful links exist. The homepage keeps these entries visible without linking to a nonexistent page.
+
+When creating a calculator, add its metadata entry and verify the ID, category, existing page path (unless Coming Soon), related IDs, and curated keywords. The lightweight `validateCalculatorData(calculators)` check runs on homepage initialization and reports registry issues in the browser console without preventing rendering.
+
 ### Start from the repository pattern
 
 Follow the existing structure used by the current calculators:

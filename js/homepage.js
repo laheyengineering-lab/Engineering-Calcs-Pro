@@ -1,6 +1,8 @@
 const container = document.querySelector(".card-container");
 const searchInput = document.getElementById("searchInput");
 
+validateCalculatorData(calculators);
+
 // Cache static categories
 const CATEGORIES = [...new Set(calculators.map(c => c.category))];
 
@@ -13,7 +15,11 @@ function buildHomepage(searchText = "") {
     CATEGORIES.forEach(category => {
         const categoryCalcs = calculators.filter(calc =>
             calc.category === category &&
-            calc.name.toLowerCase().includes(searchText.toLowerCase())
+            [
+                calc.name,
+                calc.shortDescription,
+                ...(Array.isArray(calc.keywords) ? calc.keywords : [])
+            ].some(value => value.toLowerCase().includes(searchText.toLowerCase()))
         );
 
         if (categoryCalcs.length === 0)
@@ -29,14 +35,16 @@ function buildHomepage(searchText = "") {
         // Batch append with fragment for better performance
         const fragment = document.createDocumentFragment();
         categoryCalcs.forEach(calc => {
-            const calcCard = document.createElement("a");
+            const calcCard = document.createElement(calc.status === "coming-soon" ? "div" : "a");
             calcCard.className = "calculator-card";
-            calcCard.href = calc.link;
+            if (calc.status !== "coming-soon") {
+                calcCard.href = calc.path;
+            }
 
             const heading = document.createElement("h3");
             heading.textContent = calc.name;
             const desc = document.createElement("p");
-            desc.textContent = calc.description;
+            desc.textContent = calc.shortDescription;
 
             calcCard.appendChild(heading);
             calcCard.appendChild(desc);
