@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fillet Weld Strength Calculator | Engineering Calcs Pro</title>
+
+<link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="../index.html" class="back-link">
+    ← Back to Engineering Calcs Pro
+</a>
+
+<header class="calculator-header">
+
+    <h1>Fillet Weld Strength Calculator</h1>
+
+    <p>
+        Calculate effective throat, weld-metal capacity (LRFD and ASD), required leg size, and utilization
+        for a directly loaded fillet weld.
+    </p>
+
+</header>
+
+<section class="content-card calculator-box">
+
+    <div class="calculator-layout">
+
+    <div class="theory-column">
+
+        <section class="content-card formula-card">
+
+            <h2>Engineering Theory</h2>
+
+            <h3>Engineering Context</h3>
+
+            <p>
+                A fillet weld has an approximately triangular cross-section. Failure is governed by the <strong>effective throat</strong>, the shortest distance through the weld, which for an equal-leg 45° fillet is 0.707 times the leg size. Direct-load capacity is the weld-metal strength times the effective area (throat × length). The filler-metal classification strength \(F_{EXX}\) (e.g. E70XX = 70 ksi minimum tensile strength) is used rather than a base-material strength.
+            </p>
+
+            <p>
+                <strong>Nominal</strong> capacity \(R_n\) is the unfactored strength. <strong>LRFD</strong> design strength reduces it by a resistance factor \(\phi\); <strong>ASD</strong> allowable strength divides it by a safety factor \(\Omega\). They are compared with factored or service loads, respectively.
+            </p>
+
+            <h3>Governing Equations</h3>
+
+            <div class="formula-box">
+                \[ t_e = 0.707\,w \qquad A_{we} = t_e L \]
+            </div>
+
+            <div class="formula-box">
+                \[ F_{nw} = 0.60\,F_{EXX} \quad (\theta = 0^\circ) \]
+            </div>
+
+            <div class="formula-box">
+                \[ F_{nw} = 0.60\,F_{EXX}\left(1 + 0.50\sin^{1.5}\theta\right) \]
+            </div>
+
+            <div class="formula-box">
+                \[ R_n = F_{nw}A_{we} \qquad \phi R_n,\ \phi = 0.75 \qquad \frac{R_n}{\Omega},\ \Omega = 2.00 \]
+            </div>
+
+            <div class="formula-box">
+                \[ w_{req,LRFD} = \frac{P}{\phi F_{nw}(0.707)L} \qquad w_{req,ASD} = \frac{P\,\Omega}{F_{nw}(0.707)L} \]
+            </div>
+
+            <p>
+                At \(\theta = 90^\circ\), \(F_{nw} = 0.90F_{EXX}\). The directional-strength increase comes from the AISC 360 fillet-weld provisions and should not automatically be applied to every weld configuration or design standard.
+            </p>
+
+            <h3>Variable Definitions</h3>
+
+            <ul>
+                <li><strong>\(w\)</strong> = weld leg size</li>
+                <li><strong>\(L\)</strong> = total effective weld length</li>
+                <li><strong>\(t_e\)</strong> = effective throat</li>
+                <li><strong>\(A_{we}\)</strong> = effective weld area</li>
+                <li><strong>\(F_{EXX}\)</strong> = filler-metal classification strength</li>
+                <li><strong>\(\theta\)</strong> = angle between load and weld longitudinal axis</li>
+                <li><strong>\(F_{nw}\)</strong> = nominal weld-metal stress</li>
+                <li><strong>\(R_n\)</strong> = nominal strength; <strong>\(P\)</strong> = applied load</li>
+            </ul>
+
+            <h3>Assumptions &amp; Limitations</h3>
+
+            <ul>
+                <li>Equal-leg 45° fillet geometry</li>
+                <li>Direct loading through the weld-group centroid; no eccentric loading or weld-group moment</li>
+                <li>Uniform effective throat; effective weld length supplied by the user</li>
+                <li>Weld-metal strength calculation only; no base-metal failure check</li>
+                <li>No minimum/maximum weld-size code check</li>
+                <li>No fatigue check, residual-stress/distortion analysis, or fracture mechanics</li>
+                <li>No block shear, local plate bending, groove-weld design, or AWS procedure qualification</li>
+                <li>The applicable welding/design standard must be verified for the actual application</li>
+            </ul>
+
+            <p>
+                <strong>A weld that passes this simplified weld-metal calculation may still fail another applicable connection or base-metal check.</strong>
+            </p>
+
+        </section>
+
+    </div>
+
+    <div class="calculator-column">
+
+        <section class="content-card calculator-box">
+
+    <h2>Calculation</h2>
+
+    <h3>Inputs</h3>
+
+    <label class="input-label">Weld Leg Size (w)</label>
+    <div class="input-row">
+        <input id="weldLeg" type="number" placeholder="Enter weld leg size">
+        <select id="weldLegUnit">
+            <option>mm</option>
+            <option>cm</option>
+            <option selected>in</option>
+        </select>
+    </div>
+
+    <label class="input-label">Total Effective Weld Length (L)</label>
+    <div class="input-row">
+        <input id="weldLength" type="number" placeholder="Enter weld length">
+        <select id="weldLengthUnit">
+            <option>mm</option>
+            <option>cm</option>
+            <option selected>in</option>
+        </select>
+    </div>
+    <p><small>For a double fillet, enter the combined effective length.</small></p>
+
+    <label class="input-label">Electrode (F<sub>EXX</sub>)</label>
+    <select id="electrode" class="output-select">
+        <option value="E60XX">E60XX (60 ksi ≈ 414 MPa)</option>
+        <option value="E70XX" selected>E70XX (70 ksi ≈ 483 MPa)</option>
+        <option value="E80XX">E80XX (80 ksi ≈ 552 MPa)</option>
+    </select>
+
+    <label class="input-label">Load Direction</label>
+    <select id="loadDirection" class="output-select">
+        <option value="0" selected>0° — Longitudinal</option>
+        <option value="90">90° — Transverse</option>
+    </select>
+
+    <label class="input-label">Design Method</label>
+    <select id="designMethod" class="output-select">
+        <option value="LRFD" selected>LRFD (φ = 0.75)</option>
+        <option value="ASD">ASD (Ω = 2.00)</option>
+    </select>
+
+    <label class="input-label">Applied Load (optional)</label>
+    <div class="input-row">
+        <input id="appliedLoad" type="number" placeholder="Enter applied load">
+        <select id="forceUnit">
+            <option>N</option>
+            <option selected>kN</option>
+            <option>lbf</option>
+        </select>
+    </div>
+
+    <div class="button-row">
+        <button onclick="calculateFilletWeld()">
+            Calculate
+        </button>
+
+        <button class="secondary-button" onclick="resetFilletWeldCalculator()">
+            Reset
+        </button>
+    </div>
+
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+
+</section>
+
+    </div>
+
+</div>
+
+</section>
+
+<section class="content-card">
+
+<h2>Worked Example</h2>
+
+<div class="example-box">
+
+<p><strong>Given:</strong> w = 1/4 in, L = 12 in, E70XX (F<sub>EXX</sub> = 70 ksi), longitudinal load (0°).</p>
+
+<p>\[ t_e = 0.707(0.25) = 0.1768\ \mathrm{in} \qquad A_{we} = 0.1768(12) = 2.1213\ \mathrm{in}^2 \]</p>
+
+<p>\[ R_n = 0.60(70)(2.1213) = 89.10\ \mathrm{kip} \]</p>
+
+<p>\[ \phi R_n = 0.75(89.10) = 66.82\ \mathrm{kip} \qquad \frac{R_n}{\Omega} = \frac{89.10}{2.00} = 44.55\ \mathrm{kip} \]</p>
+
+<p>For an ASD design load of 20 kip: \( w_{req} = \dfrac{20(2.00)}{0.60(70)(0.707)(12)} = 0.1122\ \mathrm{in} \).</p>
+
+</div>
+
+</section>
+
+<section class="content-card">
+
+<h2>Engineering Considerations</h2>
+
+<ul>
+<li>The directional-strength factor (1 + 0.5 sin<sup>1.5</sup>θ) is from AISC 360 and is not universal across all design standards.</li>
+<li>Utilization ≤ 1 gives PASS for the weld-metal check only; it is not a code-compliant connection approval.</li>
+<li>AWS D1.1 fabrication, procedure, and minimum/maximum size requirements are separate from this AISC-based calculation.</li>
+<li>Check base-metal capacity, block shear, and fatigue separately.</li>
+<li>Eccentric loading and weld groups with moments need a dedicated weld-group analysis.</li>
+</ul>
+
+</section>
+
+<section class="content-card">
+
+<h2>Applications</h2>
+
+<ul>
+<li>Bracket and lug attachments under direct load</li>
+<li>Gusset and tie plate welds</li>
+<li>Preliminary weld sizing</li>
+<li>Fabrication and shop weld checks</li>
+</ul>
+
+</section>
+
+<section class="content-card">
+
+<h2>References</h2>
+
+<ul>
+<li>ANSI/AISC 360, <em>Specification for Structural Steel Buildings</em>, Chapter J2, Welds and Welded Joints.</li>
+<li>AWS D1.1/D1.1M, <em>Structural Welding Code – Steel</em> (fabrication and procedure requirements).</li>
+<li>Budynas, R. G., &amp; Nisbett, J. K. <em>Shigley's Mechanical Engineering Design</em> (welded joints; effective throat of fillet welds).</li>
+</ul>
+
+</section>
+
+<section class="content-card">
+
+<h2>Related Calculators</h2>
+
+<ul>
+
+<li><a href="factor-of-safety.html">Factor of Safety</a></li>
+
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+
+<li><a href="moment.html">Moment Calculator</a></li>
+
+<li><a href="beam-bending-stress.html">Beam Bending Stress</a></li>
+
+</ul>
+
+</section>
+
+</div>
+
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/fillet-weld.js"></script>
+
+</body>
+
+</html>

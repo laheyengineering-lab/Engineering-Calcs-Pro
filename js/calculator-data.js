@@ -90,6 +90,26 @@ const calculators = [
         keywords: ["factor of safety", "safety factor", "margin", "yield strength", "load ratio"]
     },
     {
+        id: "press-fit",
+        name: "Press Fit Calculator",
+        shortDescription: "Calculate interference-fit contact pressure, assembly force, and torque capacity.",
+        description: "Analyze shaft and hub interference fits using elastic Lamé thick-cylinder theory.",
+        category: "Mechanical",
+        path: "calculators/press-fit.html",
+        related: ["shaft-torsion", "stress-strain", "factor-of-safety", "thermal-expansion"],
+        keywords: ["press fit", "interference fit", "shrink fit", "contact pressure", "hub stress", "shaft", "torque capacity", "press force"]
+    },
+    {
+        id: "fillet-weld",
+        name: "Fillet Weld Strength Calculator",
+        shortDescription: "Calculate direct-load capacity and required size for fillet welds.",
+        description: "Calculate effective throat, weld capacity, required fillet size, and utilization for directly loaded fillet welds.",
+        category: "Manufacturing",
+        path: "calculators/fillet-weld.html",
+        related: ["factor-of-safety", "stress-strain", "moment", "beam-bending-stress"],
+        keywords: ["fillet weld", "weld strength", "weld size", "weld throat", "E70", "weld capacity", "weld sizing", "welding"]
+    },
+    {
         id: "bearing-pv",
         name: "Bearing PV",
         shortDescription: "Coming Soon",
