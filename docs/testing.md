@@ -33,7 +33,7 @@ Tests live under `tests/`.
 ## What is tested
 
 The suite currently covers:
-- calculator mathematics for all 10 live calculators
+- calculator mathematics for all 14 active calculators
 - shared unit conversions in `js/engineering-units.js`
 - centralized material data lookups and representative engineering constants
 - important invalid-input and divide-by-zero paths
