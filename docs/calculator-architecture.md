@@ -74,6 +74,8 @@ Each calculator page in `calculators/` is a standalone HTML document with:
 - follow-on `.content-card` sections such as worked example, applications, references, and related calculators
 - shared script tags at the bottom of the page
 
+Supplemental pages (`about.html`, `references.html`, `methodology.html`) live at the repository root, are content-only, and share the site header/footer pattern from `index.html`. Link to them from the header and footer only; keep detailed references on each calculator page and link to `references.html` for broader context rather than duplicating bibliographies.
+
 The visual shell comes from `css/style.css`, especially:
 
 - `.content-card`

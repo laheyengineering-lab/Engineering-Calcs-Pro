@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How to interpret Engineering Calcs Pro results, including assumptions, limitations, and the need for independent checking.">
+
+    <title>Methodology &amp; Limitations | Engineering Calcs Pro</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body class="info-page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="index.html" aria-label="Engineering Calcs Pro home">
+            <span class="brand-mark" aria-hidden="true">EC</span>
+            <span class="brand-name">Engineering Calcs Pro</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="index.html#catalog">Calculators</a>
+            <a href="about.html">About</a>
+            <a href="references.html">References</a>
+            <a href="methodology.html" aria-current="page">Methodology</a>
+        </nav>
+    </div>
+</div>
+
+<main id="main" class="container info-content">
+
+<header>
+    <h1>Methodology &amp; Limitations</h1>
+    <p>How to read the results from these calculators, and what they do not tell you.</p>
+</header>
+
+<section class="content-card">
+<h2>Understand the equations and assumptions</h2>
+<p>Each calculator evaluates a specific set of governing equations under stated assumptions, such as linear elastic behavior, small deformations, prismatic members, or idealized loading and supports. Read the equations and assumptions on the calculator page before using a result. If your situation violates an assumption, the result may not apply.</p>
+</section>
+
+<section class="content-card">
+<h2>Simplified calculation versus real performance</h2>
+<p>Closed-form calculations are idealizations. Real components have geometry features such as stress concentrations, fillets, holes, and threads, as well as manufacturing variation, residual stress, surface condition, wear, corrosion, temperature effects, and fatigue or dynamic loading. A calculator may not model these effects. Where a calculator excludes something, its limitations section says so.</p>
+</section>
+
+<section class="content-card">
+<h2>Sensitivity to inputs</h2>
+<p>Results are only as good as the inputs. Consider in particular:</p>
+<ul>
+<li><strong>Material properties</strong> &ndash; built-in values are typical, not guaranteed for a specific heat, grade, product form, or supplier. Use certified or specified values for your material where it matters.</li>
+<li><strong>Tolerances and geometry</strong> &ndash; small dimensional changes can have a large effect, especially where dimensions are raised to a power (for example diameter in torsion, bending, or buckling) or where interference is small.</li>
+<li><strong>Boundary conditions and loading</strong> &ndash; supports, end fixity, load position, load combinations, and dynamic effects should be justified for the actual application.</li>
+<li><strong>Units</strong> &ndash; confirm the unit selected for every input.</li>
+</ul>
+</section>
+
+<section class="content-card">
+<h2>Codes, standards, and design criteria</h2>
+<p>Calculators do not each follow the same standard or methodology. Some cite a standard for a specific relationship; others use general textbook methods. Citing a source does not mean the calculator implements the whole standard. Verify that the standard, edition, load factors, resistance factors, and acceptance criteria you need apply to your project, and use the standard itself as the authority. See <a href="references.html">Engineering References</a> and each calculator&rsquo;s own references.</p>
+</section>
+
+<section class="content-card">
+<h2>Factor of safety and pass/fail results</h2>
+<p>A computed factor of safety or a &ldquo;pass&rdquo; applies only to the specific check performed with the inputs given. It does not show that an entire component or assembly is safe, because other failure modes, locations, load cases, and connections may govern.</p>
+</section>
+
+<section class="content-card">
+<h2>Independent checking and judgment</h2>
+<p>For safety-critical applications, check results independently, for example with hand calculations, a different method, analysis, or testing, and have them reviewed by a qualified person as your application and any applicable requirements call for. Use these calculators as an aid to engineering work, not a substitute for it.</p>
+</section>
+
+<section class="content-card">
+<h2>Where to look next</h2>
+<ul>
+<li>Open a calculator from the <a href="index.html#catalog">catalog</a> and review its assumptions, limitations, worked example, and references.</li>
+<li><a href="references.html">Engineering References</a> for sources cited across the site.</li>
+<li><a href="about.html">About Engineering Calcs Pro</a>.</li>
+</ul>
+</section>
+
+</main>
+
+<footer class="site-footer">
+    <nav class="footer-links" aria-label="Footer">
+        <a href="about.html">About</a>
+        <a href="references.html">Engineering References</a>
+        <a href="methodology.html">Methodology &amp; Limitations</a>
+    </nav>
+    <p>&copy; Engineering Calcs Pro. Results are for general reference; verify critical designs independently.</p>
+</footer>
+
+</body>
+
+</html>
