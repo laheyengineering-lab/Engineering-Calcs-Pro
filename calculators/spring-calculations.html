@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helical Spring Calculations | Engineering Calcs Pro</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-link">← Back to Engineering Calcs Pro</a>
+    <header class="calculator-header">
+        <h1>Helical Spring Calculations</h1>
+        <p>Estimate spring rate, axial deflection, and corrected wire shear stress for a round-wire helical compression spring.</p>
+    </header>
+
+    <section class="content-card calculator-box">
+        <div class="calculator-layout">
+            <div class="theory-column">
+                <section class="content-card formula-card">
+                    <h2>Engineering Theory</h2>
+                    <h3>Engineering Context</h3>
+                    <p>A close-coiled helical compression spring stores energy by twisting its wire as it is loaded axially. This calculator provides a preliminary static response and stress estimate for round wire; it is not a full spring design or fatigue-life assessment.</p>
+
+                    <h3>Governing Equations</h3>
+                    <div class="formula-box">\[ C = \frac{D}{d} \]</div>
+                    <div class="formula-box">\[ k = \frac{Gd^4}{8D^3N_a}, \qquad \delta = \frac{F}{k} \]</div>
+                    <div class="formula-box">\[ K_w = \frac{4C-1}{4C-4} + \frac{0.615}{C} \]</div>
+                    <div class="formula-box">\[ \tau_{\max} = K_w\frac{8FD}{\pi d^3} \]</div>
+                    <p>The Wahl factor corrects the nominal torsional wire stress for curvature and direct shear. The spring-rate relation is the ideal close-coiled, linear-elastic relation. Force is taken as a nonnegative compressive load and deflection is reported as a positive magnitude.</p>
+
+                    <h3>Variables</h3>
+                    <ul>
+                        <li><strong>\(d\)</strong> — wire diameter (input; length)</li>
+                        <li><strong>\(D\)</strong> — mean coil diameter (input; length)</li>
+                        <li><strong>\(N_a\)</strong> — number of active coils (input; dimensionless)</li>
+                        <li><strong>\(F\)</strong> — applied axial force (input; force)</li>
+                        <li><strong>\(G\)</strong> — shear modulus (input; stress)</li>
+                        <li><strong>\(C\)</strong> — spring index (derived; dimensionless)</li>
+                        <li><strong>\(k\)</strong> — spring rate (output; force/length)</li>
+                        <li><strong>\(\delta\)</strong> — axial deflection (output; length)</li>
+                        <li><strong>\(K_w\)</strong> — Wahl stress-correction factor (derived; dimensionless)</li>
+                        <li><strong>\(\tau_{\max}\)</strong> — corrected maximum wire shear stress (output; stress)</li>
+                    </ul>
+
+                    <h3>Assumptions &amp; Limitations</h3>
+                    <ul>
+                        <li>Round wire, close-coiled compression spring, uniform coil diameter, and linear-elastic material response.</li>
+                        <li>The entered coil count is the active coil count; end coils are not inferred.</li>
+                        <li>The Wahl-corrected stress is a nominal static stress estimate, not an allowable-stress or fatigue check.</li>
+                        <li>Solid height, coil bind, buckling, surge, stress relaxation, presetting, and end effects are not assessed.</li>
+                        <li>The typical spring-index range of 4–16 is a review guideline, not a universal acceptance limit.</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div class="calculator-column">
+                <section class="content-card calculator-box">
+                    <h2>Calculation</h2>
+                    <label class="input-label" for="distanceUnit">Distance Units</label>
+                    <select id="distanceUnit" class="output-select">
+                        <option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option>
+                    </select>
+
+                    <label class="input-label" for="wireDiameter">Wire Diameter (d)</label>
+                    <div class="input-row"><input id="wireDiameter" type="number" step="any" placeholder="Enter wire diameter"></div>
+                    <label class="input-label" for="meanCoilDiameter">Mean Coil Diameter (D)</label>
+                    <div class="input-row"><input id="meanCoilDiameter" type="number" step="any" placeholder="Enter mean coil diameter"></div>
+                    <label class="input-label" for="activeCoils">Active Coils (Na)</label>
+                    <div class="input-row"><input id="activeCoils" type="number" step="any" placeholder="Enter active coil count"></div>
+
+                    <label class="input-label" for="appliedForce">Applied Axial Force (F)</label>
+                    <div class="input-row">
+                        <input id="appliedForce" type="number" step="any" placeholder="Enter compressive force">
+                        <select id="forceUnit"><option>N</option><option>kN</option><option>lbf</option></select>
+                    </div>
+
+                    <h3>Material</h3>
+                    <label class="input-label" for="springMaterial">Material (optional lookup)</label>
+                    <select id="springMaterial" class="output-select" onchange="updateSpringMaterial()"></select>
+                    <label class="input-label" for="shearModulus">Shear Modulus (G)</label>
+                    <div class="input-row">
+                        <input id="shearModulus" type="number" step="any" placeholder="Select a material or enter G">
+                        <select id="modulusUnit"><option selected>GPa</option><option>MPa</option><option>psi</option><option>ksi</option></select>
+                    </div>
+                    <p><small>Selecting a material fills its database value. You may edit the modulus field to override it; database values are representative, not material certifications.</small></p>
+
+                    <label class="input-label" for="stressUnit">Stress Output Units</label>
+                    <select id="stressUnit" class="output-select"><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option></select>
+                    <div class="button-row">
+                        <button onclick="calculateSpring()">Calculate</button>
+                        <button class="secondary-button" onclick="resetSpringCalculator()">Reset</button>
+                    </div>
+                    <div id="result" class="result-panel">Ready to calculate.</div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>Worked Example</h2>
+        <div class="example-box">
+            <p><strong>Given:</strong> \(d=5\ \mathrm{mm}\), \(D=40\ \mathrm{mm}\), \(N_a=10\), \(F=500\ \mathrm{N}\), \(G=80{,}000\ \mathrm{N/mm^2}\) (80 GPa).</p>
+            <p>\[ C = 40/5 = 8, \qquad k = \frac{80{,}000(5^4)}{8(40^3)(10)} = 9.7656\ \mathrm{N/mm} \]</p>
+            <p>\[ \delta = 500/9.7656 = 51.20\ \mathrm{mm}, \qquad K_w = \frac{31}{28}+\frac{0.615}{8}=1.1840 \]</p>
+            <p>\[ \tau_{\max}=1.1840\frac{8(500)(40)}{\pi(5^3)} \approx 482.4\ \mathrm{MPa} \]</p>
+            <p>The arithmetic follows the stated equations. For these inputs the equations yield 9.77 N/mm, 1.184, and 482.4 MPa; rough approximate benchmarks can differ materially when a coefficient or arithmetic is rounded incorrectly.</p>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>Applications</h2>
+        <ul><li>Initial sizing checks for compression springs</li><li>Estimating force/deflection response in static mechanisms</li><li>Comparing candidate wire and coil dimensions</li></ul>
+    </section>
+    <section class="content-card">
+        <h2>Engineering Considerations</h2>
+        <ul>
+            <li>Coil diameter, wire tolerance, end treatment, and active-coil count affect actual rate and stress.</li>
+            <li>Compare stress with a suitable spring material allowable and account for the required duty cycle and reliability.</li>
+            <li>Check solid height and available travel separately using actual end geometry; this page does not determine coil bind.</li>
+            <li>Spring index outside 4–16 deserves review for manufacturability and stress concentration effects.</li>
+        </ul>
+    </section>
+    <section class="content-card">
+        <h2>Related Calculators</h2>
+        <ul><li><a href="shaft-torsion.html">Shaft Torsion Calculator</a></li><li><a href="stress-strain.html">Stress &amp; Strain Calculator</a></li><li><a href="factor-of-safety.html">Factor of Safety Calculator</a></li></ul>
+    </section>
+    <section class="content-card">
+        <h2>References</h2>
+        <ul>
+            <li>Budynas, R. G., &amp; Nisbett, J. K., <em>Shigley’s Mechanical Engineering Design</em>, sections on helical springs and spring stress.</li>
+            <li>Wahl, A. M., <em>Mechanical Springs</em>, 2nd ed., McGraw-Hill, 1963.</li>
+            <li>SAE International, SAE HS-795, <em>Spring Design Manual</em>.</li>
+        </ul>
+    </section>
+</div>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/spring-calculations.js"></script>
+</body>
+</html>

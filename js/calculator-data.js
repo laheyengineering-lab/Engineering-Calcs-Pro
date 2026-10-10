@@ -100,6 +100,16 @@ const calculators = [
         keywords: ["press fit", "interference fit", "shrink fit", "contact pressure", "hub stress", "shaft", "torque capacity", "press force"]
     },
     {
+        id: "spring-calculations",
+        name: "Helical Spring Calculations",
+        shortDescription: "Calculate spring rate, deflection, and corrected shear stress for round-wire helical compression springs.",
+        description: "Analyze round-wire helical compression springs under axial loading. Calculate spring index, spring rate, deflection, Wahl stress-correction factor, and maximum shear stress.",
+        category: "Mechanical",
+        path: "calculators/spring-calculations.html",
+        related: ["shaft-torsion", "stress-strain", "factor-of-safety"],
+        keywords: ["spring", "helical spring", "spring rate", "deflection", "shear stress", "compression spring"]
+    },
+    {
         id: "fillet-weld",
         name: "Fillet Weld Strength Calculator",
         shortDescription: "Calculate direct-load capacity and required size for fillet welds.",
@@ -129,6 +139,16 @@ const calculators = [
         path: "calculators/bolt-torque.html",
         related: ["moment", "shaft-torsion", "stress-strain", "thermal-expansion"],
         keywords: ["bolt", "torque", "fastener", "preload", "nut factor", "clamp load"]
+    },
+    {
+        id: "thread-strength",
+        name: "Thread Strength Calculator",
+        shortDescription: "Calculate tensile and stripping capacity for threaded fasteners and joints.",
+        description: "Preliminary assessment of threaded fastener strength under tensile loading. Calculate fastener tensile capacity, internal-thread stripping capacity, and identify the governing failure mode.",
+        category: "Fasteners",
+        path: "calculators/thread-strength.html",
+        related: ["bolt-torque", "stress-strain", "factor-of-safety"],
+        keywords: ["thread", "fastener", "bolt", "tensile strength", "thread stripping", "engagement", "thread depth"]
     },
     {
         id: "bolt-preload",

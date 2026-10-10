@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thread Strength Calculator | Engineering Calcs Pro</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-link">← Back to Engineering Calcs Pro</a>
+    <header class="calculator-header">
+        <h1>Thread Strength Calculator</h1>
+        <p>Make a preliminary comparison of fastener tensile capacity and approximate internal-thread stripping capacity under axial tension.</p>
+    </header>
+
+    <section class="content-card calculator-box">
+        <div class="calculator-layout">
+            <div class="theory-column">
+                <section class="content-card formula-card">
+                    <h2>Engineering Theory</h2>
+                    <h3>Engineering Context</h3>
+                    <p>This tool is a preliminary nominal strength screen for a threaded fastener and a threaded joint. It is not a complete bolted-joint design and does not establish code compliance or a design allowable.</p>
+
+                    <h3>Governing Equations</h3>
+                    <div class="formula-box">\[ P_{bolt} = A_r S_{bolt}, \qquad \sigma_{applied} = \frac{F}{A_r}, \qquad U_{bolt} = \frac{F}{P_{bolt}} \]</div>
+                    <div class="formula-box">\[ A_{s,int} \approx \pi D L_e f_d, \qquad P_{strip,int} \approx A_{s,int}(0.577 S_{int}) \]</div>
+                    <p>For this deliberately simple estimate, \(f_d=0.5413\) is a dimensionless 60° basic-thread depth-to-pitch factor, and the cylindrical shear surface uses nominal major diameter \(D\). Thread geometry is complex; this heuristic must not be treated as a standard thread-stripping equation. Using a thread-depth length directly as a multiplier of \(\pi D L_e\) would not have area dimensions, so the depth is normalized by pitch in this estimate.</p>
+                    <p>The 0.577 multiplier is the von Mises shear-to-uniaxial yield conversion. Because the input is nominal material tensile strength, this is only a rough screening proxy unless the entered strength is a consistent yield-based limit; it is not a universal ultimate shear-strength relation.</p>
+
+                    <h3>Variables</h3>
+                    <ul>
+                        <li><strong>\(D\)</strong> — nominal major thread diameter (input; length)</li>
+                        <li><strong>\(p\)</strong> — thread pitch (input; length) or threads per inch (TPI)</li>
+                        <li><strong>\(A_r\)</strong> — tensile stress area (user input; area)</li>
+                        <li><strong>\(L_e\)</strong> — effective thread engagement length (input; length)</li>
+                        <li><strong>\(F\)</strong> — applied tensile load (input; force)</li>
+                        <li><strong>\(S_{bolt}, S_{int}\)</strong> — entered fastener and internal-thread material strengths (input; stress)</li>
+                        <li><strong>\(P_{bolt}\)</strong> — nominal fastener tensile capacity (output; force)</li>
+                        <li><strong>\(\sigma_{applied}\)</strong> — nominal fastener tensile stress (output; stress)</li>
+                        <li><strong>\(A_{s,int}\)</strong> — approximate internal-thread shear area; \(P_{strip,int}\) is its approximate capacity.</li>
+                        <li><strong>\(U\)</strong> — applied load divided by nominal capacity (dimensionless utilization)</li>
+                    </ul>
+
+                    <h3>Assumptions &amp; Limitations</h3>
+                    <ul>
+                        <li>Axial, static, concentric tensile load; linear capacity comparison using user-entered strengths.</li>
+                        <li>The thread stripping estimate is a screening approximation, not a complete ISO, AISC, or NASA design verification.</li>
+                        <li>Only internal-thread stripping is estimated. If internal material strength is not entered, stripping is not assessed and cannot govern the reported comparison.</li>
+                        <li>The entered tensile stress area is used as provided; thread designation, tolerance class, and standard dimensions are not inferred.</li>
+                        <li>No design factor, fatigue, preload, separation, prying, bending, combined loading, loosening, or nonuniform thread load distribution is included.</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div class="calculator-column">
+                <section class="content-card calculator-box">
+                    <h2>Calculation</h2>
+                    <label class="input-label" for="distanceUnit">Diameter and Engagement Units</label>
+                    <select id="distanceUnit" class="output-select"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+                    <label class="input-label" for="majorDiameter">Nominal Major Diameter</label>
+                    <div class="input-row"><input id="majorDiameter" type="number" step="any" placeholder="Enter major diameter"></div>
+
+                    <label class="input-label" for="threadPitch">Thread Pitch</label>
+                    <div class="input-row">
+                        <input id="threadPitch" type="number" step="any" placeholder="Enter pitch or TPI">
+                        <select id="pitchUnit"><option selected>mm</option><option>in</option><option>TPI</option></select>
+                    </div>
+                    <label class="input-label" for="tensileStressArea">Tensile Stress Area (Ar)</label>
+                    <div class="input-row">
+                        <input id="tensileStressArea" type="number" step="any" placeholder="Enter verified stress area">
+                        <select id="areaUnit"><option selected>mm²</option><option>cm²</option><option>m²</option><option>in²</option></select>
+                    </div>
+                    <p><small>Enter a stress area from the applicable thread standard or a verified thread table; this calculator does not infer it from diameter and pitch.</small></p>
+                    <label class="input-label" for="engagementLength">Thread Engagement Length (Le)</label>
+                    <div class="input-row"><input id="engagementLength" type="number" step="any" placeholder="Enter effective engagement"></div>
+
+                    <label class="input-label" for="appliedLoad">Applied Tensile Load</label>
+                    <div class="input-row">
+                        <input id="appliedLoad" type="number" step="any" placeholder="Enter tensile load">
+                        <select id="forceUnit"><option>N</option><option selected>kN</option><option>lbf</option></select>
+                    </div>
+
+                    <h3>Material Strength</h3>
+                    <label class="input-label" for="strengthUnit">Strength Units</label>
+                    <select id="strengthUnit" class="output-select"><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option></select>
+                    <label class="input-label" for="boltMaterial">Fastener Material (optional lookup)</label>
+                    <select id="boltMaterial" class="output-select" onchange="updateThreadMaterial('boltMaterial', 'boltStrength')"></select>
+                    <label class="input-label" for="boltStrength">Fastener Nominal Strength</label>
+                    <div class="input-row"><input id="boltStrength" type="number" step="any" placeholder="Enter strength value"></div>
+                    <label class="input-label" for="internalMaterial">Internal-Thread Material (optional lookup)</label>
+                    <select id="internalMaterial" class="output-select" onchange="updateThreadMaterial('internalMaterial', 'internalStrength')"></select>
+                    <label class="input-label" for="internalStrength">Internal-Thread Nominal Strength (optional)</label>
+                    <div class="input-row"><input id="internalStrength" type="number" step="any" placeholder="Leave blank to skip stripping check"></div>
+                    <p><small>Material lookup values are representative database tensile strengths, not certified allowables. Select materials separately; internal strength is never assumed to equal fastener strength.</small></p>
+
+                    <div class="button-row">
+                        <button onclick="calculateThreadStrength()">Calculate</button>
+                        <button class="secondary-button" onclick="resetThreadStrengthCalculator()">Reset</button>
+                    </div>
+                    <div id="result" class="result-panel">Ready to calculate.</div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>Worked Example</h2>
+        <div class="example-box">
+            <p><strong>Given:</strong> nominal diameter 10 mm, pitch 1.5 mm, entered stress area \(A_r=61.2\ \mathrm{mm^2}\), engagement 15 mm, tensile load 10 kN, and both entered nominal strengths 400 MPa.</p>
+            <p>\[ P_{bolt}=61.2(400)=24{,}480\ \mathrm{N}=24.48\ \mathrm{kN}, \qquad \sigma_{applied}=\frac{10{,}000}{61.2}=163.4\ \mathrm{MPa} \]</p>
+            <p>\[ U_{bolt}=\frac{10}{24.48}=40.85\%, \quad A_{s,int}\approx \pi(10)(15)(0.5413)=255.1\ \mathrm{mm^2} \]</p>
+            <p>\[ P_{strip,int}\approx 255.1(0.577)(400)=58.9\ \mathrm{kN} \]</p>
+            <p>The fastener tensile capacity governs this simplified comparison. The 61.2 mm² area is treated strictly as the entered example value; common M10×1.5 tensile-stress-area tables give about 58.0 mm², so verify the area against the actual thread standard rather than attributing 61.2 mm² to M10×1.5.</p>
+        </div>
+    </section>
+    <section class="content-card">
+        <h2>Applications</h2>
+        <ul><li>Early screening of axially loaded threaded connections</li><li>Comparing fastener tensile and approximate internal thread stripping modes</li><li>Identifying when material or engagement details need further review</li></ul>
+    </section>
+    <section class="content-card">
+        <h2>Engineering Considerations</h2>
+        <ul>
+            <li>Use a stress area, effective engagement, and material strength supported by the actual thread form, tolerance class, and product specification.</li>
+            <li>Internal stripping strength depends on the tapped material; use its own property or leave it blank rather than silently equating it to the bolt.</li>
+            <li>Engagement below one diameter or well beyond two diameters warrants a joint-specific assessment; these are review flags, not design limits.</li>
+            <li>Compare nominal results with applicable design factors and installation, fatigue, and joint behavior requirements.</li>
+        </ul>
+    </section>
+    <section class="content-card">
+        <h2>Related Calculators</h2>
+        <ul><li><a href="bolt-torque.html">Bolt Torque Calculator</a></li><li><a href="stress-strain.html">Stress &amp; Strain Calculator</a></li><li><a href="factor-of-safety.html">Factor of Safety Calculator</a></li></ul>
+    </section>
+    <section class="content-card">
+        <h2>References</h2>
+        <ul>
+            <li>ISO 262, <em>ISO general-purpose metric screw threads — Selected sizes for screws, bolts and nuts</em>; use the applicable current edition and related dimensions/stress-area tables.</li>
+            <li>ISO 898-1, <em>Mechanical properties of fasteners made of carbon steel and alloy steel — Bolts, screws and studs</em>.</li>
+            <li>NASA Reference Publication 1228, <em>Fastener Design Manual</em>, for fastener design background and thread failure considerations.</li>
+            <li>AISC 360, <em>Specification for Structural Steel Buildings</em>, Chapter J, for structural steel connection provisions where applicable; this calculator does not implement those provisions.</li>
+        </ul>
+    </section>
+</div>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/thread-strength.js"></script>
+</body>
+</html>

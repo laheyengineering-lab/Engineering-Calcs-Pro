@@ -11,7 +11,9 @@ const calculatorPages = [
     ['calculators/column-buckling.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/column-buckling.js']],
     ['calculators/beam-bending-stress.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/beam-bending-stress.js']],
     ['calculators/bearing-life.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/bearing-life.js']],
-    ['calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/factor-of-safety.js']]
+    ['calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/factor-of-safety.js']],
+    ['calculators/spring-calculations.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/spring-calculations.js']],
+    ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength.js']]
 ];
 
 describe('page smoke tests', () => {
