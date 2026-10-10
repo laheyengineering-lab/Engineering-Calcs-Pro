@@ -378,6 +378,41 @@ Add a test whenever a calculator has:
 - a critical material lookup
 - multiple modes or geometry branches
 
+## Visual Standards and Shared CSS
+
+All styling lives in `css/style.css`. Do not add a CSS framework, and do not hard-code colors, spacing, or radii in calculator pages; use the design tokens (CSS custom properties defined in `:root`).
+
+### Design tokens
+
+- **Brand/accent:** `--color-navy-800` (headings, primary brand), `--color-accent` (actions, links, active states)
+- **Surfaces:** `--color-bg`, `--color-surface`, `--color-surface-muted`, `--color-surface-accent`
+- **Text:** `--color-text`, `--color-text-muted`
+- **Borders:** `--color-border`, `--color-border-strong`
+- **Status:** `--color-success`, `--color-warning`, `--color-error` (each with a `-bg` variant)
+- **Typography:** `--font-sans`, `--font-mono`, `--text-xs` … `--text-result`, `--leading-tight`, `--leading-base`
+- **Spacing:** `--space-1` … `--space-7`
+- **Radii:** `--radius-sm` (controls), `--radius-md` (buttons, panels), `--radius-lg` (cards)
+- **Shadows:** `--shadow-sm` (cards), `--shadow-md` (hover)
+- **Layout/motion:** `--content-width`, `--control-height`, `--transition`, `--focus-ring`
+
+### Components
+
+- **Cards:** `.content-card` for every theory/info/calculator section. Nested cards inside `.calculator-box` render flat. Use `.category-card` / `.calculator-card` only on the homepage.
+- **Inputs:** use `.input-label` followed by `.input-row` (input + unit `<select>`). Standalone selects use `.output-select`. Native `input`, `select`, and `textarea` elements are styled globally; keep `<label>`/`id` associations. Mark invalid fields with `aria-invalid="true"` or `.input-error`.
+- **Buttons:** `<button>` is the primary action; add `.secondary-button` for Reset/secondary actions. Group in `.button-row`. Disabled buttons are styled automatically.
+- **Results:** wrap output in `.result-panel`; show the headline number in `.result-value`.
+- **Notices:** `.notice`, `.warning`, `.error`, `.success`. Always include a text label (for example "Warning:") — never rely on color alone.
+- **Equations:** `.formula-box` for display math; KaTeX is loaded via `js/katex-loader.js`.
+- **Layout:** `.calculator-layout` with `.theory-column` and `.calculator-column`.
+
+### Spacing and responsive rules
+
+- Use `--space-*` tokens (4 px scale: 0.25 rem to 3 rem); avoid arbitrary pixel values.
+- Breakpoints: `900px` collapses the two-column calculator layout; `700px` stacks input rows and buttons, and tightens padding.
+- Controls must remain at least `--control-height` (46 px) tall and pages must not scroll horizontally at 375 px. Wide tables/equations scroll inside their container.
+- Keep keyboard focus visible and respect `prefers-reduced-motion` (handled globally).
+- Avoid inline `style=` attributes for color or spacing in new work.
+
 ## Final Review Checklist
 
 ### Engineering
@@ -424,4 +459,5 @@ Add a test whenever a calculator has:
 - [ ] Results are obvious
 - [ ] No unnecessary UI complexity
 - [ ] Mobile layout works
+- [ ] Only shared CSS tokens/components used; no new hard-coded colors
 - [ ] Browser console is clean
