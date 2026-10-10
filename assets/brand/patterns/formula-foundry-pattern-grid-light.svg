@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <title>Formula Foundry grid tile (light)</title>
+  <!-- Tileable engineering grid. Use as CSS background-image with repeat. -->
+  <g stroke="#26282B" stroke-width="1" fill="none">
+    <g opacity="0.05">
+      <path d="M24 0V240M48 0V240M72 0V240M96 0V240M144 0V240M168 0V240M192 0V240M216 0V240"/>
+      <path d="M0 24H240M0 48H240M0 72H240M0 96H240M0 144H240M0 168H240M0 192H240M0 216H240"/>
+    </g>
+    <g opacity="0.09">
+      <path d="M0 0H240M0 120H240M0 240H240M0 0V240M120 0V240M240 0V240"/>
+    </g>
+  </g>
+</svg>

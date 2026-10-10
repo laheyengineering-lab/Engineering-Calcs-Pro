@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide explains how to build a new calculator in Engineering Calcs Pro using the current repository architecture. The architecture document explains the rules; this guide explains how to apply them.
+This guide explains how to build a new calculator in Formula Foundry using the current repository architecture. The architecture document explains the rules; this guide explains how to apply them.
 
 ## Before Coding
 
@@ -395,6 +395,10 @@ Add a test whenever a calculator has:
 - a bug-prone unit path
 - a critical material lookup
 - multiple modes or geometry branches
+
+### Brand conventions for new pages
+
+New calculator pages must use the Formula Foundry brand. Copy the `<head>` of an existing calculator (title format `Calculator Name | Formula Foundry`, description, Open Graph tags, and the three favicon links using `../assets/brand/icons/`). Never hard-code brand colors; use the tokens in `css/style.css`. If a page includes the site header, use the reversed horizontal logo exactly as in `index.html`. See `docs/branding.md`.
 
 ## Visual Standards and Shared CSS
 

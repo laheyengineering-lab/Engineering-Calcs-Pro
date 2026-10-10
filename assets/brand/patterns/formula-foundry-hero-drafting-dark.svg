@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <title>Formula Foundry drafting hero (dark)</title>
+  <defs>
+    <pattern id="ffgrid" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M24 0V120M48 0V120M72 0V120M96 0V120M0 24H120M0 48H120M0 72H120M0 96H120"
+            stroke="#FAF7F2" stroke-width="1" opacity="0.06" fill="none"/>
+      <path d="M0 0H120M0 0V120" stroke="#FAF7F2" stroke-width="1" opacity="0.11" fill="none"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#ffgrid)"/>
+  <!-- compass construction circles -->
+  <g fill="none" stroke="#FAF7F2" stroke-width="1.5" opacity="0.08">
+    <circle cx="1180" cy="420" r="300"/>
+    <circle cx="1180" cy="420" r="252"/>
+    <path d="M1180 100V160M1180 680V740M860 420H920M1440 420H1500"/>
+  </g>
+  <!-- corner registration marks -->
+  <g stroke="#FAF7F2" stroke-width="1.5" opacity="0.14" fill="none">
+    <path d="M60 100V180M20 140H100"/>
+    <path d="M1540 100V180M1500 140H1580"/>
+    <path d="M60 720V800M20 760H100"/>
+    <path d="M1540 720V800M1500 760H1580"/>
+  </g>
+  <!-- dimension line -->
+  <g stroke="#FAF7F2" stroke-width="1.5" opacity="0.11" fill="none">
+    <path d="M180 800V756M620 800V756"/>
+    <path d="M180 778H620"/>
+    <path d="M196 770L180 778L196 786M604 770L620 778L604 786"/>
+  </g>
+</svg>

@@ -27,14 +27,14 @@ describe('page smoke tests', () => {
         const { document } = loadCalculatorPage(pagePath, scripts);
 
         expect(document.getElementById('result')).toBeTruthy();
-        expect(document.title).toContain('Engineering Calcs Pro');
+        expect(document.title).toContain('Formula Foundry');
     });
 
     it.each(['about.html', 'references.html', 'methodology.html'])('loads supplemental page %s with shared navigation', (pagePath) => {
         const { document } = loadCalculatorPage(pagePath, []);
 
         expect(document.querySelector('h1')).toBeTruthy();
-        expect(document.title).toContain('Engineering Calcs Pro');
+        expect(document.title).toContain('Formula Foundry');
         ['about.html', 'references.html', 'methodology.html'].forEach((href) => {
             expect(document.querySelector(`.site-nav a[href="${href}"]`)).toBeTruthy();
             expect(document.querySelector(`.site-footer a[href="${href}"]`)).toBeTruthy();

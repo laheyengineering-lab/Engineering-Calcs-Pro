@@ -1,4 +1,4 @@
-# Engineering Calcs Pro
+# Formula Foundry
 
 **A growing collection of professional-grade, browser-based engineering calculators for mechanical engineers, designers, machinists, and students.**
 
@@ -8,7 +8,7 @@
 
 ## 📋 Project Purpose
 
-Engineering Calcs Pro provides fast, reliable engineering calculation tools that run entirely in the browser—no installation, no backend, no dependencies. Each calculator is built to handle real engineering inputs across metric and imperial unit systems, and draws from a shared engineering core library for consistent unit conversions and material data.
+Formula Foundry provides fast, reliable engineering calculation tools that run entirely in the browser—no installation, no backend, no dependencies. Each calculator is built to handle real engineering inputs across metric and imperial unit systems, and draws from a shared engineering core library for consistent unit conversions and material data.
 
 The goal is to make fundamental mechanical engineering calculations accessible to anyone: a seasoned engineer who needs a quick sanity check, a student working through a problem set, or a designer validating a fastener choice on the floor.
 

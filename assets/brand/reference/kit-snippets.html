@@ -1,0 +1,63 @@
+<!-- ============================================================
+     FORMULA FOUNDRY — copy/paste snippets (vanilla HTML)
+     Brand SVGs are in assets/brand/. Adjust paths to your layout.
+     ============================================================ -->
+
+<!-- 1. FAVICONS — paste inside <head> -->
+<link rel="icon" type="image/png" sizes="64x64" href="assets/brand/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/brand/formula-foundry-favicon-180.png">
+<link rel="icon" type="image/svg+xml" href="assets/brand/formula-foundry-icon.svg">
+
+<!-- 2. HEADER LOGO — swaps automatically for dark mode.
+     Uses <picture>; no JS needed. -->
+<a href="/" class="ff-brand" aria-label="Formula Foundry home">
+  <picture>
+    <source srcset="assets/brand/formula-foundry-logo-horizontal-reversed.svg"
+            media="(prefers-color-scheme: dark)">
+    <img class="ff-logo"
+         src="assets/brand/formula-foundry-logo-horizontal.svg"
+         alt="Formula Foundry">
+  </picture>
+</a>
+
+<!-- 2b. HEADER LOGO — manual theme toggle version.
+     Use when your site toggles <html data-theme="dark"> via JS. -->
+<a href="/" class="ff-brand" aria-label="Formula Foundry home">
+  <img class="ff-logo ff-logo-light"
+       src="assets/brand/formula-foundry-logo-horizontal.svg"
+       alt="Formula Foundry">
+  <img class="ff-logo ff-logo-dark"
+       src="assets/brand/formula-foundry-logo-horizontal-reversed.svg"
+       alt="Formula Foundry" hidden>
+</a>
+<!--
+  Pair with tiny JS:
+  const dark = document.documentElement.dataset.theme === 'dark';
+  document.querySelector('.ff-logo-light').hidden = dark;
+  document.querySelector('.ff-logo-dark').hidden = !dark;
+-->
+
+<!-- 3. HERO — light drafting background -->
+<section class="ff-hero">
+  <h1>Where calculations become engineering.</h1>
+  <p>Practical engineering software for design decisions you can defend.</p>
+  <a class="ff-btn" href="#start">Start calculating</a>
+</section>
+
+<!-- 3b. HERO — dark version -->
+<section class="ff-hero-dark">
+  <h1>Where calculations become engineering.</h1>
+  <a class="ff-btn" href="#start">Start calculating</a>
+</section>
+
+<!-- 4. SUBTLE GRID — any section that wants the engineering texture -->
+<section class="ff-bg-grid">
+  <!-- content -->
+</section>
+
+<!-- 5. FOOTER — stacked lockup -->
+<footer>
+  <img src="assets/brand/formula-foundry-logo-stacked.svg"
+       alt="Formula Foundry — Where calculations become engineering"
+       style="height:120px; width:auto;">
+</footer>
