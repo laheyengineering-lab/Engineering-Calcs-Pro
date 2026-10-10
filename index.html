@@ -5,6 +5,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Practical engineering calculators and design tools for mechanical engineers, designers, machinists, and students.">
 
     <title>Engineering Calcs Pro</title>
 
@@ -12,37 +13,55 @@
 
 </head>
 
-<body>
+<body class="home">
 
-<div class="container">
+<a class="skip-link" href="#catalog">Skip to calculators</a>
 
-    <header>
-
-        <h1>Engineering Calcs Pro</h1>
-
-        <p>
-            Practical engineering calculators and design tools for mechanical engineers,
-            designers, machinists, and students.
-        </p>
-
-    </header>
-
-
-    <div class="search-box">
-
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search engineering calculators..."
-        >
-
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="index.html" aria-label="Engineering Calcs Pro home">
+            <span class="brand-mark" aria-hidden="true">EC</span>
+            <span class="brand-name">Engineering Calcs Pro</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="#catalog">Calculators</a>
+        </nav>
     </div>
-
-
-    <div class="card-container"></div>
-
 </div>
 
+<main>
+
+    <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-inner">
+            <h1 id="hero-title">Practical engineering calculators, ready when you are.</h1>
+            <p>
+                Clear, accessible calculators for mechanical engineers, designers,
+                machinists, and students.
+            </p>
+
+            <form class="search-box" role="search" onsubmit="return false">
+                <label for="searchInput">Search calculators</label>
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search by name or keyword, e.g. torque, beam, bolt"
+                    autocomplete="off"
+                >
+            </form>
+            <p class="search-status" id="searchStatus" role="status" aria-live="polite"></p>
+        </div>
+    </section>
+
+    <div class="container" id="catalog">
+        <div class="card-container"></div>
+        <p class="empty-state" id="emptyState" hidden></p>
+    </div>
+
+</main>
+
+<footer class="site-footer">
+    <p>&copy; Engineering Calcs Pro. Results are for general reference; verify critical designs independently.</p>
+</footer>
 
 <script src="js/calculator-data.js"></script>
 <script src="js/homepage.js"></script>

@@ -214,8 +214,160 @@ header {
 
 
 /* =====================
-   HOMEPAGE CARDS
+   HOMEPAGE
 ===================== */
+
+.skip-link {
+    position: absolute;
+    left: var(--space-3);
+    top: -4rem;
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    z-index: 10;
+}
+
+.skip-link:focus {
+    top: var(--space-2);
+    color: var(--color-text-inverse);
+}
+
+.site-header {
+    background: var(--color-navy-900);
+    border-bottom: 1px solid var(--color-navy-700);
+}
+
+.site-header-inner {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--space-2) var(--space-5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 44px;
+    color: var(--color-text-inverse);
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+.brand:hover {
+    color: var(--color-text-inverse);
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    font-size: var(--text-xs);
+    font-weight: 800;
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+}
+
+.site-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-sm);
+    color: #d6e2f5;
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: background-color var(--transition), color var(--transition);
+}
+
+.site-nav a:hover {
+    background: var(--color-navy-700);
+    color: var(--color-text-inverse);
+}
+
+.site-header :focus-visible {
+    outline-color: #ffffff;
+}
+
+.hero {
+    background-color: var(--color-navy-800);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .06) 1px, transparent 1px);
+    background-size: 24px 24px;
+    border-bottom: 3px solid var(--color-accent);
+}
+
+.hero-inner {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-5) var(--space-5);
+}
+
+.hero h1 {
+    color: var(--color-text-inverse);
+    font-size: clamp(1.625rem, 4vw, 2.25rem);
+    max-width: 24ch;
+    margin-bottom: var(--space-3);
+}
+
+.hero p {
+    color: #d6e2f5;
+    font-size: var(--text-md);
+    max-width: 60ch;
+    margin: 0 0 var(--space-4);
+}
+
+.hero .search-box {
+    margin-bottom: var(--space-2);
+    max-width: 640px;
+}
+
+.hero .search-box label {
+    display: block;
+    color: var(--color-text-inverse);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+}
+
+.hero .search-box input {
+    height: 52px;
+    border: 2px solid transparent;
+    box-shadow: var(--shadow-md);
+}
+
+.hero .search-box input:focus {
+    border-color: var(--color-accent);
+}
+
+.hero .search-status {
+    margin: 0;
+    min-height: 1.5em;
+    font-size: var(--text-sm);
+}
+
+.home .container {
+    padding-top: var(--space-5);
+}
+
+.home main {
+    min-height: 50vh;
+}
 
 .card-container {
     display: grid;
@@ -232,21 +384,28 @@ header {
 }
 
 .category-card h2 {
-    margin-top: 0;
+    margin: 0 0 var(--space-4);
     font-size: var(--text-lg);
     text-transform: uppercase;
     letter-spacing: .06em;
 }
 
+.calculator-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+}
+
 .calculator-card {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     text-decoration: none;
     color: inherit;
     background: var(--color-surface-muted);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: var(--space-4);
-    margin-top: var(--space-3);
     transition: border-color var(--transition), background-color var(--transition), box-shadow var(--transition);
 }
 
@@ -257,8 +416,12 @@ a.calculator-card:hover {
     color: inherit;
 }
 
+a.calculator-card:focus-visible {
+    box-shadow: var(--focus-ring);
+}
+
 div.calculator-card {
-    opacity: .75;
+    opacity: .8;
     border-style: dashed;
 }
 
@@ -276,6 +439,26 @@ a.calculator-card:hover h3 {
     margin: 0;
     color: var(--color-text-muted);
     font-size: var(--text-sm);
+}
+
+.badge-coming-soon {
+    margin-top: var(--space-3);
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+    font-size: var(--text-xs);
+    font-weight: 600;
+}
+
+.empty-state {
+    margin: 0;
+    padding: var(--space-5);
+    text-align: center;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
 }
 
 
@@ -668,6 +851,24 @@ footer,
 }
 
 @media (max-width: 700px) {
+
+    .site-header-inner,
+    .hero-inner {
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+
+    .hero-inner {
+        padding-top: var(--space-5);
+    }
+
+    .calculator-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-card {
+        padding: var(--space-4);
+    }
 
     .container {
         padding: var(--space-5) var(--space-4);
