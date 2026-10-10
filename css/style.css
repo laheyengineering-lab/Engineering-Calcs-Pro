@@ -976,3 +976,44 @@ footer,
     }
 
 }
+
+
+/* =====================
+   SUPPLEMENTAL PAGES & FOOTER LINKS
+===================== */
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    margin-bottom: var(--space-3);
+}
+
+.footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+}
+
+.site-nav a[aria-current="page"] {
+    background: var(--color-navy-700);
+    color: var(--color-text-inverse);
+}
+
+.info-content {
+    max-width: 800px;
+}
+
+.info-content .content-card p,
+.info-content .content-card li {
+    max-width: 70ch;
+}
+
+.info-content .content-card li {
+    margin-bottom: var(--space-2);
+}
+
+.info-content .content-card h2 {
+    margin-top: 0;
+}
