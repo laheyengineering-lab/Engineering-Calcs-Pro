@@ -1,5 +1,7 @@
 const container = document.querySelector(".card-container");
 const searchInput = document.getElementById("searchInput");
+const searchStatus = document.getElementById("searchStatus");
+const emptyState = document.getElementById("emptyState");
 
 validateCalculatorData(calculators);
 
@@ -9,35 +11,52 @@ const CATEGORIES = [...new Set(calculators.map(c => c.category))];
 // Debounce timer for search
 let searchDebounceTimer;
 
+function calculatorMatches(calc, query) {
+    if (!query) return true;
+    const fields = [
+        calc.name,
+        calc.shortDescription,
+        calc.description,
+        calc.category,
+        calc.status === "coming-soon" ? "coming soon" : "",
+        ...(Array.isArray(calc.keywords) ? calc.keywords : [])
+    ];
+    return fields.some(value => typeof value === "string" && value.toLowerCase().includes(query));
+}
+
 function buildHomepage(searchText = "") {
     container.innerHTML = "";
+    const query = searchText.trim().toLowerCase();
+    let total = 0;
 
     CATEGORIES.forEach(category => {
         const categoryCalcs = calculators.filter(calc =>
-            calc.category === category &&
-            [
-                calc.name,
-                calc.shortDescription,
-                ...(Array.isArray(calc.keywords) ? calc.keywords : [])
-            ].some(value => value.toLowerCase().includes(searchText.toLowerCase()))
+            calc.category === category && calculatorMatches(calc, query)
         );
 
         if (categoryCalcs.length === 0)
             return;
+        total += categoryCalcs.length;
 
-        const card = document.createElement("div");
-        card.className = "category-card";
+        const section = document.createElement("section");
+        section.className = "category-card";
 
         const categoryHeading = document.createElement("h2");
         categoryHeading.textContent = category;
-        card.appendChild(categoryHeading);
+        section.appendChild(categoryHeading);
+
+        const grid = document.createElement("div");
+        grid.className = "calculator-grid";
 
         // Batch append with fragment for better performance
         const fragment = document.createDocumentFragment();
         categoryCalcs.forEach(calc => {
-            const calcCard = document.createElement(calc.status === "coming-soon" ? "div" : "a");
+            const comingSoon = calc.status === "coming-soon";
+            const calcCard = document.createElement(comingSoon ? "div" : "a");
             calcCard.className = "calculator-card";
-            if (calc.status !== "coming-soon") {
+            if (comingSoon) {
+                calcCard.classList.add("is-coming-soon");
+            } else {
                 calcCard.href = calc.path;
             }
 
@@ -48,11 +67,30 @@ function buildHomepage(searchText = "") {
 
             calcCard.appendChild(heading);
             calcCard.appendChild(desc);
+
+            if (comingSoon) {
+                const badge = document.createElement("span");
+                badge.className = "badge-coming-soon";
+                badge.textContent = "Coming soon";
+                calcCard.appendChild(badge);
+            }
             fragment.appendChild(calcCard);
         });
-        card.appendChild(fragment);
-        container.appendChild(card);
+        grid.appendChild(fragment);
+        section.appendChild(grid);
+        container.appendChild(section);
     });
+
+    if (total === 0) {
+        emptyState.textContent = `No calculators match "${searchText.trim()}". Try a different name or keyword, such as torque, beam, or stress.`;
+        emptyState.hidden = false;
+        searchStatus.textContent = "No calculators found.";
+    } else {
+        emptyState.hidden = true;
+        searchStatus.textContent = query
+            ? `${total} calculator${total === 1 ? "" : "s"} found.`
+            : "";
+    }
 }
 
 buildHomepage();
@@ -62,5 +100,5 @@ searchInput.addEventListener("input", () => {
     clearTimeout(searchDebounceTimer);
     searchDebounceTimer = setTimeout(() => {
         buildHomepage(searchInput.value);
-    }, 300);
+    }, 150);
 });
