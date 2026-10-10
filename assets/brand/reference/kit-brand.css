@@ -1,0 +1,74 @@
+/* ============================================================
+   FORMULA FOUNDRY — brand tokens & helpers
+   Drop this file into your site (e.g. css/brand.css) and link it
+   in <head>. Assumes brand SVGs live in assets/brand/.
+   ============================================================ */
+
+:root {
+  --ff-graphite: #26282B;
+  --ff-warm-white: #FAF7F2;
+  --ff-copper: #C05621;
+  --ff-muted: #6F7378;
+  --ff-warm-gray: #B9B2A7;
+
+  --ff-font: 'Archivo', 'Inter', system-ui, -apple-system, sans-serif;
+
+  --ff-logo-h: 40px;          /* header logo height */
+  --ff-brand-dir: '../assets/brand';
+}
+
+/* Optional dark-mode switch: <html data-theme="dark"> */
+[data-theme="dark"] {
+  --ff-surface: var(--ff-graphite);
+  --ff-ink: var(--ff-warm-white);
+}
+:root, [data-theme="light"] {
+  --ff-surface: var(--ff-warm-white);
+  --ff-ink: var(--ff-graphite);
+}
+
+body {
+  font-family: var(--ff-font);
+  background: var(--ff-surface);
+  color: var(--ff-ink);
+}
+
+/* Header logo */
+.ff-logo { height: var(--ff-logo-h); width: auto; display: block; }
+
+/* Tiled engineering grid backgrounds */
+.ff-bg-grid {
+  background-color: var(--ff-warm-white);
+  background-image: url('../assets/brand/formula-foundry-pattern-grid-light.svg');
+}
+.ff-bg-grid-dark {
+  background-color: var(--ff-graphite);
+  background-image: url('../assets/brand/formula-foundry-pattern-grid-dark.svg');
+}
+
+/* Full drafting hero backgrounds (1600x900, non-repeating) */
+.ff-hero {
+  background-color: var(--ff-warm-white);
+  background-image: url('../assets/brand/formula-foundry-hero-drafting-light.svg');
+  background-size: cover;
+  background-position: center;
+}
+.ff-hero-dark {
+  background-color: var(--ff-graphite);
+  background-image: url('../assets/brand/formula-foundry-hero-drafting-dark.svg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Copper accent utilities */
+.ff-accent { color: var(--ff-copper); }
+.ff-accent-bg { background-color: var(--ff-copper); }
+.ff-btn {
+  background: var(--ff-copper);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  display: inline-block;
+  text-decoration: none;
+}

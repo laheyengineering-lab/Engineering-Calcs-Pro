@@ -2,7 +2,7 @@
 
 ## Overview
 
-`js/engineering-units.js` is the shared engineering foundation for **Engineering Calcs Pro**. Every calculator in the repository loads this file first, before its own logic runs. It provides a single, authoritative source of truth for:
+`js/engineering-units.js` is the shared engineering foundation for **Formula Foundry**. Every calculator in the repository loads this file first, before its own logic runs. It provides a single, authoritative source of truth for:
 
 - Unit conversion tables and conversion helper functions
 - An engineering material property database

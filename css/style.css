@@ -1,5 +1,5 @@
 /* =========================================
-   Engineering Calcs Pro
+   Formula Foundry
    Main Stylesheet — shared design system
    Sections: tokens, base, layout, cards, forms,
    buttons, results, notices, responsive
@@ -12,29 +12,30 @@
 
 :root {
 
-    /* Brand */
-    --color-navy-900: #0a1b33;
-    --color-navy-800: #0f2a4d;
-    --color-navy-700: #173a66;
-    --color-accent: #1f5fd1;
-    --color-accent-hover: #1a4fae;
-    --color-accent-soft: #e8f0fd;
+    /* Brand: Formula Foundry (see assets/brand/README.md and docs/branding.md).
+       Token names keep the historical "navy" prefix; values are brand graphite. */
+    --color-navy-900: #26282b;
+    --color-navy-800: #2f3235;
+    --color-navy-700: #44484c;
+    --color-accent: #c05621;
+    --color-accent-hover: #9c4519;
+    --color-accent-soft: #fbece3;
 
     /* Surfaces */
-    --color-bg: #eef1f5;
+    --color-bg: #faf7f2;
     --color-surface: #ffffff;
-    --color-surface-muted: #f5f7fa;
-    --color-surface-accent: #f2f7ff;
+    --color-surface-muted: #f5f1ea;
+    --color-surface-accent: #fdf5ef;
 
     /* Text */
-    --color-text: #14213a;
-    --color-text-muted: #4a5a72;
+    --color-text: #26282b;
+    --color-text-muted: #5c6066;
     --color-text-inverse: #ffffff;
 
     /* Borders */
-    --color-border: #d3dae4;
-    --color-border-strong: #a9b6c8;
-    --grid-line: rgba(15, 42, 77, .045);
+    --color-border: #ddd6cb;
+    --color-border-strong: #b0a89b;
+    --grid-line: rgba(38, 40, 43, .045);
 
     /* Status */
     --color-success: #11693a;
@@ -45,7 +46,7 @@
     --color-error-bg: #fdeceb;
 
     /* Typography */
-    --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-sans: "Archivo", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     --text-xs: .8125rem;
     --text-sm: .9375rem;
@@ -73,8 +74,8 @@
     --radius-lg: 12px;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(10, 27, 51, .06);
-    --shadow-md: 0 2px 8px rgba(10, 27, 51, .08);
+    --shadow-sm: 0 1px 2px rgba(38, 40, 43, .06);
+    --shadow-md: 0 2px 8px rgba(38, 40, 43, .08);
 
     /* Layout */
     --content-width: 1000px;
@@ -82,7 +83,7 @@
 
     /* Motion & focus */
     --transition: .15s ease;
-    --focus-ring: 0 0 0 3px rgba(31, 95, 209, .35);
+    --focus-ring: 0 0 0 3px rgba(192, 86, 33, .4);
     --focus-outline: 2px solid var(--color-accent);
 
 }
@@ -263,6 +264,13 @@ header {
     color: var(--color-text-inverse);
 }
 
+.brand-logo {
+    display: block;
+    height: 34px;
+    width: auto;
+    max-width: 100%;
+}
+
 .brand-mark {
     display: inline-flex;
     align-items: center;
@@ -287,7 +295,7 @@ header {
     min-height: 44px;
     padding: 0 var(--space-3);
     border-radius: var(--radius-sm);
-    color: #d6e2f5;
+    color: #e7e1d8;
     text-decoration: none;
     font-size: var(--text-sm);
     font-weight: 600;
@@ -326,7 +334,7 @@ header {
 }
 
 .hero p {
-    color: #d6e2f5;
+    color: #e7e1d8;
     font-size: var(--text-md);
     max-width: 60ch;
     margin: 0 0 var(--space-4);
@@ -951,6 +959,14 @@ footer,
 
     .hero-inner {
         padding-top: var(--space-5);
+    }
+
+    .site-header-inner {
+        flex-wrap: wrap;
+    }
+
+    .brand-logo {
+        height: 28px;
     }
 
     .calculator-grid {

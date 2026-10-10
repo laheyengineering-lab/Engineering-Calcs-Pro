@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the calculator architecture for **Engineering Calcs Pro** based on the repository as it exists today. It is the reference for future calculator work and for the repository-wide audit/refactor planned for PR #4.
+This document defines the calculator architecture for **Formula Foundry** based on the repository as it exists today. It is the reference for future calculator work and for the repository-wide audit/refactor planned for PR #4.
 
 This document intentionally separates:
 
@@ -12,7 +12,7 @@ This document intentionally separates:
 
 ## 1. Architecture Overview
 
-Engineering Calcs Pro is a static browser application built from plain HTML, CSS, and JavaScript. There is no runtime framework, no bundler, and no production build step.
+Formula Foundry is a static browser application built from plain HTML, CSS, and JavaScript. There is no runtime framework, no bundler, and no production build step.
 
 ### Current structure
 

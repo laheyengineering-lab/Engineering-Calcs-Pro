@@ -1,5 +1,5 @@
 // ======================================================
-// Engineering Calcs Pro
+// Formula Foundry
 // Comprehensive Engineering Units Database
 // All unit conversions to SI base units
 // ======================================================

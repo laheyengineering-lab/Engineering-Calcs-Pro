@@ -1,4 +1,4 @@
-# Automated Testing in Engineering Calcs Pro
+# Automated Testing in Formula Foundry
 
 ## Purpose
 
