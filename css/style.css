@@ -925,13 +925,44 @@ footer,
         font-size: var(--text-sm);
     }
 
+    /* Equation(s) stay fully visible; only this container scrolls (never the page) */
     .calculator-context .context-equation {
         overflow-x: auto;
+        max-width: 100%;
         text-align: center;
         margin-bottom: var(--space-2);
     }
 
+    .calculator-context .context-equation-line + .context-equation-line {
+        margin-top: var(--space-2);
+    }
+
+    .calculator-context .context-equation .katex-display {
+        margin: 0.25em 0;
+    }
+
     .calculator-context .context-inputs {
+        margin: 0 0 var(--space-2);
+    }
+
+    .calculator-context ul.context-inputs {
+        list-style: none;
+        padding: var(--space-2) 0 0;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .calculator-context ul.context-inputs li {
+        margin: 0 0 var(--space-1);
+        overflow-wrap: anywhere;
+    }
+
+    .calculator-context .context-units,
+    .calculator-context .context-note {
+        color: var(--color-text-muted, inherit);
+        font-size: var(--text-xs, 0.85em);
+    }
+
+    .calculator-context .context-note {
         margin: 0 0 var(--space-2);
     }
 
