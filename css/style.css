@@ -836,6 +836,34 @@ footer,
     min-width: 0;
 }
 
+.calculator-layout .content-card:last-child {
+    margin-bottom: 0;
+}
+
+.theory-column p,
+.theory-column li {
+    max-width: 70ch;
+}
+
+/* Guard against overflow from long words, URLs and wide content */
+.content-card {
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+.content-card .formula-box {
+    overflow-x: auto;
+}
+
+.content-card img,
+.content-card svg {
+    max-width: 100%;
+}
+
+.content-card table {
+    max-width: 100%;
+}
+
 
 /* =====================
    MOBILE
@@ -844,8 +872,20 @@ footer,
 
 @media (max-width: 900px) {
 
+    /* Mobile hierarchy: inputs/results first, then theory.
+       Source order is theory -> calculation, so reorder visually only.
+       DOM order (and screen-reader order) is unchanged. */
     .calculator-layout {
         grid-template-columns: 1fr;
+    }
+
+    .calculator-column {
+        order: -1;
+    }
+
+    .calculator-layout {
+        display: flex;
+        flex-direction: column;
     }
 
 }
@@ -903,6 +943,20 @@ footer,
 
     .formula-box {
         font-size: 1.25rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input:not([type]),
+    select,
+    textarea {
+        width: 100%;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+
+    button {
+        min-height: 44px;
     }
 
     .result-value {
