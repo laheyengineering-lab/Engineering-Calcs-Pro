@@ -186,7 +186,6 @@ describe('calculator report builder', () => {
     it('captures a new calculator from its catalog identity and active input units', async () => {
         const page = loadCalculatorPage('calculators/pin-bearing-pressure.html', [
             'js/engineering-units.js',
-            'js/calculator-utils.js',
             'js/pin-bearing-pressure.js',
             'js/calculator-data.js',
             'js/report-builder.js'

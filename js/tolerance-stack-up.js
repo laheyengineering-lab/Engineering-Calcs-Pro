@@ -1,21 +1,47 @@
 const toleranceStackElement = (id) => document.getElementById(id);
 const TOLERANCE_CONTRIBUTORS = 5;
 
+function renderToleranceStackMessage(title, message, headline, rows = []) {
+    const result = toleranceStackElement("result");
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    result.replaceChildren(heading);
+    if (headline) {
+        const value = document.createElement("div");
+        value.className = "result-value";
+        value.textContent = headline;
+        result.appendChild(value);
+    }
+    if (rows.length) {
+        result.appendChild(document.createElement("hr"));
+        rows.forEach(([label, value]) => {
+            const paragraph = document.createElement("p");
+            const strong = document.createElement("strong");
+            strong.textContent = `${label}: `;
+            paragraph.append(strong, document.createTextNode(value));
+            result.appendChild(paragraph);
+        });
+    }
+    if (message) {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = message;
+        result.appendChild(paragraph);
+    }
+}
+
 function calculateToleranceStackUp() {
     const entries = Array.from({ length: TOLERANCE_CONTRIBUTORS }, (_, index) => {
         const input = toleranceStackElement(`tolerance${index + 1}`);
         const unit = toleranceStackElement(`toleranceUnit${index + 1}`).value;
         return { raw: input.value.trim(), unit };
     }).filter((entry) => entry.raw !== "");
-    const result = toleranceStackElement("result");
-
     if (entries.length === 0) {
-        result.innerHTML = "<h3>Invalid Input</h3><p>Enter at least one non-negative tolerance contribution.</p>";
+        renderToleranceStackMessage("Invalid Input", "Enter at least one non-negative tolerance contribution.");
         return;
     }
     const values = entries.map((entry) => Number(entry.raw));
     if (values.some((value) => !Number.isFinite(value) || value < 0)) {
-        result.innerHTML = "<h3>Invalid Input</h3><p>Tolerance contributions must be finite and non-negative.</p>";
+        renderToleranceStackMessage("Invalid Input", "Tolerance contributions must be finite and non-negative.");
         return;
     }
 
@@ -28,16 +54,18 @@ function calculateToleranceStackUp() {
         const rss = convertDistanceToUnit(rssM, outputUnit);
         const format = (value) => value.toLocaleString(undefined, { maximumFractionDigits: 6 });
 
-        result.innerHTML = `
-            <h3>Result</h3>
-            <div class="result-value">Worst-case band: ±${format(worstCase)} ${outputUnit}; RSS estimate: ±${format(rss)} ${outputUnit}</div>
-            <hr>
-            <p><strong>Contributors included:</strong> ${entries.length}</p>
-            <p>Worst-case = sum of absolute bilateral half-range contributions.</p>
-            <p>RSS = square root of the sum of squared contributions, combined in ${outputUnit}.</p>
-        `;
+        renderToleranceStackMessage(
+            "Result",
+            "",
+            `Worst-case band: ±${format(worstCase)} ${outputUnit}; RSS estimate: ±${format(rss)} ${outputUnit}`,
+            [
+                ["Contributors included", String(entries.length)],
+                ["Worst-case", "Sum of absolute bilateral half-range contributions."],
+                ["RSS", `Square root of squared contributions, combined in ${outputUnit}.`]
+            ]
+        );
     } catch (error) {
-        result.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
+        renderToleranceStackMessage("Calculation Error", error.message);
     }
 }
 

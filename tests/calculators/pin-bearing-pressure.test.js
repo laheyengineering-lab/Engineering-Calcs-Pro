@@ -4,7 +4,6 @@ import { getResultText, loadCalculatorPage, setInputValue, setSelectValue } from
 function loadPinBearing() {
     return loadCalculatorPage('calculators/pin-bearing-pressure.html', [
         'js/engineering-units.js',
-        'js/calculator-utils.js',
         'js/pin-bearing-pressure.js'
     ]);
 }

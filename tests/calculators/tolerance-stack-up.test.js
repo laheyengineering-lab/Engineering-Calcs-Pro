@@ -4,7 +4,6 @@ import { getResultText, loadCalculatorPage, setInputValue, setSelectValue } from
 function loadToleranceStack() {
     return loadCalculatorPage('calculators/tolerance-stack-up.html', [
         'js/engineering-units.js',
-        'js/calculator-utils.js',
         'js/tolerance-stack-up.js'
     ]);
 }

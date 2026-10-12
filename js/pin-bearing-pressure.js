@@ -1,13 +1,40 @@
 const pinBearingElement = (id) => document.getElementById(id);
 
+function renderPinBearingMessage(title, message, headline, rows = []) {
+    const result = pinBearingElement("result");
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    result.replaceChildren(heading);
+    if (headline) {
+        const value = document.createElement("div");
+        value.className = "result-value";
+        value.textContent = headline;
+        result.appendChild(value);
+    }
+    if (rows.length) {
+        result.appendChild(document.createElement("hr"));
+        rows.forEach(([label, value]) => {
+            const paragraph = document.createElement("p");
+            const strong = document.createElement("strong");
+            strong.textContent = `${label}: `;
+            paragraph.append(strong, document.createTextNode(value));
+            result.appendChild(paragraph);
+        });
+    }
+    if (message) {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = message;
+        result.appendChild(paragraph);
+    }
+}
+
 function calculatePinBearingPressure() {
     const raw = ["pinLoad", "pinDiameter", "plateThickness"].map((id) => pinBearingElement(id).value);
-    const result = pinBearingElement("result");
     const [load, diameter, thickness] = raw.map(Number);
 
     if (raw.some((value) => value.trim() === "") ||
         [load, diameter, thickness].some((value) => !Number.isFinite(value) || value <= 0)) {
-        result.innerHTML = "<h3>Invalid Input</h3><p>Enter positive finite load, pin diameter, and plate thickness values.</p>";
+        renderPinBearingMessage("Invalid Input", "Enter positive finite load, pin diameter, and plate thickness values.");
         return;
     }
 
@@ -21,15 +48,17 @@ function calculatePinBearingPressure() {
         const pressure = convertStressToUnit(pressurePa, stressUnit);
         const format = (value) => value.toLocaleString(undefined, { maximumFractionDigits: 5 });
 
-        result.innerHTML = `
-            <h3>Result</h3>
-            <div class="result-value">Average projected bearing pressure = ${format(pressure)} ${stressUnit}</div>
-            <hr>
-            <p><strong>Projected bearing area:</strong> ${format(projectedArea * 1e6)} mm²</p>
-            <p><strong>Load carried by plate:</strong> ${format(forceN)} N</p>
-        `;
+        renderPinBearingMessage(
+            "Result",
+            "",
+            `Average projected bearing pressure = ${format(pressure)} ${stressUnit}`,
+            [
+                ["Projected bearing area", `${format(projectedArea * 1e6)} mm²`],
+                ["Load carried by plate", `${format(forceN)} N`]
+            ]
+        );
     } catch (error) {
-        result.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
+        renderPinBearingMessage("Calculation Error", error.message);
     }
 }
 

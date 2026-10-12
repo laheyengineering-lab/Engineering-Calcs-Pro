@@ -1,16 +1,43 @@
 const combinedStressElements = (id) => document.getElementById(id);
 
+function renderCombinedStressMessage(title, message, headline, rows = []) {
+    const result = combinedStressElements("result");
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    result.replaceChildren(heading);
+    if (headline) {
+        const value = document.createElement("div");
+        value.className = "result-value";
+        value.textContent = headline;
+        result.appendChild(value);
+    }
+    if (rows.length) {
+        result.appendChild(document.createElement("hr"));
+        rows.forEach(([label, value]) => {
+            const paragraph = document.createElement("p");
+            const strong = document.createElement("strong");
+            strong.textContent = `${label}: `;
+            paragraph.append(strong, document.createTextNode(value));
+            result.appendChild(paragraph);
+        });
+    }
+    if (message) {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = message;
+        result.appendChild(paragraph);
+    }
+}
+
 function calculateCombinedStress() {
     const forceRaw = combinedStressElements("axialForce").value;
     const momentRaw = combinedStressElements("bendingMoment").value;
     const widthRaw = combinedStressElements("sectionWidth").value;
     const heightRaw = combinedStressElements("sectionHeight").value;
-    const result = combinedStressElements("result");
     const values = [forceRaw, momentRaw, widthRaw, heightRaw].map(Number);
 
     if ([forceRaw, momentRaw, widthRaw, heightRaw].some((value) => value.trim() === "") ||
         values.some((value) => !Number.isFinite(value)) || values[2] <= 0 || values[3] <= 0) {
-        result.innerHTML = "<h3>Invalid Input</h3><p>Enter finite loads and positive section dimensions.</p>";
+        renderCombinedStressMessage("Invalid Input", "Enter finite loads and positive section dimensions.");
         return;
     }
 
@@ -31,17 +58,19 @@ function calculateCombinedStress() {
         const bottomOutput = convertStressToUnit(bottomStress, outputUnit);
         const format = (value) => value.toLocaleString(undefined, { maximumFractionDigits: 4 });
 
-        result.innerHTML = `
-            <h3>Result</h3>
-            <div class="result-value">Top fiber: ${format(topOutput)} ${outputUnit}; bottom fiber: ${format(bottomOutput)} ${outputUnit}</div>
-            <hr>
-            <p><strong>Axial normal stress:</strong> ${format(convertStressToUnit(axialStress, outputUnit))} ${outputUnit}</p>
-            <p><strong>Bending stress magnitude:</strong> ${format(convertStressToUnit(Math.abs(bendingStress), outputUnit))} ${outputUnit}</p>
-            <p><strong>Rectangular area:</strong> ${format(area * 1e6)} mm²</p>
-            <p><strong>Centroidal area moment of inertia:</strong> ${format(inertia * 1e12)} mm⁴</p>
-        `;
+        renderCombinedStressMessage(
+            "Result",
+            "",
+            `Top fiber: ${format(topOutput)} ${outputUnit}; bottom fiber: ${format(bottomOutput)} ${outputUnit}`,
+            [
+                ["Axial normal stress", `${format(convertStressToUnit(axialStress, outputUnit))} ${outputUnit}`],
+                ["Bending stress magnitude", `${format(convertStressToUnit(Math.abs(bendingStress), outputUnit))} ${outputUnit}`],
+                ["Rectangular area", `${format(area * 1e6)} mm²`],
+                ["Centroidal area moment of inertia", `${format(inertia * 1e12)} mm⁴`]
+            ]
+        );
     } catch (error) {
-        result.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
+        renderCombinedStressMessage("Calculation Error", error.message);
     }
 }
 

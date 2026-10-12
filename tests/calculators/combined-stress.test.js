@@ -4,7 +4,6 @@ import { getResultText, loadCalculatorPage, setInputValue, setSelectValue } from
 function loadCombinedStress() {
     return loadCalculatorPage('calculators/combined-stress.html', [
         'js/engineering-units.js',
-        'js/calculator-utils.js',
         'js/combined-stress.js'
     ]);
 }
