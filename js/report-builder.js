@@ -38,7 +38,7 @@
 
     let reportSnapshot = null;
     let reportDocument = null;
-    let reportState = null;
+    let lastCalculatedControls = null;
     const adapters = window.FormulaFoundryReport?.adapters || {};
 
     function text(element) {
@@ -117,8 +117,16 @@
     function getTheory() {
         const theory = document.querySelector(".theory-column");
         if (!theory) return { equations: [], methodology: [], assumptions: [], references: [] };
-        const equations = [...theory.querySelectorAll(".formula-box")]
-            .flatMap(equationText).filter(Boolean);
+        const formulaBoxes = [...theory.querySelectorAll(".formula-box")];
+        const selectedModes = new Set([...calculatorColumn.querySelectorAll("select")].map((control) => control.value));
+        const taggedEquations = formulaBoxes.filter((formula) => formula.dataset.reportMode);
+        const activeTaggedEquations = taggedEquations.filter((formula) =>
+            selectedModes.has(formula.dataset.reportMode));
+        const selectedFormulaBoxes = activeTaggedEquations.length
+            ? formulaBoxes.filter((formula) =>
+                !formula.dataset.reportMode || selectedModes.has(formula.dataset.reportMode))
+            : formulaBoxes;
+        const equations = selectedFormulaBoxes.flatMap(equationText).filter(Boolean);
         const methodology = [...theory.querySelectorAll("p")]
             .map(text).filter((paragraph) => paragraph && !/^[=\\\s]*$/.test(paragraph)).slice(0, 3);
         const referencesHeading = [...document.querySelectorAll("h2, h3")]
@@ -140,21 +148,27 @@
         return /^result(?:\b|\s*-)/i.test(text(heading)) && Boolean(text(value));
     }
 
+    function controlsSnapshot() {
+        return [...calculatorColumn.querySelectorAll("input, select, textarea")]
+            .filter((control) => !["button", "submit", "reset", "hidden"].includes(control.type))
+            .map((control) => [control.id || control.name || control.tagName, control.value]);
+    }
+
     function captureDefaultState() {
         const inputs = getInputs();
         const result = text(resultPanel);
         const resultValue = text(resultPanel.querySelector(".result-value"));
         const theory = getTheory();
-        const controls = [...calculatorColumn.querySelectorAll("input, select, textarea")]
-            .filter((control) => !["button", "submit", "reset", "hidden"].includes(control.type))
-            .map((control) => [control.id || control.name || control.tagName, control.value]);
+        const resultDetails = [...resultPanel.querySelectorAll("h3, .result-value, p")]
+            .map(text).filter(Boolean).join("\n");
+        const controls = controlsSnapshot();
         return {
             id: slug,
             title,
             equations: theory.equations,
             inputs,
             results: [{ label: text(resultPanel.querySelector("h3")) || "Calculated result", value: resultValue }],
-            resultDetails: result,
+            resultDetails,
             methodology: theory.methodology,
             assumptions: theory.assumptions,
             references: theory.references,
@@ -176,7 +190,10 @@
     function stateSignature(state) {
         return JSON.stringify({
             controls: state.controls,
+            inputs: state.inputs,
             equations: state.equations,
+            results: state.results,
+            resultDetails: state.resultDetails,
             result: state.result
         });
     }
@@ -367,10 +384,20 @@
         }
     }
 
-    function currentStateError() {
+    function calculatedStateError() {
         if (!isCalculated()) {
             return "Complete a valid calculation before preparing a report.";
         }
+        if (!lastCalculatedControls ||
+            JSON.stringify(controlsSnapshot()) !== lastCalculatedControls) {
+            return "Calculator inputs changed after the last calculation. Calculate again before preparing this report.";
+        }
+        return "";
+    }
+
+    function currentStateError() {
+        const calculationError = calculatedStateError();
+        if (calculationError) return calculationError;
         const current = captureState();
         if (!reportSnapshot || stateSignature(current) !== reportSnapshot) {
             return "Calculator values or results changed. Calculate again before previewing or printing.";
@@ -383,8 +410,7 @@
         const errorElement = document.getElementById("reportError");
         errorElement.textContent = error;
         if (error) return;
-        reportState = captureState();
-        renderReport(reportState);
+        renderReport(captureState());
         document.getElementById("reportPreviewPanel").hidden = false;
         form.querySelector(".report-fields").hidden = true;
         form.querySelector(":scope > .button-row").hidden = true;
@@ -410,12 +436,12 @@
     }
 
     button.addEventListener("click", () => {
-        if (!isCalculated()) {
-            status.textContent = "Complete a valid calculation before preparing a report.";
+        const error = calculatedStateError();
+        if (error) {
+            status.textContent = error;
             return;
         }
-        reportState = captureState();
-        reportSnapshot = stateSignature(reportState);
+        reportSnapshot = stateSignature(captureState());
         status.textContent = "";
         showPreparation();
     });
@@ -428,6 +454,10 @@
     window.addEventListener("afterprint", () => {
         delete document.documentElement.dataset.reportPrintValid;
     });
+    const resultObserver = new MutationObserver(() => {
+        lastCalculatedControls = isCalculated() ? JSON.stringify(controlsSnapshot()) : null;
+    });
+    resultObserver.observe(resultPanel, { childList: true, characterData: true, subtree: true });
 
     window.FormulaFoundryReport = window.FormulaFoundryReport || {};
     window.FormulaFoundryReport.adapters = adapters;

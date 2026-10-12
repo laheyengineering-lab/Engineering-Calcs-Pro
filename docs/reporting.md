@@ -20,7 +20,7 @@ FormulaFoundryReport.registerAdapter("calculator-id", (currentState) => ({
 }));
 ```
 
-The shared adapter obtains the calculator identity from `js/calculator-data.js`, equations and theory from the page's existing content, current inputs and displayed units from visible calculator controls, and outputs/intermediate details from the existing result panel. It does not perform engineering calculations. Calculator-specific providers may refine the structured fields without replacing the shared report template.
+The shared adapter obtains the calculator identity from `js/calculator-data.js`, equations and theory from the page's existing content, current inputs and displayed units from visible calculator controls, and outputs/intermediate details from the existing result panel. It does not perform engineering calculations. For mode-specific equations, tag the existing equation element with `data-report-mode` matching the mode control value; the shared adapter then includes only the selected mode's equation. Calculator-specific providers may refine structured fields without replacing the shared report template.
 
 The preview inserts user-supplied project text using text nodes, not HTML. Report metadata remains in the active page session only. Print layout rules live in `css/style.css`; browser print-to-PDF is used instead of a PDF service or library.
 

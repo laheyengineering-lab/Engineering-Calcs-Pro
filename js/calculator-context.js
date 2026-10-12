@@ -81,6 +81,18 @@
                 { tex: 'P_{strip,int} \\approx \\pi D L_e f_d\\,(0.577\\,S_{int})', text: 'P strip,int ~ pi D Le fd (0.577 S int)' }
             ],
             inputs: [['D', 'nominal major diameter', 'mm, cm, m, in, ft'], ['A_r', 'tensile stress area', 'mm², cm², m², in²'], ['L_e', 'thread engagement length', 'mm, cm, m, in, ft'], ['F', 'applied tensile load', 'N, kN, lbf'], ['S_{bolt}, S_{int}', 'fastener / internal-thread strength', 'MPa, GPa, psi, ksi']]
+        },
+        'combined-stress': {
+            eq: [{ tex: '\\sigma_{top,bottom} = \\frac{F}{A} \\mp \\frac{M c}{I}, \\quad A=bh, \\quad I=\\frac{b h^3}{12}', text: 'sigma top/bottom = F / A minus/plus M c / I; A = b h; I = b h^3 / 12' }],
+            inputs: [['F', 'signed axial force (tension positive)', 'N, kN, lbf'], ['M', 'signed bending moment', 'N·mm, N·m, kN·m, lbf·in, lbf·ft'], ['b, h', 'rectangular section width and height', 'mm, cm, m, in, ft']]
+        },
+        'pin-bearing-pressure': {
+            eq: [{ tex: 'p_b = \\frac{F}{A_p} = \\frac{F}{d t}', text: 'p b = F / projected area = F / (d t)' }],
+            inputs: [['F', 'load carried by this plate', 'N, kN, lbf'], ['d', 'pin diameter', 'mm, cm, m, in, ft'], ['t', 'loaded plate thickness', 'mm, cm, m, in, ft']]
+        },
+        'tolerance-stack-up': {
+            eq: [{ tex: 'T_{WC} = \\sum_{i=1}^{n}|t_i|, \\qquad T_{RSS} = \\sqrt{\\sum_{i=1}^{n}t_i^2}', text: 'T worst case = sum of absolute tolerances; T RSS = square root of sum of squared tolerances' }],
+            inputs: [['t_1 \\ldots t_5', 'up to five bilateral tolerance half-ranges', 'µm, mm, cm, m, in, ft'], ['u_i', 'unit selected for each contribution', '']]
         }
     };
 

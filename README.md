@@ -24,6 +24,7 @@ The goal is to make fundamental mechanical engineering calculations accessible t
 | **Responsive Design** | Mobile-friendly layouts with CSS grid and media queries |
 | **Searchable Homepage** | Built-in search to quickly find any calculator |
 | **Instant Results** | Calculations update in real time from form inputs |
+| **Calculation Reports** | Prepare branded reports from current calculator inputs/results, preview, and print to PDF |
 | **Professional UI** | Clean, consistent styling with accessibility in mind |
 
 ---
@@ -35,14 +36,23 @@ The goal is to make fundamental mechanical engineering calculations accessible t
 | Calculator | Description | Status |
 |---|---|---|
 | **Moment Calculator** | Torque from force and perpendicular distance | ✅ Live |
-| **Beam Deflection** | Structural beam deflection under load | ✅ Live |
 | **Shaft Torsion** | Shear stress and angle of twist for shafts | ✅ Live |
+| **Beam Deflection** | Structural beam deflection under common loading cases | ✅ Live |
+| **Column Buckling** | Euler critical buckling load for circular columns | ✅ Live |
+| **Beam Bending Stress** | Elastic bending stress from moment and section geometry | ✅ Live |
+| **Combined Axial and Bending Stress** | Extreme-fiber stress in a rectangular section under combined loading | ✅ Live |
+| **Bearing Life** | Basic rolling-element bearing L10 life | ✅ Live |
+| **Pin Bearing Pressure** | Average projected pressure at a pin-and-plate interface | ✅ Live |
+| **Press Fit** | Interference-fit pressure and capacity estimates | ✅ Live |
+| **Helical Spring Calculations** | Spring rate, deflection, and corrected shear stress | ✅ Live |
+| **Tolerance Stack-Up** | Worst-case and root-sum-square dimensional tolerance combinations | ✅ Live |
 
 ### 🔩 Fasteners
 
 | Calculator | Description | Status |
 |---|---|---|
 | **Bolt Torque** | Tightening torque for threaded fasteners (metric and imperial) | ✅ Live |
+| **Thread Strength** | Tensile and internal-thread stripping capacity estimates | ✅ Live |
 | **Bolt Preload** | Fastener preload and clamping force analysis | 🔜 Coming Soon |
 
 ### 🧱 Materials
@@ -51,12 +61,13 @@ The goal is to make fundamental mechanical engineering calculations accessible t
 |---|---|---|
 | **Stress-Strain** | Stress and strain from load and geometry | ✅ Live |
 | **Thermal Expansion** | Linear thermal expansion for common engineering materials | ✅ Live |
-| **Bearing PV** | Bearing performance (pressure × velocity) | 🔜 Coming Soon |
+| **Factor of Safety** | Stress- and load-based factor of safety calculations | ✅ Live |
 
 ### 🏭 Manufacturing
 
 | Calculator | Description | Status |
 |---|---|---|
+| **Fillet Weld Strength** | Direct-load capacity and required size for fillet welds | ✅ Live |
 | **Deep Drawing** | Sheet metal forming / draw ratio calculations | 🔜 Coming Soon |
 
 ---
@@ -71,6 +82,7 @@ Engineering-Calcs-Pro/
 ├── js/
 │   ├── engineering-units.js        # Shared engineering core: unit conversions + material database
 │   ├── calculator-data.js          # Calculator catalog metadata (titles, categories, links)
+│   ├── report-builder.js            # Shared report capture, preview, and print workflow
 │   ├── homepage.js                 # Homepage search and card rendering logic
 │   ├── bolt-database.js            # Bolt size and thread pitch tables (metric + imperial)
 │   ├── bolt-torque.js              # Bolt torque calculation logic
@@ -164,9 +176,9 @@ Then open [http://localhost:8000](http://localhost:8000) in your browser.
 
 1. **Open the homepage** — browse or search for a calculator
 2. **Select a calculator** — click to open the dedicated page
-3. **Choose your unit system** — metric or imperial, depending on your inputs
-4. **Enter your values** — fill in the required fields
-5. **Read the results** — output is shown instantly with unit labels
+3. **Choose units and enter values** — fill in the required fields
+4. **Calculate and review results** — inspect the displayed values and units
+5. **Generate Report** — optionally add project details and notes, preview, then print/save as PDF
 6. **Return to the homepage** to run another calculation
 
 ---
@@ -179,6 +191,7 @@ Then open [http://localhost:8000](http://localhost:8000) in your browser.
 - **Calculator Architecture:** [`docs/calculator-architecture.md`](docs/calculator-architecture.md)
 - **Calculator Development Guide:** [`docs/calculator-development-guide.md`](docs/calculator-development-guide.md)
 - **Testing Guide:** [`docs/testing.md`](docs/testing.md)
+- **Calculation Reports:** [`docs/reporting.md`](docs/reporting.md)
 - **Issues & Feature Requests:** [https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues](https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues)
 
 ---

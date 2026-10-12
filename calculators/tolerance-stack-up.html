@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Combine bilateral dimensional tolerance contributions with worst-case and root-sum-square methods.">
+    <title>Tolerance Stack-Up Calculator | Formula Foundry</title>
+    <meta property="og:site_name" content="Formula Foundry">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tolerance Stack-Up Calculator | Formula Foundry">
+    <meta property="og:description" content="Combine bilateral dimensional tolerance contributions with worst-case and root-sum-square methods.">
+    <meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#26282B">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<main class="container" id="main">
+    <a href="../index.html#catalog" class="back-link">← All calculators</a>
+    <header class="calculator-header">
+        <h1>Tolerance Stack-Up Calculator</h1>
+        <p>Combine up to five bilateral dimensional tolerance contributions using guaranteed worst-case and statistical root-sum-square methods.</p>
+    </header>
+    <section class="content-card calculator-box">
+        <div class="calculator-layout">
+            <div class="theory-column">
+                <section class="content-card formula-card">
+                    <h2>Engineering Theory</h2>
+                    <div class="formula-box">\[ T_{WC} = \sum_{i=1}^{n} |t_i|,\qquad T_{RSS} = \sqrt{\sum_{i=1}^{n} t_i^2} \]</div>
+                    <p>Worst-case addition assumes every contributor reaches its limiting direction at once. RSS combines independent, centered statistical contributors and is an estimate rather than a guaranteed bound.</p>
+                    <h3>Variable definitions</h3>
+                    <ul>
+                        <li><strong>t<sub>i</sub></strong> = magnitude of each entered bilateral half-range tolerance</li>
+                        <li><strong>T<sub>WC</sub></strong> = worst-case total half-range</li>
+                        <li><strong>T<sub>RSS</sub></strong> = root-sum-square combined half-range estimate</li>
+                    </ul>
+                    <h3>Assumptions &amp; Limitations</h3>
+                    <ul>
+                        <li>Each entry is a non-negative bilateral half-range; contributors are combined by magnitude, regardless of stack direction.</li>
+                        <li>All contributors must describe compatible dimensions in the selected units; each field converts independently.</li>
+                        <li>Worst-case is a limit for the stated contributors. RSS assumes independent, uncorrelated, centered variation and comparable statistical coverage.</li>
+                        <li>RSS is not a guaranteed assembly limit; distributions, correlations, process capability, nominal dimensions, and asymmetric limits are not modeled.</li>
+                    </ul>
+                </section>
+            </div>
+            <div class="calculator-column">
+                <section class="content-card calculator-box">
+                    <h2>Calculation</h2>
+                    <p>Enter each contributor as a positive ± half-range. Leave unused rows blank.</p>
+                    <label class="input-label" for="tolerance1">Tolerance contribution 1 (±)</label>
+                    <div class="input-row">
+                        <input id="tolerance1" type="number" min="0" step="any">
+                        <select id="toleranceUnit1" aria-label="Tolerance contribution 1 unit"><option selected>mm</option><option>µm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+                    </div>
+                    <label class="input-label" for="tolerance2">Tolerance contribution 2 (±)</label>
+                    <div class="input-row">
+                        <input id="tolerance2" type="number" min="0" step="any">
+                        <select id="toleranceUnit2" aria-label="Tolerance contribution 2 unit"><option selected>mm</option><option>µm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+                    </div>
+                    <label class="input-label" for="tolerance3">Tolerance contribution 3 (±)</label>
+                    <div class="input-row">
+                        <input id="tolerance3" type="number" min="0" step="any">
+                        <select id="toleranceUnit3" aria-label="Tolerance contribution 3 unit"><option selected>mm</option><option>µm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+                    </div>
+                    <label class="input-label" for="tolerance4">Tolerance contribution 4 (±)</label>
+                    <div class="input-row">
+                        <input id="tolerance4" type="number" min="0" step="any">
+                        <select id="toleranceUnit4" aria-label="Tolerance contribution 4 unit"><option selected>mm</option><option>µm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+                    </div>
+                    <label class="input-label" for="tolerance5">Tolerance contribution 5 (±)</label>
+                    <div class="input-row">
+                        <input id="tolerance5" type="number" min="0" step="any">
+                        <select id="toleranceUnit5" aria-label="Tolerance contribution 5 unit"><option selected>mm</option><option>µm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+                    </div>
+                    <label class="input-label" for="outputUnit">Result unit</label>
+                    <select id="outputUnit" class="output-select">
+                        <option selected>mm</option><option>µm</option><option>cm</option><option>m</option><option>in</option><option>ft</option>
+                    </select>
+                    <div class="button-row">
+                        <button type="button" onclick="calculateToleranceStackUp()">Calculate</button>
+                        <button type="button" class="secondary-button" onclick="resetToleranceStackUp()">Reset</button>
+                    </div>
+                    <div id="result" class="result-panel" role="status" aria-live="polite">Ready to calculate.</div>
+                </section>
+            </div>
+        </div>
+    </section>
+    <section class="content-card">
+        <h2>Worked Example</h2>
+        <p>For independent ±0.10 mm, ±0.20 mm, and ±0.15 mm contributors, worst-case is ±0.45 mm. RSS is √(0.10² + 0.20² + 0.15²) = ±0.2693 mm.</p>
+    </section>
+    <section class="content-card">
+        <h2>References</h2>
+        <ul>
+            <li>NIST/SEMATECH e-Handbook of Statistical Methods, “Propagation of Error,” <a href="https://www.itl.nist.gov/div898/handbook/mpc/section5/mpc54.htm">measurement-process characterization</a>.</li>
+            <li>ASME Y14.5-2018, <em>Dimensioning and Tolerancing</em>, geometric dimensioning and tolerance specification.</li>
+        </ul>
+    </section>
+</main>
+<footer class="site-footer">
+    <p>&copy; Formula Foundry. Results are for general reference; verify critical designs independently.</p>
+</footer>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/tolerance-stack-up.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/report-builder.js"></script>
+</body>
+</html>

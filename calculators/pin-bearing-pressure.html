@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate average projected bearing pressure for a loaded pin and plate interface.">
+    <title>Pin Bearing Pressure Calculator | Formula Foundry</title>
+    <meta property="og:site_name" content="Formula Foundry">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pin Bearing Pressure Calculator | Formula Foundry">
+    <meta property="og:description" content="Calculate average projected bearing pressure for a loaded pin and plate interface.">
+    <meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#26282B">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<main class="container" id="main">
+    <a href="../index.html#catalog" class="back-link">← All calculators</a>
+    <header class="calculator-header">
+        <h1>Pin Bearing Pressure Calculator</h1>
+        <p>Estimate average bearing pressure on one plate from the load it carries through a pin or fastener.</p>
+    </header>
+    <section class="content-card calculator-box">
+        <div class="calculator-layout">
+            <div class="theory-column">
+                <section class="content-card formula-card">
+                    <h2>Engineering Theory</h2>
+                    <div class="formula-box">\[ p_b = \frac{F}{A_p} = \frac{F}{d t} \]</div>
+                    <p>Projected bearing area is pin diameter multiplied by the thickness of the plate carrying the stated load. The result is an average nominal pressure over that projected area.</p>
+                    <h3>Variable definitions</h3>
+                    <ul>
+                        <li><strong>F</strong> = force transferred to this plate</li>
+                        <li><strong>d</strong> = pin diameter at the bearing interface</li>
+                        <li><strong>t</strong> = thickness of the loaded plate</li>
+                        <li><strong>A<sub>p</sub></strong> = projected area, d × t</li>
+                    </ul>
+                    <h3>Assumptions &amp; Limitations</h3>
+                    <ul>
+                        <li>The entered load is the portion carried by this individual plate; load sharing between plates is not estimated.</li>
+                        <li>Pressure is averaged over projected area and is not the local contact-pressure distribution.</li>
+                        <li>Clearance, edge distance, pin bending/shear, tear-out, fatigue, material allowables, and code-specific checks are excluded.</li>
+                        <li>This calculation is not a pass/fail strength or safety determination.</li>
+                    </ul>
+                </section>
+            </div>
+            <div class="calculator-column">
+                <section class="content-card calculator-box">
+                    <h2>Calculation</h2>
+                    <label class="input-label" for="pinLoad">Load carried by this plate</label>
+                    <div class="input-row">
+                        <input id="pinLoad" type="number" min="0" step="any">
+                        <select id="forceUnit" aria-label="Load unit">
+                            <option>N</option><option selected>kN</option><option>lbf</option>
+                        </select>
+                    </div>
+                    <label class="input-label" for="pinDiameter">Pin diameter at interface</label>
+                    <div class="input-row">
+                        <input id="pinDiameter" type="number" min="0" step="any">
+                        <select id="diameterUnit" aria-label="Pin diameter unit">
+                            <option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option>
+                        </select>
+                    </div>
+                    <label class="input-label" for="plateThickness">Loaded plate thickness</label>
+                    <div class="input-row">
+                        <input id="plateThickness" type="number" min="0" step="any">
+                        <select id="thicknessUnit" aria-label="Plate thickness unit">
+                            <option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option>
+                        </select>
+                    </div>
+                    <label class="input-label" for="stressUnit">Pressure output unit</label>
+                    <select id="stressUnit" class="output-select">
+                        <option>Pa</option><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option>
+                    </select>
+                    <div class="button-row">
+                        <button type="button" onclick="calculatePinBearingPressure()">Calculate</button>
+                        <button type="button" class="secondary-button" onclick="resetPinBearingPressure()">Reset</button>
+                    </div>
+                    <div id="result" class="result-panel" role="status" aria-live="polite">Ready to calculate.</div>
+                </section>
+            </div>
+        </div>
+    </section>
+    <section class="content-card">
+        <h2>Worked Example</h2>
+        <p>A 10 kN plate load on a 10 mm pin through an 8 mm plate gives A<sub>p</sub> = 80 mm² and p<sub>b</sub> = 10,000 N / 80 mm² = 125 MPa.</p>
+    </section>
+    <section class="content-card">
+        <h2>References</h2>
+        <ul>
+            <li>Bickford, J. H., <em>An Introduction to the Design and Behavior of Bolted Joints</em>, bearing stress and projected area.</li>
+            <li>NASA RP-1228, <em>Fastener Design Manual</em>, fastener joint bearing and failure checks.</li>
+        </ul>
+    </section>
+</main>
+<footer class="site-footer">
+    <p>&copy; Formula Foundry. Results are for general reference; verify critical designs independently.</p>
+</footer>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/pin-bearing-pressure.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/report-builder.js"></script>
+</body>
+</html>

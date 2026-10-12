@@ -1336,7 +1336,7 @@ footer,
     margin: 16mm;
     @bottom-right {
         color: #5c6066;
-        font: 9pt var(--font-sans);
+        font: 9pt Arial, sans-serif;
         content: "Page " counter(page);
     }
 }
