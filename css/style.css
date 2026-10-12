@@ -483,6 +483,7 @@ a.calculator-card:hover h3 {
     box-shadow: var(--shadow-sm);
     min-width: 0;
     max-width: 100%;
+    overflow-wrap: anywhere;
 }
 
 .content-card h2 {
@@ -819,7 +820,6 @@ button:disabled {
     margin-bottom: var(--space-2);
 }
 
-.content-card table,
 table {
     display: block;
     max-width: 100%;
@@ -876,25 +876,8 @@ footer,
     max-width: none;
 }
 
-/* Guard against overflow from long words, URLs and wide content */
-.content-card {
-    overflow-wrap: anywhere;
-    min-width: 0;
-    max-width: 100%;
-}
-
-.content-card .formula-box {
-    overflow-x: auto;
-    min-width: 0;
-    max-width: 100%;
-}
-
 .content-card img,
 .content-card svg {
-    max-width: 100%;
-}
-
-.content-card table {
     max-width: 100%;
 }
 
