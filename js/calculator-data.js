@@ -120,6 +120,46 @@ const calculators = [
         keywords: ["fillet weld", "weld strength", "weld size", "weld throat", "E70", "weld capacity", "weld sizing", "welding"]
     },
     {
+        id: "hertzian-contact",
+        name: "Hertzian Contact Stress Calculator",
+        shortDescription: "Estimate contact width or radius and peak contact pressure for cylinders and spheres.",
+        description: "Estimate Hertzian contact geometry and maximum contact pressure for two parallel cylinders in line contact or two spheres in point contact, including flat and concave counterfaces.",
+        category: "Mechanical",
+        path: "calculators/hertzian-contact.html",
+        related: ["press-fit", "bearing-life", "stress-strain", "factor-of-safety"],
+        keywords: ["hertz", "hertzian", "contact stress", "contact pressure", "line contact", "point contact", "cylinder", "sphere", "roller", "ball", "rolling contact"]
+    },
+    {
+        id: "differential-thermal-expansion",
+        name: "Differential Thermal Expansion Calculator",
+        shortDescription: "Calculate multi-section free thermal expansion and differential movement between two members.",
+        description: "Calculate free thermal expansion for members made of up to three series sections with different lengths, coefficients and temperatures, and the differential movement between two members.",
+        category: "Materials",
+        path: "calculators/differential-thermal-expansion.html",
+        related: ["thermal-expansion", "stress-strain", "press-fit"],
+        keywords: ["differential expansion", "thermal expansion", "multi-section", "temperature", "clearance", "valve pin", "relative movement", "coefficient"]
+    },
+    {
+        id: "cylinder-force",
+        name: "Hydraulic/Pneumatic Cylinder Force Calculator",
+        shortDescription: "Calculate theoretical extension and retraction force for a single-rod cylinder.",
+        description: "Calculate theoretical extension and retraction force, piston area, rod area and annular area for a double-acting single-rod hydraulic or pneumatic cylinder, with an optional user-supplied efficiency estimate.",
+        category: "Mechanical",
+        path: "calculators/cylinder-force.html",
+        related: ["thick-walled-cylinder", "column-buckling", "stress-strain"],
+        keywords: ["hydraulic", "pneumatic", "cylinder", "actuator", "piston", "force", "pressure", "bore", "rod", "annular area", "fluid power"]
+    },
+    {
+        id: "thick-walled-cylinder",
+        name: "Thick-Walled Cylinder Stress Analysis",
+        shortDescription: "Calculate Lamé radial, hoop and axial stresses under internal and external pressure.",
+        description: "Estimate radial, hoop and axial stress distributions in a thick-walled cylinder under internal and/or external pressure using the elastic Lamé equations, with a stress-versus-radius plot.",
+        category: "Mechanical",
+        path: "calculators/thick-walled-cylinder.html",
+        related: ["press-fit", "cylinder-force", "stress-strain", "factor-of-safety"],
+        keywords: ["thick wall", "thick-walled", "Lamé", "Lame", "hoop stress", "radial stress", "pressure vessel", "internal pressure", "external pressure", "cylinder stress"]
+    },
+    {
         id: "bearing-pv",
         name: "Bearing PV",
         shortDescription: "Coming Soon",

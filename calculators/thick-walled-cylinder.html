@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thick-Walled Cylinder Stress Analysis | Formula Foundry</title>
+<meta name="description" content="Estimate radial, hoop and axial stresses in a thick-walled cylinder under internal and external pressure using the elastic Lamé equations.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Thick-Walled Cylinder Stress Analysis | Formula Foundry">
+<meta property="og:description" content="Estimate radial, hoop and axial stresses in a thick-walled cylinder under internal and external pressure using the elastic Lamé equations.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+<a href="../index.html#catalog" class="back-link">← All calculators</a>
+<header class="calculator-header">
+    <h1>Thick-Walled Cylinder Stress Analysis</h1>
+    <p>
+        Estimate radial, hoop and axial stress across the wall of a thick-walled cylinder under internal and/or external pressure using the classic Lamé elastic solution, with a stress-versus-radius plot.
+    </p>
+</header>
+<section class="content-card calculator-box">
+    <div class="calculator-layout">
+    <div class="theory-column">
+        <section class="content-card formula-card">
+            <h2>Engineering Theory</h2>
+            <h3>Engineering Context</h3>
+            <p>
+                When wall thickness is a significant fraction of the radius, stress varies across the wall and thin-wall formulas become inaccurate. The Lamé equations give the exact elastic radial and hoop stress distributions for a long cylinder under uniform internal and external pressure.
+            </p>
+            <p>
+                <strong>Sign convention:</strong> tension is positive and compression is negative. A pressurized surface therefore has a radial stress of \(-p\). Internal pressure produces tensile hoop stress that is highest at the bore; external pressure produces compressive hoop stress, also highest at the bore.
+            </p>
+            <h3>Governing Equations</h3>
+            <div class="formula-box">
+                \[ \sigma_r(r) = \frac{a^2 p_i - b^2 p_o}{b^2 - a^2} - \frac{a^2 b^2\,(p_i - p_o)}{\left(b^2 - a^2\right) r^2} \]
+            </div>
+            <div class="formula-box">
+                \[ \sigma_\theta(r) = \frac{a^2 p_i - b^2 p_o}{b^2 - a^2} + \frac{a^2 b^2\,(p_i - p_o)}{\left(b^2 - a^2\right) r^2} \]
+            </div>
+            <div class="formula-box">
+                \[ \sigma_z = \frac{a^2 p_i - b^2 p_o}{b^2 - a^2} \;\text{(closed ends)} \qquad \sigma_z = 0 \;\text{(open / free ends)} \]
+            </div>
+            <h3>Variable Definitions</h3>
+            <ul>
+                <li><strong>\(a, b\)</strong> = inner and outer radius (half the entered diameters)</li>
+                <li><strong>\(r\)</strong> = radius at the point of interest, \(a \le r \le b\)</li>
+                <li><strong>\(p_i, p_o\)</strong> = internal and external gauge pressure</li>
+                <li><strong>\(\sigma_r\)</strong> = radial stress; <strong>\(\sigma_\theta\)</strong> = circumferential (hoop) stress; <strong>\(\sigma_z\)</strong> = axial stress</li>
+            </ul>
+            <h3>Assumptions &amp; Limitations</h3>
+            <ul>
+                <li>Linear elastic, isotropic, homogeneous material; small deformations</li>
+                <li>Long cylinder with uniform circular cross-section, remote from end closures, flanges, holes and other discontinuities</li>
+                <li>Uniform internal and external pressures (gauge, zero or positive); no thermal, centrifugal or body-force loading</li>
+                <li>Closed-ended: axial stress is the uniform value carried by the end closures. Open/free-ended: axial stress is zero. Constrained ends (plane strain) are not modeled</li>
+                <li>Elastic stresses only: no yielding, plasticity, creep, fatigue or fracture, and no stress concentrations</li>
+                <li>Not a pressure-vessel code calculation and does not establish allowable pressure or safe operating limits</li>
+            </ul>
+        </section>
+    </div>
+    <div class="calculator-column">
+        <section class="content-card calculator-box">
+    <h2>Calculation</h2>
+    <h3>Geometry</h3>
+    <label class="input-label" for="distanceUnit">Distance Units (diameters)</label>
+    <select id="distanceUnit" class="output-select"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+    <label class="input-label" for="innerDiameter">Inner Diameter (2a)</label>
+    <div class="input-row">
+        <input id="innerDiameter" type="number" step="any" placeholder="Enter inner diameter">
+    </div>
+    <label class="input-label" for="outerDiameter">Outer Diameter (2b)</label>
+    <div class="input-row">
+        <input id="outerDiameter" type="number" step="any" placeholder="Enter outer diameter">
+    </div>
+    <h3>Loading</h3>
+    <label class="input-label" for="stressUnit">Pressure / Stress Units</label>
+    <select id="stressUnit" class="output-select"><option selected>MPa</option><option>bar</option><option>kPa</option><option>Pa</option><option>GPa</option><option>psi</option><option>ksi</option></select>
+    <label class="input-label" for="internalPressure">Internal Pressure (p<sub>i</sub>, gauge)</label>
+    <div class="input-row">
+        <input id="internalPressure" type="number" step="any" placeholder="Enter internal pressure">
+    </div>
+    <label class="input-label" for="externalPressure">External Pressure (p<sub>o</sub>, gauge)</label>
+    <div class="input-row">
+        <input id="externalPressure" type="number" step="any" value="0">
+    </div>
+    <h3>Axial Boundary Condition</h3>
+    <label class="input-label" for="endCondition">End Condition</label>
+    <select id="endCondition" class="output-select"><option value="closed" selected>Closed ends (pressure acts on end closures)</option><option value="open">Open / free ends (σ<sub>z</sub> = 0)</option></select>
+    <div class="button-row">
+        <button type="button" onclick="calculateThickCylinder()">Calculate</button>
+        <button type="button" class="secondary-button" onclick="resetThickCylinderCalculator()">Reset</button>
+    </div>
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+    <div id="plot" class="plot-box"></div>
+</section>
+    </div>
+</div>
+</section>
+<section class="content-card">
+<h2>Worked Example</h2>
+<div class="example-box">
+<p><strong>Given:</strong> inner diameter 100 mm (a = 50 mm), outer diameter 200 mm (b = 100 mm), p<sub>i</sub> = 100 MPa, p<sub>o</sub> = 0, closed ends.</p>
+<p>
+\[ \frac{a^2 p_i}{b^2 - a^2} = \frac{2500 \times 100}{7500} = 33.33\ \mathrm{MPa} \qquad \frac{a^2 b^2 p_i}{(b^2-a^2)\,a^2} = 133.33\ \mathrm{MPa} \]
+</p>
+<p>
+At the bore (r = a): σ<sub>r</sub> = 33.33 − 133.33 = −100 MPa; σ<sub>θ</sub> = 33.33 + 133.33 = 166.67 MPa; σ<sub>z</sub> = 33.33 MPa.<br>
+At the outer surface (r = b): σ<sub>r</sub> = 33.33 − 33.33 = 0; σ<sub>θ</sub> = 33.33 + 33.33 = 66.67 MPa.
+</p>
+<p>With external pressure only (p<sub>o</sub> = 100 MPa, p<sub>i</sub> = 0), σ<sub>θ</sub> = −266.67 MPa at the bore, −166.67 MPa at the outer surface, and σ<sub>r</sub> = 0 at the bore and −100 MPa at the outer surface.</p>
+</div>
+</section>
+<section class="content-card">
+<h2>Engineering Considerations</h2>
+<ul>
+<li>The hoop stress is largest in magnitude at the inner surface; thickening the wall reduces it much less than thin-wall formulas suggest.</li>
+<li>Comparing results with a thin-wall estimate is a useful sanity check when the diameter-to-thickness ratio is large.</li>
+<li>Combine the stress components with an appropriate failure criterion and allowable stresses yourself; this calculator does not.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>References</h2>
+<ul>
+<li>Budynas, R. G., &amp; Nisbett, J. K. <em>Shigley's Mechanical Engineering Design</em>, section on stresses in cylinders (thick-walled cylinders).</li>
+<li>Timoshenko, S. P., &amp; Goodier, J. N. <em>Theory of Elasticity</em>, Lamé problem for a thick-walled cylinder.</li>
+<li>Young, W. C., Budynas, R. G., &amp; Sadegh, A. M. <em>Roark's Formulas for Stress and Strain</em>, thick-walled cylinders and sphere table.</li>
+<li>Not derived from a workbook: no calculation workbook was available in this repository.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>Related Calculators</h2>
+<ul>
+<li><a href="press-fit.html">Press Fit</a></li>
+<li><a href="cylinder-force.html">Cylinder Force</a></li>
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+<li><a href="factor-of-safety.html">Factor of Safety</a></li>
+</ul>
+</section>
+</div>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/thick-walled-cylinder.js"></script>
+</body>
+</html>

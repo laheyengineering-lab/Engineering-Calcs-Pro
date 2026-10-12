@@ -1145,3 +1145,82 @@ footer,
         padding: 0 var(--space-2);
     }
 }
+
+/* =====================
+   PROJECT REPORT (shared nav badge and status)
+===================== */
+
+.report-count {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 6px;
+    margin-left: 2px;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+    font-size: 0.8em;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.report-status {
+    margin: 0 0 var(--space-4);
+    color: var(--color-navy-800);
+    font-weight: 600;
+}
+
+.report-status.is-error {
+    color: #9b2c1d;
+}
+
+/* =====================
+   RESULT TABLES AND PLOTS (new calculators)
+===================== */
+
+[hidden] {
+    display: none !important;
+}
+
+.result-table {
+    width: 100%;
+    font-size: 0.92rem;
+}
+
+.result-table th,
+.result-table td {
+    border: 1px solid var(--color-border);
+    padding: 4px 8px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.result-table th:first-child,
+.result-table td:first-child {
+    text-align: left;
+}
+
+.result-table th {
+    background: var(--color-surface-muted);
+}
+
+.plot-box svg {
+    width: 100%;
+    height: auto;
+    max-width: 640px;
+}
+
+.section-grid {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.section-row {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+}
+
+.section-row .input-row {
+    margin-bottom: var(--space-2);
+}

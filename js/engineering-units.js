@@ -63,6 +63,8 @@ function convertMoment(value, fromUnit) {
 // ========== STRESS/PRESSURE (Base: Pascals) ==========
 const stressUnits = {
     Pa: 1,
+    kPa: 1e3,
+    bar: 1e5,
     MPa: 1e6,
     GPa: 1e9,
     psi: 6894.757,

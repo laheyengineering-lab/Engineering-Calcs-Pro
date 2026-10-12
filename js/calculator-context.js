@@ -61,6 +61,30 @@
             ],
             inputs: [['w', 'weld leg size', 'mm, cm, in'], ['L', 'total effective weld length', 'mm, cm, in'], ['F_{EXX}', 'electrode strength', ''], ['\\theta', 'load direction (0° or 90°)', ''], ['P', 'applied load (optional)', 'N, kN, lbf']]
         },
+        'hertzian-contact': {
+            eq: [
+                { tex: 'E^* = \\left[\\frac{1-\\nu_1^2}{E_1}+\\frac{1-\\nu_2^2}{E_2}\\right]^{-1}, \\quad b = \\sqrt{\\frac{4 F R}{\\pi L E^*}}, \\quad a = \\left(\\frac{3 F R}{4 E^*}\\right)^{1/3}', text: 'E* from E and nu; cylinders b = sqrt(4 F R / (pi L E*)); spheres a = (3 F R / (4 E*))^(1/3)' }
+            ],
+            inputs: [['D_1, D_2', 'body diameters', 'mm, cm, m, in, ft, µm'], ['F', 'contact force', 'N, kN, lbf'], ['L', 'contact length (cylinders)', 'mm, cm, m, in, ft'], ['E, \\nu', 'Young\'s modulus, Poisson\'s ratio of each body', 'GPa, MPa, psi, ksi']]
+        },
+        'differential-thermal-expansion': {
+            eq: [
+                { tex: '\\Delta L = \\sum_i \\alpha_i L_{0,i} \\Delta T_i \\qquad \\Delta_{diff} = \\Delta L_A - \\Delta L_B', text: 'delta L = sum alpha L0 delta T; differential = delta L A - delta L B' }
+            ],
+            inputs: [['L_0', 'initial length of each section', 'mm, cm, m, in, ft'], ['\\alpha', 'coefficient of thermal expansion', '10⁻⁶/°C, 1/°C, 10⁻⁶/°F'], ['T_i, T_f', 'initial and final temperature', '°C, °F, K']]
+        },
+        'cylinder-force': {
+            eq: [
+                { tex: 'F_{ext} = p\\,\\frac{\\pi D^2}{4} \\qquad F_{ret} = p\\,\\frac{\\pi\\left(D^2-d^2\\right)}{4}', text: 'F ext = p pi D^2 / 4; F ret = p pi (D^2 - d^2) / 4' }
+            ],
+            inputs: [['D', 'bore diameter', 'mm, cm, m, in, ft'], ['d', 'rod diameter', 'mm, cm, m, in, ft'], ['p', 'working (gauge) pressure', 'bar, MPa, kPa, psi, Pa'], ['\\eta', 'optional user-supplied efficiency', '%']]
+        },
+        'thick-walled-cylinder': {
+            eq: [
+                { tex: '\\sigma_{r,\\theta} = \\frac{a^2 p_i - b^2 p_o}{b^2-a^2} \\mp \\frac{a^2 b^2 (p_i-p_o)}{(b^2-a^2) r^2}', text: 'sigma r, theta = (a^2 pi - b^2 po)/(b^2 - a^2) -/+ a^2 b^2 (pi - po) / ((b^2 - a^2) r^2)' }
+            ],
+            inputs: [['2a, 2b', 'inner and outer diameter', 'mm, cm, m, in, ft'], ['p_i, p_o', 'internal and external pressure', 'MPa, bar, kPa, psi, ksi, Pa, GPa'], ['\\sigma_z', 'closed-end or open-end axial condition', '']]
+        },
         'press-fit': {
             eq: [
                 { tex: 'p = \\frac{\\delta_r}{c\\left[\\frac{1}{E_h}\\left(\\frac{b^2+c^2}{b^2-c^2}+\\nu_h\\right)+\\frac{1}{E_s}\\left(\\frac{c^2+a^2}{c^2-a^2}-\\nu_s\\right)\\right]}', text: 'p = delta r / (c [ (1/Eh)((b^2+c^2)/(b^2-c^2)+nu h) + (1/Es)((c^2+a^2)/(c^2-a^2) - nu s) ])' },

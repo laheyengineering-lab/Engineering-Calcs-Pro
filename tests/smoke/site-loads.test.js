@@ -13,7 +13,11 @@ const calculatorPages = [
     ['calculators/bearing-life.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/bearing-life.js']],
     ['calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/factor-of-safety.js']],
     ['calculators/spring-calculations.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/spring-calculations.js']],
-    ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength.js']]
+    ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength.js']],
+    ['calculators/hertzian-contact.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/hertzian-contact.js']],
+    ['calculators/differential-thermal-expansion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/differential-thermal-expansion.js']],
+    ['calculators/cylinder-force.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/cylinder-force.js']],
+    ['calculators/thick-walled-cylinder.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thick-walled-cylinder.js']]
 ];
 
 describe('page smoke tests', () => {

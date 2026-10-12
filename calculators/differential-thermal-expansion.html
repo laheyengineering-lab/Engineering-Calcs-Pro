@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Differential Thermal Expansion Calculator | Formula Foundry</title>
+<meta name="description" content="Calculate free thermal expansion of multi-section members and the differential movement between two members for different materials, lengths and temperatures.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Differential Thermal Expansion Calculator | Formula Foundry">
+<meta property="og:description" content="Calculate free thermal expansion of multi-section members and the differential movement between two members for different materials, lengths and temperatures.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+<a href="../index.html#catalog" class="back-link">← All calculators</a>
+<header class="calculator-header">
+    <h1>Differential Thermal Expansion Calculator</h1>
+    <p>
+        Calculate the free thermal expansion of up to two members, each made of up to three series sections, and the differential movement between them.
+    </p>
+</header>
+<section class="content-card calculator-box">
+    <div class="calculator-layout">
+    <div class="theory-column">
+        <section class="content-card formula-card">
+            <h2>Engineering Theory</h2>
+            <h3>Engineering Context</h3>
+            <p>
+                When two members, or two paths through an assembly, are exposed to temperature changes, they usually grow by different amounts because their lengths, materials and temperatures differ. This calculator finds the <strong>free</strong> expansion of each section, adds the sections of each member, and reports the difference between member A and member B. It is a single-axis calculation, for example a valve stem or pin compared with the body that surrounds it.
+            </p>
+            <p>
+                <strong>Sign convention:</strong> expansion is positive when a section lengthens and negative when it contracts. The differential movement is <em>member A minus member B</em>: a positive value means A lengthens more than B. Absolute expansion is the movement of one member; differential movement is the relative movement between the two.
+            </p>
+            <p>
+                Unlike the single-member <a href="thermal-expansion.html">Thermal Expansion</a> calculator, this tool handles series sections with different materials and temperatures and compares two members. It does not compute restrained thermal stress.
+            </p>
+            <h3>Governing Equations</h3>
+            <div class="formula-box">
+                \[ \Delta L_i = \alpha_i\,L_{0,i}\,\left(T_{f,i} - T_{i,i}\right) \qquad \Delta L_{member} = \sum_i \Delta L_i \]
+            </div>
+            <div class="formula-box">
+                \[ \Delta_{diff} = \Delta L_A - \Delta L_B \]
+            </div>
+            <div class="formula-box">
+                \[ L_{f} = L_0 + \Delta L \]
+            </div>
+            <h3>Variable Definitions</h3>
+            <ul>
+                <li><strong>\(L_{0,i}\)</strong> = initial length of section \(i\)</li>
+                <li><strong>\(\alpha_i\)</strong> = coefficient of thermal expansion of section \(i\) (per °C or K; per °F values are converted)</li>
+                <li><strong>\(T_{i,i}, T_{f,i}\)</strong> = initial and final temperature of section \(i\); \(\Delta T = T_f - T_i\) (a °F or K input is converted to a °C change)</li>
+                <li><strong>\(\Delta L_A, \Delta L_B\)</strong> = total free expansion of members A and B</li>
+                <li><strong>\(\Delta_{diff}\)</strong> = differential movement (A − B)</li>
+            </ul>
+            <h3>Assumptions &amp; Limitations</h3>
+            <ul>
+                <li>Free, unrestrained expansion only; <strong>restraint, contact or mechanical loading changes the result and produces thermal stress that this calculator does not solve</strong></li>
+                <li>Constant coefficient of thermal expansion over the temperature range (real coefficients vary with temperature) and a uniform temperature within each section</li>
+                <li>Series sections along one axis; no bending, bowing or multi-axis effects</li>
+                <li>Material dropdown values are typical database values; use verified material data for real designs</li>
+                <li>Temperatures must not be below absolute zero</li>
+            </ul>
+        </section>
+    </div>
+    <div class="calculator-column">
+        <section class="content-card calculator-box">
+    <h2>Calculation</h2>
+    <h3>Units</h3>
+    <label class="input-label" for="lengthUnit">Length Units</label>
+    <select id="lengthUnit" class="output-select"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+    <label class="input-label" for="alphaUnit">Coefficient of Thermal Expansion Units</label>
+    <select id="alphaUnit" class="output-select"><option selected>10⁻⁶/°C</option><option>10⁻⁶/K</option><option>1/°C</option><option>1/K</option><option>10⁻⁶/°F</option></select>
+    <label class="input-label" for="temperatureUnit">Temperature Units</label>
+    <select id="temperatureUnit" class="output-select"><option selected>°C</option><option>°F</option><option>K</option></select>
+    <h3>Member A (required)</h3>
+    <div id="membersA" class="section-grid"></div>
+    <h3>Member B (optional, for differential movement)</h3>
+    <p><small>Leave Member B empty for a basic expansion of Member A only. Sections within a member are in series along one axis.</small></p>
+    <div id="membersB" class="section-grid"></div>
+    <hr>
+    <h3>Output</h3>
+    <label class="input-label" for="outputLengthUnit">Output Length Units</label>
+    <select id="outputLengthUnit" class="output-select"><option selected>mm</option><option>µm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+    <div class="button-row">
+        <button type="button" onclick="calculateDifferentialThermalExpansion()">Calculate</button>
+        <button type="button" class="secondary-button" onclick="resetDifferentialThermalExpansionCalculator()">Reset</button>
+    </div>
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+
+</section>
+    </div>
+</div>
+</section>
+<section class="content-card">
+<h2>Worked Example</h2>
+<div class="example-box">
+<p><strong>Given:</strong> member A is a 500 mm steel section (α = 12.0 × 10<sup>−6</sup> /°C) heated from 20 °C to 100 °C. Member B is a 300 mm aluminum section (α = 23.0 × 10<sup>−6</sup> /°C) heated from 20 °C to 100 °C in series with a 200 mm steel section (α = 12.0 × 10<sup>−6</sup> /°C) heated from 20 °C to 60 °C.</p>
+<p>
+\[ \Delta L_A = 12\times10^{-6}(500)(80) = 0.480\ \mathrm{mm} \]
+\[ \Delta L_{B} = 23\times10^{-6}(300)(80) + 12\times10^{-6}(200)(40) = 0.552 + 0.096 = 0.648\ \mathrm{mm} \]
+\[ \Delta_{diff} = 0.480 - 0.648 = -0.168\ \mathrm{mm} \]
+</p>
+<p>The negative differential means member B lengthens 0.168 mm more than member A, if both are free to expand.</p>
+</div>
+</section>
+<section class="content-card">
+<h2>Engineering Considerations</h2>
+<ul>
+<li>Always check whether the parts are really free to move. A restrained member produces thermal stress rather than free movement; see the Thermal Expansion calculator for fully restrained stress.</li>
+<li>Use realistic temperatures for each section: parts heat at different rates, so transient differential expansion can exceed steady-state values.</li>
+<li>Allow clearance or compliance for the differential movement computed, then verify with design standards and testing.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>References</h2>
+<ul>
+<li>Budynas, R. G., &amp; Nisbett, J. K. <em>Shigley's Mechanical Engineering Design</em>, thermal stresses and linear thermal expansion.</li>
+<li>Incropera, F. P., et al. <em>Fundamentals of Heat and Mass Transfer</em>, material property tables (coefficients of linear thermal expansion).</li>
+<li>Beer, F. P., et al. <em>Mechanics of Materials</em>, temperature effects (thermal strain, ΔL = αLΔT).</li>
+<li>Not derived from a workbook: no calculation workbook (including the Differential Thermal Expansion or valve pin sheets) was available in this repository.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>Related Calculators</h2>
+<ul>
+<li><a href="thermal-expansion.html">Thermal Expansion</a></li>
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+<li><a href="press-fit.html">Press Fit</a></li>
+</ul>
+</section>
+</div>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/differential-thermal-expansion.js"></script>
+</body>
+</html>
