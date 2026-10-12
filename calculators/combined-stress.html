@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate extreme-fiber normal stress in a rectangular member under combined axial load and bending.">
+    <title>Combined Axial and Bending Stress | Formula Foundry</title>
+    <meta property="og:site_name" content="Formula Foundry">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Combined Axial and Bending Stress | Formula Foundry">
+    <meta property="og:description" content="Calculate extreme-fiber normal stress in a rectangular member under combined axial load and bending.">
+    <meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#26282B">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<main class="container" id="main">
+    <a href="../index.html#catalog" class="back-link">← All calculators</a>
+    <header class="calculator-header">
+        <h1>Combined Axial and Bending Stress</h1>
+        <p>Find the normal stress at the top and bottom fibers of a rectangular member subject to signed axial force and bending moment.</p>
+    </header>
+    <section class="content-card calculator-box">
+        <div class="calculator-layout">
+            <div class="theory-column">
+                <section class="content-card formula-card">
+                    <h2>Engineering Theory</h2>
+                    <div class="formula-box">\[ \sigma_{\text{top,bottom}} = \frac{F}{A} \mp \frac{M c}{I}, \quad A=bh,\quad I=\frac{b h^3}{12},\quad c=\frac{h}{2} \]</div>
+                    <p>Linear superposition combines uniform axial normal stress with elastic flexural stress. Positive axial force is tension; positive moment puts the top fiber in compression.</p>
+                    <h3>Variable definitions</h3>
+                    <ul>
+                        <li><strong>F</strong> = signed axial force (tension positive)</li>
+                        <li><strong>M</strong> = signed moment about the section centroid</li>
+                        <li><strong>b, h</strong> = rectangular section width and bending depth</li>
+                        <li><strong>A, I, c</strong> = area, centroidal area moment of inertia, and extreme-fiber distance</li>
+                    </ul>
+                    <h3>Assumptions &amp; Limitations</h3>
+                    <ul>
+                        <li>Prismatic rectangular section with bending about its centroidal axis parallel to the width.</li>
+                        <li>Small deformation, linear-elastic material behavior, and superposition apply.</li>
+                        <li>Axial load passes through the centroid; stress concentrations, shear stress, instability, and local effects are excluded.</li>
+                        <li>Results are section stresses, not a strength, safety, or design-approval determination.</li>
+                    </ul>
+                </section>
+            </div>
+            <div class="calculator-column">
+                <section class="content-card calculator-box">
+                    <h2>Calculation</h2>
+                    <label class="input-label" for="axialForce">Axial force (tension positive)</label>
+                    <div class="input-row">
+                        <input id="axialForce" type="number" step="any">
+                        <select id="forceUnit" aria-label="Axial force unit">
+                            <option>N</option><option selected>kN</option><option>lbf</option>
+                        </select>
+                    </div>
+                    <label class="input-label" for="bendingMoment">Bending moment (sign per convention above)</label>
+                    <div class="input-row">
+                        <input id="bendingMoment" type="number" step="any">
+                        <select id="momentUnit" aria-label="Bending moment unit">
+                            <option>N·mm</option><option>N·m</option><option selected>kN·m</option><option>lbf·in</option><option>lbf·ft</option>
+                        </select>
+                    </div>
+                    <label class="input-label" for="sectionWidth">Section width, b</label>
+                    <div class="input-row">
+                        <input id="sectionWidth" type="number" min="0" step="any">
+                        <select id="lengthUnit" aria-label="Section dimension unit">
+                            <option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option>
+                        </select>
+                    </div>
+                    <label class="input-label" for="sectionHeight">Section height in bending direction, h</label>
+                    <div class="input-row">
+                        <input id="sectionHeight" type="number" min="0" step="any">
+                        <select id="heightUnit" aria-label="Section height unit">
+                            <option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option>
+                        </select>
+                    </div>
+                    <label class="input-label" for="stressUnit">Stress output unit</label>
+                    <select id="stressUnit" class="output-select">
+                        <option>Pa</option><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option>
+                    </select>
+                    <div class="button-row">
+                        <button type="button" onclick="calculateCombinedStress()">Calculate</button>
+                        <button type="button" class="secondary-button" onclick="resetCombinedStress()">Reset</button>
+                    </div>
+                    <div id="result" class="result-panel" role="status" aria-live="polite">Ready to calculate.</div>
+                </section>
+            </div>
+        </div>
+    </section>
+    <section class="content-card">
+        <h2>Worked Example</h2>
+        <p>For F = 20 kN, M = 2 kN·m, b = 100 mm, and h = 200 mm: A = 20,000 mm², I = 66.67 × 10⁶ mm⁴, F/A = 1 MPa, and Mc/I = 3 MPa. The top and bottom stresses are −2 MPa and +4 MPa, respectively.</p>
+    </section>
+    <section class="content-card">
+        <h2>References</h2>
+        <ul>
+            <li>Gere, J. M., and Goodno, B. J., <em>Mechanics of Materials</em>, combined axial and bending stress.</li>
+            <li>Hibbeler, R. C., <em>Mechanics of Materials</em>, normal stress due to combined loading.</li>
+        </ul>
+    </section>
+</main>
+<footer class="site-footer">
+    <p>&copy; Formula Foundry. Results are for general reference; verify critical designs independently.</p>
+</footer>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/combined-stress.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/report-builder.js"></script>
+</body>
+</html>

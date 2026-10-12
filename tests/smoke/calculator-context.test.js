@@ -21,7 +21,12 @@ describe('calculator context block', () => {
             const { document } = loadCalculatorPage('calculators/' + page, ['js/calculator-context.js']);
             const context = document.querySelector('.calculator-context');
             expect(context.querySelector('.context-equation').textContent, page).toContain('\\[');
-            expect(context.querySelectorAll('ul.context-inputs li').length, page).toBeGreaterThan(1);
+            const inputSummary = context.querySelector('.context-inputs');
+            expect(inputSummary, page).toBeTruthy();
+            const inputCount = inputSummary.matches('ul')
+                ? inputSummary.querySelectorAll('li').length
+                : inputSummary.textContent.split(',').filter(Boolean).length;
+            expect(inputCount, page).toBeGreaterThan(1);
         });
     });
 

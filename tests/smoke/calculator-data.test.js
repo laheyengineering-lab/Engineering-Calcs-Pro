@@ -19,7 +19,7 @@ describe('calculator metadata registry', () => {
         const { calculators, window } = loadHomepage();
         const ids = calculators.map((calculator) => calculator.id);
 
-        expect(calculators).toHaveLength(17);
+        expect(calculators).toHaveLength(20);
         expect(new Set(ids).size).toBe(ids.length);
         expect(window.validateCalculatorData(calculators)).toBe(true);
 
@@ -79,8 +79,8 @@ describe('calculator metadata registry', () => {
         const { document } = loadHomepage();
         const cards = [...document.querySelectorAll('.calculator-card')];
 
-        expect(cards).toHaveLength(17);
-        expect(cards.filter((card) => card.tagName === 'A')).toHaveLength(14);
+        expect(cards).toHaveLength(20);
+        expect(cards.filter((card) => card.tagName === 'A')).toHaveLength(17);
         expect(cards.filter((card) => card.tagName === 'DIV')).toHaveLength(3);
 
         const momentCard = cards.find((card) => card.querySelector('h3').textContent === 'Moment Calculator');
@@ -93,7 +93,10 @@ describe('calculator metadata registry', () => {
         ['perpendicular distance', 'moment'],
         ["Young's modulus", 'stress-strain'],
         ['spring rate', 'spring-calculations'],
-        ['thread stripping', 'thread-strength']
+        ['thread stripping', 'thread-strength'],
+        ['combined stress', 'combined-stress'],
+        ['pin bearing', 'pin-bearing-pressure'],
+        ['tolerance stack', 'tolerance-stack-up']
     ])('searches calculator metadata for "%s"', (searchTerm, expectedId) => {
         const { document, window } = loadHomepage();
 

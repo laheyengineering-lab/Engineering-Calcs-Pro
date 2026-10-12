@@ -33,12 +33,13 @@ Tests live under `tests/`.
 ## What is tested
 
 The suite currently covers:
-- calculator mathematics for all 14 active calculators
+- calculator mathematics for all 17 active calculators
 - shared unit conversions in `js/engineering-units.js`
 - centralized material data lookups and representative engineering constants
 - important invalid-input and divide-by-zero paths
 - regression-sensitive conversion behavior, including GPa/MPa scaling
 - shared material dropdown initialization for material-driven calculators
+- report capture, stale-result rejection, safe user-text rendering, and print stylesheet integration
 
 ## Run all tests
 

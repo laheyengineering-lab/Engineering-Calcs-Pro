@@ -70,6 +70,16 @@ const calculators = [
         keywords: ["bending", "bending stress", "moment", "section modulus", "flexural stress"]
     },
     {
+        id: "combined-stress",
+        name: "Combined Axial and Bending Stress",
+        shortDescription: "Find rectangular-section extreme-fiber stress under axial load and bending.",
+        description: "Calculate the signed top- and bottom-fiber normal stresses for a rectangular member under combined centroidal axial force and bending moment.",
+        category: "Mechanical",
+        path: "calculators/combined-stress.html",
+        related: ["beam-bending-stress", "stress-strain", "factor-of-safety"],
+        keywords: ["combined stress", "axial stress", "bending stress", "normal stress", "beam", "eccentric load"]
+    },
+    {
         id: "bearing-life",
         name: "Bearing Life Calculator",
         shortDescription: "Calculate basic L10 bearing life in revolutions and operating hours.",
@@ -78,6 +88,26 @@ const calculators = [
         path: "calculators/bearing-life.html",
         related: ["shaft-torsion", "factor-of-safety", "bolt-torque", "stress-strain"],
         keywords: ["bearing", "life", "rating", "L10", "rolling bearing", "service life"]
+    },
+    {
+        id: "pin-bearing-pressure",
+        name: "Pin Bearing Pressure Calculator",
+        shortDescription: "Estimate average projected bearing pressure at a pin-and-plate interface.",
+        description: "Calculate average bearing pressure from the load carried by one plate, pin diameter, and plate thickness using projected area.",
+        category: "Mechanical",
+        path: "calculators/pin-bearing-pressure.html",
+        related: ["thread-strength", "factor-of-safety", "bearing-life"],
+        keywords: ["pin bearing", "bearing pressure", "projected area", "joint", "fastener", "plate"]
+    },
+    {
+        id: "tolerance-stack-up",
+        name: "Tolerance Stack-Up Calculator",
+        shortDescription: "Combine dimensional tolerances using worst-case and RSS methods.",
+        description: "Calculate a worst-case tolerance band and an independent-contributor root-sum-square estimate for up to five dimensional tolerance inputs.",
+        category: "Mechanical",
+        path: "calculators/tolerance-stack-up.html",
+        related: ["press-fit", "stress-strain"],
+        keywords: ["tolerance stack", "stack-up", "worst case", "RSS", "root sum square", "dimensional tolerance", "assembly"]
     },
     {
         id: "factor-of-safety",

@@ -11,9 +11,12 @@ const calculatorPages = [
     ['calculators/column-buckling.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/column-buckling.js']],
     ['calculators/beam-bending-stress.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/beam-bending-stress.js']],
     ['calculators/bearing-life.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/bearing-life.js']],
+    ['calculators/combined-stress.html', ['js/engineering-units.js', 'js/combined-stress.js']],
     ['calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/factor-of-safety.js']],
     ['calculators/spring-calculations.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/spring-calculations.js']],
-    ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength.js']]
+    ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength.js']],
+    ['calculators/pin-bearing-pressure.html', ['js/engineering-units.js', 'js/pin-bearing-pressure.js']],
+    ['calculators/tolerance-stack-up.html', ['js/engineering-units.js', 'js/tolerance-stack-up.js']]
 ];
 
 describe('page smoke tests', () => {
@@ -24,9 +27,14 @@ describe('page smoke tests', () => {
     });
 
     it.each(calculatorPages)('loads %s without breaking script initialization', (pagePath, scripts) => {
-        const { document } = loadCalculatorPage(pagePath, scripts);
+        const { document } = loadCalculatorPage(pagePath, [
+            ...scripts,
+            'js/calculator-data.js',
+            'js/report-builder.js'
+        ]);
 
         expect(document.getElementById('result')).toBeTruthy();
+        expect(document.querySelector('.report-open-button')?.textContent).toBe('Generate Report');
         expect(document.title).toContain('Formula Foundry');
     });
 

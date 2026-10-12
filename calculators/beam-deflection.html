@@ -93,22 +93,22 @@
 
             <h3>Governing Equations</h3>
 
-            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+            <div class="formula-box" data-report-mode="ss-point" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 1: Simply Supported, Center Point Load</strong><br>
                 \[ \delta_{\max} = \frac{P L^3}{48 E I} \]
             </div>
 
-            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+            <div class="formula-box" data-report-mode="ss-udl" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 2: Simply Supported, Uniform Distributed Load</strong><br>
                 \[ \delta_{\max} = \frac{5 w L^4}{384 E I} \]
             </div>
 
-            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+            <div class="formula-box" data-report-mode="cant-point" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 3: Cantilever, Point Load at Free End</strong><br>
                 \[ \delta_{\max} = \frac{P L^3}{3 E I} \]
             </div>
 
-            <div class="formula-box" style="font-size: 16px; margin: 10px 0;">
+            <div class="formula-box" data-report-mode="cant-udl" style="font-size: 16px; margin: 10px 0;">
                 <strong>Case 4: Cantilever, Uniform Distributed Load</strong><br>
                 \[ \delta_{\max} = \frac{w L^4}{8 E I} \]
             </div>
@@ -652,6 +652,8 @@ This calculator does not account for lateral-torsional buckling, support settlem
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
 <script src="../js/beam-deflection.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/report-builder.js"></script>
 
 </body>
 
