@@ -481,6 +481,8 @@ a.calculator-card:hover h3 {
     padding: var(--space-5);
     margin-bottom: var(--space-5);
     box-shadow: var(--shadow-sm);
+    min-width: 0;
+    max-width: 100%;
 }
 
 .content-card h2 {
@@ -516,19 +518,24 @@ a.calculator-card:hover h3 {
     font-size: 1.5rem;
     font-weight: 600;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .formula-box .katex-display {
     margin: 0;
 }
 
-.content-card .katex-display {
+.katex-display {
+    max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
 }
 
-.content-card .katex {
+.katex {
     max-width: 100%;
 }
 
@@ -763,6 +770,8 @@ button:disabled {
     border-radius: var(--radius-sm);
     padding: var(--space-3) var(--space-4);
     margin: var(--space-3) 0;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .notice {
@@ -801,15 +810,21 @@ button:disabled {
     padding: var(--space-4);
     border-radius: var(--radius-md);
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .content-card li {
     margin-bottom: var(--space-2);
 }
 
-.content-card table {
+.content-card table,
+table {
     display: block;
+    max-width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -834,9 +849,10 @@ footer,
 
 .calculator-layout {
     display: grid;
-    grid-template-columns: 0.8fr 1.2fr;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
     gap: var(--space-5);
     align-items: start;
+    min-width: 0;
 }
 
 .theory-column,
@@ -849,18 +865,28 @@ footer,
 }
 
 .theory-column p,
-.theory-column li {
+.theory-column li,
+.content-card p,
+.content-card li {
     max-width: 70ch;
+}
+
+.result-panel p,
+.result-panel li {
+    max-width: none;
 }
 
 /* Guard against overflow from long words, URLs and wide content */
 .content-card {
     overflow-wrap: anywhere;
     min-width: 0;
+    max-width: 100%;
 }
 
 .content-card .formula-box {
     overflow-x: auto;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .content-card img,
@@ -897,16 +923,20 @@ footer,
        Source order is theory -> calculation, so reorder visually only.
        DOM order (and screen-reader order) is unchanged. */
     .calculator-layout {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 0;
     }
 
     .calculator-column {
         order: -1;
     }
 
-    .calculator-layout {
-        display: flex;
-        flex-direction: column;
+    .theory-column,
+    .calculator-column {
+        width: 100%;
+        min-width: 0;
     }
 
     /* Compact context between the header and the inputs */
