@@ -38,3 +38,13 @@ function populateMaterialSelect(selectElement, options = {}) {
         selectElement.appendChild(option);
     });
 }
+
+// Reads a numeric input; a blank field is NaN (not 0) so missing values can be rejected.
+function readNumberInput(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        return NaN;
+    }
+    const raw = String(element.value).trim();
+    return raw === "" ? NaN : Number(raw);
+}

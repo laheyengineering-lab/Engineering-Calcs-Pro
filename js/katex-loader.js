@@ -49,6 +49,8 @@
     });
 }
 
+    window.FormulaFoundryRenderMath = renderAllMath;
+
     function loadFromBase(baseUrl) {
         appendStylesheet(`${baseUrl}/katex.min.css`);
         return loadScript(`${baseUrl}/katex.min.js`)

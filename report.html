@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Report | Formula Foundry</title>
+<meta name="description" content="Assemble several engineering calculations into one consolidated, print-ready Formula Foundry project report.">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/report.css">
+<link rel="icon" type="image/svg+xml" href="assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/brand/icons/formula-foundry-favicon-64.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="index.html">Home</a>
+            <a href="index.html#catalog">Calculators</a>
+            <a href="about.html">About</a>
+            <a href="references.html">References</a>
+            <a href="methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+    <header class="calculator-header report-screen">
+        <h1>Project Report</h1>
+        <p>Collect calculation results from any calculator into one project and print them as a single document. Each entry is a snapshot taken when it was added; it does not change if you later edit the calculator inputs. Data is stored only in this browser.</p>
+    </header>
+
+    <section class="content-card report-screen" id="reportControls">
+        <h2>Project Information</h2>
+        <p><small>All fields are optional. Nothing is sent anywhere; the project is saved in this browser's local storage.</small></p>
+        <div class="report-meta-grid" id="metaFields"></div>
+        <div class="button-row">
+            <button type="button" id="printReport">Print / Save as PDF</button>
+            <button type="button" class="secondary-button" id="clearReport">Clear Project</button>
+        </div>
+        <p><small>Printing opens the browser's print dialog; choose "Save as PDF" as the destination to create a PDF file.</small></p>
+        <p class="report-status" id="reportStatus" role="status"></p>
+    </section>
+
+    <div id="reportDocument" class="report-document"></div>
+</div>
+<script src="js/katex-loader.js"></script>
+<script src="js/report-builder.js"></script>
+<script src="js/report-page.js"></script>
+</body>
+</html>

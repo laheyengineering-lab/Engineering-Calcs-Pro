@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydraulic/Pneumatic Cylinder Force Calculator | Formula Foundry</title>
+<meta name="description" content="Calculate theoretical extension and retraction force, piston, rod and annular areas for a double-acting single-rod hydraulic or pneumatic cylinder.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hydraulic/Pneumatic Cylinder Force Calculator | Formula Foundry">
+<meta property="og:description" content="Calculate theoretical extension and retraction force, piston, rod and annular areas for a double-acting single-rod hydraulic or pneumatic cylinder.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+<a href="../index.html#catalog" class="back-link">← All calculators</a>
+<header class="calculator-header">
+    <h1>Hydraulic/Pneumatic Cylinder Force Calculator</h1>
+    <p>
+        Calculate theoretical extension and retraction force for a pressurized single-rod cylinder from bore diameter, rod diameter and working pressure. An efficiency estimate is optional and never applied unless you enter it.
+    </p>
+</header>
+<section class="content-card calculator-box">
+    <div class="calculator-layout">
+    <div class="theory-column">
+        <section class="content-card formula-card">
+            <h2>Engineering Theory</h2>
+            <h3>Engineering Context</h3>
+            <p>
+                A double-acting single-rod cylinder converts fluid pressure into linear force. When extending, pressure acts on the full piston area. When retracting, pressure acts only on the annular area because the rod occupies part of the piston face.
+            </p>
+            <p>
+                The result is a <strong>theoretical static force</strong>. Real delivered force is lower because of seal friction, pressure drop, back pressure and dynamic effects.
+            </p>
+            <h3>Governing Equations</h3>
+            <div class="formula-box">
+                \[ A_p = \frac{\pi D^2}{4} \qquad A_r = \frac{\pi d^2}{4} \qquad A_a = A_p - A_r \]
+            </div>
+            <div class="formula-box">
+                \[ F_{ext} = p\,A_p \qquad F_{ret} = p\,A_a = p\,\frac{\pi\left(D^2-d^2\right)}{4} \]
+            </div>
+            <div class="formula-box">
+                \[ F_{usable} = \eta\,F_{theoretical} \quad \text{(only if } \eta \text{ is supplied)} \]
+            </div>
+            <h3>Variable Definitions</h3>
+            <ul>
+                <li><strong>\(D\)</strong> = bore (piston) diameter</li>
+                <li><strong>\(d\)</strong> = rod diameter</li>
+                <li><strong>\(p\)</strong> = working (gauge) pressure on the pressurized side</li>
+                <li><strong>\(A_p\)</strong> = full piston area</li>
+                <li><strong>\(A_r\)</strong> = rod cross-sectional area</li>
+                <li><strong>\(A_a\)</strong> = effective annular (rod-side) area</li>
+                <li><strong>\(F_{ext}, F_{ret}\)</strong> = theoretical extension / retraction force</li>
+                <li><strong>\(\eta\)</strong> = user-supplied efficiency estimate (fraction)</li>
+            </ul>
+            <h3>Assumptions &amp; Limitations</h3>
+            <ul>
+                <li>Net gauge pressure on the working side with zero pressure on the opposite side; back pressure reduces force and is not modeled</li>
+                <li>Static theoretical force only; no friction, pressure drop, acceleration or side load</li>
+                <li>Rod diameter must be smaller than the bore; a rod diameter of zero gives equal extension and retraction force</li>
+                <li>Efficiency, when entered, is an assumption; actual performance depends on the cylinder, seals, pressure losses, friction and system conditions</li>
+                <li>No flow-rate, speed or cycle-time prediction is included</li>
+                <li>Rod buckling, pressure rating, seal limits and mounting are not checked</li>
+            </ul>
+        </section>
+    </div>
+    <div class="calculator-column">
+        <section class="content-card calculator-box">
+    <h2>Calculation</h2>
+    <h3>Geometry</h3>
+    <label class="input-label" for="distanceUnit">Distance Units (bore &amp; rod)</label>
+    <select id="distanceUnit" class="output-select"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
+    <label class="input-label" for="boreDiameter">Bore Diameter (D)</label>
+    <div class="input-row">
+        <input id="boreDiameter" type="number" step="any" placeholder="Enter bore diameter">
+    </div>
+    <label class="input-label" for="rodDiameter">Rod Diameter (d, 0 = no rod)</label>
+    <div class="input-row">
+        <input id="rodDiameter" type="number" step="any" placeholder="Enter rod diameter">
+    </div>
+    <h3>Pressure</h3>
+    <label class="input-label" for="workingPressure">Working Pressure (p, gauge)</label>
+    <div class="input-row">
+        <input id="workingPressure" type="number" step="any" placeholder="Enter working pressure">
+        <select id="pressureUnit"><option selected>bar</option><option>MPa</option><option>kPa</option><option>psi</option><option>Pa</option></select>
+    </div>
+    <h3>Optional Efficiency Assumption</h3>
+    <label class="input-label" for="efficiency">Estimated efficiency η (%) — leave blank for theoretical force only</label>
+    <div class="input-row">
+        <input id="efficiency" type="number" step="any" placeholder="e.g. 90 (optional)">
+    </div>
+    <p><small>Efficiency is a user-supplied estimate. It is not applied unless you enter a value.</small></p>
+    <hr>
+    <h3>Output</h3>
+    <label class="input-label" for="forceUnit">Force Units</label>
+    <select id="forceUnit" class="output-select"><option>N</option><option selected>kN</option><option>lbf</option></select>
+    <label class="input-label" for="areaUnit">Area Units</label>
+    <select id="areaUnit" class="output-select"><option>mm²</option><option selected>cm²</option><option>m²</option><option>in²</option></select>
+    <div class="button-row">
+        <button type="button" onclick="calculateCylinderForce()">Calculate</button>
+        <button type="button" class="secondary-button" onclick="resetCylinderForceCalculator()">Reset</button>
+    </div>
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+
+</section>
+    </div>
+</div>
+</section>
+<section class="content-card">
+<h2>Worked Example</h2>
+<div class="example-box">
+<p><strong>Given:</strong> bore D = 100 mm, rod d = 50 mm, p = 10 MPa (100 bar).</p>
+<p>
+\[ A_p = \frac{\pi (100)^2}{4} = 7853.98\ \mathrm{mm^2} \quad A_r = \frac{\pi (50)^2}{4} = 1963.50\ \mathrm{mm^2} \quad A_a = 5890.49\ \mathrm{mm^2} \]
+</p>
+<p>
+\[ F_{ext} = 10\ \mathrm{N/mm^2} \times 7853.98\ \mathrm{mm^2} = 78.54\ \mathrm{kN} \qquad F_{ret} = 10 \times 5890.49 = 58.90\ \mathrm{kN} \]
+</p>
+<p>With an assumed efficiency of 90 %, the estimated usable forces would be 70.69 kN (extension) and 53.01 kN (retraction).</p>
+</div>
+</section>
+<section class="content-card">
+<h2>Engineering Considerations</h2>
+<ul>
+<li>Retraction force is always lower than extension force when a rod is present, because the rod displaces part of the piston area.</li>
+<li>Check rod buckling for long strokes and compressive loads, and check the pressure rating of the cylinder and fittings.</li>
+<li>Peak dynamic loads and pressure spikes can exceed the working pressure used here.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>References</h2>
+<ul>
+<li>Esposito, A. <em>Fluid Power with Applications</em>, Pearson (cylinder force and area relationships).</li>
+<li>Parker Hannifin, <em>Cylinder Engineering Data</em>, manufacturer technical catalogs (force and area formulae for single-rod cylinders).</li>
+<li>Budynas, R. G., &amp; Nisbett, J. K. <em>Shigley's Mechanical Engineering Design</em> (force = pressure × area).</li>
+<li>Not derived from a workbook: no calculation workbook was available in this repository.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>Related Calculators</h2>
+<ul>
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+<li><a href="column-buckling.html">Column Buckling</a></li>
+<li><a href="thick-walled-cylinder.html">Thick-Walled Cylinder Stress</a></li>
+</ul>
+</section>
+</div>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/cylinder-force.js"></script>
+</body>
+</html>

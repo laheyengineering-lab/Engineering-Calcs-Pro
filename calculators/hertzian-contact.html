@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hertzian Contact Stress Calculator | Formula Foundry</title>
+<meta name="description" content="Estimate Hertzian contact width or radius and maximum contact pressure for two cylinders in line contact or two spheres in point contact.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hertzian Contact Stress Calculator | Formula Foundry">
+<meta property="og:description" content="Estimate Hertzian contact width or radius and maximum contact pressure for two cylinders in line contact or two spheres in point contact.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+<a href="../index.html#catalog" class="back-link">← All calculators</a>
+<header class="calculator-header">
+    <h1>Hertzian Contact Stress Calculator</h1>
+    <p>
+        Estimate the contact width or radius and the maximum contact pressure for idealized elastic contact between two cylinders (line contact) or two spheres (point contact).
+    </p>
+</header>
+<section class="content-card calculator-box">
+    <div class="calculator-layout">
+    <div class="theory-column">
+        <section class="content-card formula-card">
+            <h2>Engineering Theory</h2>
+            <h3>Engineering Context</h3>
+            <p>
+                Hertz theory gives the elastic contact area and pressure distribution between curved bodies pressed together. Two cases are supported, and they use <strong>different equations</strong>: two parallel cylinders contact along a narrow strip (line contact, plane strain), while two spheres contact over a small circle (point contact).
+            </p>
+            <p>
+                The equivalent radius combines the body curvatures: \(1/R = 1/R_1 + 1/R_2\) for two convex bodies, \(1/R = 1/R_1\) for a body on a flat plate, and \(1/R = 1/R_1 - 1/R_2\) for a body inside a larger concave body.
+            </p>
+            <h3>Governing Equations</h3>
+            <div class="formula-box">
+                \[ \frac{1}{E^*} = \frac{1-\nu_1^2}{E_1} + \frac{1-\nu_2^2}{E_2} \qquad \frac{1}{R} = \frac{1}{R_1} \pm \frac{1}{R_2} \]
+            </div>
+            <div class="formula-box">
+                \[ \text{Cylinders:}\quad w = \frac{F}{L} \qquad b = \sqrt{\frac{4\,w\,R}{\pi E^*}} \qquad p_{max} = \frac{2w}{\pi b} \]
+            </div>
+            <div class="formula-box">
+                \[ \text{Spheres:}\quad a = \left(\frac{3 F R}{4 E^*}\right)^{1/3} \qquad p_{max} = \frac{3F}{2\pi a^2} \qquad \delta = \frac{a^2}{R} \]
+            </div>
+            <h3>Variable Definitions</h3>
+            <ul>
+                <li><strong>\(E_1, E_2\)</strong>, <strong>\(\nu_1, \nu_2\)</strong> = Young's modulus and Poisson's ratio of each body</li>
+                <li><strong>\(E^*\)</strong> = effective (contact) modulus</li>
+                <li><strong>\(R_1, R_2\)</strong> = body radii (half the entered diameters); <strong>\(R\)</strong> = equivalent radius</li>
+                <li><strong>\(F\)</strong> = total normal contact force; <strong>\(L\)</strong> = contact length; <strong>\(w\)</strong> = force per unit length</li>
+                <li><strong>\(b\)</strong> = contact half-width (cylinders), contact width = \(2b\)</li>
+                <li><strong>\(a\)</strong> = contact radius (spheres); <strong>\(\delta\)</strong> = approach of the body centres</li>
+                <li><strong>\(p_{max}\)</strong> = maximum contact pressure at the centre of the contact. The mean pressure is \(\pi p_{max}/4\) (cylinders) or \(2p_{max}/3\) (spheres)</li>
+            </ul>
+            <h3>Assumptions &amp; Limitations</h3>
+            <ul>
+                <li>Linear elastic, isotropic, homogeneous bodies with contact dimensions much smaller than the body radii</li>
+                <li>Frictionless surfaces, normal load only, static loading, smooth surfaces</li>
+                <li>Cylinders: parallel axes, uniform load along L, length much larger than the contact width, no edge or crowning effects</li>
+                <li>Spheres: point contact; a flat plate is treated as a sphere of infinite radius</li>
+                <li>Approximate maximum shear stress (about 0.30 p<sub>max</sub> at 0.786 b for cylinders, 0.31 p<sub>max</sub> at 0.48 a for spheres) uses the ν ≈ 0.3 coefficients of the references</li>
+                <li>Maximum contact pressure is <strong>not</strong> a complete fatigue, wear, yielding or service-life assessment</li>
+            </ul>
+        </section>
+    </div>
+    <div class="calculator-column">
+        <section class="content-card calculator-box">
+    <h2>Calculation</h2>
+    <h3>Configuration</h3>
+    <label class="input-label" for="configuration">Contact Type</label>
+    <select id="configuration" class="output-select" onchange="updateHertzConfiguration()">
+        <option value="cylinders" selected>Two cylinders (line contact)</option>
+        <option value="spheres">Two spheres (point contact)</option>
+    </select>
+    <label class="input-label" for="shape2">Body 2 Shape</label>
+    <select id="shape2" class="output-select" onchange="updateHertzShape()">
+        <option value="convex" selected>Convex (external contact)</option>
+        <option value="flat">Flat plate</option>
+        <option value="concave">Concave (internal contact, larger diameter)</option>
+    </select>
+    <h3>Geometry</h3>
+    <label class="input-label" for="distanceUnit">Distance Units</label>
+    <select id="distanceUnit" class="output-select"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option><option>µm</option></select>
+    <p><small id="diameterNote"></small></p>
+    <label class="input-label" for="diameter1">Body 1 Diameter (D<sub>1</sub>)</label>
+    <div class="input-row">
+        <input id="diameter1" type="number" step="any" placeholder="Enter diameter">
+    </div>
+    <div id="diameter2Group">
+    <label class="input-label" for="diameter2">Body 2 Diameter (D<sub>2</sub>)</label>
+    <div class="input-row">
+        <input id="diameter2" type="number" step="any" placeholder="Enter diameter">
+    </div>
+    </div>
+    <div id="lengthGroup">
+    <label class="input-label" for="contactLength">Contact Length (L, cylinders only)</label>
+    <div class="input-row">
+        <input id="contactLength" type="number" step="any" placeholder="Enter contact length">
+    </div>
+    </div>
+    <h3>Load</h3>
+    <label class="input-label" for="contactForce">Contact Force (F)</label>
+    <div class="input-row">
+        <input id="contactForce" type="number" step="any" placeholder="Enter force">
+        <select id="forceUnit"><option selected>N</option><option>kN</option><option>lbf</option></select>
+    </div>
+    <h3>Materials</h3>
+    <label class="input-label" for="material1">Body 1 Material</label>
+    <select id="material1" class="output-select" onchange="applyHertzMaterial(1)"></select>
+    <label class="input-label" for="modulus1">Body 1 Young's Modulus (E<sub>1</sub>)</label>
+    <div class="input-row">
+        <input id="modulus1" type="number" step="any" placeholder="Enter modulus">
+        <select id="modulusUnit1"><option selected>GPa</option><option>MPa</option><option>psi</option><option>ksi</option><option>Pa</option></select>
+    </div>
+    <label class="input-label" for="poisson1">Body 1 Poisson's Ratio (ν<sub>1</sub>)</label>
+    <div class="input-row">
+        <input id="poisson1" type="number" step="any" placeholder="e.g. 0.30">
+    </div>
+    <label class="input-label" for="material2">Body 2 Material</label>
+    <select id="material2" class="output-select" onchange="applyHertzMaterial(2)"></select>
+    <label class="input-label" for="modulus2">Body 2 Young's Modulus (E<sub>2</sub>)</label>
+    <div class="input-row">
+        <input id="modulus2" type="number" step="any" placeholder="Enter modulus">
+        <select id="modulusUnit2"><option selected>GPa</option><option>MPa</option><option>psi</option><option>ksi</option><option>Pa</option></select>
+    </div>
+    <label class="input-label" for="poisson2">Body 2 Poisson's Ratio (ν<sub>2</sub>)</label>
+    <div class="input-row">
+        <input id="poisson2" type="number" step="any" placeholder="e.g. 0.30">
+    </div>
+    <hr>
+    <h3>Output</h3>
+    <label class="input-label" for="stressUnit">Pressure / Stress Units</label>
+    <select id="stressUnit" class="output-select"><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option><option>Pa</option></select>
+    <label class="input-label" for="contactUnit">Contact Dimension Units</label>
+    <select id="contactUnit" class="output-select"><option selected>mm</option><option>µm</option><option>in</option><option>cm</option><option>m</option></select>
+    <div class="button-row">
+        <button type="button" onclick="calculateHertzContact()">Calculate</button>
+        <button type="button" class="secondary-button" onclick="resetHertzCalculator()">Reset</button>
+    </div>
+    <div id="result" class="result-panel">
+        Ready to calculate.
+    </div>
+    <div class="plot-box">
+        <svg viewBox="0 0 320 190" role="img" aria-label="Schematic of two bodies in contact under force F">
+            <title>Two bodies in contact</title>
+            <circle cx="160" cy="62" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2"/>
+            <circle cx="160" cy="168" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2" transform="translate(0 0)"/>
+            <line x1="160" y1="2" x2="160" y2="22" stroke="#c05621" stroke-width="3"/>
+            <text x="168" y="16" font-size="13" fill="#c05621">F</text>
+            <text x="160" y="66" font-size="13" text-anchor="middle" fill="#26282b">R₁</text>
+            <text x="160" y="172" font-size="13" text-anchor="middle" fill="#26282b">R₂</text>
+            <text x="228" y="118" font-size="12" fill="#26282b">contact</text>
+        </svg>
+        <p><small>Schematic only (not to scale). Cylinders: view along the axes, with length L into the page. Spheres: side view.</small></p>
+    </div>
+</section>
+    </div>
+</div>
+</section>
+<section class="content-card">
+<h2>Worked Example</h2>
+<div class="example-box">
+<p><strong>Two spheres:</strong> D<sub>1</sub> = D<sub>2</sub> = 50 mm (equivalent R = 12.5 mm), F = 1000 N, both steel with E = 200 GPa and ν = 0.30.</p>
+<p>
+\[ E^* = \frac{1}{2(1-0.3^2)/200\ \mathrm{GPa}} = 109.89\ \mathrm{GPa} \qquad a = \left(\frac{3(1000)(0.0125)}{4(109.89\times10^9)}\right)^{1/3} = 0.4402\ \mathrm{mm} \]
+</p>
+<p>
+\[ p_{max} = \frac{3(1000)}{2\pi (0.4402\times10^{-3})^2} = 2464\ \mathrm{MPa} \qquad \delta = \frac{a^2}{R} = 0.0155\ \mathrm{mm} \]
+</p>
+<p><strong>Two cylinders:</strong> D<sub>1</sub> = D<sub>2</sub> = 100 mm (equivalent R = 25 mm), L = 40 mm, F = 20 kN, steel/steel (E = 200 GPa, ν = 0.30): w = 500 N/mm, b = 0.3806 mm, p<sub>max</sub> = 836.4 MPa.</p>
+</div>
+</section>
+<section class="content-card">
+<h2>Engineering Considerations</h2>
+<ul>
+<li>Contact stresses are highly local and fall off quickly with depth; subsurface shear is often what governs rolling-contact fatigue.</li>
+<li>A result near or above the material's yield or hardness-based limits means the elastic assumptions no longer hold.</li>
+<li>Real parts have finite length, crowning, roughness, lubrication and misalignment that change the pressure distribution.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>References</h2>
+<ul>
+<li>Johnson, K. L. <em>Contact Mechanics</em>, Cambridge University Press, 1985, Chapter 4 (Hertz theory).</li>
+<li>Budynas, R. G., &amp; Nisbett, J. K. <em>Shigley's Mechanical Engineering Design</em>, section on contact stresses (spherical and cylindrical contact).</li>
+<li>Young, W. C., Budynas, R. G., &amp; Sadegh, A. M. <em>Roark's Formulas for Stress and Strain</em>, contact stress tables.</li>
+<li>Not derived from a workbook: no calculation workbook was available in this repository.</li>
+</ul>
+</section>
+<section class="content-card">
+<h2>Related Calculators</h2>
+<ul>
+<li><a href="press-fit.html">Press Fit</a></li>
+<li><a href="bearing-life.html">Bearing Life</a></li>
+<li><a href="stress-strain.html">Stress &amp; Strain</a></li>
+<li><a href="factor-of-safety.html">Factor of Safety</a></li>
+</ul>
+</section>
+</div>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/hertzian-contact.js"></script>
+</body>
+</html>
