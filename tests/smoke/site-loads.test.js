@@ -24,9 +24,14 @@ describe('page smoke tests', () => {
     });
 
     it.each(calculatorPages)('loads %s without breaking script initialization', (pagePath, scripts) => {
-        const { document } = loadCalculatorPage(pagePath, scripts);
+        const { document } = loadCalculatorPage(pagePath, [
+            ...scripts,
+            'js/calculator-data.js',
+            'js/report-builder.js'
+        ]);
 
         expect(document.getElementById('result')).toBeTruthy();
+        expect(document.querySelector('.report-open-button')?.textContent).toBe('Generate Report');
         expect(document.title).toContain('Formula Foundry');
     });
 
