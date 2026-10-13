@@ -54,24 +54,20 @@
     <h2>Engineering Theory</h2>
 
     <h3>Governing Equations</h3>
-    <div class="formula-box">\[ \sigma = \frac{M c}{I} \]</div>
+    <div class="formula-box" id="profileEquation">\[ \sigma = \frac{M c}{I} \]</div>
 
-    <p>This calculator evaluates elastic bending stress. It does <strong>not</strong> calculate beam deflection.</p>
+    <p>This calculator derives the cross-section properties and evaluates elastic bending stress for a supplied moment. It does <strong>not</strong> solve beam loads, reactions or deflection.</p>
 
     <h3>Variable Definitions</h3>
     <ul>
         <li><strong>\(\sigma\)</strong> = bending normal stress</li>
         <li><strong>\(M\)</strong> = internal bending moment</li>
         <li><strong>\(c\)</strong> = distance from neutral axis to extreme fiber</li>
-        <li><strong>\(I\)</strong> = second moment of area about the neutral axis</li>
+        <li><strong>\(I_x, I_y\)</strong> = second moments of area about the horizontal and vertical centroidal axes</li>
     </ul>
 
-    <h3>Section Relationships</h3>
-    <ul>
-        <li><strong>Rectangular:</strong> \(I = \frac{b h^3}{12}\), \(c = \frac{h}{2}\)</li>
-        <li><strong>Solid Circular:</strong> \(I = \frac{\pi d^4}{64}\), \(c = \frac{d}{2}\)</li>
-        <li><strong>Hollow Circular:</strong> \(I = \frac{\pi(D^4 - d^4)}{64}\), \(c = \frac{D}{2}\)</li>
-    </ul>
+    <p>The second moment of area describes how area is distributed about an axis; unlike area, it has units of length to the fourth power. In a rectangle, the dimension perpendicular to the selected axis is cubed because material farther from the neutral axis contributes disproportionately. The section modulus \(S=I/c\) combines the selected inertia with the extreme-fiber distance and is not itself an inertia.</p>
+    <p>The x-axis is horizontal across the section and the y-axis is vertical. Bending about x uses \(I_x\) and the vertical extreme-fiber distance; bending about y uses \(I_y\) and the horizontal distance.</p>
 
     <div class="engineering-diagram">
         <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
@@ -113,76 +109,78 @@
 <section class="content-card calculator-box">
     <h2>Calculation</h2>
 
-    <h3>Cross-Section Type</h3>
+    <label class="input-label" for="sectionType">Cross-section profile</label>
     <select id="sectionType" class="output-select" onchange="updateBeamBendingStressMode()">
-        <option value="rectangular">Rectangular</option>
-        <option value="solid-circular">Solid Circular</option>
-        <option value="hollow-circular">Hollow Circular</option>
+        <option value="rectangular">Solid rectangle / square</option>
+        <option value="solid-circular">Solid circle</option>
+        <option value="hollow-circular">Hollow circle / tube</option>
+        <option value="hollow-rectangular">Hollow rectangle / tube</option>
+        <option value="i-beam">Symmetric I-beam</option>
+        <option value="t-section">T-section</option>
     </select>
 
-    <h3>Inputs</h3>
-
-    <label class="input-label">Bending Moment (M)</label>
-    <div class="input-row">
-        <input id="moment" type="number" placeholder="Enter bending moment">
-        <select id="momentUnit">
-            <option>N·mm</option><option selected>N·m</option><option>kN·m</option><option>lbf·in</option><option>lbf·ft</option>
-        </select>
+    <h3>Cross-section dimensions</h3>
+    <div id="rectSectionInputs" class="profile-inputs">
+        <label class="input-label" for="rectWidth">Width (b)</label>
+        <div class="input-row"><input id="rectWidth" type="number" step="any" min="0" placeholder="Width"><select id="rectWidthUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+        <label class="input-label" for="rectHeight">Height (h)</label>
+        <div class="input-row"><input id="rectHeight" type="number" step="any" min="0" placeholder="Height"><select id="rectHeightUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <div id="solidCircularInputs" class="profile-inputs" hidden>
+        <label class="input-label" for="diameter">Diameter (d)</label>
+        <div class="input-row"><input id="diameter" type="number" step="any" min="0" placeholder="Diameter"><select id="diameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <div id="hollowCircularInputs" class="profile-inputs" hidden>
+        <label class="input-label" for="outerDiameter">Outer diameter (D)</label>
+        <div class="input-row"><input id="outerDiameter" type="number" step="any" min="0" placeholder="Outer diameter"><select id="outerDiameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+        <label class="input-label" for="innerDiameter">Inner diameter (d)</label>
+        <div class="input-row"><input id="innerDiameter" type="number" step="any" min="0" placeholder="Inner diameter"><select id="innerDiameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <div id="hollowRectInputs" class="profile-inputs" hidden>
+        <label class="input-label" for="outerWidth">Outer width (B)</label>
+        <div class="input-row"><input id="outerWidth" type="number" step="any" min="0" placeholder="Outer width"><select id="outerWidthUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+        <label class="input-label" for="outerHeight">Outer height (H)</label>
+        <div class="input-row"><input id="outerHeight" type="number" step="any" min="0" placeholder="Outer height"><select id="outerHeightUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+        <label class="input-label" for="wallThickness">Wall thickness (t)</label>
+        <div class="input-row"><input id="wallThickness" type="number" step="any" min="0" placeholder="Wall thickness"><select id="wallThicknessUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <div id="compositeSectionInputs" class="profile-inputs" hidden>
+        <label class="input-label" for="overallHeight">Overall height (H)</label>
+        <div class="input-row"><input id="overallHeight" type="number" step="any" min="0" placeholder="Overall height"><select id="overallHeightUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+        <label class="input-label" for="flangeWidth">Flange width (B)</label>
+        <div class="input-row"><input id="flangeWidth" type="number" step="any" min="0" placeholder="Flange width"><select id="flangeWidthUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+        <label class="input-label" for="flangeThickness">Flange thickness (t<sub>f</sub>)</label>
+        <div class="input-row"><input id="flangeThickness" type="number" step="any" min="0" placeholder="Flange thickness"><select id="flangeThicknessUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+        <label class="input-label" for="webThickness">Web thickness (t<sub>w</sub>)</label>
+        <div class="input-row"><input id="webThickness" type="number" step="any" min="0" placeholder="Web thickness"><select id="webThicknessUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
     </div>
 
-    <div id="rectSectionInputs">
-        <label class="input-label">Width (b)</label>
-        <div class="input-row">
-            <input id="rectWidth" type="number" placeholder="Enter width">
-            <select id="rectWidthUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
-        </div>
+    <figure class="beam-profile-diagram" aria-live="polite">
+        <div id="profileDiagram" role="img" aria-label="Selected beam cross-section schematic"></div>
+        <figcaption id="profileDiagramCaption">Select a profile and enter dimensions to update the schematic.</figcaption>
+    </figure>
 
-        <label class="input-label">Height (h)</label>
-        <div class="input-row">
-            <input id="rectHeight" type="number" placeholder="Enter height">
-            <select id="rectHeightUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
-        </div>
-    </div>
-
-    <div id="solidCircularInputs" style="display:none;">
-        <label class="input-label">Diameter (d)</label>
-        <div class="input-row">
-            <input id="diameter" type="number" placeholder="Enter diameter">
-            <select id="diameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
-        </div>
-    </div>
-
-    <div id="hollowCircularInputs" style="display:none;">
-        <label class="input-label">Outer Diameter (D)</label>
-        <div class="input-row">
-            <input id="outerDiameter" type="number" placeholder="Enter outer diameter">
-            <select id="outerDiameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
-        </div>
-
-        <label class="input-label">Inner Diameter (d)</label>
-        <div class="input-row">
-            <input id="innerDiameter" type="number" placeholder="Enter inner diameter">
-            <select id="innerDiameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select>
-        </div>
-    </div>
-
-    <hr>
-
-    <h3>Output</h3>
-
-    <label class="input-label">Stress Units</label>
-    <select id="stressUnit" class="output-select">
-        <option>Pa</option><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option>
+    <h3>Bending moment</h3>
+    <label class="input-label" for="moment">Bending moment (M)</label>
+    <div class="input-row"><input id="moment" type="number" step="any" placeholder="Enter bending moment"><select id="momentUnit"><option>N·mm</option><option selected>N·m</option><option>kN·m</option><option>lbf·in</option><option>lbf·ft</option></select></div>
+    <label class="input-label" for="bendingAxis">Bending about centroidal axis</label>
+    <select id="bendingAxis" class="output-select">
+        <option value="x">Horizontal x-axis (Iₓ)</option>
+        <option value="y">Vertical y-axis (Iᵧ)</option>
     </select>
+    <p><small>Moment about x uses \(I_x\) and the extreme vertical distance; moment about y uses \(I_y\) and the extreme horizontal distance.</small></p>
 
-    <label class="input-label">Inertia Units</label>
-    <select id="inertiaUnit" class="output-select">
-        <option selected>mm⁴</option><option>cm⁴</option><option>m⁴</option><option>in⁴</option>
-    </select>
+    <h3>Output units</h3>
+    <label class="input-label" for="stressUnit">Stress units</label>
+    <select id="stressUnit" class="output-select"><option>Pa</option><option selected>MPa</option><option>GPa</option><option>psi</option><option>ksi</option></select>
+    <label class="input-label" for="areaUnit">Area units</label>
+    <select id="areaUnit" class="output-select"><option selected>mm²</option><option>cm²</option><option>m²</option><option>in²</option></select>
+    <label class="input-label" for="inertiaUnit">Second moment of area units</label>
+    <select id="inertiaUnit" class="output-select"><option selected>mm⁴</option><option>cm⁴</option><option>m⁴</option><option>in⁴</option></select>
 
     <div class="button-row">
-        <button onclick="calculateBeamBendingStress()">Calculate</button>
-        <button class="secondary-button" onclick="resetBeamBendingStressCalculator()">Reset</button>
+        <button type="button" onclick="calculateBeamBendingStress()">Calculate</button>
+        <button type="button" class="secondary-button" onclick="resetBeamBendingStressCalculator()">Reset</button>
     </div>
 
     <div id="result" class="result-panel">Ready to calculate.</div>
@@ -255,6 +253,9 @@ Maximum bending stress
 \( \sigma = 60\ \mathrm{MPa} \)
 </p>
 
+<h3>Non-symmetric T-section example</h3>
+<p>A T-section with \(H=120\ \mathrm{mm}\), \(B=80\ \mathrm{mm}\), \(t_f=10\ \mathrm{mm}\), and \(t_w=8\ \mathrm{mm}\) has area \(1{,}680\ \mathrm{mm}^2\). Summing flange and web rectangles gives \(\bar y=83.5714\ \mathrm{mm}\) above the bottom, \(I_x=2{,}402{,}571.43\ \mathrm{mm}^4\), and \(I_y=431{,}360\ \mathrm{mm}^4\). For \(M_x=5{,}000\ \mathrm{N\,m}\), \(c_x=83.5714\ \mathrm{mm}\) and \(\sigma_x=173.921\ \mathrm{MPa}\). The centroid and both inertias can be checked independently from the two non-overlapping rectangles using the parallel-axis theorem.</p>
+
 </div>
 
 </section>
@@ -274,7 +275,7 @@ This calculator assumes linear elastic behavior and small deformations.
 </li>
 
 <li>
-Maximum stress occurs at the outermost fiber, furthest from the neutral axis.
+Maximum stress occurs at the outermost fiber measured perpendicular to the selected neutral axis.
 </li>
 
 <li>
@@ -286,11 +287,19 @@ For hollow sections, both outer and inner dimensions are required to determine I
 </li>
 
 <li>
+The second moment of area measures area distribution about an axis; section modulus is \(S=I/c\), and the selected axis determines the applicable inertia and extreme-fiber distance.
+</li>
+
+<li>
 Always compare the calculated stress against the material's allowable or yield strength using an appropriate factor of safety.
 </li>
 
 <li>
 Stress concentrations (holes, notches, fillets) are not accounted for in this calculation.
+</li>
+
+<li>
+Local buckling, lateral-torsional buckling, fatigue, shear stress, and beam deflection are outside the scope of the simple elastic flexure calculation.
 </li>
 
 </ul>
@@ -366,6 +375,8 @@ Stress concentrations (holes, notches, fillets) are not accounted for in this ca
 <script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
+<script src="../js/beam-section-properties.js"></script>
+<script src="../js/beam-section-ui.js"></script>
 <script src="../js/beam-bending-stress.js"></script>
 <script src="../js/report-builder.js"></script>
 </body>

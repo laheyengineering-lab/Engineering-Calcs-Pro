@@ -40,6 +40,26 @@ describe('project report snapshots', () => {
         expect(result.snapshot.equations).toEqual(['x = y']);
     });
 
+    it('validates and preserves supported beam section diagram snapshots', () => {
+        const { api } = setup();
+        const diagram = {
+            type: 'beam-section',
+            profile: 't-section',
+            dimensions: { height: 0.12, flangeWidth: 0.08, flangeThickness: 0.01, webThickness: 0.008 },
+            axis: 'x',
+            unit: 'mm'
+        };
+        const valid = api.validateSnapshot(snap('beam-bending-stress', { diagram }));
+        expect(valid.ok).toBe(true);
+        expect(valid.snapshot.diagram).toEqual(diagram);
+        expect(api.validateSnapshot(snap('beam-bending-stress', {
+            diagram: { ...diagram, axis: 'z' }
+        })).ok).toBe(false);
+        expect(api.validateSnapshot(snap('beam-bending-stress', {
+            diagram: { ...diagram, dimensions: { ...diagram.dimensions, flangeThickness: 0.12 } }
+        })).ok).toBe(false);
+    });
+
     it.each([
         ['null', null],
         ['missing id', { ...snap('x'), calculatorId: '' }],

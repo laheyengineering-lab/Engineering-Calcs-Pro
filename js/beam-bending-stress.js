@@ -1,157 +1,189 @@
-// ======================================================
-// Beam Bending Stress Calculator
-// ======================================================
-
 const bendingSectionTypeSelect = document.getElementById("sectionType");
-const bendingMomentInput = document.getElementById("moment");
-const bendingMomentUnitSelect = document.getElementById("momentUnit");
-const bendingRectWidthInput = document.getElementById("rectWidth");
-const bendingRectWidthUnitSelect = document.getElementById("rectWidthUnit");
-const bendingRectHeightInput = document.getElementById("rectHeight");
-const bendingRectHeightUnitSelect = document.getElementById("rectHeightUnit");
-const bendingDiameterInput = document.getElementById("diameter");
-const bendingDiameterUnitSelect = document.getElementById("diameterUnit");
-const bendingOuterDiameterInput = document.getElementById("outerDiameter");
-const bendingOuterDiameterUnitSelect = document.getElementById("outerDiameterUnit");
-const bendingInnerDiameterInput = document.getElementById("innerDiameter");
-const bendingInnerDiameterUnitSelect = document.getElementById("innerDiameterUnit");
-const bendingStressUnitSelect = document.getElementById("stressUnit");
-const bendingInertiaUnitSelect = document.getElementById("inertiaUnit");
 const bendingResultPanel = document.getElementById("result");
+const bendingProfileNames = Object.fromEntries(
+    Object.entries(window.BeamSectionUI.profiles).map(([key, profile]) => [key, profile.name])
+);
+
+function bendingEscape(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[character]);
+}
+
+function bendingFormat(value, digits = 5) {
+    return Number(value).toLocaleString(undefined, { maximumSignificantDigits: digits });
+}
+
+function bendingRead(field) {
+    const raw = document.getElementById(field.id).value.trim();
+    if (raw === "") throw new Error(field.label + " is required.");
+    const value = Number(raw);
+    const unit = document.getElementById(field.unit).value;
+    const si = convertDistance(value, unit);
+    if (!Number.isFinite(value) || !Number.isFinite(si) || si <= 0) {
+        throw new Error(field.label + " must be a positive finite dimension.");
+    }
+    return { key: field.key, label: field.label, value, unit, si };
+}
+
+function bendingProfileInputs(sectionType) {
+    const entries = window.BeamSectionUI.getFields(sectionType).map(bendingRead);
+    return {
+        dimensions: Object.fromEntries(entries.map((entry) => [entry.key, entry.si])),
+        inputs: entries.map(({ label, value, unit }) => ({ label, value, unit })),
+        entries
+    };
+}
+
+function updateBeamBendingStressEquation() {
+    const type = bendingSectionTypeSelect.value;
+    const axis = document.getElementById("bendingAxis").value;
+    const sectionEquations = window.BeamSectionProperties.equations(type);
+    const equation = axis === "x"
+        ? String.raw`\sigma_x=\frac{M_x c_x}{I_x},\quad S_x=\frac{I_x}{c_x}`
+        : String.raw`\sigma_y=\frac{M_y c_y}{I_y},\quad S_y=\frac{I_y}{c_y}`;
+    document.getElementById("profileEquation").textContent =
+        `\\[ ${sectionEquations[0]} \\] \\[ ${equation} \\]`;
+    if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
+}
 
 function updateBeamBendingStressMode() {
-    const sectionType = bendingSectionTypeSelect.value;
-
-    document.getElementById("rectSectionInputs").style.display = sectionType === "rectangular" ? "block" : "none";
-    document.getElementById("solidCircularInputs").style.display = sectionType === "solid-circular" ? "block" : "none";
-    document.getElementById("hollowCircularInputs").style.display = sectionType === "hollow-circular" ? "block" : "none";
-
+    const type = bendingSectionTypeSelect.value;
+    window.BeamSectionUI.update(document, type, document.getElementById("bendingAxis").value);
+    updateBeamBendingStressEquation();
     bendingResultPanel.innerHTML = "Ready to calculate.";
+    if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
+    drawBeamSection();
+}
+
+function drawBeamSection() {
+    window.BeamSectionUI.updateDiagram(
+        document, bendingSectionTypeSelect.value, document.getElementById("bendingAxis").value
+    );
 }
 
 function calculateBeamBendingStress() {
-    const sectionType = bendingSectionTypeSelect.value;
-    const moment = Number(bendingMomentInput.value);
-
-    if (!Number.isFinite(moment) || moment === 0) {
-        bendingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter a non-zero bending moment.</p>";
-        return;
-    }
-
     try {
-        const momentNm = convertMoment(moment, bendingMomentUnitSelect.value);
+        const sectionType = bendingSectionTypeSelect.value;
+        const momentText = document.getElementById("moment").value.trim();
+        if (momentText === "") throw new Error("Bending moment is required.");
+        const moment = Number(momentText);
+        if (!Number.isFinite(moment)) throw new Error("Bending moment must be finite.");
+        const momentUnit = document.getElementById("momentUnit").value;
+        const momentNm = convertMoment(moment, momentUnit);
+        if (!Number.isFinite(momentNm)) throw new Error("Select a valid bending-moment unit.");
 
-        let inertiaM4;
-        let cM;
-        let summaryLine;
-        let displayLengthUnit;
+        const { dimensions, inputs: dimensionInputs, entries } = bendingProfileInputs(sectionType);
+        const properties = window.BeamSectionProperties.calculate(sectionType, dimensions);
+        const axis = document.getElementById("bendingAxis").value;
+        const inertiaM4 = axis === "x" ? properties.inertiaX : properties.inertiaY;
+        const cM = axis === "x" ? properties.extremeFiberX : properties.extremeFiberY;
+        const stressPa = momentNm * cM / inertiaM4;
+        if (!Number.isFinite(stressPa)) throw new Error("The resulting bending stress is outside the supported numerical range.");
 
-        if (sectionType === "rectangular") {
-            const width = Number(bendingRectWidthInput.value);
-            const height = Number(bendingRectHeightInput.value);
-
-            if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-                bendingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter positive rectangular section dimensions.</p>";
-                return;
-            }
-
-            const widthM = convertDistance(width, bendingRectWidthUnitSelect.value);
-            const heightM = convertDistance(height, bendingRectHeightUnitSelect.value);
-            inertiaM4 = (widthM * Math.pow(heightM, 3)) / 12;
-            cM = heightM / 2;
-            summaryLine = `I = b·h³/12 = ${widthM.toExponential(6)} × ${heightM.toExponential(6)}³ / 12`;
-            displayLengthUnit = bendingRectHeightUnitSelect.value;
-        } else if (sectionType === "solid-circular") {
-            const diameter = Number(bendingDiameterInput.value);
-
-            if (!Number.isFinite(diameter) || diameter <= 0) {
-                bendingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter a positive diameter.</p>";
-                return;
-            }
-
-            const diameterM = convertDistance(diameter, bendingDiameterUnitSelect.value);
-            inertiaM4 = (Math.PI * Math.pow(diameterM, 4)) / 64;
-            cM = diameterM / 2;
-            summaryLine = `I = πd⁴/64 = π(${diameterM.toExponential(6)})⁴ / 64`;
-            displayLengthUnit = bendingDiameterUnitSelect.value;
-        } else {
-            const outerDiameter = Number(bendingOuterDiameterInput.value);
-            const innerDiameter = Number(bendingInnerDiameterInput.value);
-
-            if (!Number.isFinite(outerDiameter) || !Number.isFinite(innerDiameter) || outerDiameter <= 0 || innerDiameter <= 0) {
-                bendingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter positive outer and inner diameters.</p>";
-                return;
-            }
-
-            const outerDiameterM = convertDistance(outerDiameter, bendingOuterDiameterUnitSelect.value);
-            const innerDiameterM = convertDistance(innerDiameter, bendingInnerDiameterUnitSelect.value);
-
-            if (innerDiameterM >= outerDiameterM) {
-                bendingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Inner diameter must be less than outer diameter.</p>";
-                return;
-            }
-
-            inertiaM4 = (Math.PI * (Math.pow(outerDiameterM, 4) - Math.pow(innerDiameterM, 4))) / 64;
-            cM = outerDiameterM / 2;
-            summaryLine = `I = π(D⁴ - d⁴)/64 = π(${outerDiameterM.toExponential(6)}⁴ - ${innerDiameterM.toExponential(6)}⁴) / 64`;
-            displayLengthUnit = bendingOuterDiameterUnitSelect.value;
-        }
-
-        const stressPa = (momentNm * cM) / inertiaM4;
-        const stressUnit = bendingStressUnitSelect.value;
-        const inertiaUnit = bendingInertiaUnitSelect.value;
+        const stressUnit = document.getElementById("stressUnit").value;
+        const areaUnit = document.getElementById("areaUnit").value;
+        const inertiaUnit = document.getElementById("inertiaUnit").value;
+        const displayLengthUnit = entries[0].unit;
         const stressOutput = convertStressToUnit(stressPa, stressUnit);
-        const inertiaOutput = convertAreaMomentInertiaToUnit(inertiaM4, inertiaUnit);
+        const areaOutput = convertAreaToUnit(properties.area, areaUnit);
+        const inertiaXOutput = convertAreaMomentInertiaToUnit(properties.inertiaX, inertiaUnit);
+        const inertiaYOutput = convertAreaMomentInertiaToUnit(properties.inertiaY, inertiaUnit);
+        const centroidXOutput = convertDistanceToUnit(properties.centroidX, displayLengthUnit);
+        const centroidYOutput = convertDistanceToUnit(properties.centroidY, displayLengthUnit);
         const cOutput = convertDistanceToUnit(cM, displayLengthUnit);
-        const sectionModulusM3 = inertiaM4 / cM;
-        let sectionModulusDisplay = `${sectionModulusM3.toExponential(6)} m³`;
-        if (sectionType !== "rectangular" || bendingRectWidthUnitSelect.value === bendingRectHeightUnitSelect.value) {
-            const sectionModulusInSectionUnits = sectionModulusM3 / Math.pow(convertDistance(1, displayLengthUnit), 3);
-            sectionModulusDisplay += ` (${sectionModulusInSectionUnits.toExponential(6)} ${escapeHtml(displayLengthUnit)}³)`;
-        }
-        const safeSummaryLine = escapeHtml(summaryLine);
+        const sectionModulusX = properties.sectionModulusX / convertDistance(1, displayLengthUnit) ** 3;
+        const sectionModulusY = properties.sectionModulusY / convertDistance(1, displayLengthUnit) ** 3;
+        const selectedInertia = axis === "x" ? inertiaXOutput : inertiaYOutput;
+        const selectedSectionModulus = axis === "x" ? sectionModulusX : sectionModulusY;
+        const stressLabel = axis === "x" ? "horizontal x-axis" : "vertical y-axis";
 
         bendingResultPanel.innerHTML = `
-            <h3>Result</h3>
-            <div class="result-value">σ<sub>max</sub> = ${stressOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(stressUnit)}</div>
+            <h3>Result — ${bendingEscape(bendingProfileNames[sectionType])}</h3>
+            <div class="result-value">Extreme-fiber bending stress: ${bendingFormat(stressOutput)} ${bendingEscape(stressUnit)}</div>
             <hr>
-            <p><strong>Area Moment of Inertia:</strong> I = ${inertiaOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${escapeHtml(inertiaUnit)}</p>
-            <p><strong>Distance to Outermost Fiber:</strong> c = ${cOutput.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${escapeHtml(displayLengthUnit)}</p>
-            <p><strong>Section Modulus:</strong> S = I/c = ${sectionModulusDisplay}</p>
-            <hr>
-            <p><strong>Calculation Summary</strong></p>
-            <p>σ = M·c / I</p>
-            <p>${safeSummaryLine}</p>
-            <p>σ = ${momentNm.toLocaleString(undefined, { maximumFractionDigits: 6 })} N·m × ${cM.toExponential(6)} m / ${inertiaM4.toExponential(6)} m⁴</p>
-            <p>= <strong>${stressOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(stressUnit)}</strong></p>
+            <p><strong>Section properties</strong></p>
+            <p>Area A: ${bendingFormat(areaOutput)} ${bendingEscape(areaUnit)}</p>
+            <p>Centroid: x̄ = ${bendingFormat(centroidXOutput)} ${bendingEscape(displayLengthUnit)}, ȳ = ${bendingFormat(centroidYOutput)} ${bendingEscape(displayLengthUnit)} from the lower-left section bounds</p>
+            <p>Second moments: Iₓ = ${bendingFormat(inertiaXOutput)} ${bendingEscape(inertiaUnit)}; Iᵧ = ${bendingFormat(inertiaYOutput)} ${bendingEscape(inertiaUnit)}</p>
+            <p>Section moduli: Sₓ = ${bendingFormat(sectionModulusX)} ${bendingEscape(displayLengthUnit)}³; Sᵧ = ${bendingFormat(sectionModulusY)} ${bendingEscape(displayLengthUnit)}³</p>
+            <p>Selected ${stressLabel}: I = ${bendingFormat(selectedInertia)} ${bendingEscape(inertiaUnit)}, c = ${bendingFormat(cOutput)} ${bendingEscape(displayLengthUnit)}, S = ${bendingFormat(selectedSectionModulus)} ${bendingEscape(displayLengthUnit)}³</p>
+            <p>σ = M c / I = ${bendingFormat(momentNm)} N·m × ${bendingFormat(cM)} m / ${bendingFormat(inertiaM4)} m⁴</p>
+            <p><small>Signed extreme-fiber stress; the opposite extreme fiber has equal magnitude and opposite sign. Linear elastic, prismatic-beam flexure assumptions apply; shear, local buckling, lateral-torsional buckling, fatigue, stress concentrations and deflection are not evaluated.</small></p>
         `;
+
+        if (window.FormulaFoundryReport) {
+            const inputs = [
+                { label: "Cross-section profile", value: bendingProfileNames[sectionType], unit: "" },
+                ...dimensionInputs,
+                { label: "Bending moment (M)", value: moment, unit: momentUnit },
+                { label: "Bending axis", value: stressLabel, unit: "" }
+            ];
+            const outputs = [
+                { label: "Cross-sectional area (A)", value: areaOutput, unit: areaUnit },
+                { label: "Centroid x̄", value: centroidXOutput, unit: displayLengthUnit },
+                { label: "Centroid ȳ", value: centroidYOutput, unit: displayLengthUnit },
+                { label: "Second moment of area (Iₓ)", value: inertiaXOutput, unit: inertiaUnit },
+                { label: "Second moment of area (Iᵧ)", value: inertiaYOutput, unit: inertiaUnit },
+                { label: "Section modulus (Sₓ)", value: sectionModulusX, unit: displayLengthUnit + "³" },
+                { label: "Section modulus (Sᵧ)", value: sectionModulusY, unit: displayLengthUnit + "³" },
+                { label: "Extreme-fiber distance (c)", value: cOutput, unit: displayLengthUnit },
+                { label: "Bending stress", value: stressOutput, unit: stressUnit }
+            ];
+            window.FormulaFoundryReport.recordResult({
+                calculatorId: "beam-bending-stress",
+                calculatorName: "Beam Bending Stress",
+                path: "calculators/beam-bending-stress.html",
+                title: bendingProfileNames[sectionType] + " bending stress",
+                inputs,
+                outputs,
+                diagram: {
+                    type: "beam-section",
+                    profile: sectionType,
+                    dimensions,
+                    axis,
+                    unit: displayLengthUnit
+                },
+                equations: [...window.BeamSectionProperties.equations(sectionType), axis === "x"
+                    ? String.raw`\sigma_x=\frac{M_x c_x}{I_x},\quad S_x=\frac{I_x}{c_x}`
+                    : String.raw`\sigma_y=\frac{M_y c_y}{I_y},\quad S_y=\frac{I_y}{c_y}`],
+                assumptions: [
+                    "Linear elastic material response and small deformation; prismatic cross-section and simple elastic flexure.",
+                    "Bending is about a centroidal principal axis of the homogeneous section.",
+                    "Shear stress, local and lateral-torsional buckling, fatigue, stress concentrations and full beam deflection are not evaluated."
+                ],
+                method: "Cross-section area, centroid and centroidal second moments are derived from the entered profile. Bending stress is calculated from the signed applied moment and the selected centroidal axis using σ = M c / I.",
+                warnings: ["Verify the section properties and elastic-beam assumptions for the actual design."]
+            });
+        }
+        drawBeamSection();
     } catch (error) {
-        bendingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
+        bendingResultPanel.innerHTML = `<h3>Invalid Input</h3><p>${bendingEscape(error.message)}</p>`;
+        if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
     }
 }
 
 function resetBeamBendingStressCalculator() {
-    bendingSectionTypeSelect.value = "rectangular";
-    bendingMomentInput.value = "";
-    bendingRectWidthInput.value = "";
-    bendingRectHeightInput.value = "";
-    bendingDiameterInput.value = "";
-    bendingOuterDiameterInput.value = "";
-    bendingInnerDiameterInput.value = "";
-
-    bendingMomentUnitSelect.value = "N·m";
-    bendingRectWidthUnitSelect.value = "mm";
-    bendingRectHeightUnitSelect.value = "mm";
-    bendingDiameterUnitSelect.value = "mm";
-    bendingOuterDiameterUnitSelect.value = "mm";
-    bendingInnerDiameterUnitSelect.value = "mm";
-    bendingStressUnitSelect.value = "MPa";
-    bendingInertiaUnitSelect.value = "mm⁴";
-
+    const fields = Object.values(window.BeamSectionUI.profiles).flatMap((profile) => profile.fields);
+    [...new Set(fields.map(({ id }) => id))].forEach((id) => { document.getElementById(id).value = ""; });
+    [...new Set(fields.map(({ unit }) => unit))].forEach((unit) => { document.getElementById(unit).value = "mm"; });
+    document.getElementById("sectionType").value = "rectangular";
+    document.getElementById("moment").value = "";
+    document.getElementById("momentUnit").value = "N·m";
+    document.getElementById("bendingAxis").value = "x";
+    document.getElementById("stressUnit").value = "MPa";
+    document.getElementById("areaUnit").value = "mm²";
+    document.getElementById("inertiaUnit").value = "mm⁴";
     updateBeamBendingStressMode();
-    bendingResultPanel.innerHTML = "Ready to calculate.";
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.FormulaFoundryReport) window.FormulaFoundryReport.declareStructured();
+    document.querySelectorAll("#sectionType, #bendingAxis, .profile-inputs input, .profile-inputs select")
+        .forEach((input) => input.addEventListener("input", drawBeamSection));
+    document.getElementById("bendingAxis").addEventListener("change", () => {
+        drawBeamSection();
+        updateBeamBendingStressEquation();
+    });
     updateBeamBendingStressMode();
 });

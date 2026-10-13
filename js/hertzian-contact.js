@@ -90,6 +90,8 @@ function computeHertzContact({ configuration, shape2 = "convex", diameter1, diam
 function updateHertzConfiguration() {
     const spheres = hertzEl("configuration").value === "spheres";
     hertzEl("lengthGroup").hidden = spheres;
+    hertzEl("cylinderContactDiagram").hidden = spheres;
+    hertzEl("sphereContactDiagram").hidden = !spheres;
     hertzEl("diameterNote").textContent = spheres
         ? "Sphere diameters (a flat plate is entered via the body 2 shape)."
         : "Cylinder diameters (parallel axes).";

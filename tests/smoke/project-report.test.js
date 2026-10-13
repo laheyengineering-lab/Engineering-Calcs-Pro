@@ -151,7 +151,7 @@ describe('Add to Project Report integration', () => {
 
 describe('report workspace page', () => {
     function openReport(storage) {
-        const loaded = loadCalculatorPage('report.html', ['js/report-builder.js']);
+        const loaded = loadCalculatorPage('report.html', ['js/report-builder.js', 'js/beam-section-properties.js']);
         loaded.window.FormulaFoundryReport.store.setStorage(storage);
         loaded.window.confirm = () => true;
         loaded.window.print = () => { loaded.printed = true; };
@@ -196,10 +196,65 @@ describe('report workspace page', () => {
 
         const css = fs.readFileSync('css/report.css', 'utf8');
         expect(css).toContain('@media print');
-        expect(css).toMatch(/\.report-entry\s*{[^}]*break-before: page/);
+        expect(css).toMatch(/\.report-entry\s*{[^}]*break-inside: auto/);
+        expect(css).not.toMatch(/\.report-entry\s*{[^}]*break-before:\s*page/);
+        expect(css).not.toMatch(/\.report-cover\s*{[^}]*break-after:\s*page/);
+        expect(css).not.toMatch(/\.report-toc\s*{[^}]*break-after:\s*page/);
         expect(css).toMatch(/\.site-header,[\s\S]*display: none !important/);
         expect(css).toContain('@page');
         expect(window.document.querySelectorAll('.entry-controls.no-print')).toHaveLength(2);
+    });
+
+    it('renders three entries with long content in natural report flow', () => {
+        const storage = memoryStorage();
+        seed(storage);
+        const { document, window } = openReport(storage);
+        const added = window.FormulaFoundryReport.store.addEntry({
+            calculatorId: 'moment',
+            calculatorName: 'Moment',
+            path: 'calculators/moment.html',
+            title: 'Moment verification',
+            inputs: [{ label: 'Force', value: 10, unit: 'N' }],
+            outputs: [{ label: 'Moment', value: 20, unit: 'N·m' }],
+            diagram: {
+                type: 'beam-section',
+                profile: 't-section',
+                dimensions: { height: 0.12, flangeWidth: 0.08, flangeThickness: 0.01, webThickness: 0.008 },
+                axis: 'x',
+                unit: 'mm'
+            },
+            equations: ['M = F d'],
+            assumptions: ['Static loading'],
+            method: 'A short calculation which can share a printed page.'
+        });
+        expect(added.ok).toBe(true);
+        window.FormulaFoundryReportPage.render();
+
+        expect(document.querySelectorAll('.report-entry')).toHaveLength(3);
+        expect(document.querySelectorAll('.report-toc li')).toHaveLength(3);
+        expect(document.querySelectorAll('.report-entry .report-table')).toHaveLength(6);
+        expect(document.querySelectorAll('.report-entry .formula-box').length).toBeGreaterThanOrEqual(3);
+        expect(document.querySelectorAll('.report-profile-diagram')).toHaveLength(1);
+        expect(document.querySelector('.report-profile-diagram svg').getAttribute('role')).toBe('img');
+        expect(document.querySelector('.report-empty')).toBeNull();
+        expect(document.querySelector('.report-general-notes').classList.contains('is-empty')).toBe(true);
+        expect(document.querySelectorAll('.report-meta-table tr.is-empty')).toHaveLength(5);
+        const longNotes = 'Extended design basis. '.repeat(120);
+        const noteInput = document.querySelector('.entry-controls textarea');
+        noteInput.value = longNotes;
+        noteInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.querySelector('[data-entry-notes]').textContent).toBe(longNotes);
+        expect(window.FormulaFoundryReport.store.load().entries[0].notes).toBe(longNotes);
+
+        const css = fs.readFileSync('css/report.css', 'utf8');
+        expect(css).not.toMatch(/\.report-entry\s*{[^}]*break-before:\s*page/);
+        expect(css).not.toMatch(/\.report-cover\s*{[^}]*break-after:\s*page/);
+        expect(css).not.toMatch(/\.report-toc\s*{[^}]*break-after:\s*page/);
+        expect(css).toMatch(/\.report-entry\s*{[^}]*break-inside: auto/);
+        expect(css).not.toMatch(/height:\s*\d+(?:px|vh)/);
+        expect(css).toContain('overflow: visible !important');
+        expect(css).not.toContain('position: fixed');
+        expect(document.querySelector('.print-running-header')).toBeNull();
     });
 
     it('lets the user rename, annotate, reorder, remove and clear', () => {
@@ -222,6 +277,13 @@ describe('report workspace page', () => {
         meta.dispatchEvent(new window.Event('input', { bubbles: true }));
         expect(store.load().meta.title).toBe('Pump skid');
         expect(document.querySelector('.report-title').textContent).toBe('Pump skid');
+
+        const customer = document.getElementById('meta-customer');
+        const customerRow = document.querySelector('[data-meta="customer"]').parentElement;
+        expect(customerRow.classList.contains('is-empty')).toBe(true);
+        customer.value = 'Acme Engineering';
+        customer.dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(customerRow.classList.contains('is-empty')).toBe(false);
 
         const buttonsOf = (entry) => [...entry.querySelectorAll('.entry-controls button')];
         const moveDown = buttonsOf(document.querySelector('.report-entry')).find((b) => b.textContent === 'Move down');

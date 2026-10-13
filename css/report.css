@@ -39,11 +39,6 @@
     margin-bottom: var(--space-6);
 }
 
-.print-running-header,
-.print-running-footer {
-    display: none;
-}
-
 .report-cover {
     border-bottom: 3px solid var(--color-accent);
     padding-bottom: var(--space-5);
@@ -86,6 +81,24 @@
     border-top: 1px solid var(--color-border);
     padding-top: var(--space-5);
     margin-top: var(--space-5);
+}
+
+.report-profile-diagram {
+    max-width: 320px;
+    margin: var(--space-3) auto;
+    text-align: center;
+}
+
+.report-profile-diagram svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.report-profile-diagram figcaption {
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: 9pt;
 }
 
 .report-entry h2,
@@ -202,10 +215,14 @@
 }
 
 @media print {
+    html,
     body {
         background: #fff !important;
         color: #26282b;
         font-size: 10.5pt;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
     }
 
     .site-header,
@@ -219,67 +236,153 @@
 
     .container {
         max-width: none;
+        width: auto;
+        height: auto !important;
+        min-height: 0 !important;
         padding: 0;
         margin: 0;
+        overflow: visible !important;
     }
 
     .report-document {
+        display: block;
+        width: auto;
+        height: auto !important;
+        min-height: 0 !important;
         border: 0;
         padding: 0;
         margin: 0;
         background: transparent;
-    }
-
-    .print-running-header,
-    .print-running-footer {
-        display: block;
-        position: fixed;
-        left: 0;
-        right: 0;
-        font-size: 8.5pt;
-        color: #5c6066;
-    }
-
-    .print-running-header {
-        top: -14mm;
-        border-bottom: 1px solid #c05621;
-    }
-
-    .print-running-footer {
-        bottom: -16mm;
-    }
-
-    .report-cover {
-        break-after: page;
-    }
-
-    .report-toc {
-        break-after: page;
+        overflow: visible !important;
     }
 
     .report-entry {
-        break-before: page;
         break-inside: auto;
         border-top: 0;
-        margin-top: 0;
+        margin-top: 0.65em;
         padding-top: 0;
     }
 
-    .report-table-wrap,
-    .report-table tr,
-    .report-block,
-    .formula-box {
-        break-inside: avoid;
+    .report-cover {
+        padding-bottom: 0.6em;
+        margin-bottom: 0.7em;
+    }
+
+    .report-tagline {
+        margin: 0.15em 0 0.5em;
+    }
+
+    .report-title {
+        margin-bottom: 0.5em;
+    }
+
+    .report-meta-table th,
+    .report-meta-table td {
+        padding: 2px 5px;
+    }
+
+    .report-toc {
+        margin-bottom: 0.5em;
+    }
+
+    .report-toc h2 {
+        margin-bottom: 0.35em;
+    }
+
+    .report-toc ol {
+        margin-top: 0.25em;
+        margin-bottom: 0.35em;
+    }
+
+    .report-entry > h2 {
+        margin: 0 0 0.25em;
+        padding-bottom: 0.15em;
+    }
+
+    .report-entry .entry-meta {
+        margin: 0.25em 0 0.4em;
     }
 
     .report-table-wrap {
-        overflow: visible;
+        margin-bottom: 0.4em;
+    }
+
+    .report-table caption {
+        padding-bottom: 0;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 2px 5px;
+    }
+
+    .report-block h4 {
+        margin: 0.45em 0 0.12em;
+    }
+
+    .report-block p,
+    .report-block ul {
+        margin-top: 0.15em;
+        margin-bottom: 0.3em;
+    }
+
+    .report-block li {
+        margin-bottom: 0.15em;
+    }
+
+    .report-block .formula-box {
+        margin: 0.25em 0;
+        padding: 3pt;
+        font-size: 10pt;
+    }
+
+    .report-disclaimer {
+        margin-top: 0.5em;
     }
 
     .report-entry h2,
     .report-block h4,
     .report-table caption {
         break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .entry-meta,
+    .formula-box,
+    .report-profile-diagram {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .report-table-wrap {
+        overflow: visible;
+    }
+
+    .report-table {
+        display: table;
+        overflow: visible;
+    }
+
+    .report-table thead {
+        display: table-header-group;
+    }
+
+    .report-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    p,
+    li {
+        orphans: 2;
+        widows: 2;
+    }
+
+    .report-general-notes.is-empty,
+    .entry-notes.is-empty,
+    .report-block.is-empty,
+    .report-meta-table tr.is-empty {
+        display: none !important;
     }
 
     a {

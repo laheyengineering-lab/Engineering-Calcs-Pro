@@ -1209,10 +1209,85 @@ footer,
     max-width: 640px;
 }
 
+.contact-diagram {
+    max-width: 420px;
+    margin: var(--space-3) auto var(--space-4);
+    text-align: center;
+}
+
+.contact-diagram[hidden] {
+    display: none;
+}
+
+.contact-diagram svg {
+    display: block;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.contact-diagram figcaption {
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+}
+
 .section-grid {
     display: grid;
     gap: var(--space-2);
     margin-bottom: var(--space-4);
+}
+
+.profile-inputs[hidden] {
+    display: none;
+}
+
+.beam-profile-diagram {
+    max-width: 360px;
+    margin: var(--space-4) auto;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+    text-align: center;
+}
+
+.beam-profile-diagram svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.beam-profile-diagram figcaption {
+    margin-top: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.beam-axis {
+    stroke: #8b949c;
+    stroke-width: 1.5;
+    stroke-dasharray: 5 4;
+}
+
+.beam-axis.selected {
+    stroke: #c05621;
+    stroke-width: 2.5;
+}
+
+.beam-axis-label,
+.beam-dimension-label {
+    fill: #26282b;
+    font-size: 12px;
+}
+
+.beam-dimension {
+    stroke: #555;
+    stroke-width: 1;
+}
+
+.profile-cutout {
+    fill: var(--color-surface-muted);
+    stroke: #284b63;
+    stroke-width: 2;
 }
 
 .section-row {
