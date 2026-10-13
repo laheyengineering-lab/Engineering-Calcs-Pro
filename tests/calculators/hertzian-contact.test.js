@@ -116,13 +116,13 @@ describe('Hertzian contact: validation and UI', () => {
         setSelectValue(document, 'shape2', 'flat');
         window.updateHertzShape();
         expect(document.getElementById('diameter2Group').hidden).toBe(true);
+        window.calculateHertzContact();
+        const flat = extractNumber(getResultText(document), /Maximum contact pressure: ([\d.,]+) MPa/);
+        expect(flat).toBeLessThan(first); // larger equivalent radius lowers contact pressure
         setSelectValue(document, 'configuration', 'spheres');
         window.updateHertzConfiguration();
         expect(document.getElementById('cylinderContactDiagram').hidden).toBe(true);
         expect(document.getElementById('sphereContactDiagram').hidden).toBe(false);
-        window.calculateHertzContact();
-        const flat = extractNumber(getResultText(document), /Maximum contact pressure: ([\d.,]+) MPa/);
-        expect(flat).toBeLessThan(first); // larger equivalent radius lowers contact pressure
     });
 
     it('rejects missing inputs with a clear message and states the limitation', () => {
