@@ -10,8 +10,10 @@ Everything is browser-local (`localStorage`, key `formulaFoundry.projectReport`)
 4. Press **Print / Save as PDF** and use the browser's print dialog. The app does not generate PDF files itself.
 
 ## Snapshot model
-Each entry is a frozen copy: `{ id, calculatorId, calculatorName, title, notes, addedAt, inputs[{label,value,unit}], outputs[{label,value,unit}], equations[], assumptions[], method, warnings[], sourceUrl }`.
+Each entry is a frozen copy: `{ id, calculatorId, calculatorName, title, notes, addedAt, inputs[{label,value,unit}], outputs[{label,value,unit}], equations[], assumptions[], method, warnings[], sourceUrl }`. Beam bending entries additionally store an optional validated `beam-section` diagram model (profile, SI dimensions, display unit, and selected axis), which is rendered into the report.
 Entries are never recomputed. Re-adding a calculation creates a new entry (there is no in-place "update" yet).
+
+Print output flows naturally: the project summary and index stay compact, short calculations can share a page, and long entries continue across pages. Use the browser's print preview or Save as PDF to inspect the final page breaks.
 
 ## Rules
 - Invalid, incomplete, non-finite or stale results (inputs/result text changed since Calculate) are rejected with a message.

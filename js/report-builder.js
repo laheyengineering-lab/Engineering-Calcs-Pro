@@ -58,6 +58,36 @@
         return out;
     }
 
+    function cleanDiagram(raw) {
+        if (raw === undefined || raw === null) return null;
+        const profiles = {
+            rectangular: ["width", "height"],
+            "solid-circular": ["diameter"],
+            "hollow-circular": ["outerDiameter", "innerDiameter"],
+            "hollow-rectangular": ["outerWidth", "outerHeight", "wallThickness"],
+            "i-beam": ["height", "flangeWidth", "flangeThickness", "webThickness"],
+            "t-section": ["height", "flangeWidth", "flangeThickness", "webThickness"]
+        };
+        if (!raw || raw.type !== "beam-section" || !profiles[raw.profile]
+            || !["x", "y"].includes(raw.axis)
+            || !["µm", "mm", "cm", "m", "in", "ft"].includes(raw.unit)
+            || !raw.dimensions || typeof raw.dimensions !== "object") return null;
+        const dimensions = {};
+        for (const key of profiles[raw.profile]) {
+            const value = raw.dimensions[key];
+            if (!Number.isFinite(value) || value <= 0) return null;
+            dimensions[key] = value;
+        }
+        if (raw.profile === "hollow-circular" && dimensions.innerDiameter >= dimensions.outerDiameter) return null;
+        if (raw.profile === "hollow-rectangular"
+            && (2 * dimensions.wallThickness >= dimensions.outerWidth || 2 * dimensions.wallThickness >= dimensions.outerHeight)) return null;
+        if (["i-beam", "t-section"].includes(raw.profile)
+            && (dimensions.webThickness > dimensions.flangeWidth
+                || (raw.profile === "i-beam" && 2 * dimensions.flangeThickness >= dimensions.height)
+                || (raw.profile === "t-section" && dimensions.flangeThickness >= dimensions.height))) return null;
+        return { type: "beam-section", profile: raw.profile, dimensions, axis: raw.axis, unit: raw.unit };
+    }
+
     // Returns { ok, snapshot } or { ok: false, error }
     function validateSnapshot(raw) {
         if (!raw || typeof raw !== "object") return { ok: false, error: "No calculation result is available." };
@@ -67,6 +97,10 @@
         if (!inputs || inputs.length === 0) return { ok: false, error: "The calculation has missing or invalid input values." };
         const outputs = cleanItems(raw.outputs);
         if (!outputs || outputs.length === 0) return { ok: false, error: "The calculation has missing or non-finite results." };
+        const diagram = cleanDiagram(raw.diagram);
+        if (raw.diagram !== undefined && raw.diagram !== null && !diagram) {
+            return { ok: false, error: "The section diagram data is invalid." };
+        }
         const calculatorName = text(raw.calculatorName) || calculatorId;
         const added = Date.parse(raw.addedAt);
         return {
@@ -84,6 +118,7 @@
                 equations: cleanList(raw.equations, LIMITS.tex),
                 assumptions: cleanList(raw.assumptions),
                 method: text(raw.method, LIMITS.long),
+                ...(diagram ? { diagram } : {}),
                 warnings: cleanList(raw.warnings)
             }
         };

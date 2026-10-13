@@ -66,6 +66,32 @@
         return block;
     }
 
+    function profileDiagramSection(diagram) {
+        if (!diagram || diagram.type !== "beam-section"
+            || !window.BeamSectionProperties
+            || typeof window.BeamSectionProperties.createDiagram !== "function") return null;
+        try {
+            const figure = el("figure", "report-profile-diagram");
+            figure.appendChild(window.BeamSectionProperties.createDiagram(
+                doc, diagram.profile, diagram.dimensions, diagram.axis
+            ));
+            const profileNames = {
+                rectangular: "Solid rectangle / square",
+                "solid-circular": "Solid circle",
+                "hollow-circular": "Hollow circle / tube",
+                "hollow-rectangular": "Hollow rectangle / tube",
+                "i-beam": "Symmetric I-beam",
+                "t-section": "T-section"
+            };
+            figure.appendChild(el("figcaption", null,
+                profileNames[diagram.profile] + " cross-section; highlighted axis " + diagram.axis
+                + " is the selected bending axis. Geometry shown proportionally; dimensions are listed above."));
+            return figure;
+        } catch (error) {
+            return null;
+        }
+    }
+
     function buildEntry(entry, index, total) {
         const section = el("section", "report-entry");
         section.id = "entry-" + entry.id;
@@ -124,6 +150,9 @@
         const added = new Date(entry.addedAt);
         section.appendChild(el("p", "entry-meta", "Calculator: " + entry.calculatorName + " \u00b7 Added " + (Number.isNaN(added.getTime()) ? "" : added.toLocaleString())));
 
+        const diagram = profileDiagramSection(entry.diagram);
+        if (diagram) section.appendChild(diagram);
+
         section.appendChild(itemsTable("Inputs", entry.inputs));
         section.appendChild(itemsTable("Results", entry.outputs));
 
@@ -167,7 +196,7 @@
 
         const table = el("table", "report-meta-table");
         META_LABELS.filter(([key]) => !["title", "scope", "notes"].includes(key)).forEach(([key, label]) => {
-            const row = el("tr");
+            const row = el("tr", project.meta[key].trim() ? "" : "is-empty");
             row.appendChild(el("th", null, label));
             const cell = el("td", null, project.meta[key]);
             cell.setAttribute("data-meta", key);
@@ -193,11 +222,6 @@
         const project = store.load();
         const container = doc.getElementById("reportDocument");
         container.textContent = "";
-
-        const header = el("div", "print-running-header", "Formula Foundry \u00b7 Engineering Calculation Report");
-        const footer = el("div", "print-running-footer", "Formula Foundry \u00b7 Results are for general reference; verify critical designs independently.");
-        container.appendChild(header);
-        container.appendChild(footer);
 
         container.appendChild(buildCover(project));
 
@@ -259,6 +283,9 @@
                         node.parentElement.classList.toggle("is-empty", input.value.trim() === "");
                     }
                     if (node.parentElement && node.parentElement.classList.contains("report-general-notes")) {
+                        node.parentElement.classList.toggle("is-empty", input.value.trim() === "");
+                    }
+                    if (node.parentElement && node.parentElement.closest(".report-meta-table")) {
                         node.parentElement.classList.toggle("is-empty", input.value.trim() === "");
                     }
                 });

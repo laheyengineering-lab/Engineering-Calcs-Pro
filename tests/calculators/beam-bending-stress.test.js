@@ -130,10 +130,12 @@ describe('beam bending stress calculator', () => {
         expect(entry.inputs.find((item) => item.label === 'Cross-section profile').value).toBe('Solid circle');
         expect(entry.outputs.find((item) => item.label === 'Second moment of area (Iₓ)').value).toBeCloseTo(636172.5, 1);
         expect(entry.outputs.find((item) => item.label === 'Bending stress').value).toBeCloseTo(23.5785, 3);
-        expect(entry.equations).toContain('σ_x = M_x c_x / I_x; S_x = I_x / c_x');
+        expect(entry.diagram).toMatchObject({ type: 'beam-section', profile: 'solid-circular', axis: 'x', unit: 'mm' });
+        expect(entry.equations).toContain(String.raw`\sigma_x=\frac{M_x c_x}{I_x},\quad S_x=\frac{I_x}{c_x}`);
 
         setInputValue(document, 'diameter', 120);
         window.calculateBeamBendingStress();
         expect(store.load().entries[0].outputs.find((item) => item.label === 'Bending stress').value).toBeCloseTo(23.5785, 3);
+        expect(store.load().entries[0].diagram.dimensions.diameter).toBeCloseTo(0.06, 12);
     });
 });

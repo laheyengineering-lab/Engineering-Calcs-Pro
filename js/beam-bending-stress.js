@@ -41,12 +41,12 @@ const bendingProfileNames = {
 };
 
 const bendingEquation = {
-    rectangular: "A = b h; I_x = b h³ / 12; I_y = h b³ / 12",
-    "solid-circular": "A = π d² / 4; I_x = I_y = π d⁴ / 64",
-    "hollow-circular": "A = π(D² − d²) / 4; I_x = I_y = π(D⁴ − d⁴) / 64",
-    "hollow-rectangular": "b = B − 2t; h = H − 2t; I_x = (B H³ − b h³) / 12; I_y = (H B³ − h b³) / 12",
-    "i-beam": "Sum flange and web rectangles about their centroidal axes using the parallel-axis theorem; count the web between flanges only.",
-    "t-section": "Find the composite centroid, then sum the flange and web rectangle inertias using the parallel-axis theorem."
+    rectangular: String.raw`A=bh,\quad \bar{x}=b/2,\quad \bar{y}=h/2,\quad I_x=bh^3/12,\quad I_y=hb^3/12`,
+    "solid-circular": String.raw`A=\pi d^2/4,\quad \bar{x}=\bar{y}=d/2,\quad I_x=I_y=\pi d^4/64`,
+    "hollow-circular": String.raw`A=\pi(D^2-d^2)/4,\quad \bar{x}=\bar{y}=D/2,\quad I_x=I_y=\pi(D^4-d^4)/64`,
+    "hollow-rectangular": String.raw`b=B-2t,\ h=H-2t,\quad A=BH-bh,\quad I_x=(BH^3-bh^3)/12,\quad I_y=(HB^3-hb^3)/12`,
+    "i-beam": String.raw`A=2Bt_f+t_w(H-2t_f),\quad \bar{x}=B/2,\ \bar{y}=H/2,\quad I_x=2\left(\frac{Bt_f^3}{12}+Bt_f\frac{(H-t_f)^2}{4}\right)+\frac{t_w(H-2t_f)^3}{12},\quad I_y=\frac{2t_fB^3}{12}+\frac{(H-2t_f)t_w^3}{12}`,
+    "t-section": String.raw`A=Bt_f+t_w(H-t_f),\quad \bar{y}=\frac{Bt_f(H-t_f/2)+t_w(H-t_f)^2/2}{A},\quad I_x=\frac{Bt_f^3}{12}+Bt_f(H-t_f/2-\bar{y})^2+\frac{t_w(H-t_f)^3}{12}+t_w(H-t_f)(\bar{y}-(H-t_f)/2)^2,\quad I_y=\frac{t_fB^3}{12}+\frac{(H-t_f)t_w^3}{12}`
 };
 
 function bendingEscape(value) {
@@ -80,6 +80,17 @@ function bendingProfileInputs(sectionType) {
     };
 }
 
+function updateBeamBendingStressEquation() {
+    const type = bendingSectionTypeSelect.value;
+    const axis = document.getElementById("bendingAxis").value;
+    const equation = axis === "x"
+        ? String.raw`\sigma_x=\frac{M_x c_x}{I_x},\quad S_x=\frac{I_x}{c_x}`
+        : String.raw`\sigma_y=\frac{M_y c_y}{I_y},\quad S_y=\frac{I_y}{c_y}`;
+    document.getElementById("profileEquation").textContent =
+        `\\[ ${bendingEquation[type]} \\] \\[ ${equation} \\]`;
+    if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
+}
+
 function updateBeamBendingStressMode() {
     const type = bendingSectionTypeSelect.value;
     document.getElementById("rectSectionInputs").hidden = type !== "rectangular";
@@ -87,7 +98,7 @@ function updateBeamBendingStressMode() {
     document.getElementById("hollowCircularInputs").hidden = type !== "hollow-circular";
     document.getElementById("hollowRectInputs").hidden = type !== "hollow-rectangular";
     document.getElementById("compositeSectionInputs").hidden = !["i-beam", "t-section"].includes(type);
-    document.getElementById("profileEquation").textContent = bendingEquation[type] + "; σ = M c / I";
+    updateBeamBendingStressEquation();
     bendingResultPanel.innerHTML = "Ready to calculate.";
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
     drawBeamSection();
@@ -96,6 +107,23 @@ function updateBeamBendingStressMode() {
 function drawBeamSection() {
     const type = bendingSectionTypeSelect.value;
     const fields = bendingDimensionFields[type];
+    const diagramContainer = document.getElementById("profileDiagram");
+    const diagramCaption = document.getElementById("profileDiagramCaption");
+    const complete = fields.every((field) => document.getElementById(field.id).value.trim() !== "");
+    let sectionProperties = null;
+    if (complete) {
+        try {
+            const dimensions = Object.fromEntries(fields.map((field) => [
+                field.key,
+                convertDistance(Number(document.getElementById(field.id).value), document.getElementById(field.unit).value)
+            ]));
+            sectionProperties = window.BeamSectionProperties.calculate(type, dimensions);
+        } catch (error) {
+            diagramContainer.textContent = "";
+            diagramCaption.textContent = "Invalid geometry — check the entered dimensions.";
+            return;
+        }
+    }
     const values = {};
     fields.forEach((field) => {
         const raw = document.getElementById(field.id).value;
@@ -150,19 +178,8 @@ function drawBeamSection() {
     const transform = `translate(150 110) scale(${scale}) translate(-150 -110)`;
     const axis = document.getElementById("bendingAxis").value;
     let centroidY = height / 2;
-    try {
-        const dimensions = Object.fromEntries(fields.map((field) => [
-            field.key,
-            convertDistance(Number(document.getElementById(field.id).value), document.getElementById(field.unit).value)
-        ]));
-        const properties = window.BeamSectionProperties.calculate(type, dimensions);
-        const heightMeters = type === "rectangular" ? dimensions.height
-            : type === "solid-circular" || type === "hollow-circular" ? dimensions.diameter || dimensions.outerDiameter
-                : type === "hollow-rectangular" ? dimensions.outerHeight : dimensions.height;
-        centroidY = convertDistanceToUnit(properties.centroidY, "mm");
-        if (Number.isFinite(heightMeters)) height = convertDistanceToUnit(heightMeters, "mm");
-    } catch (error) {
-        centroidY = height / 2;
+    if (sectionProperties) {
+        centroidY = convertDistanceToUnit(sectionProperties.centroidY, "mm");
     }
     const centroidScreenY = 110 + (height / 2 - centroidY) * scale;
     const sectionLeft = 150 - width * scale / 2;
@@ -173,15 +190,18 @@ function drawBeamSection() {
         <defs><marker id="beamAxisArrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c05621"/></marker>
         <marker id="beamDimArrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse"><path d="M6,0 L0,3 L6,6" fill="none" stroke="#555" stroke-width="1"/></marker></defs>
         <g transform="${transform}" fill="#dce6ee" fill-rule="evenodd" stroke="#284b63" stroke-width="2">${shape}</g>
-        <line class="beam-axis ${axis === "x" ? "selected" : ""}" x1="35" y1="${centroidScreenY}" x2="265" y2="${centroidScreenY}" marker-end="url(#beamAxisArrow)"/>
+        <line class="beam-axis ${axis === "x" ? "selected" : ""}" x1="35" y1="${centroidScreenY}" x2="228" y2="${centroidScreenY}" marker-end="url(#beamAxisArrow)"/>
         <line class="beam-axis ${axis === "y" ? "selected" : ""}" x1="150" y1="205" x2="150" y2="15" marker-end="url(#beamAxisArrow)"/>
         <circle cx="150" cy="${centroidScreenY}" r="4" fill="#c05621"/><text x="158" y="${centroidScreenY - 5}" class="beam-axis-label">C</text>
-        <text x="273" y="${centroidScreenY - 4}" class="beam-axis-label">x (Iₓ)</text><text x="155" y="17" class="beam-axis-label">y (Iᵧ)</text>
+        <text x="231" y="${centroidScreenY - 4}" class="beam-axis-label">x (Iₓ)</text><text x="155" y="17" class="beam-axis-label">y (Iᵧ)</text>
         <line x1="${sectionLeft}" y1="${diagramDimensionY}" x2="${sectionRight}" y2="${diagramDimensionY}" class="beam-dimension" marker-start="url(#beamDimArrow)" marker-end="url(#beamDimArrow)"/>
         <text x="150" y="${diagramDimensionY + 14}" text-anchor="middle" class="beam-dimension-label">${dimensionLabel}</text>
+        ${type === "solid-circular" || type === "hollow-circular" ? "" : `<line x1="${Math.max(sectionLeft - 13, 8)}" y1="${110 - height * scale / 2}" x2="${Math.max(sectionLeft - 13, 8)}" y2="${110 + height * scale / 2}" class="beam-dimension" marker-start="url(#beamDimArrow)" marker-end="url(#beamDimArrow)"/><text x="${Math.max(sectionLeft - 30, 2)}" y="112" class="beam-dimension-label">${type === "rectangular" ? "h" : "H"}</text>`}
+        ${type === "hollow-rectangular" ? `<text x="${150 - width * scale / 2 + 5}" y="${110 - height * scale / 2 + 13}" class="beam-dimension-label">t</text>` : ""}
+        ${type === "i-beam" || type === "t-section" ? `<text x="155" y="${110 - height * scale / 2 + 13}" class="beam-dimension-label">t_f</text><text x="155" y="112" class="beam-dimension-label">t_w</text>` : ""}
     </svg>`;
-    document.getElementById("profileDiagram").innerHTML = svg;
-    document.getElementById("profileDiagramCaption").textContent =
+    diagramContainer.innerHTML = svg;
+    diagramCaption.textContent =
         bendingProfileNames[type] + " · " + dimensionNames.map((entry, index) =>
             entry + " " + document.getElementById(fields[index].unit).value
         ).join(" · ");
@@ -262,7 +282,16 @@ function calculateBeamBendingStress() {
                 title: bendingProfileNames[sectionType] + " bending stress",
                 inputs,
                 outputs,
-                equations: [bendingEquation[sectionType], axis === "x" ? "σ_x = M_x c_x / I_x; S_x = I_x / c_x" : "σ_y = M_y c_y / I_y; S_y = I_y / c_y"],
+                diagram: {
+                    type: "beam-section",
+                    profile: sectionType,
+                    dimensions,
+                    axis,
+                    unit: displayLengthUnit
+                },
+                equations: [bendingEquation[sectionType], axis === "x"
+                    ? String.raw`\sigma_x=\frac{M_x c_x}{I_x},\quad S_x=\frac{I_x}{c_x}`
+                    : String.raw`\sigma_y=\frac{M_y c_y}{I_y},\quad S_y=\frac{I_y}{c_y}`],
                 assumptions: [
                     "Linear elastic material response and small deformation; prismatic cross-section and simple elastic flexure.",
                     "Bending is about a centroidal principal axis of the homogeneous section.",
@@ -296,6 +325,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.declareStructured();
     document.querySelectorAll("#sectionType, #bendingAxis, .profile-inputs input, .profile-inputs select")
         .forEach((input) => input.addEventListener("input", drawBeamSection));
-    document.getElementById("bendingAxis").addEventListener("change", drawBeamSection);
+    document.getElementById("bendingAxis").addEventListener("change", () => {
+        drawBeamSection();
+        updateBeamBendingStressEquation();
+    });
     updateBeamBendingStressMode();
 });
