@@ -1,6 +1,23 @@
 (function (root) {
     "use strict";
 
+    const PROFILE_EQUATIONS = {
+        rectangular: String.raw`A=bh,\quad \bar{x}=b/2,\quad \bar{y}=h/2,\quad I_x=bh^3/12,\quad I_y=hb^3/12`,
+        "solid-circular": String.raw`A=\pi d^2/4,\quad \bar{x}=\bar{y}=d/2,\quad I_x=I_y=\pi d^4/64`,
+        "hollow-circular": String.raw`A=\pi(D^2-d^2)/4,\quad \bar{x}=\bar{y}=D/2,\quad I_x=I_y=\pi(D^4-d^4)/64`,
+        "hollow-rectangular": String.raw`b=B-2t,\ h=H-2t,\quad A=BH-bh,\quad I_x=(BH^3-bh^3)/12,\quad I_y=(HB^3-hb^3)/12`,
+        "i-beam": String.raw`A=2Bt_f+t_w(H-2t_f),\quad \bar{x}=B/2,\ \bar{y}=H/2,\quad I_x=2\left(\frac{Bt_f^3}{12}+Bt_f\frac{(H-t_f)^2}{4}\right)+\frac{t_w(H-2t_f)^3}{12},\quad I_y=\frac{2t_fB^3}{12}+\frac{(H-2t_f)t_w^3}{12}`,
+        "t-section": String.raw`A=Bt_f+t_w(H-t_f),\quad \bar{y}=\frac{Bt_f(H-t_f/2)+t_w(H-t_f)^2/2}{A},\quad I_x=\frac{Bt_f^3}{12}+Bt_f(H-t_f/2-\bar{y})^2+\frac{t_w(H-t_f)^3}{12}+t_w(H-t_f)(\bar{y}-(H-t_f)/2)^2,\quad I_y=\frac{t_fB^3}{12}+\frac{(H-t_f)t_w^3}{12}`
+    };
+    const PROFILE_NAMES = {
+        rectangular: "Solid rectangle / square",
+        "solid-circular": "Solid circle",
+        "hollow-circular": "Hollow circle / tube",
+        "hollow-rectangular": "Hollow rectangle / tube",
+        "i-beam": "Symmetric I-beam",
+        "t-section": "T-section"
+    };
+
     function positive(name, value) {
         if (!Number.isFinite(value) || value <= 0) {
             throw new Error(name + " must be a positive finite dimension.");
@@ -147,7 +164,7 @@
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("viewBox", "0 0 260 210");
         svg.setAttribute("role", "img");
-        svg.setAttribute("aria-label", "Cross-section showing centroidal x and y axes");
+        svg.setAttribute("aria-label", PROFILE_NAMES[profile] + " cross-section showing centroidal x and y axes");
         const add = (tag, attrs, parent = svg, text) => {
             const element = document.createElementNS(ns, tag);
             Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, String(value)));
@@ -199,8 +216,8 @@
 
         const centroidX = 130 + (properties.centroidX - width / 2) * scale;
         const centroidY = 95 + (height / 2 - properties.centroidY) * scale;
-        add("line", { x1: 25, y1: centroidY, x2: 230, y2: centroidY, stroke: axis === "x" ? "#c05621" : "#7b858e", "stroke-width": axis === "x" ? 2.5 : 1.5, "stroke-dasharray": "5 4" });
-        add("line", { x1: centroidX, y1: 190, x2: centroidX, y2: 15, stroke: axis === "y" ? "#c05621" : "#7b858e", "stroke-width": axis === "y" ? 2.5 : 1.5, "stroke-dasharray": "5 4" });
+        add("line", { class: "beam-axis" + (axis === "x" ? " selected" : ""), x1: 25, y1: centroidY, x2: 230, y2: centroidY, stroke: axis === "x" ? "#c05621" : "#7b858e", "stroke-width": axis === "x" ? 2.5 : 1.5, "stroke-dasharray": "5 4" });
+        add("line", { class: "beam-axis" + (axis === "y" ? " selected" : ""), x1: centroidX, y1: 190, x2: centroidX, y2: 15, stroke: axis === "y" ? "#c05621" : "#7b858e", "stroke-width": axis === "y" ? 2.5 : 1.5, "stroke-dasharray": "5 4" });
         add("circle", { cx: centroidX, cy: centroidY, r: 3.5, fill: "#c05621" });
         add("text", { x: 233, y: centroidY - 4, fill: "#26282b", "font-size": 11 }, svg, "x (Iₓ)");
         add("text", { x: centroidX + 4, y: 15, fill: "#26282b", "font-size": 11 }, svg, "y (Iᵧ)");
@@ -214,5 +231,12 @@
         return svg;
     }
 
-    root.BeamSectionProperties = { calculate, createDiagram };
+    root.BeamSectionProperties = {
+        calculate,
+        createDiagram,
+        equations(profile) {
+            if (!PROFILE_EQUATIONS[profile]) throw new Error("Select a supported cross-section profile.");
+            return [PROFILE_EQUATIONS[profile]];
+        }
+    };
 })(typeof window === "undefined" ? globalThis : window);

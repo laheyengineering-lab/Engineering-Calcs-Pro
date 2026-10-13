@@ -10,7 +10,7 @@ Everything is browser-local (`localStorage`, key `formulaFoundry.projectReport`)
 4. Press **Print / Save as PDF** and use the browser's print dialog. The app does not generate PDF files itself.
 
 ## Snapshot model
-Each entry is a frozen copy: `{ id, calculatorId, calculatorName, title, notes, addedAt, inputs[{label,value,unit}], outputs[{label,value,unit}], equations[], assumptions[], method, warnings[], sourceUrl }`. Beam bending entries additionally store an optional validated `beam-section` diagram model (profile, SI dimensions, display unit, and selected axis), which is rendered into the report.
+Each entry is a frozen copy: `{ id, calculatorId, calculatorName, title, notes, addedAt, inputs[{label,value,unit}], outputs[{label,value,unit}], equations[], assumptions[], method, warnings[], sourceUrl }`. Beam bending stress and beam deflection entries additionally store a validated `beam-section` diagram model (profile, SI dimensions, display unit, and selected axis), which is rendered into the report.
 Entries are never recomputed. Re-adding a calculation creates a new entry (there is no in-place "update" yet).
 
 Print output flows naturally: the project summary and index stay compact, short calculations can share a page, and long entries continue across pages. Use the browser's print preview or Save as PDF to inspect the final page breaks.
@@ -21,7 +21,7 @@ Print output flows naturally: the project summary and index stay compact, short 
 - If `localStorage` is unavailable the store falls back to memory for the session.
 
 ## Calculator integration
-Structured calculators (the four new ones) call `FormulaFoundryReport.declareStructured()` and `FormulaFoundryReport.recordResult(snapshot)` after a successful calculation and `clearResult()` on reset/failure. Other calculators are captured by scraping the visible inputs, result panel and equations. Include `js/report-builder.js` before `</body>`.
+Structured calculators call `FormulaFoundryReport.declareStructured()` and `FormulaFoundryReport.recordResult(snapshot)` after a successful calculation and `clearResult()` on reset/failure. Other calculators are captured by scraping the visible inputs, result panel and equations. Include `js/report-builder.js` before `</body>`.
 
 ## Tests
 `tests/core/report-builder.test.js`, `tests/smoke/project-report.test.js`, `tests/smoke/new-calculators-registry.test.js`.

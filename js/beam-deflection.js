@@ -1,13 +1,7 @@
-// ======================================================
-// Beam Deflection Calculator
-// ======================================================
-
-// Cache DOM elements
 const beamLengthInput = document.getElementById("beamLength");
 const pointLoadInput = document.getElementById("pointLoad");
 const distributedLoadInput = document.getElementById("distributedLoad");
 const youngsModulusInput = document.getElementById("youngsModulus");
-const areaMomentOfInertiaInput = document.getElementById("areaMomentOfInertia");
 const beamResultPanel = document.getElementById("result");
 const loadingCaseSelect = document.getElementById("loadingCase");
 const lengthUnitSelect = document.getElementById("lengthUnit");
@@ -17,217 +11,231 @@ const modulusUnitSelect = document.getElementById("modulusUnit");
 const inertiaUnitSelect = document.getElementById("inertiaUnit");
 const deflectionUnitSelect = document.getElementById("deflectionUnit");
 
-// Update visible inputs based on loading case
+const beamDeflectionCases = {
+    "ss-point": {
+        name: "Simply supported, center point load",
+        support: "Simply supported (pin and roller)",
+        formula: String.raw`\delta_{\max}=\frac{PL^3}{48EI}`,
+        moment: (load, span) => load * span / 4,
+        locationFraction: 0.5,
+        location: "Midspan (L/2)"
+    },
+    "ss-udl": {
+        name: "Simply supported, full-span uniform load",
+        support: "Simply supported (pin and roller)",
+        formula: String.raw`\delta_{\max}=\frac{5wL^4}{384EI}`,
+        moment: (load, span) => load * span ** 2 / 8,
+        locationFraction: 0.5,
+        location: "Midspan (L/2)"
+    },
+    "cant-point": {
+        name: "Cantilever, point load at free end",
+        support: "Cantilever (fixed root, free end)",
+        formula: String.raw`\delta_{\max}=\frac{PL^3}{3EI}`,
+        moment: (load, span) => load * span,
+        locationFraction: 1,
+        location: "Free end (L)"
+    },
+    "cant-udl": {
+        name: "Cantilever, full-span uniform load",
+        support: "Cantilever (fixed root, free end)",
+        formula: String.raw`\delta_{\max}=\frac{wL^4}{8EI}`,
+        moment: (load, span) => load * span ** 2 / 2,
+        locationFraction: 1,
+        location: "Free end (L)"
+    }
+};
+
+function beamDeflectionEscape(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[character]);
+}
+
+function beamDeflectionFormat(value, digits = 6) {
+    return Number(value).toLocaleString(undefined, { maximumSignificantDigits: digits });
+}
+
+function beamDeflectionProfileInputs(profile) {
+    const entries = window.BeamSectionUI.getFields(profile).map((field) => {
+        const input = document.getElementById(field.id);
+        const raw = input.value.trim();
+        if (raw === "") throw new Error(field.label + " is required.");
+        const value = Number(raw);
+        const unit = document.getElementById(field.unit).value;
+        const si = convertDistance(value, unit);
+        if (!Number.isFinite(value) || !Number.isFinite(si) || si <= 0) {
+            throw new Error(field.label + " must be a positive finite dimension.");
+        }
+        return { key: field.key, label: field.label, value, unit, si };
+    });
+    return {
+        dimensions: Object.fromEntries(entries.map((entry) => [entry.key, entry.si])),
+        entries
+    };
+}
+
 function updateBeamDeflectionMode() {
     const loadingCase = loadingCaseSelect.value;
-    const pointLoadContainer = document.getElementById("pointLoadContainer");
-    const distributedLoadContainer = document.getElementById("distributedLoadContainer");
-    
-    // Hide both containers first
-    pointLoadContainer.style.display = "none";
-    distributedLoadContainer.style.display = "none";
-    
-    // Show relevant container based on case
-    if (loadingCase === "ss-point" || loadingCase === "cant-point") {
-        pointLoadContainer.style.display = "block";
-    } else if (loadingCase === "ss-udl" || loadingCase === "cant-udl") {
-        distributedLoadContainer.style.display = "block";
-    }
-    
+    document.getElementById("pointLoadContainer").hidden = !["ss-point", "cant-point"].includes(loadingCase);
+    document.getElementById("distributedLoadContainer").hidden = !["ss-udl", "cant-udl"].includes(loadingCase);
+    const profile = document.getElementById("sectionType").value;
+    const axis = document.getElementById("bendingAxis").value;
+    window.BeamSectionUI.update(document, profile, axis);
+    document.getElementById("profileEquation").textContent =
+        `\\[ ${window.BeamSectionProperties.equations(profile)[0]} \\]`;
+    if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
     beamResultPanel.innerHTML = "Ready to calculate.";
+    if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
 }
 
 function calculateBeamDeflection() {
-    const loadingCase = loadingCaseSelect.value;
-    const beamLength = Number(beamLengthInput.value);
-    const youngsModulus = Number(youngsModulusInput.value);
-    const areaMomentOfInertia = Number(areaMomentOfInertiaInput.value);
-    
-    const lengthUnit = lengthUnitSelect.value;
-    const loadUnit = loadUnitSelect.value;
-    const distributedLoadUnit = distributedLoadUnitSelect.value;
-    const modulusUnit = modulusUnitSelect.value;
-    const inertiaUnit = inertiaUnitSelect.value;
-    const deflectionUnit = deflectionUnitSelect.value;
-    
-    // Validate basic inputs
-    if (!Number.isFinite(beamLength) || beamLength <= 0 || !Number.isFinite(youngsModulus) || youngsModulus <= 0 ||
-        !Number.isFinite(areaMomentOfInertia) || areaMomentOfInertia <= 0) {
-        beamResultPanel.innerHTML = `
-            <h3>Invalid Input</h3>
-            <p>Please enter beam length, Young's modulus, and area moment of inertia.</p>
-        `;
-        return;
-    }
-    
     try {
-        // Convert inputs to SI base units using engineering-units.js
-        const LM = convertDistance(beamLength, lengthUnit);
-        const EPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
-        const IM4 = convertAreaMomentInertia(areaMomentOfInertia, inertiaUnit);
-        const EI = EPa * IM4;
-        
-        let load = 0;
-        let maxDeflectionM = 0;
-        let maxMomentNm = 0;
-        let deflectionLocationPercent = 0;
-        let resultHTML = "";
-        
-        if (loadingCase === "ss-point") {
-            // Simply Supported, Center Point Load
-            load = Number(pointLoadInput.value);
-            if (!Number.isFinite(load) || load === 0) {
-                beamResultPanel.innerHTML = `
-                    <h3>Invalid Input</h3>
-                    <p>Please enter a point load.</p>
-                `;
-                return;
-            }
-            
-            const PN = convertForce(load, loadUnit);
-            // δ_max = P·L³ / (48·E·I)
-            maxDeflectionM = (PN * Math.pow(LM, 3)) / (48 * EI);
-            // M_max = P·L / 4
-            maxMomentNm = (PN * LM) / 4;
-            deflectionLocationPercent = 50;
-            
-            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
-            
-            resultHTML = `
-                <h3>Result - Simply Supported + Center Point Load</h3>
-                <div class="result-value">
-                    δ<sub>max</sub> = ${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}
-                </div>
-                <hr>
-                <p><strong>Calculation Summary</strong></p>
-                <p><strong>Case:</strong> Simply Supported Beam with Center Point Load</p>
-                <p>δ<sub>max</sub> = P·L³ / (48·E·I)</p>
-                <p>δ<sub>max</sub> = ${PN.toLocaleString(undefined, { maximumFractionDigits: 2 })} N × ${LM}³ m³ / (48 × ${EPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa × ${IM4.toLocaleString(undefined, { maximumFractionDigits: 8 })} m⁴)</p>
-                <p>= <strong>${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}</strong></p>
-                <p><strong>Maximum Moment:</strong></p>
-                <p>M<sub>max</sub> = P·L / 4 = ${maxMomentNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N·m</p>
-                <p><strong>Maximum Deflection Location:</strong> Midspan (L/2)</p>
-            `;
-            
-        } else if (loadingCase === "ss-udl") {
-            // Simply Supported, Uniform Distributed Load
-            load = Number(distributedLoadInput.value);
-            if (!Number.isFinite(load) || load === 0) {
-                beamResultPanel.innerHTML = `
-                    <h3>Invalid Input</h3>
-                    <p>Please enter a distributed load.</p>
-                `;
-                return;
-            }
-            
-            // Convert N/m format using convertDistributedLoad from engineering-units.js
-            const wNm = convertDistributedLoad(load, distributedLoadUnit);
-            
-            // δ_max = 5·w·L⁴ / (384·E·I)
-            maxDeflectionM = (5 * wNm * Math.pow(LM, 4)) / (384 * EI);
-            // M_max = w·L² / 8
-            maxMomentNm = (wNm * Math.pow(LM, 2)) / 8;
-            deflectionLocationPercent = 50;
-            
-            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
-            
-            resultHTML = `
-                <h3>Result - Simply Supported + Uniform Distributed Load</h3>
-                <div class="result-value">
-                    δ<sub>max</sub> = ${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}
-                </div>
-                <hr>
-                <p><strong>Calculation Summary</strong></p>
-                <p><strong>Case:</strong> Simply Supported Beam with Uniform Distributed Load</p>
-                <p>δ<sub>max</sub> = 5·w·L⁴ / (384·E·I)</p>
-                <p>δ<sub>max</sub> = 5 × ${wNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N/m × ${LM}⁴ m⁴ / (384 × ${EPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa × ${IM4.toLocaleString(undefined, { maximumFractionDigits: 8 })} m⁴)</p>
-                <p>= <strong>${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}</strong></p>
-                <p><strong>Maximum Moment:</strong></p>
-                <p>M<sub>max</sub> = w·L² / 8 = ${maxMomentNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N·m</p>
-                <p><strong>Maximum Deflection Location:</strong> Midspan (L/2)</p>
-            `;
-            
-        } else if (loadingCase === "cant-point") {
-            // Cantilever, Point Load at Free End
-            load = Number(pointLoadInput.value);
-            if (!Number.isFinite(load) || load === 0) {
-                beamResultPanel.innerHTML = `
-                    <h3>Invalid Input</h3>
-                    <p>Please enter a point load.</p>
-                `;
-                return;
-            }
-            
-            const PN = convertForce(load, loadUnit);
-            // δ_max = P·L³ / (3·E·I)
-            maxDeflectionM = (PN * Math.pow(LM, 3)) / (3 * EI);
-            // M_max = P·L (at fixed end)
-            maxMomentNm = PN * LM;
-            deflectionLocationPercent = 100;
-            
-            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
-            
-            resultHTML = `
-                <h3>Result - Cantilever + Point Load</h3>
-                <div class="result-value">
-                    δ<sub>max</sub> = ${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}
-                </div>
-                <hr>
-                <p><strong>Calculation Summary</strong></p>
-                <p><strong>Case:</strong> Cantilever Beam with Point Load at Free End</p>
-                <p>δ<sub>max</sub> = P·L³ / (3·E·I)</p>
-                <p>δ<sub>max</sub> = ${PN.toLocaleString(undefined, { maximumFractionDigits: 2 })} N × ${LM}³ m³ / (3 × ${EPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa × ${IM4.toLocaleString(undefined, { maximumFractionDigits: 8 })} m⁴)</p>
-                <p>= <strong>${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}</strong></p>
-                <p><strong>Maximum Moment:</strong></p>
-                <p>M<sub>max</sub> = P·L = ${maxMomentNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N·m (at fixed end)</p>
-                <p><strong>Maximum Deflection Location:</strong> Free end (100% from fixed end)</p>
-            `;
-            
-        } else if (loadingCase === "cant-udl") {
-            // Cantilever, Uniform Distributed Load
-            load = Number(distributedLoadInput.value);
-            if (!Number.isFinite(load) || load === 0) {
-                beamResultPanel.innerHTML = `
-                    <h3>Invalid Input</h3>
-                    <p>Please enter a distributed load.</p>
-                `;
-                return;
-            }
-            
-            const wNm = convertDistributedLoad(load, distributedLoadUnit);
-            
-            // δ_max = w·L⁴ / (8·E·I)
-            maxDeflectionM = (wNm * Math.pow(LM, 4)) / (8 * EI);
-            // M_max = w·L² / 2 (at fixed end)
-            maxMomentNm = (wNm * Math.pow(LM, 2)) / 2;
-            deflectionLocationPercent = 100;
-            
-            const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
-            
-            resultHTML = `
-                <h3>Result - Cantilever + Uniform Distributed Load</h3>
-                <div class="result-value">
-                    δ<sub>max</sub> = ${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}
-                </div>
-                <hr>
-                <p><strong>Calculation Summary</strong></p>
-                <p><strong>Case:</strong> Cantilever Beam with Uniform Distributed Load</p>
-                <p>δ<sub>max</sub> = w·L⁴ / (8·E·I)</p>
-                <p>δ<sub>max</sub> = ${wNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N/m × ${LM}⁴ m⁴ / (8 × ${EPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa × ${IM4.toLocaleString(undefined, { maximumFractionDigits: 8 })} m⁴)</p>
-                <p>= <strong>${deflectionOutput.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${deflectionUnit}</strong></p>
-                <p><strong>Maximum Moment:</strong></p>
-                <p>M<sub>max</sub> = w·L² / 2 = ${maxMomentNm.toLocaleString(undefined, { maximumFractionDigits: 2 })} N·m (at fixed end)</p>
-                <p><strong>Maximum Deflection Location:</strong> Free end (100% from fixed end)</p>
-            `;
+        const caseDefinition = beamDeflectionCases[loadingCaseSelect.value];
+        if (!caseDefinition) throw new Error("Select one of the supported load/support cases.");
+
+        const spanRaw = beamLengthInput.value.trim();
+        const modulusRaw = youngsModulusInput.value.trim();
+        if (spanRaw === "" || modulusRaw === "") {
+            throw new Error("Beam span and Young's modulus are required.");
         }
-        
-        beamResultPanel.innerHTML = resultHTML;
-        
-    } catch (error) {
+        const span = Number(spanRaw);
+        const modulus = Number(modulusRaw);
+        const lengthUnit = lengthUnitSelect.value;
+        const modulusUnit = modulusUnitSelect.value;
+        const spanM = convertDistance(span, lengthUnit);
+        const modulusPa = convertModulus(modulus, modulusUnit);
+        if (!Number.isFinite(span) || span <= 0 || !Number.isFinite(spanM) || spanM <= 0) {
+            throw new Error("Beam span must be a positive finite length.");
+        }
+        if (!Number.isFinite(modulus) || modulus <= 0 || !Number.isFinite(modulusPa) || modulusPa <= 0) {
+            throw new Error("Young's modulus must be positive and finite.");
+        }
+
+        const profile = document.getElementById("sectionType").value;
+        const axis = document.getElementById("bendingAxis").value;
+        const { dimensions, entries } = beamDeflectionProfileInputs(profile);
+        const properties = window.BeamSectionProperties.calculate(profile, dimensions);
+        const inertiaM4 = axis === "x" ? properties.inertiaX : properties.inertiaY;
+        const flexuralRigidity = modulusPa * inertiaM4;
+        if (!Number.isFinite(flexuralRigidity) || flexuralRigidity <= 0) {
+            throw new Error("The flexural rigidity is outside the supported numerical range.");
+        }
+
+        const isPointLoad = loadingCaseSelect.value.endsWith("point");
+        const loadInput = isPointLoad ? pointLoadInput : distributedLoadInput;
+        const loadRaw = loadInput.value.trim();
+        if (loadRaw === "") throw new Error(isPointLoad ? "Point load is required." : "Uniform distributed load is required.");
+        const load = Number(loadRaw);
+        if (!Number.isFinite(load) || load === 0) {
+            throw new Error("Load must be finite and non-zero.");
+        }
+        const loadUnit = isPointLoad ? loadUnitSelect.value : distributedLoadUnitSelect.value;
+        const loadSI = isPointLoad ? convertForce(load, loadUnit) : convertDistributedLoad(load, loadUnit);
+        if (!Number.isFinite(loadSI) || loadSI === 0) throw new Error("Load and its selected units must be finite and non-zero.");
+
+        let maxDeflectionM;
+        if (loadingCaseSelect.value === "ss-point") maxDeflectionM = loadSI * spanM ** 3 / (48 * flexuralRigidity);
+        else if (loadingCaseSelect.value === "ss-udl") maxDeflectionM = 5 * loadSI * spanM ** 4 / (384 * flexuralRigidity);
+        else if (loadingCaseSelect.value === "cant-point") maxDeflectionM = loadSI * spanM ** 3 / (3 * flexuralRigidity);
+        else maxDeflectionM = loadSI * spanM ** 4 / (8 * flexuralRigidity);
+        const maxMomentNm = caseDefinition.moment(loadSI, spanM);
+        if (!Number.isFinite(maxDeflectionM) || !Number.isFinite(maxMomentNm)) {
+            throw new Error("The result is outside the supported numerical range.");
+        }
+
+        const deflectionUnit = deflectionUnitSelect.value;
+        const inertiaUnit = inertiaUnitSelect.value;
+        const areaUnit = "mm²";
+        const lengthDisplayUnit = entries[0].unit;
+        const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
+        const deflectionMagnitude = Math.abs(deflectionOutput);
+        const location = spanM * caseDefinition.locationFraction;
+        const locationOutput = convertDistanceToUnit(location, lengthUnit);
+        const maxMomentOutput = convertMomentToUnit(maxMomentNm, "N·m");
+        const areaOutput = convertAreaToUnit(properties.area, areaUnit);
+        const inertiaXOutput = convertAreaMomentInertiaToUnit(properties.inertiaX, inertiaUnit);
+        const inertiaYOutput = convertAreaMomentInertiaToUnit(properties.inertiaY, inertiaUnit);
+        const selectedInertiaOutput = convertAreaMomentInertiaToUnit(inertiaM4, inertiaUnit);
+        const centroidXOutput = convertDistanceToUnit(properties.centroidX, lengthDisplayUnit);
+        const centroidYOutput = convertDistanceToUnit(properties.centroidY, lengthDisplayUnit);
+        const sectionModulusX = properties.sectionModulusX / convertDistance(1, lengthDisplayUnit) ** 3;
+        const sectionModulusY = properties.sectionModulusY / convertDistance(1, lengthDisplayUnit) ** 3;
+        const axisLabel = axis === "x" ? "horizontal x-axis (Iₓ)" : "vertical y-axis (Iᵧ)";
+        const equation = caseDefinition.formula;
+        document.getElementById("profileEquation").textContent = `\\[ ${window.BeamSectionProperties.equations(profile)[0]} \\]`;
+
         beamResultPanel.innerHTML = `
-            <h3>Calculation Error</h3>
-            <p>${error.message}</p>
+            <h3>Result — ${beamDeflectionEscape(caseDefinition.name)}</h3>
+            <div class="result-label">Maximum deflection magnitude</div>
+            <div class="result-value" aria-label="Maximum deflection">${beamDeflectionFormat(deflectionOutput)} ${beamDeflectionEscape(deflectionUnit)}</div>
+            <hr>
+            <p><strong>Beam model</strong></p>
+            <p>Support and loading: ${beamDeflectionEscape(caseDefinition.support)} · ${beamDeflectionEscape(caseDefinition.name)}</p>
+            <p>Maximum deflection location: ${caseDefinition.location}, ${beamDeflectionFormat(locationOutput)} ${beamDeflectionEscape(lengthUnit)} from the left end / fixed root.</p>
+            ${isPointLoad ? `<p>Deflection at point-load position: ${beamDeflectionFormat(deflectionOutput)} ${beamDeflectionEscape(deflectionUnit)}</p>` : ""}
+            <p>Signed deflection: δ<sub>max</sub> = ${beamDeflectionFormat(deflectionOutput)} ${beamDeflectionEscape(deflectionUnit)}; magnitude = ${beamDeflectionFormat(deflectionMagnitude)} ${beamDeflectionEscape(deflectionUnit)}</p>
+            <p><strong>Governing deflection equation:</strong></p>
+            <div class="formula-box">\\[ ${beamDeflectionEscape(equation)} \\]</div>
+            <p>Maximum bending moment: M<sub>max</sub> = ${beamDeflectionFormat(maxMomentOutput)} N·m</p>
+            <p><strong>Section properties (${beamDeflectionEscape(window.BeamSectionUI.getName(profile))})</strong></p>
+            <p>Area A = ${beamDeflectionFormat(areaOutput)} ${areaUnit}; centroid x̄ = ${beamDeflectionFormat(centroidXOutput)} ${beamDeflectionEscape(lengthDisplayUnit)}, ȳ = ${beamDeflectionFormat(centroidYOutput)} ${beamDeflectionEscape(lengthDisplayUnit)} from lower-left bounds.</p>
+            <p>Iₓ = ${beamDeflectionFormat(inertiaXOutput)} ${beamDeflectionEscape(inertiaUnit)}; Iᵧ = ${beamDeflectionFormat(inertiaYOutput)} ${beamDeflectionEscape(inertiaUnit)}; selected ${axisLabel}: I = ${beamDeflectionFormat(selectedInertiaOutput)} ${beamDeflectionEscape(inertiaUnit)}.</p>
+            <p>Section moduli: Sₓ = ${beamDeflectionFormat(sectionModulusX)} ${beamDeflectionEscape(lengthDisplayUnit)}³; Sᵧ = ${beamDeflectionFormat(sectionModulusY)} ${beamDeflectionEscape(lengthDisplayUnit)}³.</p>
+            <p>Flexural rigidity EI = ${beamDeflectionFormat(flexuralRigidity)} N·m²; E = ${beamDeflectionFormat(modulusPa)} Pa.</p>
+            <p><small>Assumptions: linear-elastic homogeneous material, small deflection, prismatic beam with constant E and I, Euler–Bernoulli theory (shear deformation neglected), static loading, and ideal pin/roller or fixed-free supports. Not suitable where shear deformation, plasticity, local/lateral buckling, connection flexibility, support settlement, or dynamic effects dominate. Deflected-shape sketches are schematic, not to scale.</small></p>
         `;
+        if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
+
+        if (window.FormulaFoundryReport) {
+            const dimensionInputs = entries.map(({ label, value, unit }) => ({ label, value, unit }));
+            const inputs = [
+                { label: "Loading / support case", value: caseDefinition.name, unit: "" },
+                { label: "Support configuration", value: caseDefinition.support, unit: "" },
+                { label: "Beam span (L)", value: span, unit: lengthUnit },
+                { label: isPointLoad ? "Point load (P)" : "Uniform distributed load (w)", value: load, unit: loadUnit },
+                { label: "Young's modulus (E)", value: modulus, unit: modulusUnit },
+                { label: "Cross-section profile", value: window.BeamSectionUI.getName(profile), unit: "" },
+                ...dimensionInputs,
+                { label: "Bending axis", value: axisLabel, unit: "" }
+            ];
+            const outputs = [
+                { label: "Cross-sectional area (A)", value: areaOutput, unit: areaUnit },
+                { label: "Centroid x̄", value: centroidXOutput, unit: lengthDisplayUnit },
+                { label: "Centroid ȳ", value: centroidYOutput, unit: lengthDisplayUnit },
+                { label: "Second moment of area (Iₓ)", value: inertiaXOutput, unit: inertiaUnit },
+                { label: "Second moment of area (Iᵧ)", value: inertiaYOutput, unit: inertiaUnit },
+                { label: "Selected second moment of area (I)", value: selectedInertiaOutput, unit: inertiaUnit },
+                { label: "Section modulus (Sₓ)", value: sectionModulusX, unit: lengthDisplayUnit + "³" },
+                { label: "Section modulus (Sᵧ)", value: sectionModulusY, unit: lengthDisplayUnit + "³" },
+                { label: "Maximum deflection (signed)", value: deflectionOutput, unit: deflectionUnit },
+                { label: "Maximum deflection magnitude", value: deflectionMagnitude, unit: deflectionUnit },
+                { label: "Maximum deflection location", value: locationOutput, unit: lengthUnit },
+                { label: "Maximum bending moment", value: maxMomentOutput, unit: "N·m" },
+                { label: "Flexural rigidity (EI)", value: flexuralRigidity, unit: "N·m²" }
+            ];
+            window.FormulaFoundryReport.recordResult({
+                calculatorId: "beam-deflection",
+                calculatorName: "Beam Deflection",
+                path: "calculators/beam-deflection.html",
+                title: caseDefinition.name + " — " + window.BeamSectionUI.getName(profile),
+                inputs,
+                outputs,
+                diagram: { type: "beam-section", profile, dimensions: { ...dimensions }, axis, unit: "m" },
+                equations: [...window.BeamSectionProperties.equations(profile), equation],
+                assumptions: [
+                    "Linear-elastic homogeneous material, small deflection, prismatic beam and constant E and I.",
+                    "Euler–Bernoulli beam theory; shear deformation is neglected.",
+                    "Static full-span loading with ideal pin/roller or fixed-free supports, as specified by the selected case.",
+                    "The closed-form solution does not represent plasticity, buckling, connection flexibility, support settlement, or dynamic effects."
+                ],
+                method: "The selected cross-section determines its centroidal inertia about the chosen bending axis. The corresponding closed-form Euler–Bernoulli beam solution is then evaluated using span, elastic modulus, and the selected point or uniform load.",
+                warnings: ["Use only for the listed load and support cases; partial or varying loads and non-ideal supports require a different model."]
+            });
+        }
+    } catch (error) {
+        beamResultPanel.innerHTML = `<h3>Invalid Input</h3><p>${beamDeflectionEscape(error.message)}</p>`;
+        if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
     }
 }
 
@@ -236,8 +244,9 @@ function resetBeamDeflectionCalculator() {
     pointLoadInput.value = "";
     distributedLoadInput.value = "";
     youngsModulusInput.value = "";
-    areaMomentOfInertiaInput.value = "";
-    
+    const fields = Object.values(window.BeamSectionUI.profiles).flatMap((profile) => profile.fields);
+    [...new Set(fields.map(({ id }) => id))].forEach((id) => { document.getElementById(id).value = ""; });
+    [...new Set(fields.map(({ unit }) => unit))].forEach((unit) => { document.getElementById(unit).value = "mm"; });
     lengthUnitSelect.value = "m";
     loadUnitSelect.value = "N";
     distributedLoadUnitSelect.value = "N/m";
@@ -245,12 +254,18 @@ function resetBeamDeflectionCalculator() {
     inertiaUnitSelect.value = "m⁴";
     deflectionUnitSelect.value = "m";
     loadingCaseSelect.value = "ss-point";
-    
+    document.getElementById("sectionType").value = "rectangular";
+    document.getElementById("bendingAxis").value = "x";
     updateBeamDeflectionMode();
     beamResultPanel.innerHTML = "Ready to calculate.";
 }
 
-// Initialize on page load
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.FormulaFoundryReport) window.FormulaFoundryReport.declareStructured();
+    document.querySelectorAll("#sectionType, #bendingAxis, .profile-inputs input, .profile-inputs select")
+        .forEach((input) => input.addEventListener("input", () => {
+            window.BeamSectionUI.updateDiagram(document, document.getElementById("sectionType").value, document.getElementById("bendingAxis").value);
+        }));
+    document.getElementById("bendingAxis").addEventListener("change", updateBeamDeflectionMode);
     updateBeamDeflectionMode();
 });

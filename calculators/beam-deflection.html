@@ -54,7 +54,7 @@
     <h1>Beam Deflection Calculator</h1>
 
     <p>
-        Calculate maximum beam deflection, bending moment, and slope for common static loading cases
+        Calculate maximum beam deflection and bending moment for four established static loading cases
         using Euler-Bernoulli beam theory.
     </p>
 
@@ -89,6 +89,7 @@
             <p>
                 Deflection magnitude depends on load intensity, span \(L\), and flexural rigidity \(EI\). This page uses four classical closed-form Euler-Bernoulli cases with ideal support conditions.
             </p>
+            <p>The shared section axes are x (horizontal across the section) and y (vertical). Select the bending axis to choose \(I_x\) or \(I_y\); the beam loading models are vertical transverse loading with idealized supports. Dashed deflection curves below are schematic and not to scale.</p>
 
 
             <h3>Governing Equations</h3>
@@ -403,25 +404,69 @@
     </div>
 
 
-    <!-- Area Moment of Inertia -->
-    <label class="input-label">
-        Area Moment of Inertia (I)
-    </label>
+    <h3>Cross-Section Profile</h3>
+    <label class="input-label" for="sectionType">Cross-section profile</label>
+    <select id="sectionType" class="output-select" onchange="updateBeamDeflectionMode()">
+       <option value="rectangular">Solid rectangle / square</option>
+       <option value="solid-circular">Solid circle</option>
+       <option value="hollow-circular">Hollow circle / tube</option>
+       <option value="hollow-rectangular">Hollow rectangle / tube</option>
+       <option value="i-beam">Symmetric I-beam</option>
+       <option value="t-section">T-section</option>
+    </select>
 
-    <div class="input-row">
-        <input id="areaMomentOfInertia" type="number" placeholder="Enter area moment of inertia">
-        <select id="inertiaUnit">
-            <option>mm⁴</option>
-            <option>cm⁴</option>
-            <option selected>m⁴</option>
-            <option>in⁴</option>
-        </select>
+    <div id="rectSectionInputs" class="profile-inputs">
+       <label class="input-label" for="rectWidth">Width (b)</label>
+       <div class="input-row"><input id="rectWidth" type="number" step="any" min="0" placeholder="Width"><select id="rectWidthUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+       <label class="input-label" for="rectHeight">Height (h)</label>
+       <div class="input-row"><input id="rectHeight" type="number" step="any" min="0" placeholder="Height"><select id="rectHeightUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
     </div>
+    <div id="solidCircularInputs" class="profile-inputs" hidden>
+       <label class="input-label" for="diameter">Diameter (d)</label>
+       <div class="input-row"><input id="diameter" type="number" step="any" min="0" placeholder="Diameter"><select id="diameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <div id="hollowCircularInputs" class="profile-inputs" hidden>
+       <label class="input-label" for="outerDiameter">Outer diameter (D)</label>
+       <div class="input-row"><input id="outerDiameter" type="number" step="any" min="0" placeholder="Outer diameter"><select id="outerDiameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+       <label class="input-label" for="innerDiameter">Inner diameter (d)</label>
+       <div class="input-row"><input id="innerDiameter" type="number" step="any" min="0" placeholder="Inner diameter"><select id="innerDiameterUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <div id="hollowRectInputs" class="profile-inputs" hidden>
+       <label class="input-label" for="outerWidth">Outer width (B)</label>
+       <div class="input-row"><input id="outerWidth" type="number" step="any" min="0" placeholder="Outer width"><select id="outerWidthUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+       <label class="input-label" for="outerHeight">Outer height (H)</label>
+       <div class="input-row"><input id="outerHeight" type="number" step="any" min="0" placeholder="Outer height"><select id="outerHeightUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+       <label class="input-label" for="wallThickness">Wall thickness (t)</label>
+       <div class="input-row"><input id="wallThickness" type="number" step="any" min="0" placeholder="Wall thickness"><select id="wallThicknessUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <div id="compositeSectionInputs" class="profile-inputs" hidden>
+       <label class="input-label" for="overallHeight">Overall height (H)</label>
+       <div class="input-row"><input id="overallHeight" type="number" step="any" min="0" placeholder="Overall height"><select id="overallHeightUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+       <label class="input-label" for="flangeWidth">Flange width (B)</label>
+       <div class="input-row"><input id="flangeWidth" type="number" step="any" min="0" placeholder="Flange width"><select id="flangeWidthUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+       <label class="input-label" for="flangeThickness">Flange thickness (t<sub>f</sub>)</label>
+       <div class="input-row"><input id="flangeThickness" type="number" step="any" min="0" placeholder="Flange thickness"><select id="flangeThicknessUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+       <label class="input-label" for="webThickness">Web thickness (t<sub>w</sub>)</label>
+       <div class="input-row"><input id="webThickness" type="number" step="any" min="0" placeholder="Web thickness"><select id="webThicknessUnit"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option></select></div>
+    </div>
+    <figure class="beam-profile-diagram" aria-live="polite">
+       <div id="profileDiagram" role="img" aria-label="Selected beam cross-section schematic"></div>
+       <figcaption id="profileDiagramCaption">Select a profile and enter dimensions to update the schematic.</figcaption>
+    </figure>
+    <div class="formula-box" id="profileEquation" aria-label="Selected cross-section properties"></div>
+    <label class="input-label" for="bendingAxis">Bending about section axis</label>
+    <select id="bendingAxis" class="output-select">
+       <option value="x">Horizontal x-axis (Iₓ)</option>
+       <option value="y">Vertical y-axis (Iᵧ)</option>
+    </select>
+    <p><small>Vertical beam loading bends about the selected cross-section axis; the result uses its matching second moment of area.</small></p>
 
-    <p style="font-size: 12px; color: #666; margin-top: 8px;">
-        For rectangular section: I = b·h³/12<br>
-        For circular: I = π·d⁴/64
-    </p>
+    <label class="input-label">
+       Section property units
+    </label>
+    <select id="inertiaUnit" class="output-select">
+       <option>mm⁴</option><option>cm⁴</option><option selected>m⁴</option><option>in⁴</option>
+    </select>
 
 
     <hr>
@@ -651,6 +696,8 @@ This calculator does not account for lateral-torsional buckling, support settlem
 <script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
+<script src="../js/beam-section-properties.js"></script>
+<script src="../js/beam-section-ui.js"></script>
 <script src="../js/beam-deflection.js"></script>
 
 <script src="../js/report-builder.js"></script>
