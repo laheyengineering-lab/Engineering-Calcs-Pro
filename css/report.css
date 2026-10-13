@@ -276,9 +276,6 @@
         page-break-after: avoid;
     }
 
-    .report-table tr,
-    .report-table thead,
-    .report-table tbody,
     .entry-meta,
     .formula-box {
         break-inside: avoid;
@@ -287,11 +284,6 @@
 
     .report-table-wrap {
         overflow: visible;
-    }
-
-    .report-entry h2 {
-        break-after: avoid;
-        page-break-after: avoid;
     }
 
     .report-table {
@@ -306,6 +298,12 @@
     .report-table tr {
         break-inside: avoid;
         page-break-inside: avoid;
+    }
+
+    p,
+    li {
+        orphans: 2;
+        widows: 2;
     }
 
     .report-general-notes.is-empty,

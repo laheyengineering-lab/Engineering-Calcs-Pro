@@ -69,6 +69,16 @@ describe('beam bending stress calculator', () => {
         window.calculateBeamBendingStress();
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(12, 3);
 
+        setInputValue(document, 'moment', 2000);
+        window.calculateBeamBendingStress();
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(24, 3);
+
+        setInputValue(document, 'moment', 1000);
+        setSelectValue(document, 'rectWidthUnit', 'cm');
+        setInputValue(document, 'rectWidth', 5);
+        window.calculateBeamBendingStress();
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(12, 3);
+
         setSelectValue(document, 'bendingAxis', 'y');
         window.calculateBeamBendingStress();
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(24, 3);
@@ -101,7 +111,7 @@ describe('beam bending stress calculator', () => {
         window.calculateBeamBendingStress();
         expect(extractNumber(getResultText(document), /ȳ = ([\d.,]+) mm/)).toBeCloseTo(83.5714, 3);
         expect(getResultText(document)).toContain('Iₓ = 2,402,600 mm⁴');
-        expect(getResultText(document)).toContain('centroidal x-axis');
+        expect(getResultText(document)).toContain('Selected horizontal x-axis');
         expect(document.querySelector('#profileDiagram svg').getAttribute('aria-label')).toContain('T-section');
         expect(document.querySelector('.beam-axis.selected')).toBeTruthy();
     });

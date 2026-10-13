@@ -205,6 +205,46 @@ describe('report workspace page', () => {
         expect(window.document.querySelectorAll('.entry-controls.no-print')).toHaveLength(2);
     });
 
+    it('renders three entries with long content in natural report flow', () => {
+        const storage = memoryStorage();
+        seed(storage);
+        const { document, window } = openReport(storage);
+        const added = window.FormulaFoundryReport.store.addEntry({
+            calculatorId: 'moment',
+            calculatorName: 'Moment',
+            path: 'calculators/moment.html',
+            title: 'Moment verification',
+            inputs: [{ label: 'Force', value: 10, unit: 'N' }],
+            outputs: [{ label: 'Moment', value: 20, unit: 'N·m' }],
+            equations: ['M = F d'],
+            assumptions: ['Static loading'],
+            method: 'A short calculation which can share a printed page.'
+        });
+        expect(added.ok).toBe(true);
+        window.FormulaFoundryReportPage.render();
+
+        expect(document.querySelectorAll('.report-entry')).toHaveLength(3);
+        expect(document.querySelectorAll('.report-toc li')).toHaveLength(3);
+        expect(document.querySelectorAll('.report-entry .report-table')).toHaveLength(6);
+        expect(document.querySelectorAll('.report-entry .formula-box').length).toBeGreaterThanOrEqual(3);
+        expect(document.querySelector('.report-empty')).toBeNull();
+        expect(document.querySelector('.report-general-notes').classList.contains('is-empty')).toBe(true);
+        const longNotes = 'Extended design basis. '.repeat(120);
+        const noteInput = document.querySelector('.entry-controls textarea');
+        noteInput.value = longNotes;
+        noteInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.querySelector('[data-entry-notes]').textContent).toBe(longNotes);
+        expect(window.FormulaFoundryReport.store.load().entries[0].notes).toBe(longNotes);
+
+        const css = fs.readFileSync('css/report.css', 'utf8');
+        expect(css).not.toMatch(/\.report-entry\s*{[^}]*break-before:\s*page/);
+        expect(css).not.toMatch(/\.report-cover\s*{[^}]*break-after:\s*page/);
+        expect(css).not.toMatch(/\.report-toc\s*{[^}]*break-after:\s*page/);
+        expect(css).toMatch(/\.report-entry\s*{[^}]*break-inside: auto/);
+        expect(css).not.toMatch(/height:\s*\d+(?:px|vh)/);
+        expect(css).toContain('overflow: visible !important');
+    });
+
     it('lets the user rename, annotate, reorder, remove and clear', () => {
         const storage = memoryStorage();
         seed(storage);

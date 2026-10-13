@@ -14,16 +14,24 @@
             || centroidX < 0 || centroidX > width || centroidY < 0 || centroidY > height) {
             throw new Error("The dimensions do not form a valid cross-section.");
         }
+        const extremeFiberX = Math.max(centroidY, height - centroidY);
+        const extremeFiberY = Math.max(centroidX, width - centroidX);
+        const sectionModulusX = inertiaX / extremeFiberX;
+        const sectionModulusY = inertiaY / extremeFiberY;
+        if (![extremeFiberX, extremeFiberY, sectionModulusX, sectionModulusY].every(Number.isFinite)
+            || extremeFiberX <= 0 || extremeFiberY <= 0 || sectionModulusX <= 0 || sectionModulusY <= 0) {
+            throw new Error("The dimensions exceed the supported numerical range.");
+        }
         return {
             area,
             centroidX,
             centroidY,
             inertiaX,
             inertiaY,
-            extremeFiberX: Math.max(centroidY, height - centroidY),
-            extremeFiberY: Math.max(centroidX, width - centroidX),
-            sectionModulusX: inertiaX / Math.max(centroidY, height - centroidY),
-            sectionModulusY: inertiaY / Math.max(centroidX, width - centroidX)
+            extremeFiberX,
+            extremeFiberY,
+            sectionModulusX,
+            sectionModulusY
         };
     }
 
