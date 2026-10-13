@@ -90,15 +90,21 @@ describe('Hertzian contact: validation and UI', () => {
         setSelectValue(document, 'configuration', 'spheres');
         window.updateHertzConfiguration();
         expect(document.getElementById('lengthGroup').hidden).toBe(true);
+        expect(document.getElementById('sphereContactDiagram').hidden).toBe(false);
+        expect(document.getElementById('cylinderContactDiagram').hidden).toBe(true);
+        expect(document.getElementById('sphereContactDiagram').closest('.calculator-column')).toBeTruthy();
         fill(document, { diameter1: 50, diameter2: 50, contactForce: 1000, modulus1: 200, poisson1: 0.3, modulus2: 200, poisson2: 0.3 });
         window.calculateHertzContact();
         const text = getResultText(document);
         expect(extractNumber(text, /Maximum contact pressure: ([\d.,]+) MPa/)).toBeCloseTo(2463.77, 1);
         expect(extractNumber(text, /Contact radius a: ([\d.,]+) mm/)).toBeCloseTo(0.440221, 5);
+        expect(document.getElementById('sphereContactDiagram').hidden).toBe(false);
     });
 
     it('shows formatted results for cylinders and handles the flat shape and material presets', () => {
         const { document, window } = load();
+        expect(document.getElementById('cylinderContactDiagram').hidden).toBe(false);
+        expect(document.getElementById('sphereContactDiagram').hidden).toBe(true);
         setSelectValue(document, 'material1', 'carbon-steel');
         window.applyHertzMaterial(1);
         expect(document.getElementById('modulus1').value).toBe('200');
@@ -110,6 +116,10 @@ describe('Hertzian contact: validation and UI', () => {
         setSelectValue(document, 'shape2', 'flat');
         window.updateHertzShape();
         expect(document.getElementById('diameter2Group').hidden).toBe(true);
+        setSelectValue(document, 'configuration', 'spheres');
+        window.updateHertzConfiguration();
+        expect(document.getElementById('cylinderContactDiagram').hidden).toBe(true);
+        expect(document.getElementById('sphereContactDiagram').hidden).toBe(false);
         window.calculateHertzContact();
         const flat = extractNumber(getResultText(document), /Maximum contact pressure: ([\d.,]+) MPa/);
         expect(flat).toBeLessThan(first); // larger equivalent radius lowers contact pressure

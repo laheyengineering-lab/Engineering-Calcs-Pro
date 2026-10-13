@@ -1209,6 +1209,27 @@ footer,
     max-width: 640px;
 }
 
+.contact-diagram {
+    max-width: 420px;
+    margin: var(--space-3) auto var(--space-4);
+    text-align: center;
+}
+
+.contact-diagram[hidden] {
+    display: none;
+}
+
+.contact-diagram svg {
+    display: block;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.contact-diagram figcaption {
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+}
+
 .section-grid {
     display: grid;
     gap: var(--space-2);

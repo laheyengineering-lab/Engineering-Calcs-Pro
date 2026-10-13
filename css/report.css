@@ -202,10 +202,14 @@
 }
 
 @media print {
+    html,
     body {
         background: #fff !important;
         color: #26282b;
         font-size: 10.5pt;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
     }
 
     .site-header,
@@ -219,15 +223,24 @@
 
     .container {
         max-width: none;
+        width: auto;
+        height: auto !important;
+        min-height: 0 !important;
         padding: 0;
         margin: 0;
+        overflow: visible !important;
     }
 
     .report-document {
+        display: block;
+        width: auto;
+        height: auto !important;
+        min-height: 0 !important;
         border: 0;
         padding: 0;
         margin: 0;
         background: transparent;
+        overflow: visible !important;
     }
 
     .print-running-header,
@@ -249,37 +262,56 @@
         bottom: -16mm;
     }
 
-    .report-cover {
-        break-after: page;
-    }
-
-    .report-toc {
-        break-after: page;
-    }
-
     .report-entry {
-        break-before: page;
         break-inside: auto;
         border-top: 0;
-        margin-top: 0;
+        margin-top: 1em;
         padding-top: 0;
-    }
-
-    .report-table-wrap,
-    .report-table tr,
-    .report-block,
-    .formula-box {
-        break-inside: avoid;
-    }
-
-    .report-table-wrap {
-        overflow: visible;
     }
 
     .report-entry h2,
     .report-block h4,
     .report-table caption {
         break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .report-table tr,
+    .report-table thead,
+    .report-table tbody,
+    .entry-meta,
+    .formula-box {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .report-table-wrap {
+        overflow: visible;
+    }
+
+    .report-entry h2 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .report-table {
+        display: table;
+        overflow: visible;
+    }
+
+    .report-table thead {
+        display: table-header-group;
+    }
+
+    .report-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .report-general-notes.is-empty,
+    .entry-notes.is-empty,
+    .report-block.is-empty {
+        display: none !important;
     }
 
     a {

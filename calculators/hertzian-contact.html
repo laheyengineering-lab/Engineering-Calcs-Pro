@@ -99,6 +99,34 @@
         <option value="flat">Flat plate</option>
         <option value="concave">Concave (internal contact, larger diameter)</option>
     </select>
+    <figure class="plot-box contact-diagram" id="cylinderContactDiagram">
+        <svg viewBox="0 0 320 190" role="img" aria-label="Two parallel cylinders in line contact under force F">
+            <title>Two cylinders in line contact</title>
+            <circle cx="160" cy="62" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2"/>
+            <circle cx="160" cy="168" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2"/>
+            <line x1="160" y1="2" x2="160" y2="22" stroke="#c05621" stroke-width="3"/>
+            <polygon points="160,26 154,16 166,16" fill="#c05621"/>
+            <text x="171" y="17" font-size="13" fill="#c05621">F</text>
+            <text x="160" y="66" font-size="13" text-anchor="middle" fill="#26282b">R₁</text>
+            <text x="160" y="172" font-size="13" text-anchor="middle" fill="#26282b">R₂</text>
+            <text x="228" y="118" font-size="12" fill="#26282b">line contact</text>
+        </svg>
+        <figcaption><small>Two parallel cylinders; contact extends along length L into the page. Schematic, not to scale.</small></figcaption>
+    </figure>
+    <figure class="plot-box contact-diagram" id="sphereContactDiagram" hidden>
+        <svg viewBox="0 0 320 190" role="img" aria-label="Two spheres in point contact under force F">
+            <title>Two spheres in point contact</title>
+            <circle cx="160" cy="62" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2"/>
+            <circle cx="160" cy="168" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2"/>
+            <line x1="160" y1="2" x2="160" y2="22" stroke="#c05621" stroke-width="3"/>
+            <polygon points="160,26 154,16 166,16" fill="#c05621"/>
+            <text x="171" y="17" font-size="13" fill="#c05621">F</text>
+            <text x="160" y="66" font-size="13" text-anchor="middle" fill="#26282b">R₁</text>
+            <text x="160" y="172" font-size="13" text-anchor="middle" fill="#26282b">R₂</text>
+            <text x="228" y="118" font-size="12" fill="#26282b">point contact</text>
+        </svg>
+        <figcaption><small>Two spheres viewed in cross-section; the contact patch is circular. Schematic, not to scale.</small></figcaption>
+    </figure>
     <h3>Geometry</h3>
     <label class="input-label" for="distanceUnit">Distance Units</label>
     <select id="distanceUnit" class="output-select"><option selected>mm</option><option>cm</option><option>m</option><option>in</option><option>ft</option><option>µm</option></select>
@@ -160,19 +188,6 @@
     </div>
     <div id="result" class="result-panel">
         Ready to calculate.
-    </div>
-    <div class="plot-box">
-        <svg viewBox="0 0 320 190" role="img" aria-label="Schematic of two bodies in contact under force F">
-            <title>Two bodies in contact</title>
-            <circle cx="160" cy="62" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2"/>
-            <circle cx="160" cy="168" r="50" fill="#f5f1ea" stroke="#26282b" stroke-width="2" transform="translate(0 0)"/>
-            <line x1="160" y1="2" x2="160" y2="22" stroke="#c05621" stroke-width="3"/>
-            <text x="168" y="16" font-size="13" fill="#c05621">F</text>
-            <text x="160" y="66" font-size="13" text-anchor="middle" fill="#26282b">R₁</text>
-            <text x="160" y="172" font-size="13" text-anchor="middle" fill="#26282b">R₂</text>
-            <text x="228" y="118" font-size="12" fill="#26282b">contact</text>
-        </svg>
-        <p><small>Schematic only (not to scale). Cylinders: view along the axes, with length L into the page. Spheres: side view.</small></p>
     </div>
 </section>
     </div>

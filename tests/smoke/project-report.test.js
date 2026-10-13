@@ -196,7 +196,10 @@ describe('report workspace page', () => {
 
         const css = fs.readFileSync('css/report.css', 'utf8');
         expect(css).toContain('@media print');
-        expect(css).toMatch(/\.report-entry\s*{[^}]*break-before: page/);
+        expect(css).toMatch(/\.report-entry\s*{[^}]*break-inside: auto/);
+        expect(css).not.toMatch(/\.report-entry\s*{[^}]*break-before:\s*page/);
+        expect(css).not.toMatch(/\.report-cover\s*{[^}]*break-after:\s*page/);
+        expect(css).not.toMatch(/\.report-toc\s*{[^}]*break-after:\s*page/);
         expect(css).toMatch(/\.site-header,[\s\S]*display: none !important/);
         expect(css).toContain('@page');
         expect(window.document.querySelectorAll('.entry-controls.no-print')).toHaveLength(2);
