@@ -11,6 +11,7 @@ Everything is browser-local (`localStorage`, key `formulaFoundry.projectReport`)
 
 ## Snapshot model
 Each entry is a frozen copy: `{ id, calculatorId, calculatorName, title, notes, addedAt, inputs[{label,value,unit}], outputs[{label,value,unit}], equations[], assumptions[], method, warnings[], sourceUrl }`. Beam bending stress and beam deflection entries additionally store a validated `beam-section` diagram model (profile, SI dimensions, display unit, and selected axis), which is rendered into the report.
+Design Studies entries (see `docs/design-studies.md`) may also carry `study` metadata, `tables[]` and a line `chart`; the report prints the numeric tables and an SVG chart rendered from stored points.
 Entries are never recomputed. Re-adding a calculation creates a new entry (there is no in-place "update" yet).
 
 Print output flows naturally: the project summary and index stay compact, short calculations can share a page, and long entries continue across pages. Use the browser's print preview or Save as PDF to inspect the final page breaks.

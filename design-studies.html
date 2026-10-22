@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Studies | Formula Foundry</title>
+<meta name="description" content="Save calculation scenarios, compare them against a baseline, run parametric sweeps and add the results to a Formula Foundry project report.">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/study-chart.css">
+<link rel="stylesheet" href="css/studies.css">
+<link rel="icon" type="image/svg+xml" href="assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/brand/icons/formula-foundry-favicon-64.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="index.html">Home</a>
+            <a href="index.html#catalog">Calculators</a>
+            <a href="about.html">About</a>
+            <a href="references.html">References</a>
+            <a href="methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+    <header class="calculator-header">
+        <h1>Design Studies</h1>
+        <p>Save several scenarios for one calculator, compare them against a baseline, run a parametric sweep of one input and add the results to your project report. Studies are saved in this browser only; nothing is sent anywhere.</p>
+    </header>
+
+    <section class="content-card" aria-labelledby="studyHeading">
+        <h2 id="studyHeading">Study</h2>
+        <div class="study-toolbar">
+            <div>
+                <label class="input-label" for="studySelect">Open saved study</label>
+                <select id="studySelect" class="output-select"></select>
+            </div>
+            <div class="button-row">
+                <button type="button" class="secondary-button" id="saveStudy">Save study</button>
+                <button type="button" class="secondary-button" id="deleteStudy">Delete study</button>
+            </div>
+        </div>
+        <form id="newStudyForm" class="study-toolbar" novalidate>
+            <div>
+                <label class="input-label" for="newStudyName">New study name</label>
+                <div class="input-row"><input id="newStudyName" type="text" maxlength="100" placeholder="e.g. Actuator sizing options"></div>
+            </div>
+            <div>
+                <label class="input-label" for="newStudyCalculator">Calculation type</label>
+                <select id="newStudyCalculator" class="output-select"></select>
+            </div>
+            <div class="button-row"><button type="submit">Create study</button></div>
+        </form>
+        <p class="study-status" id="studyStatus" role="status"></p>
+        <ul class="study-issues" id="studyIssues"></ul>
+    </section>
+
+    <div id="studyWorkspace" hidden>
+        <section class="content-card" aria-labelledby="scenarioHeading">
+            <h2 id="scenarioHeading">Scenarios</h2>
+            <p><small>Each scenario stores its own inputs and a snapshot of its last calculated results. Editing inputs never changes other scenarios, and results only change when you press Recalculate.</small></p>
+            <div class="button-row">
+                <button type="button" id="addScenario">Add scenario</button>
+            </div>
+            <div id="scenarioList" class="scenario-list"></div>
+        </section>
+
+        <section class="content-card" aria-labelledby="compareHeading">
+            <h2 id="compareHeading">Compare scenarios</h2>
+            <div id="comparison"></div>
+        </section>
+
+        <section class="content-card" aria-labelledby="sweepHeading">
+            <h2 id="sweepHeading">Parametric sweep</h2>
+            <p><small>A sweep recalculates the selected baseline scenario with one input varied; all other inputs are held at the baseline values. It is a model-based exploration, not an independent physical test. Maximum <span id="sweepLimit"></span> samples.</small></p>
+            <div id="sweepForm" class="sweep-form"></div>
+            <div id="sweepErrors" class="study-errors" role="alert"></div>
+            <div id="sweepResult"></div>
+            <h3>Saved sweeps</h3>
+            <div id="savedSweeps"></div>
+        </section>
+
+        <section class="content-card" aria-labelledby="supportHeading">
+            <h2 id="supportHeading">Supported calculators</h2>
+            <ul id="supportedList"></ul>
+            <p><small>Other calculators are not yet supported because their calculation logic is not exposed as a structured, DOM-independent function. See <code>docs/design-studies.md</code>.</small></p>
+        </section>
+    </div>
+</div>
+<script src="js/katex-loader.js"></script>
+<script src="js/engineering-units.js"></script>
+<script src="js/calculator-utils.js"></script>
+<script src="js/report-builder.js"></script>
+<script src="js/cylinder-force.js"></script>
+<script src="js/differential-thermal-expansion.js"></script>
+<script src="js/design-study-core.js"></script>
+<script src="js/design-study-adapters.js"></script>
+<script src="js/study-chart.js"></script>
+<script src="js/design-studies.js"></script>
+</body>
+</html>

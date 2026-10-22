@@ -1,0 +1,43 @@
+/* Design Studies workspace */
+.study-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-4, 16px); align-items: flex-end; margin-bottom: var(--space-3, 12px); }
+.study-toolbar > div { flex: 1 1 220px; min-width: 0; }
+.study-toolbar > .button-row { flex: 0 0 auto; }
+.study-status { min-height: 1.4em; margin: 0; font-weight: 600; }
+.study-status.is-error, .study-errors, .scenario-error { color: var(--color-error, #a8201a); }
+.study-issues { color: var(--color-warning, #7a4a00); background: var(--color-warning-bg, #fff4de); border-radius: var(--radius-sm, 6px); margin: 8px 0 0; padding: 8px 8px 8px 28px; }
+.study-issues:empty { display: none; }
+.study-errors ul { margin: 6px 0; }
+.scenario-list { display: grid; gap: var(--space-4, 16px); margin-top: var(--space-4, 16px); }
+.scenario-card { border: 1px solid var(--color-border, #ddd6cb); border-radius: var(--radius-md, 8px); padding: var(--space-4, 16px); background: var(--color-surface, #fff); min-width: 0; }
+.scenario-card.is-baseline { border-color: var(--color-accent, #c05621); border-width: 2px; }
+.scenario-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.scenario-head .scenario-name { flex: 1 1 200px; min-width: 0; }
+.baseline-choice { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; }
+.status-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: var(--text-xs, .8125rem); font-weight: 700; background: var(--color-surface-muted, #f5f1ea); border: 1px solid var(--color-border, #ddd6cb); }
+.status-badge.is-calculated { background: var(--color-success-bg, #e7f6ed); color: var(--color-success, #11693a); }
+.status-badge.is-stale { background: var(--color-warning-bg, #fff4de); color: var(--color-warning, #7a4a00); }
+.status-badge.is-error { background: var(--color-error-bg, #fdeceb); color: var(--color-error, #a8201a); }
+.unit-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+.unit-row label { display: grid; gap: 2px; font-size: var(--text-xs, .8125rem); font-weight: 600; }
+.scenario-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 16px; margin: 8px 0; }
+.scenario-inputs label { font-size: var(--text-sm, .9375rem); display: block; }
+.scenario-inputs .input-row { margin-bottom: 0; }
+.input-unit { white-space: nowrap; color: var(--color-text-muted, #5c6066); padding-left: 6px; align-self: center; }
+.scenario-card details { margin: 8px 0; }
+.scenario-card summary { cursor: pointer; font-weight: 600; }
+.scenario-card .button-row { margin-top: 12px; }
+.table-scroll { overflow-x: auto; max-width: 100%; }
+.study-table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+.study-table caption { text-align: left; font-weight: 700; padding-bottom: 4px; }
+.study-table th, .study-table td { border: 1px solid var(--color-border, #ddd6cb); padding: 4px 8px; text-align: left; vertical-align: top; }
+.study-table th { background: var(--color-surface-muted, #f5f1ea); }
+.study-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.study-table td.is-changed { background: var(--color-accent-soft, #fbece3); }
+.study-table td.is-failed { background: var(--color-error-bg, #fdeceb); }
+.study-table .diff { display: block; font-size: var(--text-xs, .8125rem); color: var(--color-text-muted, #5c6066); }
+.sweep-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px; align-items: end; }
+.sweep-form .button-row { grid-column: 1 / -1; }
+.sweep-actions { margin: 8px 0; }
+.sweep-layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .sweep-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.saved-sweep { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border, #ddd6cb); padding: 6px 0; }

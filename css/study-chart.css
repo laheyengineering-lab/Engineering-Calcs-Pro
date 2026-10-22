@@ -1,0 +1,12 @@
+/* Shared SVG line chart styles (Design Studies and project report) */
+.study-chart { display: block; width: 100%; height: auto; max-width: 720px; background: #fff; }
+.study-chart .chart-title { font: 700 15px var(--font-sans, sans-serif); fill: #26282b; }
+.study-chart .chart-axis-label { font: 600 12px var(--font-sans, sans-serif); fill: #26282b; }
+.study-chart .chart-tick { font: 11px var(--font-sans, sans-serif); fill: #5c6066; }
+.study-chart .chart-grid { stroke: #e6e0d6; stroke-width: 1; }
+.study-chart .chart-frame { fill: none; stroke: #b0a89b; stroke-width: 1; }
+.study-chart .chart-line { stroke: #c05621; stroke-width: 2; }
+.study-chart .chart-point { fill: #c05621; stroke: #fff; stroke-width: 1; }
+.study-chart .chart-missing path { stroke: #a8201a; stroke-width: 2; fill: none; }
+.report-chart { margin: 0 0 1em; break-inside: avoid; }
+.report-chart figcaption { font-size: .85em; color: #5c6066; }
