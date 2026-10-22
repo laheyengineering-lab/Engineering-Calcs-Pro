@@ -10,7 +10,7 @@ const scripts = [
 
 // Loaded from an http origin so that localStorage is available (file URLs have an opaque origin).
 function load(storageState) {
-    const dom = new JSDOM(fs.readFileSync('design-studies.html', 'utf8').replace(/<script src="[^"]*"><\/script>/g, ''), {
+    const dom = new JSDOM(fs.readFileSync('design-studies.html', 'utf8'), {
         runScripts: 'dangerously', url: 'http://localhost/design-studies.html'
     });
     const { window } = dom;

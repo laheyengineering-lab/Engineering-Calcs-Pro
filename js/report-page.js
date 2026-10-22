@@ -67,7 +67,7 @@
         const body = el("tbody");
         table.rows.forEach((cells) => {
             const row = el("tr");
-            cells.forEach((cell, i) => row.appendChild(el("td", typeof cell === "number" ? "num" : null, typeof cell === "number" ? report.formatValue(cell) : cell)));
+            cells.forEach((cell) => row.appendChild(el("td", typeof cell === "number" ? "num" : null, typeof cell === "number" ? report.formatValue(cell) : cell)));
             body.appendChild(row);
         });
         node.appendChild(body);

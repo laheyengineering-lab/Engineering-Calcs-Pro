@@ -409,6 +409,9 @@
         if (!scenario || scenario.status !== "calculated" || !scenario.result) errors.push("Select a baseline scenario with a current calculated result (recalculate it first).");
         if (!input) errors.push("Select an input to vary.");
         else if (!input.sweepable) errors.push(input.label + " cannot be varied in a sweep.");
+        else if (scenario && scenario.result && !scenario.result.inputs.some((item) => item.id === input.id && item.value !== null)) {
+            errors.push(input.label + " has no value in the baseline scenario; supply it and recalculate before sweeping it.");
+        }
         if (!output) errors.push("Select an output to track.");
         else if (output.plottable === false) errors.push(output.label + " is not suitable for plotting.");
         const start = params ? params.start : NaN;

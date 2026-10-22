@@ -549,3 +549,13 @@ describe('registry', () => {
         expect(() => S.createStudy('x', 'beam-deflection')).toThrow(/Unsupported/);
     });
 });
+
+describe('sweep of blank optional inputs', () => {
+    it('refuses to vary an input that has no baseline value', () => {
+        const { S, dte } = setup();
+        const base = S.calculateScenario(dte, S.createScenario(dte, 'Base', dteInputs));
+        const r = S.runSweep(dte, base, { inputId: 'B2Length', outputId: 'differential', start: 1, end: 2, mode: 'count', count: 2 });
+        expect(r.ok).toBe(false);
+        expect(r.errors.join()).toMatch(/no value in the baseline/);
+    });
+});

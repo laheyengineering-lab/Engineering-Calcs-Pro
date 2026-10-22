@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import fs from 'node:fs';
 import { loadCalculatorPage } from '../helpers/browser-test-utils.js';
 
 const scripts = [
@@ -19,7 +20,7 @@ describe('report page rendering of Design Studies entries', () => {
         expect(window.FormulaFoundryReport.addSnapshot(S.sweepReportSnapshot(study, sweep).snapshot).ok).toBe(true);
 
         const page = document.createElement('script');
-        page.textContent = require_('js/report-page.js');
+        page.textContent = fs.readFileSync('js/report-page.js', 'utf8');
         document.body.appendChild(page);
         document.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true }));
 
@@ -33,6 +34,3 @@ describe('report page rendering of Design Studies entries', () => {
         expect(entry.textContent).toContain('model-based exploration');
     });
 });
-
-import fs from 'node:fs';
-function require_(file) { return fs.readFileSync(file, 'utf8'); }

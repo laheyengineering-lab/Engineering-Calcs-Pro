@@ -391,7 +391,7 @@
         };
 
         field("Baseline scenario", select(calculated.map((s) => [s.id, s.name]), sweepForm.baselineId, "baselineId", true));
-        const inputs = adapter.inputs.filter((i) => i.sweepable);
+        const inputs = adapter.inputs.filter((i) => i.sweepable && base.result.inputs.some((r) => r.id === i.id && r.value !== null));
         if (!inputs.some((i) => i.id === sweepForm.inputId)) sweepForm.inputId = inputs[0].id;
         const outputs = adapter.outputs.filter((o) => o.plottable !== false && (!o.optional || base.result.outputs.some((r) => r.id === o.id)));
         if (!outputs.some((o) => o.id === sweepForm.outputId)) sweepForm.outputId = outputs[0].id;
