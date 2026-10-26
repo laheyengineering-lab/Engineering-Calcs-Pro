@@ -39,7 +39,7 @@ describe('page smoke tests', () => {
         const css = fs.readFileSync('css/style.css', 'utf8');
         expect(css).toMatch(/\.beam-interactive-diagram\s*{[^}]*width:\s*min\(100%, 680px\)/s);
         expect(css).toMatch(/\.beam-interactive-diagram svg\s*{[^}]*width:\s*100%;[^}]*height:\s*auto/s);
-        expect(css).toMatch(/\.beam-span-slider\s*{[^}]*width:\s*100%/s);
+        expect(css).toMatch(/\.beam-span-slider\s*,\s*\.beam-load-slider\s*{[^}]*width:\s*100%/s);
     });
 
     it.each(['about.html', 'references.html', 'methodology.html'])('loads supplemental page %s with shared navigation', (pagePath) => {

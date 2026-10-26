@@ -12,8 +12,9 @@ const modulusUnitSelect = document.getElementById("modulusUnit");
 const inertiaUnitSelect = document.getElementById("inertiaUnit");
 const deflectionUnitSelect = document.getElementById("deflectionUnit");
 const beamSpanSlider = document.getElementById("beamSpanSlider");
+const pointLoadSlider = document.getElementById("pointLoadSlider");
 
-function updateBeamDeflectionDiagram(recenterSpanRange = true, result = null) {
+function updateBeamDeflectionDiagram(recenterSpanRange = true, result = null, recenterLoadRange = true) {
     const host = document.getElementById("beamDiagram");
     if (!host || !window.FormulaFoundryBeamDeflectionDiagram) return;
 
@@ -40,6 +41,21 @@ function updateBeamDeflectionDiagram(recenterSpanRange = true, result = null) {
     const loadUnit = isPointLoad ? loadUnitSelect.value : distributedLoadUnitSelect.value;
     const loadRaw = loadInput.value.trim();
     const load = loadRaw === "" ? null : Number(loadRaw);
+    const loadMagnitude = Number.isFinite(load) ? Math.abs(load) : null;
+    const loadRange = isPointLoad && loadMagnitude > 0 && window.FormulaFoundryDiagram
+        ? window.FormulaFoundryDiagram.rangeAround(loadMagnitude, 0.5, 1.5)
+        : null;
+    if (pointLoadSlider) {
+        pointLoadSlider.disabled = !loadRange;
+        if (loadRange) {
+            if (recenterLoadRange || !pointLoadSlider.dataset.initialized) {
+                pointLoadSlider.min = String(loadRange.min);
+                pointLoadSlider.max = String(loadRange.max);
+                pointLoadSlider.dataset.initialized = "true";
+            }
+            pointLoadSlider.value = String(loadMagnitude);
+        }
+    }
     const lengthUnit = lengthUnitSelect.value;
     host.replaceChildren(window.FormulaFoundryBeamDeflectionDiagram.render(document, {
         caseId: loadingCaseSelect.value,
@@ -169,7 +185,9 @@ function beamDeflectionProfileInputs(profile) {
 
 function updateBeamDeflectionMode() {
     const loadingCase = loadingCaseSelect.value;
-    document.getElementById("pointLoadContainer").hidden = !["ss-point", "cant-point"].includes(loadingCase);
+    const isPointLoad = ["ss-point", "cant-point"].includes(loadingCase);
+    document.getElementById("pointLoadContainer").hidden = !isPointLoad;
+    document.getElementById("pointLoadSliderContainer").hidden = !isPointLoad;
     document.getElementById("distributedLoadContainer").hidden = !["ss-udl", "cant-udl"].includes(loadingCase);
     const profile = document.getElementById("sectionType").value;
     const axis = document.getElementById("bendingAxis").value;
@@ -393,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     document.getElementById("bendingAxis").addEventListener("change", updateBeamDeflectionMode);
-    document.querySelectorAll(".calculator-column .calculator-box input:not(#beamSpanSlider), .calculator-column .calculator-box select")
+    document.querySelectorAll(".calculator-column .calculator-box input:not(#beamSpanSlider):not(#pointLoadSlider), .calculator-column .calculator-box select")
         .forEach((control) => {
             control.addEventListener("input", markBeamDeflectionInputsStale);
             control.addEventListener("change", () => {
@@ -401,6 +419,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (beamDeflectionInputsReady()) calculateBeamDeflection();
             });
         });
+    if (pointLoadSlider) {
+        pointLoadSlider.addEventListener("input", () => {
+            const direction = Number(pointLoadInput.value) < 0 ? -1 : 1;
+            pointLoadInput.value = String(direction * Number(pointLoadSlider.value));
+            updateBeamDeflectionDiagram(false, null, false);
+            calculateBeamDeflection();
+        });
+    }
     document.querySelectorAll("#sectionType, #bendingAxis, .profile-inputs input, .profile-inputs select")
         .forEach((input) => input.addEventListener("input", () => {
             window.BeamSectionUI.updateDiagram(document, document.getElementById("sectionType").value, document.getElementById("bendingAxis").value);

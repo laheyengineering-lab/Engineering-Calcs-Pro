@@ -1286,7 +1286,8 @@ footer,
     text-align: center;
 }
 
-.beam-span-slider {
+.beam-span-slider,
+.beam-load-slider {
     display: block;
     width: 100%;
     min-height: 44px;

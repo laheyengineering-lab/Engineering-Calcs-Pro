@@ -301,6 +301,41 @@ describe('beam deflection calculator', () => {
         expect(Number(document.getElementById('beamLength').value)).toBeGreaterThan(focusedValue);
     });
 
+    it('synchronizes the point-load magnitude slider with the input and calculation', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setSelectValue(document, 'loadingCase', 'ss-point');
+        setInputValue(document, 'pointLoad', 1000);
+        document.getElementById('pointLoad').dispatchEvent(new window.Event('input', { bubbles: true }));
+        window.calculateBeamDeflection();
+
+        const slider = document.getElementById('pointLoadSlider');
+        expect(slider.disabled).toBe(false);
+        expect(Number(slider.min)).toBe(500);
+        expect(Number(slider.max)).toBe(1500);
+        slider.value = '1200';
+        slider.dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.getElementById('pointLoad').value).toBe('1200');
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.12, 6);
+        expect(document.querySelector('#beamDiagram svg').textContent).toContain('Simply supported beam with center point load');
+        document.querySelector('.add-to-report-button').click();
+        expect(window.FormulaFoundryReport.store.load().entries[0].inputs.find((input) => input.label === 'Point load (P)').value).toBe(1200);
+
+        setInputValue(document, 'pointLoad', -1000);
+        document.getElementById('pointLoad').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(Number(slider.value)).toBe(1000);
+        slider.value = '750';
+        slider.dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.getElementById('pointLoad').value).toBe('-750');
+        expect(document.querySelector('#beamDiagram .beam-diagram-load').getAttribute('y1')).toBe('184');
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(-0.075, 6);
+
+        setSelectValue(document, 'loadingCase', 'ss-udl');
+        window.updateBeamDeflectionMode();
+        expect(document.getElementById('pointLoadSliderContainer').hidden).toBe(true);
+        expect(slider.disabled).toBe(true);
+    });
+
     it('refreshes results after a complete numeric input change and hides stale outputs while editing', () => {
         const { document, window } = setup();
         configureCommonInputs(document);
