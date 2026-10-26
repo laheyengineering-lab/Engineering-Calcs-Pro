@@ -57,6 +57,32 @@
         return wrapper;
     }
 
+    function dataTable(table) {
+        const wrapper = el("div", "report-table-wrap");
+        const node = el("table", "report-table report-data-table");
+        node.appendChild(el("caption", null, table.caption));
+        const head = el("tr");
+        table.columns.forEach((name) => head.appendChild(el("th", null, name)));
+        node.appendChild(el("thead")).appendChild(head);
+        const body = el("tbody");
+        table.rows.forEach((cells) => {
+            const row = el("tr");
+            cells.forEach((cell) => row.appendChild(el("td", typeof cell === "number" ? "num" : null, typeof cell === "number" ? report.formatValue(cell) : cell)));
+            body.appendChild(row);
+        });
+        node.appendChild(body);
+        wrapper.appendChild(node);
+        return wrapper;
+    }
+
+    function chartSection(chart) {
+        if (!chart || !window.FormulaFoundryChart) return null;
+        const figure = el("figure", "report-chart");
+        figure.appendChild(window.FormulaFoundryChart.createLineChart(doc, chart));
+        figure.appendChild(el("figcaption", null, chart.title + ". Samples are joined only where consecutive calculations succeeded; no values between samples were calculated. The numerical data are listed in the table."));
+        return figure;
+    }
+
     function listSection(heading, items) {
         const block = el("div", "report-block");
         block.appendChild(el("h4", null, heading));
@@ -150,11 +176,20 @@
         const added = new Date(entry.addedAt);
         section.appendChild(el("p", "entry-meta", "Calculator: " + entry.calculatorName + " \u00b7 Added " + (Number.isNaN(added.getTime()) ? "" : added.toLocaleString())));
 
+        if (entry.study) {
+            const kinds = { scenario: "scenario", comparison: "scenario comparison", sweep: "parametric sweep" };
+            section.appendChild(el("p", "entry-meta", "Design study: " + entry.study.name + " \u00b7 " + kinds[entry.study.kind]
+                + (entry.study.scenarios.length ? " \u00b7 Scenarios: " + entry.study.scenarios.join(", ") : "")));
+        }
+
         const diagram = profileDiagramSection(entry.diagram);
         if (diagram) section.appendChild(diagram);
 
         section.appendChild(itemsTable("Inputs", entry.inputs));
         section.appendChild(itemsTable("Results", entry.outputs));
+        (entry.tables || []).forEach((table) => section.appendChild(dataTable(table)));
+        const chartFigure = chartSection(entry.chart);
+        if (chartFigure) section.appendChild(chartFigure);
 
         if (entry.equations.length) {
             const block = el("div", "report-block");

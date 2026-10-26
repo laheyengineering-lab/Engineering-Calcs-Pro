@@ -253,4 +253,7 @@ function resetDifferentialThermalExpansionCalculator() {
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
 }
 
-document.addEventListener("DOMContentLoaded", buildDteRows);
+document.addEventListener("DOMContentLoaded", () => {
+    // Skipped when the script is loaded without the calculator form (e.g. by Design Studies).
+    if (dteEl("membersA")) buildDteRows();
+});

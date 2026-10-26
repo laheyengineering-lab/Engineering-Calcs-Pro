@@ -88,6 +88,59 @@
         return { type: "beam-section", profile: raw.profile, dimensions, axis: raw.axis, unit: raw.unit };
     }
 
+    // Optional generic tables (Design Studies): { caption, columns[], rows[][] } with text/finite-number cells.
+    function cleanTables(raw) {
+        if (raw === undefined || raw === null) return [];
+        if (!Array.isArray(raw) || raw.length > 5) return null;
+        const tables = [];
+        for (const table of raw) {
+            if (!table || !Array.isArray(table.columns) || !Array.isArray(table.rows)) return null;
+            if (table.columns.length < 1 || table.columns.length > 12 || table.rows.length > 250) return null;
+            const columns = table.columns.map((c) => text(c, 150));
+            const rows = [];
+            for (const row of table.rows) {
+                if (!Array.isArray(row) || row.length !== columns.length) return null;
+                const cells = [];
+                for (const cell of row) {
+                    if (typeof cell === "number") {
+                        if (!Number.isFinite(cell)) return null;
+                        cells.push(cell);
+                    } else if (typeof cell === "string") {
+                        cells.push(cell.slice(0, 400));
+                    } else {
+                        return null;
+                    }
+                }
+                rows.push(cells);
+            }
+            tables.push({ caption: text(table.caption, 300), columns, rows });
+        }
+        return tables;
+    }
+
+    // Optional line chart (Design Studies sweeps): points with y = null are failed samples.
+    function cleanChart(raw) {
+        if (raw === undefined || raw === null) return null;
+        if (!raw || raw.type !== "line" || !Array.isArray(raw.points) || raw.points.length < 1 || raw.points.length > 250) return false;
+        const points = [];
+        for (const p of raw.points) {
+            if (!p || !Number.isFinite(p.x) || !(p.y === null || Number.isFinite(p.y))) return false;
+            points.push({ x: p.x, y: p.y });
+        }
+        return { type: "line", title: text(raw.title), xLabel: text(raw.xLabel), yLabel: text(raw.yLabel), points };
+    }
+
+    function cleanStudy(raw) {
+        if (!raw || typeof raw !== "object") return null;
+        return {
+            id: text(raw.id, 60),
+            name: text(raw.name, 100),
+            kind: ["scenario", "comparison", "sweep"].includes(raw.kind) ? raw.kind : "scenario",
+            scenarios: Array.isArray(raw.scenarios) ? raw.scenarios.slice(0, 20).map((n) => text(n, 100)) : [],
+            savedAt: text(raw.savedAt, 40)
+        };
+    }
+
     // Returns { ok, snapshot } or { ok: false, error }
     function validateSnapshot(raw) {
         if (!raw || typeof raw !== "object") return { ok: false, error: "No calculation result is available." };
@@ -101,6 +154,11 @@
         if (raw.diagram !== undefined && raw.diagram !== null && !diagram) {
             return { ok: false, error: "The section diagram data is invalid." };
         }
+        const tables = cleanTables(raw.tables);
+        if (!tables) return { ok: false, error: "The result table data is invalid." };
+        const chart = cleanChart(raw.chart);
+        if (chart === false) return { ok: false, error: "The chart data is invalid." };
+        const study = cleanStudy(raw.study);
         const calculatorName = text(raw.calculatorName) || calculatorId;
         const added = Date.parse(raw.addedAt);
         return {
@@ -119,6 +177,9 @@
                 assumptions: cleanList(raw.assumptions),
                 method: text(raw.method, LIMITS.long),
                 ...(diagram ? { diagram } : {}),
+                ...(tables.length ? { tables } : {}),
+                ...(chart ? { chart } : {}),
+                ...(study ? { study } : {}),
                 warnings: cleanList(raw.warnings)
             }
         };
@@ -363,6 +424,14 @@
         link.appendChild(badge);
         if (/\/report\.html$/.test(String(root.location && root.location.pathname))) link.setAttribute("aria-current", "page");
         nav.appendChild(link);
+        if (!nav.querySelector(".studies-nav-link")) {
+            const studies = root.document.createElement("a");
+            studies.className = "studies-nav-link";
+            studies.href = (inCalculators ? "../" : "") + "design-studies.html";
+            studies.textContent = "Design Studies";
+            if (/\/design-studies\.html$/.test(String(root.location && root.location.pathname))) studies.setAttribute("aria-current", "page");
+            nav.insertBefore(studies, link);
+        }
     }
 
     function installAddButton() {
@@ -520,6 +589,11 @@
         addCurrentResult,
         updateCount,
         declareStructured() { structured = true; },
-        scrapeSnapshot
+        scrapeSnapshot,
+        addSnapshot: (snapshot) => {
+            const result = store.addEntry(snapshot);
+            if (result.ok) updateCount();
+            return result;
+        }
     };
 })(window);
