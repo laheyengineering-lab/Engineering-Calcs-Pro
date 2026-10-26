@@ -60,6 +60,38 @@
 
     function cleanDiagram(raw) {
         if (raw === undefined || raw === null) return null;
+        if (raw && raw.type === "beam-deflection") {
+            const pointCases = ["ss-point", "cant-point"];
+            const distributedCases = ["ss-udl", "cant-udl"];
+            const caseValid = pointCases.includes(raw.caseId) || distributedCases.includes(raw.caseId);
+            const loadUnits = pointCases.includes(raw.caseId) ? ["N", "kN", "lbf"] : ["N/m", "kN/m", "lbf/ft"];
+            const section = cleanDiagram({
+                type: "beam-section",
+                profile: raw.profile,
+                dimensions: raw.dimensions,
+                axis: raw.axis,
+                unit: raw.sectionUnit
+            });
+            if (!caseValid || !section || !Number.isFinite(raw.span) || raw.span <= 0
+                || !["mm", "cm", "m", "in", "ft"].includes(raw.spanUnit)
+                || !Number.isFinite(raw.load) || raw.load === 0 || !loadUnits.includes(raw.loadUnit)
+                || !Number.isFinite(raw.maxDeflection) || raw.maxDeflection < 0
+                || !["mm", "m", "in"].includes(raw.deflectionUnit)) return null;
+            return {
+                type: "beam-deflection",
+                caseId: raw.caseId,
+                span: raw.span,
+                spanUnit: raw.spanUnit,
+                load: raw.load,
+                loadUnit: raw.loadUnit,
+                profile: section.profile,
+                dimensions: section.dimensions,
+                axis: section.axis,
+                sectionUnit: section.unit,
+                maxDeflection: raw.maxDeflection,
+                deflectionUnit: raw.deflectionUnit
+            };
+        }
         const profiles = {
             rectangular: ["width", "height"],
             "solid-circular": ["diameter"],
@@ -152,7 +184,7 @@
         if (!outputs || outputs.length === 0) return { ok: false, error: "The calculation has missing or non-finite results." };
         const diagram = cleanDiagram(raw.diagram);
         if (raw.diagram !== undefined && raw.diagram !== null && !diagram) {
-            return { ok: false, error: "The section diagram data is invalid." };
+            return { ok: false, error: "The diagram snapshot is invalid." };
         }
         const tables = cleanTables(raw.tables);
         if (!tables) return { ok: false, error: "The result table data is invalid." };

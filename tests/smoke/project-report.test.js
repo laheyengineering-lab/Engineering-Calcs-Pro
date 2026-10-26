@@ -151,7 +151,10 @@ describe('Add to Project Report integration', () => {
 
 describe('report workspace page', () => {
     function openReport(storage) {
-        const loaded = loadCalculatorPage('report.html', ['js/report-builder.js', 'js/beam-section-properties.js']);
+        const loaded = loadCalculatorPage('report.html', [
+            'js/report-builder.js', 'js/engineering-diagram.js', 'js/beam-section-properties.js',
+            'js/beam-deflection-diagram.js'
+        ]);
         loaded.window.FormulaFoundryReport.store.setStorage(storage);
         loaded.window.confirm = () => true;
         loaded.window.print = () => { loaded.printed = true; };

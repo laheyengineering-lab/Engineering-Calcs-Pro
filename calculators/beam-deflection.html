@@ -342,7 +342,7 @@
     </label>
 
     <div class="input-row">
-        <input id="beamLength" type="number" placeholder="Enter beam length">
+        <input id="beamLength" type="number" min="0" step="any" placeholder="Enter beam length">
         <select id="lengthUnit">
             <option>mm</option>
             <option>cm</option>
@@ -360,7 +360,7 @@
         </label>
 
         <div class="input-row">
-            <input id="pointLoad" type="number" placeholder="Enter point load">
+            <input id="pointLoad" type="number" step="any" placeholder="Enter point load">
             <select id="loadUnit">
                 <option>N</option>
                 <option>kN</option>
@@ -377,7 +377,7 @@
         </label>
 
         <div class="input-row">
-            <input id="distributedLoad" type="number" placeholder="Enter distributed load">
+            <input id="distributedLoad" type="number" step="any" placeholder="Enter distributed load">
             <select id="distributedLoadUnit">
                 <option>N/m</option>
                 <option>kN/m</option>
@@ -386,6 +386,15 @@
         </div>
     </div>
 
+    <figure class="beam-interactive-diagram">
+        <div id="beamDiagram" aria-label="Interactive beam model diagram"></div>
+        <figcaption id="beamDiagramCaption">The diagram shows the selected support and loading case.</figcaption>
+    </figure>
+    <label class="input-label" for="beamSpanSlider">Explore beam span (diagram control)</label>
+    <input id="beamSpanSlider" class="beam-span-slider" type="range" min="0.5" max="1.5" step="any" disabled
+        aria-describedby="beamSpanHelp">
+    <p id="beamSpanHelp"><small>Drag the dimension handle or use this slider to adjust the span and recalculate. The numeric field remains available for precise entry; the slider range is an exploration aid, not an input limit. Point loads remain at the supported center or free-end locations.</small></p>
+
 
     <!-- Young's Modulus -->
     <label class="input-label">
@@ -393,7 +402,7 @@
     </label>
 
     <div class="input-row">
-        <input id="youngsModulus" type="number" placeholder="Enter Young's modulus">
+        <input id="youngsModulus" type="number" min="0" step="any" placeholder="Enter Young's modulus">
         <select id="modulusUnit">
             <option>Pa</option>
             <option>MPa</option>
@@ -696,8 +705,10 @@ This calculator does not account for lateral-torsional buckling, support settlem
 <script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
+<script src="../js/engineering-diagram.js"></script>
 <script src="../js/beam-section-properties.js"></script>
 <script src="../js/beam-section-ui.js"></script>
+<script src="../js/beam-deflection-diagram.js"></script>
 <script src="../js/beam-deflection.js"></script>
 
 <script src="../js/report-builder.js"></script>

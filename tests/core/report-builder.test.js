@@ -60,6 +60,36 @@ describe('project report snapshots', () => {
         })).ok).toBe(false);
     });
 
+    it('validates saved beam-deflection diagrams and rejects unsupported models', () => {
+        const { api } = setup();
+        const diagram = {
+            type: 'beam-deflection',
+            caseId: 'ss-point',
+            span: 2,
+            spanUnit: 'm',
+            load: 1000,
+            loadUnit: 'N',
+            profile: 'rectangular',
+            dimensions: { width: 0.1, height: 0.1 },
+            axis: 'x',
+            sectionUnit: 'm',
+            maxDeflection: 0.1,
+            deflectionUnit: 'mm'
+        };
+        const valid = api.validateSnapshot(snap('beam-deflection', { diagram }));
+        expect(valid.ok).toBe(true);
+        expect(valid.snapshot.diagram).toEqual(diagram);
+        expect(api.validateSnapshot(snap('beam-deflection', {
+            diagram: { ...diagram, caseId: 'arbitrary-point-position' }
+        })).ok).toBe(false);
+        expect(api.validateSnapshot(snap('beam-deflection', {
+            diagram: { ...diagram, span: Infinity }
+        })).ok).toBe(false);
+        expect(api.validateSnapshot(snap('beam-deflection', {
+            diagram: { ...diagram, dimensions: { width: 0.1, height: 0 } }
+        })).ok).toBe(false);
+    });
+
     it.each([
         ['null', null],
         ['missing id', { ...snap('x'), calculatorId: '' }],

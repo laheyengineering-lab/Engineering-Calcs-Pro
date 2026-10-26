@@ -89,10 +89,15 @@
             }
         }
 
-        figure.replaceChildren(root.BeamSectionProperties.createDiagram(document, profile, dimensions, axis));
-        caption.textContent = complete
-            ? `${definition.name} · ${dimensionLabels.join(" · ")}`
-            : `${definition.name} schematic · enter all dimensions for a proportional preview.`;
+        try {
+            figure.replaceChildren(root.BeamSectionProperties.createDiagram(document, profile, dimensions, axis));
+            caption.textContent = complete
+                ? `${definition.name} · ${dimensionLabels.join(" · ")}`
+                : `${definition.name} schematic · enter all dimensions for a proportional preview.`;
+        } catch (error) {
+            figure.textContent = "";
+            caption.textContent = "Unable to render a valid section diagram — check the entered dimensions.";
+        }
     }
 
     function update(document, profile, axis) {

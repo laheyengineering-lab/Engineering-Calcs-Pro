@@ -12,7 +12,8 @@ import {
 function setup() {
     return loadCalculatorPage('calculators/beam-deflection.html', [
         'js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js',
-        'js/beam-section-properties.js', 'js/beam-section-ui.js', 'js/beam-deflection.js'
+        'js/engineering-diagram.js', 'js/beam-section-properties.js', 'js/beam-section-ui.js',
+        'js/beam-deflection-diagram.js', 'js/beam-deflection.js'
     ]);
 }
 
@@ -207,7 +208,7 @@ describe('beam deflection calculator', () => {
         expect(entry.inputs.find((item) => item.label === 'Beam span (L)').value).toBe(2);
         expect(entry.outputs.find((item) => item.label === 'Centroid ȳ').value).toBeCloseTo(83.5714, 3);
         expect(entry.outputs.find((item) => item.label === 'Maximum deflection magnitude').value).toBeGreaterThan(0);
-        expect(entry.diagram).toMatchObject({ type: 'beam-section', profile: 't-section', axis: 'x' });
+        expect(entry.diagram).toMatchObject({ type: 'beam-deflection', caseId: 'cant-point', profile: 't-section', axis: 'x' });
         expect(entry.equations).toContain(String.raw`\delta_{\max}=\frac{PL^3}{3EI}`);
         expect(entry.assumptions.join(' ')).toContain('shear deformation');
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(
@@ -230,5 +231,166 @@ describe('beam deflection calculator', () => {
             expect(document.querySelector('#profileDiagram svg').getAttribute('aria-label')).toContain('cross-section');
             expect(document.querySelector('.profile-inputs:not([hidden])')).toBeTruthy();
         });
+    });
+
+    it('renders the selected beam model and refreshes its dimensions from numeric inputs', () => {
+        const { document, window } = setup();
+        const svg = document.querySelector('#beamDiagram svg');
+        expect(svg).toBeTruthy();
+        expect(svg.getAttribute('aria-label')).toContain('pin and roller supports');
+        expect(svg.textContent).toContain('Simply supported beam with center point load');
+        expect(svg.textContent).toContain('Deflected shape illustrative — not to scale');
+
+        setInputValue(document, 'beamLength', 3.125);
+        document.getElementById('beamLength').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.querySelector('#beamDiagram svg').textContent).toContain('L = 3.125 m');
+        expect(document.getElementById('beamSpanSlider').disabled).toBe(false);
+
+        setSelectValue(document, 'loadingCase', 'cant-udl');
+        window.updateBeamDeflectionMode();
+        const cantilever = document.querySelector('#beamDiagram svg');
+        expect(cantilever.getAttribute('aria-label')).toContain('fixed-free support');
+        expect(cantilever.textContent).toContain('Cantilever with full-span uniform load');
+    });
+
+    it('synchronizes the span slider and SVG keyboard control through the calculation pipeline', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setSelectValue(document, 'loadingCase', 'ss-point');
+        setInputValue(document, 'pointLoad', 1000);
+        document.getElementById('beamLength').dispatchEvent(new window.Event('change', { bubbles: true }));
+        window.calculateBeamDeflection();
+
+        const slider = document.getElementById('beamSpanSlider');
+        expect(Number(slider.min)).toBe(1);
+        expect(Number(slider.max)).toBe(3);
+        slider.value = '3';
+        slider.dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.getElementById('beamLength').value).toBe('3');
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.3375, 4);
+
+        const handle = document.querySelector('#beamDiagram .beam-span-handle');
+        const before = Number(handle.getAttribute('aria-valuenow'));
+        handle.focus();
+        handle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+        expect(Number(document.getElementById('beamLength').value)).toBeGreaterThan(3);
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
+        expect(getResultValueText(document)).not.toBe('');
+        const focusedReplacement = document.querySelector('#beamDiagram .beam-span-handle');
+        expect(document.activeElement).toBe(focusedReplacement);
+        const focusedValue = Number(focusedReplacement.getAttribute('aria-valuenow'));
+        focusedReplacement.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+        expect(Number(document.getElementById('beamLength').value)).toBeGreaterThan(focusedValue);
+    });
+
+    it('refreshes results after a complete numeric input change and hides stale outputs while editing', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setInputValue(document, 'pointLoad', 1000);
+        window.calculateBeamDeflection();
+
+        setInputValue(document, 'beamLength', 3);
+        document.getElementById('beamLength').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(getResultText(document)).toContain('Inputs changed');
+        expect(getResultValueText(document)).toBe('');
+
+        document.getElementById('beamLength').dispatchEvent(new window.Event('change', { bubbles: true }));
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.3375, 4);
+        expect(document.querySelector('#beamDiagram svg').textContent).toContain('L = 3 m');
+    });
+
+    it('uses a dragged SVG span control to update the field and existing result', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setInputValue(document, 'pointLoad', 1000);
+        document.getElementById('beamLength').dispatchEvent(new window.Event('change', { bubbles: true }));
+        window.calculateBeamDeflection();
+
+        const svg = document.querySelector('#beamDiagram svg');
+        const handle = svg.querySelector('.beam-span-handle');
+        handle.dispatchEvent(new window.MouseEvent('pointerdown', { clientX: 300, clientY: 230, bubbles: true, cancelable: true }));
+        svg.dispatchEvent(new window.MouseEvent('pointerup', { clientX: 540, clientY: 230, bubbles: true, cancelable: true }));
+        expect(Number(document.getElementById('beamLength').value)).toBeCloseTo(3, 6);
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.3375, 4);
+    });
+
+    it('draws negative uniform loads below the beam with upward-pointing arrows', () => {
+        const { document, window } = setup();
+        setSelectValue(document, 'loadingCase', 'ss-udl');
+        window.updateBeamDeflectionMode();
+        setInputValue(document, 'distributedLoad', -1000);
+        document.getElementById('distributedLoad').dispatchEvent(new window.Event('input', { bubbles: true }));
+        const loadElements = [...document.querySelectorAll('#beamDiagram .beam-diagram-load')];
+        expect(loadElements[0].getAttribute('y1')).toBe('193');
+        expect(loadElements[1].getAttribute('y1')).toBe('186');
+        expect(loadElements[1].getAttribute('y2')).toBe('133');
+        expect(document.querySelector('#beamDiagram .beam-diagram-deflection').getAttribute('d')).toContain('58');
+    });
+
+    it('keeps invalid span geometry non-interactive and free of non-finite SVG coordinates', () => {
+        const { document, window } = setup();
+        setInputValue(document, 'beamLength', 0);
+        document.getElementById('beamLength').dispatchEvent(new window.Event('input', { bubbles: true }));
+        const svg = document.querySelector('#beamDiagram svg');
+        expect(document.getElementById('beamSpanSlider').disabled).toBe(true);
+        expect(svg.querySelector('.beam-span-handle')).toBeNull();
+        expect(svg.outerHTML).not.toMatch(/NaN|Infinity/);
+
+        window.calculateBeamDeflection();
+        expect(getResultText(document)).toContain('Invalid Input');
+
+        setSelectValue(document, 'loadingCase', 'unsupported');
+        window.updateBeamDeflectionMode();
+        const unsupported = document.querySelector('#beamDiagram svg');
+        expect(unsupported.getAttribute('aria-label')).toBe('Unsupported beam model');
+        expect(unsupported.querySelector('.beam-diagram-member')).toBeNull();
+    });
+
+    it('keeps SVG and slider range coordinates finite for extreme span values', () => {
+        const { document, window } = setup();
+        const framework = window.FormulaFoundryDiagram;
+        expect(framework.rangeAround(Number.MAX_VALUE, 0.5, 1.5)).toEqual({
+            min: Number.MAX_VALUE * 0.5,
+            max: Number.MAX_VALUE
+        });
+        expect(framework.rangeAround(Number.MIN_VALUE, 0.5, 1.5).min).toBe(Number.MIN_VALUE);
+        expect(framework.rangeAround(0, 0.5, 1.5)).toBeNull();
+
+        setInputValue(document, 'beamLength', '1e308');
+        document.getElementById('beamLength').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.querySelector('#beamDiagram svg').outerHTML).not.toMatch(/NaN|Infinity/);
+        expect(Number.isFinite(Number(document.getElementById('beamSpanSlider').max))).toBe(true);
+    });
+
+    it('stores and prints the calculated beam-model snapshot from its saved state', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setSelectValue(document, 'sectionType', 't-section');
+        window.updateBeamDeflectionMode();
+        setInputValue(document, 'overallHeight', 120);
+        setInputValue(document, 'flangeWidth', 80);
+        setInputValue(document, 'flangeThickness', 10);
+        setInputValue(document, 'webThickness', 8);
+        setInputValue(document, 'pointLoad', 1000);
+        setSelectValue(document, 'loadingCase', 'cant-point');
+        window.calculateBeamDeflection();
+        document.querySelector('.add-to-report-button').click();
+
+        const entry = window.FormulaFoundryReport.store.load().entries[0];
+        expect(entry.diagram).toMatchObject({
+            type: 'beam-deflection', caseId: 'cant-point', span: 2, spanUnit: 'm',
+            profile: 't-section', axis: 'x', maxDeflection: expect.any(Number)
+        });
+        const reportPage = loadCalculatorPage('report.html', [
+            'js/report-builder.js', 'js/engineering-diagram.js', 'js/beam-section-properties.js',
+            'js/beam-deflection-diagram.js', 'js/report-page.js'
+        ]);
+        reportPage.window.FormulaFoundryReport.store.addEntry(entry);
+        reportPage.window.FormulaFoundryReportPage.render();
+        const reportSvg = reportPage.document.querySelector('.report-entry svg');
+        expect(reportSvg).toBeTruthy();
+        expect(reportSvg.textContent).toContain('Calculated |δmax|');
+        expect(reportPage.document.querySelectorAll('.report-entry svg')).toHaveLength(2);
+        expect(reportPage.document.querySelector('.report-entry figcaption').textContent).toContain('illustrative and not to scale');
     });
 });

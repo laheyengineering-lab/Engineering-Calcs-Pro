@@ -1262,6 +1262,121 @@ footer,
     font-size: var(--text-sm);
 }
 
+.beam-interactive-diagram {
+    box-sizing: border-box;
+    width: min(100%, 680px);
+    margin: var(--space-4) auto;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+}
+
+.beam-interactive-diagram svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.beam-interactive-diagram figcaption {
+    margin-top: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    text-align: center;
+}
+
+.beam-span-slider {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    touch-action: pan-y;
+}
+
+.beam-diagram-heading {
+    fill: #0b5394;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.beam-diagram-member {
+    stroke: #0b5394;
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+.beam-diagram-support,
+.beam-diagram-fixed-support {
+    fill: #dce6ee;
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.beam-diagram-roller {
+    fill: #fff;
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.beam-diagram-hatch {
+    stroke: #333;
+    stroke-width: 1.5;
+}
+
+.beam-diagram-load {
+    fill: #b42318;
+    stroke: #b42318;
+    stroke-width: 2.5;
+}
+
+.beam-diagram-load-label,
+.beam-diagram-result {
+    fill: #26282b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.beam-diagram-load-label {
+    fill: #b42318;
+}
+
+.beam-diagram-label,
+.beam-diagram-note {
+    fill: #555;
+    font-size: 11px;
+}
+
+.beam-diagram-deflection {
+    fill: none;
+    stroke: #c05621;
+    stroke-width: 3;
+    stroke-dasharray: 6 4;
+}
+
+.beam-diagram-dimension {
+    stroke: #555;
+    stroke-width: 1;
+}
+
+.beam-diagram-dimension-label {
+    fill: #26282b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.beam-span-handle {
+    fill: #fff;
+    stroke: #c05621;
+    stroke-width: 3;
+    cursor: ew-resize;
+    touch-action: none;
+}
+
+.beam-span-handle:focus {
+    stroke: #0b5394;
+    stroke-width: 4;
+}
+
 .beam-axis {
     stroke: #8b949c;
     stroke-width: 1.5;
