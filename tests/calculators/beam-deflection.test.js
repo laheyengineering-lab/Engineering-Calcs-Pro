@@ -127,6 +127,24 @@ describe('beam deflection calculator', () => {
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(base / 16, 5);
     });
 
+    it('populates Young’s modulus from a material and allows a manual override', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setSelectValue(document, 'loadingCase', 'ss-point');
+        setInputValue(document, 'pointLoad', 1000);
+        setSelectValue(document, 'modulusUnit', 'MPa');
+
+        const materialSelect = document.getElementById('material');
+        expect([...materialSelect.options].map((option) => option.value)).toContain('carbon-steel');
+        setSelectValue(document, 'material', 'carbon-steel');
+        materialSelect.dispatchEvent(new window.Event('change', { bubbles: true }));
+        expect(Number(document.getElementById('youngsModulus').value)).toBeCloseTo(200000, 6);
+
+        setInputValue(document, 'youngsModulus', 175000);
+        window.calculateBeamDeflection();
+        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.1 * 200 / 175, 6);
+    });
+
     it('uses the shared hollow-section properties and bending axis', () => {
         const { document, window } = setup();
         configureCommonInputs(document);
@@ -297,6 +315,41 @@ describe('beam deflection calculator', () => {
         document.getElementById('beamLength').dispatchEvent(new window.Event('change', { bubbles: true }));
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.3375, 4);
         expect(document.querySelector('#beamDiagram svg').textContent).toContain('L = 3 m');
+    });
+
+    it('removes calculated deflection from the diagram when modulus or section inputs become stale', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setInputValue(document, 'pointLoad', 1000);
+        window.calculateBeamDeflection();
+
+        expect(document.querySelector('#beamDiagram svg').textContent).toContain('Calculated |δmax|');
+        setInputValue(document, 'youngsModulus', 180);
+        document.getElementById('youngsModulus').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(getResultText(document)).toContain('Inputs changed');
+        expect(document.querySelector('#beamDiagram svg').textContent).not.toContain('Calculated |δmax|');
+
+        document.getElementById('youngsModulus').dispatchEvent(new window.Event('change', { bubbles: true }));
+        expect(document.querySelector('#beamDiagram svg').textContent).toContain('Calculated |δmax|');
+        setInputValue(document, 'rectHeight', '');
+        document.getElementById('rectHeight').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.querySelector('#beamDiagram svg').textContent).not.toContain('Calculated |δmax|');
+    });
+
+    it('recalculates and records the result after a bending-axis change', () => {
+        const { document, window } = setup();
+        configureCommonInputs(document);
+        setInputValue(document, 'pointLoad', 1000);
+        window.calculateBeamDeflection();
+
+        const axisSelect = document.getElementById('bendingAxis');
+        setSelectValue(document, 'bendingAxis', 'y');
+        axisSelect.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+        expect(getResultValueText(document)).not.toBe('');
+        expect(getResultText(document)).toContain('vertical y-axis (Iᵧ)');
+        document.querySelector('.add-to-report-button').click();
+        expect(window.FormulaFoundryReport.store.load().entries[0].diagram.axis).toBe('y');
     });
 
     it('uses a dragged SVG span control to update the field and existing result', () => {

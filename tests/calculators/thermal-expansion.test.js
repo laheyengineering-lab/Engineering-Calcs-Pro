@@ -69,10 +69,15 @@ describe('thermal expansion calculator', () => {
         expect(materialOptions).toContain('carbon-steel');
         expect(materialOptions).toContain('magnesium');
 
+        setSelectValue(document, 'modulusUnit', 'MPa');
         setSelectValue(document, 'material', 'titanium');
         window.updateMaterialAlpha();
 
         expect(Number(document.getElementById('alpha').value)).toBeCloseTo(8.6e-6, 12);
+        expect(Number(document.getElementById('youngsModulus').value)).toBeCloseTo(103000, 6);
+
+        setInputValue(document, 'youngsModulus', 95000);
+        expect(Number(document.getElementById('youngsModulus').value)).toBe(95000);
     });
 
     it('rejects non-positive modulus when restrained stress is requested', () => {

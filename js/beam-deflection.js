@@ -2,6 +2,7 @@ const beamLengthInput = document.getElementById("beamLength");
 const pointLoadInput = document.getElementById("pointLoad");
 const distributedLoadInput = document.getElementById("distributedLoad");
 const youngsModulusInput = document.getElementById("youngsModulus");
+const beamMaterialSelect = document.getElementById("material");
 const beamResultPanel = document.getElementById("result");
 const loadingCaseSelect = document.getElementById("loadingCase");
 const lengthUnitSelect = document.getElementById("lengthUnit");
@@ -92,7 +93,14 @@ function beamDeflectionInputsReady() {
 function markBeamDeflectionInputsStale() {
     if (!beamResultPanel.querySelector(".result-value")) return;
     beamResultPanel.textContent = "Inputs changed — recalculate to refresh the results.";
+    updateBeamDeflectionDiagram(false);
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
+}
+
+function updateBeamDeflectionMaterialModulus() {
+    const youngsModulusPa = getMaterialProperty(beamMaterialSelect.value, "youngsModulus");
+    if (!Number.isFinite(youngsModulusPa) || youngsModulusPa <= 0) return;
+    youngsModulusInput.value = String(convertModulusToUnit(youngsModulusPa, modulusUnitSelect.value));
 }
 
 const beamDeflectionCases = {
@@ -355,6 +363,7 @@ function resetBeamDeflectionCalculator() {
     loadingCaseSelect.value = "ss-point";
     document.getElementById("sectionType").value = "rectangular";
     document.getElementById("bendingAxis").value = "x";
+    beamMaterialSelect.value = "";
     if (beamSpanSlider) delete beamSpanSlider.dataset.initialized;
     updateBeamDeflectionMode();
     beamResultPanel.innerHTML = "Ready to calculate.";
@@ -362,6 +371,14 @@ function resetBeamDeflectionCalculator() {
 
 document.addEventListener("DOMContentLoaded", function () {
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.declareStructured();
+    populateMaterialSelect(beamMaterialSelect, {
+        placeholderText: "-- Select a material or enter a custom value --",
+        formatLabel(material) {
+            const modulusGPa = convertModulusToUnit(material.youngsModulus, "GPa");
+            return `${material.displayName} (E = ${modulusGPa.toLocaleString(undefined, { maximumFractionDigits: 3 })} GPa)`;
+        }
+    });
+    beamMaterialSelect.addEventListener("change", updateBeamDeflectionMaterialModulus);
     beamLengthInput.addEventListener("input", () => updateBeamDeflectionDiagram(false));
     beamLengthInput.addEventListener("change", () => updateBeamDeflectionDiagram(true));
     lengthUnitSelect.addEventListener("change", () => updateBeamDeflectionDiagram(true));
@@ -375,6 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
             calculateBeamDeflection();
         });
     }
+    document.getElementById("bendingAxis").addEventListener("change", updateBeamDeflectionMode);
     document.querySelectorAll(".calculator-column .calculator-box input:not(#beamSpanSlider), .calculator-column .calculator-box select")
         .forEach((control) => {
             control.addEventListener("input", markBeamDeflectionInputsStale);
@@ -387,6 +405,5 @@ document.addEventListener("DOMContentLoaded", function () {
         .forEach((input) => input.addEventListener("input", () => {
             window.BeamSectionUI.updateDiagram(document, document.getElementById("sectionType").value, document.getElementById("bendingAxis").value);
         }));
-    document.getElementById("bendingAxis").addEventListener("change", updateBeamDeflectionMode);
     updateBeamDeflectionMode();
 });

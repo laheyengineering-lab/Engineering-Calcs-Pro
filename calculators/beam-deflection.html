@@ -396,10 +396,10 @@
     <p id="beamSpanHelp"><small>Drag the dimension handle or use this slider to adjust the span and recalculate. The numeric field remains available for precise entry; the slider range is an exploration aid, not an input limit. Point loads remain at the supported center or free-end locations.</small></p>
 
 
-    <!-- Young's Modulus -->
-    <label class="input-label">
-        Young's Modulus (E)
-    </label>
+    <label class="input-label" for="material">Material (Young's modulus preset)</label>
+    <select id="material" class="output-select"></select>
+
+    <label class="input-label" for="youngsModulus">Young's Modulus (E) — Manual Override</label>
 
     <div class="input-row">
         <input id="youngsModulus" type="number" min="0" step="any" placeholder="Enter Young's modulus">
