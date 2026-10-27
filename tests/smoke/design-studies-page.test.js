@@ -147,7 +147,7 @@ describe('Design Studies page', () => {
             .find((item) => item.textContent.startsWith(label)).querySelector('input, select');
         const set = (label, value) => change(window, field(label), String(value));
         set('Interface diameter', 50);
-        set('Diametral interference', 0.05);
+        set('Diametral interference (Δd)', 0.05);
         set('Hub outer diameter', 100);
         set('Shaft bore diameter', 0);
         set('Engagement length', 50);
@@ -156,12 +156,14 @@ describe('Design Studies page', () => {
         set('Shaft material', 'carbon-steel');
         click(window, buttonByText(card, 'Recalculate'));
         expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
-        expect(card.textContent).toContain('75 MPa');
+        const pressure = () => Array.from(card.querySelectorAll('tbody tr'))
+            .find((row) => row.cells[0].textContent === 'Contact pressure').cells[1].textContent;
+        expect(Number(pressure())).toBeCloseTo(75, 2);
 
         set('Hub material', 'aluminum');
         expect(card.querySelector('[data-role="status"]').textContent).toMatch(/recalculate/);
         click(window, buttonByText(card, 'Recalculate'));
         expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
-        expect(card.textContent).not.toContain('75 MPa');
+        expect(Number(pressure())).not.toBeCloseTo(75, 2);
     });
 });
