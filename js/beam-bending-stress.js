@@ -35,6 +35,17 @@ function bendingProfileInputs(sectionType) {
     };
 }
 
+function computeBeamBendingStress({ sectionType, dimensions, momentNm, axis }) {
+    if (!Number.isFinite(momentNm)) throw new Error("Bending moment must be finite.");
+    if (axis !== "x" && axis !== "y") throw new Error("Select a supported bending axis.");
+    const properties = window.BeamSectionProperties.calculate(sectionType, dimensions);
+    const inertiaM4 = axis === "x" ? properties.inertiaX : properties.inertiaY;
+    const cM = axis === "x" ? properties.extremeFiberX : properties.extremeFiberY;
+    const stressPa = momentNm * cM / inertiaM4;
+    if (!Number.isFinite(stressPa)) throw new Error("The resulting bending stress is outside the supported numerical range.");
+    return { properties, inertiaM4, cM, stressPa };
+}
+
 function updateBeamBendingStressEquation() {
     const type = bendingSectionTypeSelect.value;
     const axis = document.getElementById("bendingAxis").value;
@@ -74,12 +85,8 @@ function calculateBeamBendingStress() {
         if (!Number.isFinite(momentNm)) throw new Error("Select a valid bending-moment unit.");
 
         const { dimensions, inputs: dimensionInputs, entries } = bendingProfileInputs(sectionType);
-        const properties = window.BeamSectionProperties.calculate(sectionType, dimensions);
         const axis = document.getElementById("bendingAxis").value;
-        const inertiaM4 = axis === "x" ? properties.inertiaX : properties.inertiaY;
-        const cM = axis === "x" ? properties.extremeFiberX : properties.extremeFiberY;
-        const stressPa = momentNm * cM / inertiaM4;
-        if (!Number.isFinite(stressPa)) throw new Error("The resulting bending stress is outside the supported numerical range.");
+        const { properties, inertiaM4, cM, stressPa } = computeBeamBendingStress({ sectionType, dimensions, momentNm, axis });
 
         const stressUnit = document.getElementById("stressUnit").value;
         const areaUnit = document.getElementById("areaUnit").value;

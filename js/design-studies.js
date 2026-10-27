@@ -212,21 +212,35 @@
     function buildInputField(adapter, scenario, input, card) {
         const label = el("label", null, input.label + (input.optional ? " (optional)" : ""));
         const row = el("div", "input-row");
-        const field = el("input");
-        field.type = "number";
-        field.step = "any";
-        field.value = scenario.inputs[input.id] === null ? "" : String(scenario.inputs[input.id]);
+        const field = el(input.options ? "select" : "input", input.options ? "output-select" : null);
+        if (input.options) {
+            const placeholder = el("option", null, "-- Select --");
+            placeholder.value = "";
+            field.appendChild(placeholder);
+            input.options.forEach((value) => {
+                const option = el("option", null, input.optionLabels && input.optionLabels[value] || value);
+                option.value = value;
+                field.appendChild(option);
+            });
+            field.value = scenario.inputs[input.id] || "";
+        } else {
+            field.type = "number";
+            field.step = "any";
+            field.value = scenario.inputs[input.id] === null ? "" : String(scenario.inputs[input.id]);
+        }
         field.addEventListener("change", () => {
             const raw = field.value.trim();
-            const value = raw === "" ? null : Number(raw);
-            if (value !== null && !Number.isFinite(value)) { status("Enter a valid number for " + input.label + ".", true); return; }
+            const value = input.options ? (raw || null) : (raw === "" ? null : Number(raw));
+            if (!input.options && value !== null && !Number.isFinite(value)) { status("Enter a valid number for " + input.label + ".", true); return; }
             mutateScenario(scenario.id, (s) => S.setScenarioInput(adapter, s, input.id, value));
             refreshCardStatus(card, scenario.id);
         });
         row.appendChild(field);
-        const unit = el("span", "input-unit", S.unitOfInput(adapter, input, scenario.units));
-        unit.dataset.inputUnit = input.id;
-        row.appendChild(unit);
+        if (!input.options) {
+            const unit = el("span", "input-unit", S.unitOfInput(adapter, input, scenario.units));
+            unit.dataset.inputUnit = input.id;
+            row.appendChild(unit);
+        }
         label.appendChild(row);
         return label;
     }

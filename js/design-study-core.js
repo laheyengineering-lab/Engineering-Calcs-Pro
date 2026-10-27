@@ -83,6 +83,11 @@
     function listAdapters() { return Object.keys(adapters).map((id) => adapters[id]); }
     function inputDef(adapter, id) { return adapter.inputs.find((input) => input.id === id) || null; }
     function outputDef(adapter, id) { return adapter.outputs.find((output) => output.id === id) || null; }
+    function validInputValue(input, value) {
+        return value === null || (Array.isArray(input.options)
+            ? typeof value === "string" && input.options.includes(value)
+            : typeof value === "number" && Number.isFinite(value));
+    }
 
     function defaultUnits(adapter) {
         const units = {};
@@ -125,7 +130,8 @@
             updatedAt: new Date().toISOString()
         };
         Object.keys(inputs || {}).forEach((id) => {
-            if (id in scenario.inputs) scenario.inputs[id] = Number.isFinite(inputs[id]) ? inputs[id] : null;
+            const def = inputDef(adapter, id);
+            if (def && validInputValue(def, inputs[id])) scenario.inputs[id] = inputs[id];
         });
         return scenario;
     }
@@ -154,8 +160,9 @@
     }
 
     function setScenarioInput(adapter, scenario, inputId, value) {
-        if (!inputDef(adapter, inputId)) throw new Error("Unknown input: " + inputId);
-        if (value !== null && !Number.isFinite(value)) throw new Error("Input values must be finite numbers or blank.");
+        const def = inputDef(adapter, inputId);
+        if (!def) throw new Error("Unknown input: " + inputId);
+        if (!validInputValue(def, value)) throw new Error(def.options ? "Select a supported option for " + def.label + "." : "Input values must be finite numbers or blank.");
         const next = clone(scenario);
         next.inputs[inputId] = value;
         return markEdited(next);
@@ -311,6 +318,21 @@
         return out;
     }
 
+    function compareInputCell(baseCell, cell, input) {
+        if (!cell || cell.value === null || cell.value === undefined) {
+            return { missing: true, value: null, unit: "", changed: Boolean(baseCell && baseCell.value !== null && baseCell.value !== undefined) };
+        }
+        const out = { missing: false, value: cell.value, unit: "", changed: false, delta: null, deltaUnit: "", percent: null, note: "" };
+        if (!baseCell || baseCell.value === null || baseCell.value === undefined) {
+            out.changed = true;
+            out.note = "Not supplied in the baseline.";
+        } else {
+            out.changed = cell.value !== baseCell.value;
+            if (out.changed) out.note = "Categorical selection; numeric differences are not applicable.";
+        }
+        return out;
+    }
+
     // scenarios: array of saved scenarios of ONE calculator. Uses saved snapshots only.
     function compareScenarios(scenarios, baselineId) {
         const fail = (error) => ({ ok: false, error });
@@ -353,7 +375,11 @@
         try {
             inputRows = adapter.inputs.filter((def) => ordered.some((s) => byId(s.result.inputs, def.id) && byId(s.result.inputs, def.id).value !== null)).map((def) => ({
                 id: def.id, label: def.label, section: def.section || "",
-                cells: ordered.map((s, i) => compareCell(adapter, def.group, i === 0 ? null : byId(baseline.result.inputs, def.id), byId(s.result.inputs, def.id)))
+                cells: ordered.map((s, i) => {
+                    const base = i === 0 ? null : byId(baseline.result.inputs, def.id);
+                    const cell = byId(s.result.inputs, def.id);
+                    return def.options ? compareInputCell(base, cell, def) : compareCell(adapter, def.group, base, cell);
+                })
             }));
             outputRows = adapter.outputs.filter((def) => ordered.some((s) => byId(s.result.outputs, def.id))).map((def) => ({
                 id: def.id, label: def.label, quantity: def.quantity, comparable: def.comparable !== false,
@@ -548,7 +574,7 @@
         const inputs = [];
         for (const item of raw.inputs.slice(0, 100)) {
             const def = item && inputDef(adapter, item.id);
-            if (!def || !(item.value === null || Number.isFinite(item.value))) return null;
+            if (!def || !validInputValue(def, item.value)) return null;
             if (def.group ? !adapter.groups[def.group].options.includes(item.unit) : item.unit !== (def.unit || "")) return null;
             inputs.push({ id: def.id, label: def.label, value: item.value, unit: item.unit });
         }
@@ -581,7 +607,8 @@
         for (const id of Object.keys(rawInputs)) {
             if (!(id in inputs)) continue;
             const value = rawInputs[id];
-            if (!(value === null || (typeof value === "number" && Number.isFinite(value)))) return { ok: false, error: "input " + id + " is not a finite number." };
+            const def = inputDef(adapter, id);
+            if (!validInputValue(def, value)) return { ok: false, error: "input " + id + " is invalid." };
             inputs[id] = value;
         }
         let result = raw.result === null || raw.result === undefined ? null : validResult(adapter, raw.result);
@@ -608,7 +635,7 @@
         if (typeof raw.id !== "string" || !/^[\w-]{1,60}$/.test(raw.id)) return { ok: false, error: "invalid identifier." };
         const input = raw.input && inputDef(adapter, raw.input.id);
         const output = raw.output && outputDef(adapter, raw.output.id);
-        if (!input || !output) return { ok: false, error: "unknown input or output." };
+        if (!input || !output || !input.sweepable || input.options) return { ok: false, error: "unknown or unsupported sweep input or output." };
         if (input.group ? !adapter.groups[input.group].options.includes(raw.input.unit) : raw.input.unit !== (input.unit || "")) return { ok: false, error: "unsupported input unit." };
         if (!adapter.groups[output.group].options.includes(raw.output.unit)) return { ok: false, error: "unsupported output unit." };
         if (!Array.isArray(raw.points) || raw.points.length === 0 || raw.points.length > MAX_SWEEP_SAMPLES) return { ok: false, error: "invalid sample list." };
@@ -620,7 +647,7 @@
         const baseInputs = [];
         for (const item of Array.isArray(raw.baseInputs) ? raw.baseInputs.slice(0, 100) : []) {
             const def = item && inputDef(adapter, item.id);
-            if (!def || !(item.value === null || Number.isFinite(item.value))) return { ok: false, error: "invalid baseline input." };
+            if (!def || !validInputValue(def, item.value)) return { ok: false, error: "invalid baseline input." };
             baseInputs.push({ id: def.id, label: def.label, value: item.value, unit: text(item.unit, 40) });
         }
         const r = raw.range || {};

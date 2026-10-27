@@ -47,6 +47,36 @@ function updateMaterialShearModulus() {
     }
 }
 
+function computeShaftTorsion({ shaftType, torqueNm, outerDiameterM, innerDiameterM = null, lengthM, modulusPa }) {
+    if (shaftType !== "solid" && shaftType !== "hollow") throw new Error("Select a solid or hollow circular shaft.");
+    if (![torqueNm, outerDiameterM, lengthM, modulusPa].every(Number.isFinite)
+        || torqueNm === 0 || outerDiameterM <= 0 || lengthM <= 0 || modulusPa <= 0) {
+        throw new Error("Please enter torque, diameter, shaft length, and shear modulus.");
+    }
+
+    const outerRadius = outerDiameterM / 2;
+    let J;
+    if (shaftType === "solid") {
+        J = Math.PI * Math.pow(outerDiameterM, 4) / 32;
+    } else {
+        if (!Number.isFinite(innerDiameterM) || innerDiameterM < 0) {
+            throw new Error("Please enter a non-negative inner diameter for hollow shafts.");
+        }
+        if (innerDiameterM >= outerDiameterM) {
+            throw new Error("For hollow shaft, inner diameter must be less than outer diameter.");
+        }
+        J = Math.PI * (Math.pow(outerDiameterM, 4) - Math.pow(innerDiameterM, 4)) / 32;
+    }
+    const tauMaxPa = (torqueNm * outerRadius) / J;
+    const thetaRadians = (torqueNm * lengthM) / (modulusPa * J);
+    const thetaDegrees = thetaRadians * (180 / Math.PI);
+    const stiffness = (modulusPa * J) / lengthM;
+    if (![J, tauMaxPa, thetaRadians, thetaDegrees, stiffness].every(Number.isFinite)) {
+        throw new Error("The result is outside the supported numerical range.");
+    }
+    return { J, tauMaxPa, thetaRadians, thetaDegrees, stiffness };
+}
+
 function calculateShaftTorsion() {
     const shaftType = torsionShaftTypeSelect.value;
     const torque = Number(torsionTorqueInput.value);
@@ -89,40 +119,13 @@ function calculateShaftTorsion() {
         const lengthM = convertDistance(length, lengthUnit);
         const modulusPa = convertModulus(shearModulus, modulusUnit); // FIXED: Now uses centralized conversion
         
-        // Calculate polar moment of inertia J (m⁴)
-        let J;
+        const innerDiameterM = shaftType === "hollow"
+            ? convertDistance(Number(torsionInnerDiameterInput.value), torsionInnerDiameterUnitSelect.value)
+            : null;
+        const result = computeShaftTorsion({ shaftType, torqueNm, outerDiameterM, innerDiameterM, lengthM, modulusPa });
+        const { J, tauMaxPa, thetaRadians, thetaDegrees, stiffness } = result;
         const outerRadius = outerDiameterM / 2;
-        
-        if (shaftType === "solid") {
-            // J = π·D⁴/32 for solid shaft
-            const D4 = Math.pow(outerDiameterM, 4);
-            J = Math.PI * D4 / 32;
-        } else {
-            // J = π(D_o⁴ - D_i⁴)/32 for hollow shaft
-            const innerDiameter = Number(torsionInnerDiameterInput.value);
-            const innerDiameterM = convertDistance(innerDiameter, torsionInnerDiameterUnitSelect.value);
-            if (innerDiameterM >= outerDiameterM) {
-                torsionResultPanel.innerHTML = `
-                    <h3>Invalid Input</h3>
-                    <p>For hollow shaft, inner diameter must be less than outer diameter.</p>
-                `;
-                return;
-            }
-            const Do4 = Math.pow(outerDiameterM, 4);
-            const Di4 = Math.pow(innerDiameterM, 4);
-            J = Math.PI * (Do4 - Di4) / 32;
-        }
-        
-        // Calculate maximum shear stress: τ_max = T·c/J = T·(D/2)/J
-        const tauMaxPa = (torqueNm * outerRadius) / J;
         const tauMaxOutput = convertStressToUnit(tauMaxPa, stressUnit);
-        
-        // Calculate angle of twist: θ = T·L/(G·J) (in radians)
-        const thetaRadians = (torqueNm * lengthM) / (modulusPa * J);
-        const thetaDegrees = thetaRadians * (180 / Math.PI);
-        
-        // Torsional stiffness: k = G·J/L
-        const stiffness = (modulusPa * J) / lengthM;
         
         // Format output
         const resultHTML = `
