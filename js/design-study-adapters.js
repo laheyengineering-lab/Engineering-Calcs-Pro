@@ -89,8 +89,30 @@
 
     // ---------- Differential Thermal Expansion ----------
 
+    const materialOptions = getMaterialList();
+    const materialLabels = Object.fromEntries(materialOptions.map((key) => [key, getMaterial(key).displayName]));
+    const materialsWithProperties = (...properties) => materialOptions.filter((key) => properties.every((property) => {
+        const value = getMaterialProperty(key, property);
+        if (!Number.isFinite(value)) return false;
+        if ((property === "youngsModulus" || property === "shearModulus") && value <= 0) return false;
+        return property !== "poissonRatio" || (value >= 0 && value < 0.5);
+    }));
+    function categorical(id, label, options, optionLabels = {}, optional = false) {
+        return { id, label, group: null, unit: "", options, optionLabels, optional, sweepable: false };
+    }
+    function materialInput(adapter, values, units, selectionId, inputId, property) {
+        if (Number.isFinite(values[inputId])) return values[inputId];
+        const materialValue = getMaterialProperty(values[selectionId], property);
+        if (!Number.isFinite(materialValue)) return NaN;
+        const input = adapter.inputs.find((item) => item.id === inputId);
+        return input && input.group ? adapter.groups[input.group].fromBase(materialValue, units[input.group]) : materialValue;
+    }
+
     const ALPHA_OPTIONS = Object.keys(DTE_ALPHA_UNITS);
+    const alphaMaterialOptions = materialsWithProperties("thermalExpansionCoefficient");
+    const alphaMaterialLabels = Object.fromEntries(alphaMaterialOptions.map((key) => [key, getMaterial(key).displayName]));
     const dteInputs = [];
+    const dteMaterialBindings = [];
     DTE_MEMBERS.forEach((member) => {
         for (let n = 1; n <= DTE_SECTIONS; n += 1) {
             const required = member === "A" && n === 1;
@@ -98,10 +120,15 @@
             const base = { group: null, optional: !required, sweepable: true, section };
             dteInputs.push(
                 Object.assign({}, base, { id: member + n + "Length", label: section + " initial length (L0)", group: "length", min: 0, minExclusive: true }),
-                Object.assign({}, base, { id: member + n + "Alpha", label: section + " coefficient (α)", group: "alpha" }),
+                Object.assign({}, base, { id: member + n + "Alpha", label: section + " coefficient (α)", group: "alpha", optional: true }),
+                Object.assign(categorical(member + n + "Material", section + " material", alphaMaterialOptions, alphaMaterialLabels, true), { section }),
                 Object.assign({}, base, { id: member + n + "Ti", label: section + " initial temperature", group: "temperature" }),
                 Object.assign({}, base, { id: member + n + "Tf", label: section + " final temperature", group: "temperature" })
             );
+            dteMaterialBindings.push({
+                selectionId: member + n + "Material",
+                inputs: [{ id: member + n + "Alpha", property: "thermalExpansionCoefficient", group: "alpha" }]
+            });
         }
     });
 
@@ -124,6 +151,7 @@
             outputLength: distanceGroup("expansion output", ["µm", "mm", "cm", "m", "in", "ft"], "mm")
         },
         inputs: dteInputs,
+        materialBindings: dteMaterialBindings,
         outputs: [
             { id: "memberAExpansion", label: "Member A total expansion", group: "outputLength", quantity: "length-change" },
             { id: "memberBExpansion", label: "Member B total expansion", group: "outputLength", quantity: "length-change", optional: true },
@@ -131,22 +159,25 @@
             { id: "finalLengthDifference", label: "Final length difference (A − B)", group: "outputLength", quantity: "length", optional: true }
         ],
         equations: DTE_EQUATIONS,
-        assumptions: DTE_ASSUMPTIONS,
+        assumptions: DTE_ASSUMPTIONS.concat(["A selected material supplies its database thermal expansion coefficient; an entered coefficient takes precedence."]),
         warnings: ["Free expansion only; restraint, contact or mechanical loading would change the real movement and cause thermal stress that is not calculated here."],
         method: "Each section's free expansion is alpha times initial length times temperature change. A member's expansion is the sum of its sections. The differential movement subtracts member B's expansion from member A's.",
         calculate(values, units) {
             const readMember = (member) => {
                 const sections = [];
                 for (let n = 1; n <= DTE_SECTIONS; n += 1) {
-                    const keys = ["Length", "Alpha", "Ti", "Tf"].map((f) => member + n + f);
+                    const keys = ["Length", "Alpha", "Ti", "Tf", "Material"].map((f) => member + n + f);
                     const raws = keys.map((k) => values[k]);
                     const name = "Member " + member + ", section " + n;
                     if (raws.every((v) => v === null || v === undefined)) {
                         if (member === "A" && n === 1) throw new Error("Member A section 1 is required.");
                         continue;
                     }
-                    if (!raws.every(Number.isFinite)) throw new Error(name + ": enter a length, coefficient and both temperatures.");
-                    const [length, alpha, ti, tf] = raws;
+                    const [length, inputAlpha, ti, tf, material] = raws;
+                    const materialAlpha = material ? getMaterialProperty(material, "thermalExpansionCoefficient") : null;
+                    const alpha = Number.isFinite(inputAlpha) ? inputAlpha :
+                        (Number.isFinite(materialAlpha) ? materialAlpha / DTE_ALPHA_UNITS[units.alpha] : NaN);
+                    if (![length, alpha, ti, tf].every(Number.isFinite)) throw new Error(name + ": enter a length, coefficient or material, and both temperatures.");
                     if (length <= 0) throw new Error(name + ": initial length must be greater than zero.");
                     const tInitial = dteToCelsius(ti, units.temperature);
                     const tFinal = dteToCelsius(tf, units.temperature);
@@ -196,12 +227,6 @@
         "elastic modulus", modulusUnits, "GPa", (value, unit) => convertModulus(value, unit), (value, unit) => convertModulusToUnit(value, unit)
     );
     const factorGroup = unitGroup("screening factor", ["×"], "×", (value) => value, (value) => value);
-    const materialOptions = getMaterialList();
-    const materialLabels = Object.fromEntries(materialOptions.map((key) => [key, getMaterial(key).displayName]));
-    const categorical = (id, label, options, optionLabels = {}) => ({
-        id, label, group: null, unit: "", options, optionLabels, optional: false, sweepable: false
-    });
-
     const pressFit = {
         id: "press-fit",
         name: "Press-Fit Stress",
@@ -308,10 +333,16 @@
             { id: "diameter2", label: "Body 2 diameter (omit for a flat plate)", group: "distance", min: 0, minExclusive: true, optional: true, sweepable: true },
             { id: "contactLength", label: "Contact length (cylinders only)", group: "distance", min: 0, minExclusive: true, optional: true, sweepable: true },
             { id: "contactForce", label: "Normal contact force", group: "force", min: 0, minExclusive: true, sweepable: true },
+            categorical("material1", "Body 1 material", materialsWithProperties("youngsModulus", "poissonRatio"), materialLabels, true),
             { id: "modulus1", label: "Body 1 Young's modulus", group: "modulus", min: 0, minExclusive: true, sweepable: true },
             { id: "poisson1", label: "Body 1 Poisson's ratio", group: null, unit: "", min: 0, max: 0.5, sweepable: true },
+            categorical("material2", "Body 2 material", materialsWithProperties("youngsModulus", "poissonRatio"), materialLabels, true),
             { id: "modulus2", label: "Body 2 Young's modulus", group: "modulus", min: 0, minExclusive: true, sweepable: true },
             { id: "poisson2", label: "Body 2 Poisson's ratio", group: null, unit: "", min: 0, max: 0.5, sweepable: true }
+        ],
+        materialBindings: [
+            { selectionId: "material1", inputs: [{ id: "modulus1", property: "youngsModulus" }, { id: "poisson1", property: "poissonRatio" }] },
+            { selectionId: "material2", inputs: [{ id: "modulus2", property: "youngsModulus" }, { id: "poisson2", property: "poissonRatio" }] }
         ],
         outputs: [
             { id: "effectiveModulus", label: "Effective elastic modulus (E*)", group: "stress", quantity: "stress" },
@@ -333,7 +364,7 @@
         comparisonKey(scenario) {
             return scenario.inputs.configuration;
         },
-        assumptions: HERTZ_ASSUMPTIONS,
+        assumptions: HERTZ_ASSUMPTIONS.concat(["Selected body materials populate database E and ν values; directly entered numeric properties take precedence."]),
         warnings: [
             "Cylinder results require parallel, sufficiently long cylinders with uniform load and no edge effects.",
             "Maximum shear stress uses approximate ν ≈ 0.3 coefficients; pressure is not a fatigue, wear, yield, or service-life assessment."
@@ -348,8 +379,10 @@
                 diameter2: values.shape2 === "flat" ? null : convertDistance(number("diameter2"), units.distance),
                 length: values.configuration === "cylinders" ? convertDistance(number("contactLength"), units.distance) : null,
                 force: convertForce(number("contactForce"), units.force),
-                E1: convertModulus(number("modulus1"), units.modulus), nu1: number("poisson1"),
-                E2: convertModulus(number("modulus2"), units.modulus), nu2: number("poisson2")
+                E1: convertModulus(materialInput(hertz, values, units, "material1", "modulus1", "youngsModulus"), units.modulus),
+                nu1: materialInput(hertz, values, units, "material1", "poisson1", "poissonRatio"),
+                E2: convertModulus(materialInput(hertz, values, units, "material2", "modulus2", "youngsModulus"), units.modulus),
+                nu2: materialInput(hertz, values, units, "material2", "poisson2", "poissonRatio")
             });
             const stress = (value) => convertStressToUnit(value, units.stress);
             const length = (value) => convertDistanceToUnit(value, units.contactSize);
@@ -392,7 +425,11 @@
             { id: "outerDiameter", label: "Outer diameter", group: "shaftDiameter", min: 0, minExclusive: true, sweepable: true },
             { id: "innerDiameter", label: "Inner diameter (hollow shaft only)", group: "shaftDiameter", min: 0, optional: true, sweepable: true },
             { id: "length", label: "Shaft length", group: "length", min: 0, minExclusive: true, sweepable: true },
+            categorical("material", "Shaft material", materialsWithProperties("shearModulus"), materialLabels, true),
             { id: "shearModulus", label: "Shear modulus (G)", group: "modulus", min: 0, minExclusive: true, sweepable: true }
+        ],
+        materialBindings: [
+            { selectionId: "material", inputs: [{ id: "shearModulus", property: "shearModulus" }] }
         ],
         outputs: [
             { id: "polarMoment", label: "Polar moment of inertia (J)", group: "inertia", quantity: "area-moment-of-inertia" },
@@ -404,6 +441,7 @@
         assumptions: [
             "Circular, prismatic shaft with constant torque, length, and shear modulus.",
             "Linear-elastic Saint-Venant torsion; solid or concentric hollow circular section only.",
+            "A selected material supplies its database shear modulus; a directly entered value takes precedence.",
             "Shear stress is signed with applied torque; material strength, stress concentrations, fatigue, buckling, and yielding are not assessed."
         ],
         warnings: ["Select the intended solid or hollow shaft explicitly; a hollow-shaft inner diameter must be smaller than its outer diameter."],
@@ -416,7 +454,7 @@
                 outerDiameterM: convertDistance(number("outerDiameter"), units.shaftDiameter),
                 innerDiameterM: values.shaftType === "hollow" ? convertDistance(number("innerDiameter"), units.shaftDiameter) : null,
                 lengthM: convertDistance(number("length"), units.length),
-                modulusPa: convertModulus(number("shearModulus"), units.modulus)
+                modulusPa: convertModulus(materialInput(shaftTorsion, values, units, "material", "shearModulus", "shearModulus"), units.modulus)
             });
             return {
                 polarMoment: convertAreaMomentInertiaToUnit(result.J, units.inertia),
@@ -587,10 +625,14 @@
             { id: "span", label: "Beam span (L)", group: "span", min: 0, minExclusive: true, sweepable: true },
             { id: "pointLoad", label: "Point load (P)", group: "force", optional: true, sweepable: true },
             { id: "uniformLoad", label: "Uniform distributed load (w)", group: "distributedLoad", optional: true, sweepable: true },
+            categorical("material", "Beam material", materialsWithProperties("youngsModulus"), materialLabels, true),
             { id: "youngsModulus", label: "Young's modulus (E)", group: "modulus", min: 0, minExclusive: true, sweepable: true },
             categorical("sectionType", "Cross-section profile", sectionOptions, sectionLabels),
             ...dimensionInputs,
             categorical("bendingAxis", "Bending axis", axisOptions, axisLabels)
+        ],
+        materialBindings: [
+            { selectionId: "material", inputs: [{ id: "youngsModulus", property: "youngsModulus" }] }
         ],
         outputs: beamOutputs.concat([
             { id: "selectedInertia", label: "Selected second moment of area (I)", group: "inertia", quantity: "area-moment-of-inertia" },
@@ -608,6 +650,7 @@
         },
         assumptions: [
             "Linear-elastic homogeneous material, small deflection, prismatic beam and constant E and I.",
+            "A selected material supplies its database Young's modulus; a directly entered value takes precedence.",
             "Euler–Bernoulli beam theory; shear deformation is neglected.",
             "Static full-span loading with ideal pin/roller or fixed-free supports, as specified by the selected case.",
             "The closed-form solution does not represent plasticity, buckling, connection flexibility, support settlement, or dynamic effects."
@@ -628,7 +671,7 @@
             const result = window.FormulaFoundryBeamCalculations.computeDeflection({
                 caseId: values.loadingCase,
                 spanM: convertDistance(values.span, units.span),
-                modulusPa: convertModulus(values.youngsModulus, units.modulus),
+                modulusPa: convertModulus(materialInput(beamDeflection, values, units, "material", "youngsModulus", "youngsModulus"), units.modulus),
                 inertiaM4,
                 loadSI
             });

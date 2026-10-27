@@ -774,6 +774,58 @@ describe('engineering calculator study adapters', () => {
         expect(edited.status).toBe('stale');
         expect(S.compareScenarios([base, edited], base.id).ok).toBe(false);
     });
+
+    it('uses saved material presets for elastic and thermal properties while allowing numeric overrides', () => {
+        const { S } = setup();
+        const hertz = S.getAdapter('hertzian-contact');
+        const contact = calculateStudyScenario(S, hertz.id, 'Material contact', {
+            configuration: 'spheres', shape2: 'flat', diameter1: 50, diameter2: null,
+            contactLength: null, contactForce: 500, material1: 'carbon-steel', material2: 'aluminum'
+        });
+        expect(contact.status).toBe('calculated');
+        expect(out(contact, 'maxPressure').value).toBeCloseTo(795.083, 1);
+        expect(contact.result.inputs.find((input) => input.id === 'modulus1')).toMatchObject({ value: 200, unit: 'GPa' });
+        expect(contact.result.inputs.find((input) => input.id === 'poisson1').value).toBe(0.27);
+        expect(hertz.inputs.find((input) => input.id === 'material1').options).toContain('carbon-steel');
+
+        const shaft = S.getAdapter('shaft-torsion');
+        const torsionInputs = {
+            shaftType: 'solid', torque: 500, outerDiameter: 0.05, innerDiameter: null,
+            length: 2, material: 'carbon-steel', shearModulus: null
+        };
+        const torsion = calculateStudyScenario(S, shaft.id, 'Material shaft', torsionInputs);
+        expect(out(torsion, 'maximumShearStress').value).toBeCloseTo(20.3718, 3);
+        expect(torsion.result.inputs.find((input) => input.id === 'shearModulus')).toMatchObject({ value: 80, unit: 'GPa' });
+        expect(shaft.inputs.find((input) => input.id === 'material').options).toContain('carbon-steel');
+        const imperialTorsion = calculateStudyScenario(S, shaft.id, 'Material shaft imperial', torsionInputs, {
+            modulus: 'psi', stress: 'ksi', angle: 'rad'
+        });
+        expect(out(imperialTorsion, 'maximumShearStress').value).toBeCloseTo(out(torsion, 'maximumShearStress').value / 6.894757, 3);
+        expect(imperialTorsion.result.inputs.find((input) => input.id === 'shearModulus'))
+            .toMatchObject({ value: 80e9 / 6894.757, unit: 'psi' });
+        const override = calculateStudyScenario(S, shaft.id, 'Custom G', { ...torsionInputs, shearModulus: 40 });
+        expect(out(override, 'maximumShearStress').value).toBeCloseTo(out(torsion, 'maximumShearStress').value, 8);
+        expect(out(override, 'angleOfTwist').value).toBeCloseTo(out(torsion, 'angleOfTwist').value * 2, 8);
+
+        const beam = S.getAdapter('beam-deflection');
+        const deflection = calculateStudyScenario(S, beam.id, 'Material beam', {
+            loadingCase: 'ss-point', span: 2, pointLoad: 1000, uniformLoad: null, material: 'carbon-steel',
+            youngsModulus: null, sectionType: 'rectangular', section_width: 100, section_height: 100, bendingAxis: 'x'
+        }, { deflection: 'mm' });
+        expect(out(deflection, 'signedDeflection').value).toBeCloseTo(0.1, 8);
+        expect(deflection.result.inputs.find((input) => input.id === 'youngsModulus')).toMatchObject({ value: 200, unit: 'GPa' });
+
+        const dte = S.getAdapter('differential-thermal-expansion');
+        const expansion = calculateStudyScenario(S, dte.id, 'Material expansion', {
+            A1Length: 1000, A1Material: 'carbon-steel', A1Ti: 20, A1Tf: 120,
+            B1Length: 1000, B1Material: 'aluminum', B1Ti: 20, B1Tf: 120
+        });
+        expect(out(expansion, 'memberAExpansion').value).toBeCloseTo(1.2, 8);
+        expect(out(expansion, 'memberBExpansion').value).toBeCloseTo(2.36, 8);
+        expect(out(expansion, 'differential').value).toBeCloseTo(-1.16, 8);
+        expect(expansion.result.inputs.find((input) => input.id === 'A1Alpha')).toMatchObject({ value: 12, unit: '10⁻⁶/°C' });
+        expect(dte.inputs.find((input) => input.id === 'A1Material').options).toContain('carbon-steel');
+    });
 });
 
 describe('sweep of blank optional inputs', () => {

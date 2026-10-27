@@ -177,12 +177,28 @@
     }
 
     function buildInputSnapshot(adapter, scenario) {
-        return adapter.inputs.map((input) => ({
-            id: input.id,
-            label: input.label,
-            value: scenario.inputs[input.id],
-            unit: unitOfInput(adapter, input, scenario.units)
-        }));
+        return adapter.inputs.map((input) => {
+            let value = scenario.inputs[input.id];
+            if (value === null || value === undefined) {
+                for (const binding of adapter.materialBindings || []) {
+                    if (scenario.inputs[binding.selectionId] === null || scenario.inputs[binding.selectionId] === undefined) continue;
+                    const property = binding.inputs.find((item) => item.id === input.id);
+                    if (!property) continue;
+                    const materialValue = getMaterialProperty(scenario.inputs[binding.selectionId], property.property);
+                    if (!Number.isFinite(materialValue)) continue;
+                    value = input.group
+                        ? adapter.groups[input.group].fromBase(materialValue, scenario.units[input.group])
+                        : materialValue;
+                    break;
+                }
+            }
+            return {
+                id: input.id,
+                label: input.label,
+                value,
+                unit: unitOfInput(adapter, input, scenario.units)
+            };
+        });
     }
 
     // Runs the calculator's real calculation and returns a NEW scenario with a stored snapshot.
