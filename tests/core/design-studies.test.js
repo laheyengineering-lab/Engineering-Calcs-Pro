@@ -3,6 +3,12 @@ import { loadCore } from '../helpers/browser-test-utils.js';
 
 const scripts = [
     'js/engineering-units.js',
+    'js/calculator-utils.js',
+    'js/press-fit-calculation.js',
+    'js/hertzian-contact-calculation.js',
+    'js/shaft-torsion-calculation.js',
+    'js/beam-section-properties.js',
+    'js/beam-study-calculations.js',
     'js/cylinder-force.js',
     'js/differential-thermal-expansion.js',
     'js/report-builder.js',
@@ -542,11 +548,231 @@ describe('report integration', () => {
 describe('registry', () => {
     it('only registers valid adapters and exposes the supported calculators', () => {
         const { S } = setup();
-        expect(S.listAdapters().map((a) => a.id).sort()).toEqual(['cylinder-force', 'differential-thermal-expansion']);
+        expect(S.listAdapters().map((a) => a.id).sort()).toEqual([
+            'beam-bending-stress', 'beam-deflection', 'cylinder-force',
+            'differential-thermal-expansion', 'hertzian-contact', 'press-fit', 'shaft-torsion'
+        ]);
         expect(() => S.registerAdapter({ id: 'Bad Id' })).toThrow();
         expect(() => S.registerAdapter({ id: 'ok', name: 'n', version: '1', path: 'p.html', groups: {}, inputs: [{ id: 'x', group: 'missing' }], outputs: [], calculate() {} })).toThrow(/unknown unit group/);
         expect(S.getAdapter('toString')).toBeNull();
-        expect(() => S.createStudy('x', 'beam-deflection')).toThrow(/Unsupported/);
+        expect(S.createStudy('x', 'beam-deflection').calculatorId).toBe('beam-deflection');
+    });
+});
+
+function calculateStudyScenario(S, calculatorId, name, inputs, units) {
+    const adapter = S.getAdapter(calculatorId);
+    return S.calculateScenario(adapter, S.createScenario(adapter, name, inputs, units));
+}
+
+describe('engineering calculator study adapters', () => {
+    it('calculates press-fit reference values, converts units, rejects invalid geometry, sweeps gaps, and snapshots reports', () => {
+        const { S, report } = setup();
+        const press = S.getAdapter('press-fit');
+        const inputs = {
+            interfaceDiameter: 50, diametralInterference: 0.05, hubOuterDiameter: 100,
+            shaftBoreDiameter: 0, engagementLength: 50, frictionCoefficient: 0.12,
+            hubMaterial: 'carbon-steel', shaftMaterial: 'carbon-steel'
+        };
+        const base = calculateStudyScenario(S, press.id, 'Metric', inputs);
+        expect(base.status).toBe('calculated');
+        expect(out(base, 'contactPressure').value).toBeCloseTo(75, 2);
+        expect(out(base, 'assemblyForce').value).toBeCloseTo(70.6858, 2);
+        expect(out(base, 'torqueCapacity').value).toBeCloseTo(1767.15, 1);
+
+        const inch = calculateStudyScenario(S, press.id, 'Imperial', {
+            ...inputs,
+            interfaceDiameter: 50 / 25.4, diametralInterference: 0.05 / 25.4,
+            hubOuterDiameter: 100 / 25.4, engagementLength: 50 / 25.4
+        }, { distance: 'in', interference: 'in', stress: 'psi', force: 'lbf', torque: 'lbf·ft' });
+        expect(out(inch, 'contactPressure').value).toBeCloseTo(75e6 / 6894.757, 1);
+        expect(out(inch, 'assemblyForce').value).toBeCloseTo(70685.8 / 4.4482216152605, 0);
+        expect(S.compareScenarios([base, inch], base.id).ok).toBe(true);
+
+        const adapter = S.getAdapter(press.id);
+        const sweep = S.runSweep(adapter, base, {
+            inputId: 'hubOuterDiameter', outputId: 'contactPressure', start: 49, end: 51, mode: 'count', count: 3
+        }).sweep;
+        expect(sweep.failedCount).toBe(2);
+        expect(sweep.points.map((point) => point.y === null)).toEqual([true, true, false]);
+        const study = S.addScenario(S.createStudy('Press-fit report', press.id), base);
+        const built = S.scenarioReportSnapshot(study, base);
+        expect(built.ok).toBe(true);
+        const added = report.createProjectStore(memoryStorage()).addEntry(built.snapshot);
+        expect(added.ok).toBe(true);
+        expect(added.entry.assumptions.join(' ')).toMatch(/Lamé/);
+        const studyStore = S.createStudyStore(memoryStorage());
+        expect(studyStore.save([study])).toBe(true);
+        expect(studyStore.load().studies[0].scenarios[0].inputs.hubMaterial).toBe('carbon-steel');
+
+        const invalid = S.calculateScenario(adapter, S.createScenario(adapter, 'Invalid', { ...inputs, hubOuterDiameter: 50 }));
+        expect(invalid.status).toBe('error');
+        expect(invalid.error).toMatch(/Hub outer diameter/);
+        const edited = S.setScenarioInput(adapter, S.duplicateScenario(base, 'Edited'), 'frictionCoefficient', 0.2);
+        expect(edited.status).toBe('stale');
+        expect(S.compareScenarios([base, edited], base.id).ok).toBe(false);
+    });
+
+    it('keeps Hertzian line and point contact models separate and matches independent references in both unit systems', () => {
+        const { S } = setup();
+        const hertz = S.getAdapter('hertzian-contact');
+        const steel = { modulus1: 200, poisson1: 0.3, modulus2: 200, poisson2: 0.3 };
+        const cylinder = calculateStudyScenario(S, hertz.id, 'Cylinders', {
+            configuration: 'cylinders', shape2: 'convex', diameter1: 100, diameter2: 100,
+            contactLength: 40, contactForce: 20000, ...steel
+        });
+        expect(cylinder.status).toBe('calculated');
+        expect(out(cylinder, 'maxPressure').value).toBeCloseTo(836.41, 1);
+        expect(out(cylinder, 'halfWidth').value).toBeCloseTo(0.380567, 5);
+
+        const inch = calculateStudyScenario(S, hertz.id, 'Cylinder imperial', {
+            configuration: 'cylinders', shape2: 'convex', diameter1: 100 / 25.4, diameter2: 100 / 25.4,
+            contactLength: 40 / 25.4, contactForce: 20000 / 4.4482216152605,
+            modulus1: 200e9 / 6894.757, poisson1: 0.3, modulus2: 200e9 / 6894.757, poisson2: 0.3
+        }, { distance: 'in', contactSize: 'in', force: 'lbf', modulus: 'psi', stress: 'psi', lineLoad: 'lbf/ft' });
+        expect(S.convertUnit(hertz, 'stress', out(inch, 'maxPressure').value, 'psi', 'MPa')).toBeCloseTo(836.41, 1);
+        expect(S.compareScenarios([cylinder, inch], cylinder.id).ok).toBe(true);
+
+        const sphere = calculateStudyScenario(S, hertz.id, 'Sphere on flat', {
+            configuration: 'spheres', shape2: 'flat', diameter1: 50, diameter2: null,
+            contactLength: null, contactForce: 500, modulus1: 200, poisson1: 0.3, modulus2: 69, poisson2: 0.33
+        });
+        expect(out(sphere, 'contactRadius').value).toBeCloseTo(0.547069, 5);
+        expect(out(sphere, 'maxPressure').value).toBeCloseTo(797.676, 1);
+        expect(out(sphere, 'contactWidth')).toBeUndefined();
+        expect(S.compareScenarios([cylinder, sphere], cylinder.id)).toMatchObject({ ok: false, error: expect.stringMatching(/incompatible calculation models/) });
+        const concave = calculateStudyScenario(S, hertz.id, 'Concave cylinder', {
+            configuration: 'cylinders', shape2: 'concave', diameter1: 50, diameter2: 60,
+            contactLength: 20, contactForce: 10000, ...steel
+        });
+        const sweep = S.runSweep(hertz, concave, {
+            inputId: 'diameter2', outputId: 'maxPressure', start: 45, end: 55, mode: 'count', count: 3
+        }).sweep;
+        expect(sweep.failedCount).toBe(2);
+        const study = S.addScenario(S.createStudy('Hertz report', hertz.id), sphere);
+        expect(S.scenarioReportSnapshot(study, sphere).snapshot.assumptions.join(' ')).toMatch(/Linear elastic/);
+        const invalid = S.calculateScenario(hertz, S.createScenario(hertz, 'Invalid', {
+            configuration: 'cylinders', shape2: 'concave', diameter1: 50, diameter2: 50,
+            contactLength: 20, contactForce: 100, ...steel
+        }));
+        expect(invalid.status).toBe('error');
+        expect(invalid.error).toMatch(/larger diameter/);
+    });
+
+    it('calculates solid and hollow shaft torsion from explicit geometry and preserves stress/twist references', () => {
+        const { S } = setup();
+        const shaft = S.getAdapter('shaft-torsion');
+        const inputs = {
+            shaftType: 'solid', torque: 500, outerDiameter: 0.05, innerDiameter: null,
+            length: 2, shearModulus: 80
+        };
+        const base = calculateStudyScenario(S, shaft.id, 'Solid', inputs, { angle: 'rad' });
+        const J = Math.PI * 0.05 ** 4 / 32;
+        expect(out(base, 'polarMoment').value).toBeCloseTo(J, 13);
+        expect(out(base, 'maximumShearStress').value).toBeCloseTo(20.3718, 3);
+        expect(out(base, 'angleOfTwist').value).toBeCloseTo(500 * 2 / (80e9 * J), 8);
+
+        const imperial = calculateStudyScenario(S, shaft.id, 'Imperial', {
+            shaftType: 'solid', torque: 500 / 1.35581795, outerDiameter: 0.05 / 0.0254,
+            innerDiameter: null, length: 2 / 0.3048, shearModulus: 80e9 / 6894.757
+        }, { torque: 'lbf·ft', shaftDiameter: 'in', length: 'ft', modulus: 'psi', stress: 'ksi', angle: 'rad' });
+        expect(out(imperial, 'maximumShearStress').value).toBeCloseTo(out(base, 'maximumShearStress').value / 6.894757, 3);
+        expect(out(imperial, 'angleOfTwist').value).toBeCloseTo(out(base, 'angleOfTwist').value, 8);
+        const comparison = S.compareScenarios([base, imperial], base.id);
+        expect(comparison).toMatchObject({ ok: true });
+
+        const hollow = calculateStudyScenario(S, shaft.id, 'Hollow', {
+            ...inputs, shaftType: 'hollow', innerDiameter: 0.04
+        }, { angle: 'rad' });
+        expect(out(hollow, 'polarMoment').value).toBeCloseTo(Math.PI * (0.05 ** 4 - 0.04 ** 4) / 32, 13);
+        const hollowSweep = S.runSweep(shaft, hollow, {
+            inputId: 'innerDiameter', outputId: 'maximumShearStress', start: 0.049, end: 0.051, mode: 'count', count: 3
+        }).sweep;
+        expect(hollowSweep.failedCount).toBe(2);
+        const study = S.addScenario(S.createStudy('Torsion report', shaft.id), base);
+        expect(S.scenarioReportSnapshot(study, base).ok).toBe(true);
+        const invalid = S.calculateScenario(shaft, S.createScenario(shaft, 'Invalid', {
+            ...inputs, shaftType: 'hollow', innerDiameter: 0.05
+        }));
+        expect(invalid.status).toBe('error');
+        expect(invalid.error).toMatch(/inner diameter must be less/);
+    });
+
+    it('regresses beam bending stress and supports the existing section set, comparisons, sweeps, and invalid geometry', () => {
+        const { S } = setup();
+        const beam = S.getAdapter('beam-bending-stress');
+        const inputs = {
+            sectionType: 'rectangular', bendingAxis: 'x', section_width: 50, section_height: 100,
+            moment: 1000
+        };
+        const base = calculateStudyScenario(S, beam.id, 'Rectangle', inputs);
+        expect(base.status).toBe('calculated');
+        expect(out(base, 'bendingStress').value).toBeCloseTo(12, 6);
+        expect(out(base, 'inertiaX').value).toBeCloseTo(4.1666667e6, 1);
+        expect(out(base, 'sectionModulusX').value).toBeCloseTo(83333.333, 1);
+
+        const tSection = calculateStudyScenario(S, beam.id, 'T section', {
+            sectionType: 't-section', bendingAxis: 'x', section_height: 120,
+            section_flangeWidth: 90, section_flangeThickness: 16, section_webThickness: 12, moment: 500
+        });
+        expect(tSection.status).toBe('calculated');
+        expect(tSection.result.equations[0]).toMatch(/\\bar{y}/);
+
+        const sweep = S.runSweep(beam, base, {
+            inputId: 'moment', outputId: 'bendingStress', start: 500, end: 1500, mode: 'count', count: 3
+        }).sweep;
+        sweep.points.forEach((point, index) => expect(point.y).toBeCloseTo([6, 12, 18][index], 10));
+        expect(S.compareScenarios([base, tSection], base.id).ok).toBe(true);
+        const study = S.addScenario(S.createStudy('Bending report', beam.id), base);
+        expect(S.scenarioReportSnapshot(study, base).ok).toBe(true);
+        const invalid = S.calculateScenario(beam, S.createScenario(beam, 'Invalid', {
+            ...inputs, section_height: 0
+        }));
+        expect(invalid.status).toBe('error');
+        expect(invalid.error).toMatch(/positive finite dimension/);
+    });
+
+    it('regresses each beam-deflection calculation case and handles unit conversion and report snapshots', () => {
+        const { S, report } = setup();
+        const beam = S.getAdapter('beam-deflection');
+        const inputs = {
+            loadingCase: 'ss-point', span: 2, pointLoad: 1000, uniformLoad: null, youngsModulus: 200,
+            sectionType: 'rectangular', section_width: 100, section_height: 100, bendingAxis: 'x'
+        };
+        const base = calculateStudyScenario(S, beam.id, 'Simply supported', inputs, { deflection: 'mm' });
+        expect(base.status).toBe('calculated');
+        expect(out(base, 'signedDeflection').value).toBeCloseTo(0.1, 8);
+        expect(out(base, 'maximumMoment').value).toBeCloseTo(500, 8);
+
+        const imperial = calculateStudyScenario(S, beam.id, 'Imperial', {
+            ...inputs,
+            span: 2 / 0.3048,
+            section_width: 100 / 25.4,
+            section_height: 100 / 25.4,
+            pointLoad: 1000 / 4.4482216152605,
+            youngsModulus: 200e9 / 6894.757
+        }, {
+            span: 'ft', distance: 'in', force: 'lbf', modulus: 'psi', deflection: 'in', moment: 'lbf·ft',
+            lengthOutput: 'in', area: 'in²', inertia: 'in⁴', sectionModulus: 'in³'
+        });
+        expect(out(imperial, 'signedDeflection').value).toBeCloseTo(0.1 / 25.4, 5);
+        const comparison = S.compareScenarios([base, imperial], base.id);
+        expect(comparison).toMatchObject({ ok: true });
+
+        const cantilever = calculateStudyScenario(S, beam.id, 'Cantilever', {
+            ...inputs, loadingCase: 'cant-point'
+        }, { deflection: 'm' });
+        expect(out(cantilever, 'signedDeflection').value).toBeCloseTo(0.0016, 8);
+        const sweep = S.runSweep(beam, base, {
+            inputId: 'span', outputId: 'deflectionMagnitude', start: 1, end: 3, mode: 'count', count: 3
+        }).sweep;
+        sweep.points.forEach((point, index) => expect(point.y).toBeCloseTo([0.0125, 0.1, 0.3375][index], 10));
+        const study = S.addScenario(S.createStudy('Beam report', beam.id), base);
+        const built = S.scenarioReportSnapshot(study, base);
+        expect(built.ok).toBe(true);
+        expect(report.createProjectStore(memoryStorage()).addEntry(built.snapshot).ok).toBe(true);
+        const edited = S.setScenarioInput(beam, base, 'loadingCase', 'cant-point');
+        expect(edited.status).toBe('stale');
+        expect(S.compareScenarios([base, edited], base.id).ok).toBe(false);
     });
 });
 

@@ -10,7 +10,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/press-fit.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/press-fit.js']);
+    return loadCalculatorPage('calculators/press-fit.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/press-fit-calculation.js', 'js/press-fit.js']);
 }
 
 function fill(document, overrides = {}) {

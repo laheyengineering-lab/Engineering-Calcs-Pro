@@ -3,7 +3,10 @@ import fs from 'node:fs';
 import { loadCalculatorPage } from '../helpers/browser-test-utils.js';
 
 const scripts = [
-    'js/engineering-units.js', 'js/cylinder-force.js', 'js/differential-thermal-expansion.js', 'js/report-builder.js', 'js/design-study-core.js',
+    'js/engineering-units.js', 'js/calculator-utils.js',
+    'js/press-fit-calculation.js', 'js/hertzian-contact-calculation.js', 'js/shaft-torsion-calculation.js',
+    'js/beam-section-properties.js', 'js/beam-study-calculations.js',
+    'js/cylinder-force.js', 'js/differential-thermal-expansion.js', 'js/report-builder.js', 'js/design-study-core.js',
     'js/design-study-adapters.js', 'js/study-chart.js', 'js/report-page.js'
 ];
 

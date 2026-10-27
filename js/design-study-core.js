@@ -221,7 +221,7 @@
             calculatorVersion: adapter.version,
             inputs: buildInputSnapshot(adapter, scenario),
             outputs: list,
-            equations: adapter.equations.slice(),
+            equations: (typeof adapter.equationsFor === "function" ? adapter.equationsFor(scenario.inputs) : adapter.equations).slice(),
             assumptions: adapter.assumptions.slice(),
             method: adapter.method,
             warnings: (adapter.warnings || []).slice()
@@ -340,6 +340,7 @@
         const first = scenarios[0];
         const adapter = getAdapter(first.calculatorId);
         if (!adapter) return fail("Calculator " + first.calculatorId + " is not supported for comparison.");
+        const comparisonKey = typeof adapter.comparisonKey === "function" ? adapter.comparisonKey(first) : null;
         const ids = new Set();
         for (const s of scenarios) {
             if (s.calculatorId !== first.calculatorId) {
@@ -352,6 +353,9 @@
             }
             if (s.result.calculatorVersion !== first.result.calculatorVersion) {
                 return fail("Scenario \"" + s.name + "\" was calculated with a different calculator revision (" + s.result.calculatorVersion + " vs " + first.result.calculatorVersion + "); recalculate before comparing.");
+            }
+            if (typeof adapter.comparisonKey === "function" && adapter.comparisonKey(s) !== comparisonKey) {
+                return fail("Scenarios use incompatible calculation models and cannot be compared directly.");
             }
             for (const item of s.result.outputs) {
                 const def = outputDef(adapter, item.id);

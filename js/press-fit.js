@@ -32,59 +32,6 @@ function readPressFitNumber(id) {
     return Number(raw);
 }
 
-function getPressFitMaterial(materialKey, label) {
-    if (!materialKey || !getMaterial(materialKey)) {
-        throw new Error(`Please select a valid ${label} material.`);
-    }
-
-    const youngsModulus = getMaterialProperty(materialKey, "youngsModulus");
-    const poissonRatio = getMaterialProperty(materialKey, "poissonRatio");
-    const yieldStrength = getMaterialProperty(materialKey, "yieldStrength");
-
-    if (!Number.isFinite(youngsModulus) || youngsModulus <= 0) {
-        throw new Error(`The ${label} material is missing a valid Young's modulus.`);
-    }
-    if (!Number.isFinite(poissonRatio) || poissonRatio <= 0 || poissonRatio >= 0.5) {
-        throw new Error(`The ${label} material is missing a valid Poisson's ratio (expected 0 < ν < 0.5).`);
-    }
-
-    return {
-        E: youngsModulus,
-        nu: poissonRatio,
-        Sy: Number.isFinite(yieldStrength) && yieldStrength > 0 ? yieldStrength : null
-    };
-}
-
-// Pure SI engineering math (all lengths in m, stresses/moduli in Pa)
-function computePressFit({ d, deltaDiametral, D, di, L, mu, hub, shaft }) {
-    const c = d / 2;
-    const b = D / 2;
-    const a = di / 2;
-    const deltaR = deltaDiametral / 2;
-
-    // Lamé geometry factors
-    const hubFactor = (b * b + c * c) / (b * b - c * c);
-    const shaftFactor = (c * c + a * a) / (c * c - a * a);
-
-    // δr = u_h + u_s, solved for p
-    const hubCompliance = (hubFactor + hub.nu) / hub.E;
-    const shaftCompliance = (shaftFactor - shaft.nu) / shaft.E;
-    const p = deltaR / (c * (hubCompliance + shaftCompliance));
-
-    const hubHoop = p * hubFactor;
-    const shaftHoop = -p * shaftFactor;
-
-    const pressForce = mu * p * Math.PI * d * L;
-    const torqueCapacity = mu * p * Math.PI * d * d * L / 2;
-
-    const fosHub = hub.Sy ? hub.Sy / hubHoop : null;
-    const fosShaft = shaft.Sy ? shaft.Sy / Math.abs(shaftHoop) : null;
-    const fosValues = [fosHub, fosShaft].filter((value) => value !== null);
-    const fosControlling = fosValues.length ? Math.min(...fosValues) : null;
-
-    return { p, hubHoop, shaftHoop, pressForce, torqueCapacity, fosHub, fosShaft, fosControlling };
-}
-
 function interpretPressFit(fos) {
     if (fos === null) {
         return "No yield-strength screening was possible because yield strength data was unavailable.";

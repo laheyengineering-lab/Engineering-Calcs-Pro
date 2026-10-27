@@ -10,7 +10,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/shaft-torsion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/shaft-torsion.js']);
+    return loadCalculatorPage('calculators/shaft-torsion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/shaft-torsion-calculation.js', 'js/shaft-torsion.js']);
 }
 
 describe('shaft torsion calculator', () => {

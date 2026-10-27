@@ -12,7 +12,7 @@ import {
 function setup() {
     return loadCalculatorPage('calculators/beam-deflection.html', [
         'js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js',
-        'js/engineering-diagram.js', 'js/beam-section-properties.js', 'js/beam-section-ui.js',
+        'js/engineering-diagram.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js', 'js/beam-section-ui.js',
         'js/beam-deflection-diagram.js', 'js/beam-deflection.js'
     ]);
 }

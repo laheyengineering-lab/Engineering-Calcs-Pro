@@ -35,24 +35,11 @@ function bendingProfileInputs(sectionType) {
     };
 }
 
-function computeBeamBendingStress({ sectionType, dimensions, momentNm, axis }) {
-    if (!Number.isFinite(momentNm)) throw new Error("Bending moment must be finite.");
-    if (axis !== "x" && axis !== "y") throw new Error("Select a supported bending axis.");
-    const properties = window.BeamSectionProperties.calculate(sectionType, dimensions);
-    const inertiaM4 = axis === "x" ? properties.inertiaX : properties.inertiaY;
-    const cM = axis === "x" ? properties.extremeFiberX : properties.extremeFiberY;
-    const stressPa = momentNm * cM / inertiaM4;
-    if (!Number.isFinite(stressPa)) throw new Error("The resulting bending stress is outside the supported numerical range.");
-    return { properties, inertiaM4, cM, stressPa };
-}
-
 function updateBeamBendingStressEquation() {
     const type = bendingSectionTypeSelect.value;
     const axis = document.getElementById("bendingAxis").value;
     const sectionEquations = window.BeamSectionProperties.equations(type);
-    const equation = axis === "x"
-        ? String.raw`\sigma_x=\frac{M_x c_x}{I_x},\quad S_x=\frac{I_x}{c_x}`
-        : String.raw`\sigma_y=\frac{M_y c_y}{I_y},\quad S_y=\frac{I_y}{c_y}`;
+    const equation = window.FormulaFoundryBeamCalculations.bendingEquation(axis);
     document.getElementById("profileEquation").textContent =
         `\\[ ${sectionEquations[0]} \\] \\[ ${equation} \\]`;
     if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
@@ -86,7 +73,9 @@ function calculateBeamBendingStress() {
 
         const { dimensions, inputs: dimensionInputs, entries } = bendingProfileInputs(sectionType);
         const axis = document.getElementById("bendingAxis").value;
-        const { properties, inertiaM4, cM, stressPa } = computeBeamBendingStress({ sectionType, dimensions, momentNm, axis });
+        const { properties, inertiaM4, cM, stressPa } = window.FormulaFoundryBeamCalculations.computeBendingStress({
+            sectionType, dimensions, momentNm, axis
+        });
 
         const stressUnit = document.getElementById("stressUnit").value;
         const areaUnit = document.getElementById("areaUnit").value;
@@ -151,9 +140,7 @@ function calculateBeamBendingStress() {
                     axis,
                     unit: displayLengthUnit
                 },
-                equations: [...window.BeamSectionProperties.equations(sectionType), axis === "x"
-                    ? String.raw`\sigma_x=\frac{M_x c_x}{I_x},\quad S_x=\frac{I_x}{c_x}`
-                    : String.raw`\sigma_y=\frac{M_y c_y}{I_y},\quad S_y=\frac{I_y}{c_y}`],
+                equations: window.FormulaFoundryBeamCalculations.bendingEquations(sectionType, axis),
                 assumptions: [
                     "Linear elastic material response and small deformation; prismatic cross-section and simple elastic flexure.",
                     "Bending is about a centroidal principal axis of the homogeneous section.",

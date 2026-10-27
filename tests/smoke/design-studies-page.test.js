@@ -5,6 +5,8 @@ import { JSDOM } from 'jsdom';
 const scripts = [
     'js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js',
     'js/cylinder-force.js', 'js/differential-thermal-expansion.js',
+    'js/press-fit-calculation.js', 'js/hertzian-contact-calculation.js',
+    'js/shaft-torsion-calculation.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js',
     'js/design-study-core.js', 'js/design-study-adapters.js', 'js/study-chart.js', 'js/design-studies.js'
 ];
 
@@ -131,5 +133,35 @@ describe('Design Studies page', () => {
         second.document.getElementById('studySelect').value = raw.studies[0].id;
         second.document.getElementById('studySelect').dispatchEvent(new second.window.Event('change', { bubbles: true }));
         expect(second.document.getElementById('studyWorkspace').hidden).toBe(false);
+    });
+
+    it('edits categorical calculator inputs, marks results stale, and recalculates through the calculator engine', () => {
+        const { window, document } = load();
+        document.getElementById('newStudyName').value = 'Press-fit study';
+        document.getElementById('newStudyCalculator').value = 'press-fit';
+        document.getElementById('newStudyForm').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+        click(window, document.getElementById('addScenario'));
+
+        const card = document.querySelector('.scenario-card');
+        const field = (label) => Array.from(card.querySelectorAll('label'))
+            .find((item) => item.textContent.startsWith(label)).querySelector('input, select');
+        const set = (label, value) => change(window, field(label), String(value));
+        set('Interface diameter', 50);
+        set('Diametral interference', 0.05);
+        set('Hub outer diameter', 100);
+        set('Shaft bore diameter', 0);
+        set('Engagement length', 50);
+        set('Assumed friction coefficient', 0.12);
+        set('Hub material', 'carbon-steel');
+        set('Shaft material', 'carbon-steel');
+        click(window, buttonByText(card, 'Recalculate'));
+        expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
+        expect(card.textContent).toContain('75 MPa');
+
+        set('Hub material', 'aluminum');
+        expect(card.querySelector('[data-role="status"]').textContent).toMatch(/recalculate/);
+        click(window, buttonByText(card, 'Recalculate'));
+        expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
+        expect(card.textContent).not.toContain('75 MPa');
     });
 });

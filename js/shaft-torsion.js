@@ -47,36 +47,6 @@ function updateMaterialShearModulus() {
     }
 }
 
-function computeShaftTorsion({ shaftType, torqueNm, outerDiameterM, innerDiameterM = null, lengthM, modulusPa }) {
-    if (shaftType !== "solid" && shaftType !== "hollow") throw new Error("Select a solid or hollow circular shaft.");
-    if (![torqueNm, outerDiameterM, lengthM, modulusPa].every(Number.isFinite)
-        || torqueNm === 0 || outerDiameterM <= 0 || lengthM <= 0 || modulusPa <= 0) {
-        throw new Error("Please enter torque, diameter, shaft length, and shear modulus.");
-    }
-
-    const outerRadius = outerDiameterM / 2;
-    let J;
-    if (shaftType === "solid") {
-        J = Math.PI * Math.pow(outerDiameterM, 4) / 32;
-    } else {
-        if (!Number.isFinite(innerDiameterM) || innerDiameterM < 0) {
-            throw new Error("Please enter a non-negative inner diameter for hollow shafts.");
-        }
-        if (innerDiameterM >= outerDiameterM) {
-            throw new Error("For hollow shaft, inner diameter must be less than outer diameter.");
-        }
-        J = Math.PI * (Math.pow(outerDiameterM, 4) - Math.pow(innerDiameterM, 4)) / 32;
-    }
-    const tauMaxPa = (torqueNm * outerRadius) / J;
-    const thetaRadians = (torqueNm * lengthM) / (modulusPa * J);
-    const thetaDegrees = thetaRadians * (180 / Math.PI);
-    const stiffness = (modulusPa * J) / lengthM;
-    if (![J, tauMaxPa, thetaRadians, thetaDegrees, stiffness].every(Number.isFinite)) {
-        throw new Error("The result is outside the supported numerical range.");
-    }
-    return { J, tauMaxPa, thetaRadians, thetaDegrees, stiffness };
-}
-
 function calculateShaftTorsion() {
     const shaftType = torsionShaftTypeSelect.value;
     const torque = Number(torsionTorqueInput.value);
@@ -151,8 +121,11 @@ function calculateShaftTorsion() {
         torsionResultPanel.innerHTML = resultHTML;
         
     } catch (error) {
+        const heading = error.message.startsWith("For hollow shaft, inner diameter")
+            ? "Invalid Input"
+            : "Calculation Error";
         torsionResultPanel.innerHTML = `
-            <h3>Calculation Error</h3>
+            <h3>${heading}</h3>
             <p>${error.message}</p>
         `;
     }
