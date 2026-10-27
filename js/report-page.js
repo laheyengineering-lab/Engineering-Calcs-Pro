@@ -93,6 +93,35 @@
     }
 
     function profileDiagramSection(diagram) {
+        if (diagram && diagram.type === "beam-deflection"
+            && window.FormulaFoundryBeamDeflectionDiagram
+            && typeof window.FormulaFoundryBeamDeflectionDiagram.render === "function") {
+            try {
+                const figure = el("figure", "report-profile-diagram beam-interactive-diagram");
+                figure.appendChild(window.FormulaFoundryBeamDeflectionDiagram.render(doc, {
+                    caseId: diagram.caseId,
+                    span: diagram.span,
+                    spanDisplay: String(diagram.span),
+                    lengthUnit: diagram.spanUnit,
+                    load: diagram.load,
+                    loadLabel: diagram.caseId.endsWith("point") ? "P" : "w",
+                    maxDeflection: diagram.maxDeflection,
+                    deflectionUnit: diagram.deflectionUnit
+                }));
+                const section = el("div", "beam-report-section");
+                section.appendChild(el("h4", null, "Saved cross-section and selected bending axis"));
+                section.appendChild(window.BeamSectionProperties.createDiagram(
+                    doc, diagram.profile, diagram.dimensions, diagram.axis
+                ));
+                figure.appendChild(section);
+                figure.appendChild(el("figcaption", null,
+                    "Saved " + diagram.caseId + " model; applied load " + (diagram.caseId.endsWith("point") ? "P" : "w")
+                    + " = " + diagram.load + " " + diagram.loadUnit + ". The deflected shape is illustrative and not to scale; actual results and section dimensions are listed in the tables."));
+                return figure;
+            } catch (error) {
+                return null;
+            }
+        }
         if (!diagram || diagram.type !== "beam-section"
             || !window.BeamSectionProperties
             || typeof window.BeamSectionProperties.createDiagram !== "function") return null;

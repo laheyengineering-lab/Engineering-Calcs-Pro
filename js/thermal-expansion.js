@@ -27,6 +27,11 @@ function updateMaterialAlpha() {
             thermalAlphaInput.value = alphaValue;
             thermalAlphaUnitSelect.value = "1/°C";
         }
+
+        const youngsModulusValue = getMaterialProperty(material, "youngsModulus");
+        if (Number.isFinite(youngsModulusValue) && youngsModulusValue > 0) {
+            thermalYoungsModulusInput.value = String(convertModulusToUnit(youngsModulusValue, thermalModulusUnitSelect.value));
+        }
     }
 }
 

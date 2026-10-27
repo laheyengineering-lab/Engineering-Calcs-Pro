@@ -2,6 +2,7 @@ const beamLengthInput = document.getElementById("beamLength");
 const pointLoadInput = document.getElementById("pointLoad");
 const distributedLoadInput = document.getElementById("distributedLoad");
 const youngsModulusInput = document.getElementById("youngsModulus");
+const beamMaterialSelect = document.getElementById("material");
 const beamResultPanel = document.getElementById("result");
 const loadingCaseSelect = document.getElementById("loadingCase");
 const lengthUnitSelect = document.getElementById("lengthUnit");
@@ -10,6 +11,105 @@ const distributedLoadUnitSelect = document.getElementById("distributedLoadUnit")
 const modulusUnitSelect = document.getElementById("modulusUnit");
 const inertiaUnitSelect = document.getElementById("inertiaUnit");
 const deflectionUnitSelect = document.getElementById("deflectionUnit");
+const beamSpanSlider = document.getElementById("beamSpanSlider");
+const pointLoadSlider = document.getElementById("pointLoadSlider");
+
+function updateBeamDeflectionDiagram(recenterSpanRange = true, result = null, recenterLoadRange = true) {
+    const host = document.getElementById("beamDiagram");
+    if (!host || !window.FormulaFoundryBeamDeflectionDiagram) return;
+
+    const spanRaw = beamLengthInput.value.trim();
+    const span = Number(spanRaw);
+    const validSpan = spanRaw !== "" && Number.isFinite(span) && span > 0;
+    if (beamSpanSlider) {
+        const spanRange = validSpan && window.FormulaFoundryDiagram
+            ? window.FormulaFoundryDiagram.rangeAround(span, 0.5, 1.5)
+            : null;
+        beamSpanSlider.disabled = !spanRange;
+        if (validSpan) {
+            if (spanRange && (recenterSpanRange || !beamSpanSlider.dataset.initialized)) {
+                beamSpanSlider.min = String(spanRange.min);
+                beamSpanSlider.max = String(spanRange.max);
+                beamSpanSlider.dataset.initialized = "true";
+            }
+            beamSpanSlider.value = String(span);
+        }
+    }
+
+    const isPointLoad = loadingCaseSelect.value.endsWith("point");
+    const loadInput = isPointLoad ? pointLoadInput : distributedLoadInput;
+    const loadUnit = isPointLoad ? loadUnitSelect.value : distributedLoadUnitSelect.value;
+    const loadRaw = loadInput.value.trim();
+    const load = loadRaw === "" ? null : Number(loadRaw);
+    const loadMagnitude = Number.isFinite(load) ? Math.abs(load) : null;
+    const loadRange = isPointLoad && loadMagnitude > 0 && window.FormulaFoundryDiagram
+        ? window.FormulaFoundryDiagram.rangeAround(loadMagnitude, 0.5, 1.5)
+        : null;
+    if (pointLoadSlider) {
+        pointLoadSlider.disabled = !loadRange;
+        if (loadRange) {
+            if (recenterLoadRange || !pointLoadSlider.dataset.initialized) {
+                pointLoadSlider.min = String(loadRange.min);
+                pointLoadSlider.max = String(loadRange.max);
+                pointLoadSlider.dataset.initialized = "true";
+            }
+            pointLoadSlider.value = String(loadMagnitude);
+        }
+    }
+    const lengthUnit = lengthUnitSelect.value;
+    host.replaceChildren(window.FormulaFoundryBeamDeflectionDiagram.render(document, {
+        caseId: loadingCaseSelect.value,
+        span: validSpan ? span : null,
+        spanDisplay: validSpan ? spanRaw : "",
+        lengthUnit,
+        load: Number.isFinite(load) ? load : null,
+        loadLabel: isPointLoad ? "P" : "w",
+        ...(result || {})
+    }));
+    const caption = document.getElementById("beamDiagramCaption");
+    if (caption) {
+        const selectedCase = beamDeflectionCases[loadingCaseSelect.value];
+        caption.textContent = selectedCase
+            ? `${selectedCase.support} · ${selectedCase.name}. ${loadDescriptionForCaption()}`.trim()
+            : "Select one of the supported loading and support cases.";
+    }
+}
+
+function loadDescriptionForCaption() {
+    const isPointLoad = loadingCaseSelect.value.endsWith("point");
+    const loadInput = isPointLoad ? pointLoadInput : distributedLoadInput;
+    const raw = loadInput.value.trim();
+    if (raw === "") return "Enter the applied load to complete the diagram.";
+    const unit = isPointLoad ? loadUnitSelect.value : distributedLoadUnitSelect.value;
+    return `Applied load ${isPointLoad ? "P" : "w"} = ${raw} ${unit}. Point-load position and supports match the selected closed-form case.`;
+}
+
+function beamDeflectionInputsReady() {
+    if (!beamDeflectionCases[loadingCaseSelect.value]) return false;
+    const isPointLoad = loadingCaseSelect.value.endsWith("point");
+    const loadInput = isPointLoad ? pointLoadInput : distributedLoadInput;
+    const profile = document.getElementById("sectionType").value;
+    const required = [
+        beamLengthInput,
+        youngsModulusInput,
+        loadInput,
+        ...window.BeamSectionUI.getFields(profile).map((field) => document.getElementById(field.id))
+    ];
+    return required.every((input) => input && input.value.trim() !== "");
+}
+
+function markBeamDeflectionInputsStale() {
+    if (!beamResultPanel.querySelector(".result-value")) return;
+    beamResultPanel.textContent = "Inputs changed — recalculate to refresh the results.";
+    updateBeamDeflectionDiagram(false);
+    if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
+}
+
+function updateBeamDeflectionMaterialModulus() {
+    const youngsModulusPa = getMaterialProperty(beamMaterialSelect.value, "youngsModulus");
+    if (!Number.isFinite(youngsModulusPa) || youngsModulusPa <= 0) return;
+    youngsModulusInput.value = String(convertModulusToUnit(youngsModulusPa, modulusUnitSelect.value));
+}
 
 const beamDeflectionCases = {
     "ss-point": {
@@ -77,7 +177,9 @@ function beamDeflectionProfileInputs(profile) {
 
 function updateBeamDeflectionMode() {
     const loadingCase = loadingCaseSelect.value;
-    document.getElementById("pointLoadContainer").hidden = !["ss-point", "cant-point"].includes(loadingCase);
+    const isPointLoad = ["ss-point", "cant-point"].includes(loadingCase);
+    document.getElementById("pointLoadContainer").hidden = !isPointLoad;
+    document.getElementById("pointLoadSliderContainer").hidden = !isPointLoad;
     document.getElementById("distributedLoadContainer").hidden = !["ss-udl", "cant-udl"].includes(loadingCase);
     const profile = document.getElementById("sectionType").value;
     const axis = document.getElementById("bendingAxis").value;
@@ -86,6 +188,7 @@ function updateBeamDeflectionMode() {
         `\\[ ${window.BeamSectionProperties.equations(profile)[0]} \\]`;
     if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
     beamResultPanel.innerHTML = "Ready to calculate.";
+    updateBeamDeflectionDiagram(true);
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
 }
 
@@ -186,6 +289,7 @@ function calculateBeamDeflection() {
             <p><small>Assumptions: linear-elastic homogeneous material, small deflection, prismatic beam with constant E and I, Euler–Bernoulli theory (shear deformation neglected), static loading, and ideal pin/roller or fixed-free supports. Not suitable where shear deformation, plasticity, local/lateral buckling, connection flexibility, support settlement, or dynamic effects dominate. Deflected-shape sketches are schematic, not to scale.</small></p>
         `;
         if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
+        updateBeamDeflectionDiagram(false, { maxDeflection: deflectionMagnitude, deflectionUnit });
 
         if (window.FormulaFoundryReport) {
             const dimensionInputs = entries.map(({ label, value, unit }) => ({ label, value, unit }));
@@ -221,7 +325,20 @@ function calculateBeamDeflection() {
                 title: caseDefinition.name + " — " + window.BeamSectionUI.getName(profile),
                 inputs,
                 outputs,
-                diagram: { type: "beam-section", profile, dimensions: { ...dimensions }, axis, unit: "m" },
+                diagram: {
+                    type: "beam-deflection",
+                    caseId: loadingCaseSelect.value,
+                    span,
+                    spanUnit: lengthUnit,
+                    load,
+                    loadUnit,
+                    profile,
+                    dimensions: { ...dimensions },
+                    axis,
+                    sectionUnit: "m",
+                    maxDeflection: deflectionMagnitude,
+                    deflectionUnit
+                },
                 equations: [...window.BeamSectionProperties.equations(profile), equation],
                 assumptions: [
                     "Linear-elastic homogeneous material, small deflection, prismatic beam and constant E and I.",
@@ -256,16 +373,55 @@ function resetBeamDeflectionCalculator() {
     loadingCaseSelect.value = "ss-point";
     document.getElementById("sectionType").value = "rectangular";
     document.getElementById("bendingAxis").value = "x";
+    beamMaterialSelect.value = "";
+    if (beamSpanSlider) delete beamSpanSlider.dataset.initialized;
     updateBeamDeflectionMode();
     beamResultPanel.innerHTML = "Ready to calculate.";
 }
 
 document.addEventListener("DOMContentLoaded", function () {
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.declareStructured();
+    populateMaterialSelect(beamMaterialSelect, {
+        placeholderText: "-- Select a material or enter a custom value --",
+        formatLabel(material) {
+            const modulusGPa = convertModulusToUnit(material.youngsModulus, "GPa");
+            return `${material.displayName} (E = ${modulusGPa.toLocaleString(undefined, { maximumFractionDigits: 3 })} GPa)`;
+        }
+    });
+    beamMaterialSelect.addEventListener("change", updateBeamDeflectionMaterialModulus);
+    beamLengthInput.addEventListener("input", () => updateBeamDeflectionDiagram(false));
+    beamLengthInput.addEventListener("change", () => updateBeamDeflectionDiagram(true));
+    lengthUnitSelect.addEventListener("change", () => updateBeamDeflectionDiagram(true));
+    [pointLoadInput, distributedLoadInput].forEach((input) => input.addEventListener("input", () => updateBeamDeflectionDiagram(false)));
+    [loadUnitSelect, distributedLoadUnitSelect].forEach((select) => select.addEventListener("change", () => updateBeamDeflectionDiagram(false)));
+    loadingCaseSelect.addEventListener("change", () => updateBeamDeflectionDiagram(false));
+    if (beamSpanSlider) {
+        beamSpanSlider.addEventListener("input", () => {
+            beamLengthInput.value = beamSpanSlider.value;
+            updateBeamDeflectionDiagram(false);
+            calculateBeamDeflection();
+        });
+    }
+    document.getElementById("bendingAxis").addEventListener("change", updateBeamDeflectionMode);
+    document.querySelectorAll(".calculator-column .calculator-box input:not(#beamSpanSlider):not(#pointLoadSlider), .calculator-column .calculator-box select")
+        .forEach((control) => {
+            control.addEventListener("input", markBeamDeflectionInputsStale);
+            control.addEventListener("change", () => {
+                if (control === beamLengthInput) updateBeamDeflectionDiagram(true);
+                if (beamDeflectionInputsReady()) calculateBeamDeflection();
+            });
+        });
+    if (pointLoadSlider) {
+        pointLoadSlider.addEventListener("input", () => {
+            const direction = Number(pointLoadInput.value) < 0 ? -1 : 1;
+            pointLoadInput.value = String(direction * Number(pointLoadSlider.value));
+            updateBeamDeflectionDiagram(false, null, false);
+            calculateBeamDeflection();
+        });
+    }
     document.querySelectorAll("#sectionType, #bendingAxis, .profile-inputs input, .profile-inputs select")
         .forEach((input) => input.addEventListener("input", () => {
             window.BeamSectionUI.updateDiagram(document, document.getElementById("sectionType").value, document.getElementById("bendingAxis").value);
         }));
-    document.getElementById("bendingAxis").addEventListener("change", updateBeamDeflectionMode);
     updateBeamDeflectionMode();
 });

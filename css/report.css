@@ -89,6 +89,16 @@
     text-align: center;
 }
 
+.report-profile-diagram.beam-interactive-diagram {
+    max-width: 680px;
+    padding: 0.5rem;
+}
+
+.beam-report-section {
+    max-width: 260px;
+    margin: 0 auto;
+}
+
 .report-profile-diagram svg {
     display: block;
     width: 100%;

@@ -160,19 +160,15 @@
         const top = 95 - height * scale / 2;
         const bottom = 95 + height * scale / 2;
         const toPoint = (x, y) => `${130 + (x - width / 2) * scale},${95 + (height / 2 - y) * scale}`;
-        const ns = "http://www.w3.org/2000/svg";
-        const svg = document.createElementNS(ns, "svg");
-        svg.setAttribute("viewBox", "0 0 260 210");
-        svg.setAttribute("role", "img");
-        svg.setAttribute("aria-label", PROFILE_NAMES[profile] + " cross-section showing centroidal x and y axes");
-        const add = (tag, attrs, parent = svg, text) => {
-            const element = document.createElementNS(ns, tag);
-            Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, String(value)));
-            if (text !== undefined) element.textContent = text;
-            parent.appendChild(element);
-            return element;
-        };
-        add("title", {}, svg, "Centroidal section axes");
+        if (!root.FormulaFoundryDiagram) throw new Error("Load the shared engineering diagram utilities before drawing a section.");
+        const svg = root.FormulaFoundryDiagram.createSvg(
+            document,
+            "0 0 260 210",
+            PROFILE_NAMES[profile] + " cross-section showing centroidal x and y axes",
+            "Centroidal section axes",
+            "img"
+        );
+        const add = (tag, attrs, parent = svg, text) => root.FormulaFoundryDiagram.add(document, parent, tag, attrs, text);
         const fill = "#dce6ee";
         const stroke = "#284b63";
 
