@@ -271,7 +271,7 @@ describe('beam deflection calculator', () => {
         expect(cantilever.textContent).toContain('Cantilever with full-span uniform load');
     });
 
-    it('synchronizes the span slider and SVG keyboard control through the calculation pipeline', () => {
+    it('synchronizes the span slider with the field and calculation', () => {
         const { document, window } = setup();
         configureCommonInputs(document);
         setSelectValue(document, 'loadingCase', 'ss-point');
@@ -286,19 +286,8 @@ describe('beam deflection calculator', () => {
         slider.dispatchEvent(new window.Event('input', { bubbles: true }));
         expect(document.getElementById('beamLength').value).toBe('3');
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.3375, 4);
-
-        const handle = document.querySelector('#beamDiagram .beam-span-handle');
-        const before = Number(handle.getAttribute('aria-valuenow'));
-        handle.focus();
-        handle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
-        expect(Number(document.getElementById('beamLength').value)).toBeGreaterThan(3);
-        expect(Number(handle.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
-        expect(getResultValueText(document)).not.toBe('');
-        const focusedReplacement = document.querySelector('#beamDiagram .beam-span-handle');
-        expect(document.activeElement).toBe(focusedReplacement);
-        const focusedValue = Number(focusedReplacement.getAttribute('aria-valuenow'));
-        focusedReplacement.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
-        expect(Number(document.getElementById('beamLength').value)).toBeGreaterThan(focusedValue);
+        expect(document.querySelector('#beamDiagram svg .beam-diagram-dimension-label').textContent).toContain('L = 3 m');
+        expect(document.querySelector('#beamDiagram svg [role="slider"]')).toBeNull();
     });
 
     it('synchronizes the point-load magnitude slider with the input and calculation', () => {
@@ -387,7 +376,7 @@ describe('beam deflection calculator', () => {
         expect(window.FormulaFoundryReport.store.load().entries[0].diagram.axis).toBe('y');
     });
 
-    it('uses a dragged SVG span control to update the field and existing result', () => {
+    it('keeps the SVG dimension illustrative rather than presenting a second span control', () => {
         const { document, window } = setup();
         configureCommonInputs(document);
         setInputValue(document, 'pointLoad', 1000);
@@ -395,11 +384,9 @@ describe('beam deflection calculator', () => {
         window.calculateBeamDeflection();
 
         const svg = document.querySelector('#beamDiagram svg');
-        const handle = svg.querySelector('.beam-span-handle');
-        handle.dispatchEvent(new window.MouseEvent('pointerdown', { clientX: 300, clientY: 230, bubbles: true, cancelable: true }));
-        svg.dispatchEvent(new window.MouseEvent('pointerup', { clientX: 540, clientY: 230, bubbles: true, cancelable: true }));
-        expect(Number(document.getElementById('beamLength').value)).toBeCloseTo(3, 6);
-        expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.3375, 4);
+        expect(svg.querySelector('.beam-diagram-dimension')).toBeTruthy();
+        expect(svg.querySelector('[role="slider"]')).toBeNull();
+        expect(Number(document.getElementById('beamLength').value)).toBe(2);
     });
 
     it('draws negative uniform loads below the beam with upward-pointing arrows', () => {
@@ -421,7 +408,7 @@ describe('beam deflection calculator', () => {
         document.getElementById('beamLength').dispatchEvent(new window.Event('input', { bubbles: true }));
         const svg = document.querySelector('#beamDiagram svg');
         expect(document.getElementById('beamSpanSlider').disabled).toBe(true);
-        expect(svg.querySelector('.beam-span-handle')).toBeNull();
+        expect(svg.querySelector('[role="slider"]')).toBeNull();
         expect(svg.outerHTML).not.toMatch(/NaN|Infinity/);
 
         window.calculateBeamDeflection();

@@ -1365,19 +1365,6 @@ footer,
     font-weight: 600;
 }
 
-.beam-span-handle {
-    fill: #fff;
-    stroke: #c05621;
-    stroke-width: 3;
-    cursor: ew-resize;
-    touch-action: none;
-}
-
-.beam-span-handle:focus {
-    stroke: #0b5394;
-    stroke-width: 4;
-}
-
 .beam-axis {
     stroke: #8b949c;
     stroke-width: 1.5;

@@ -65,14 +65,6 @@ function updateBeamDeflectionDiagram(recenterSpanRange = true, result = null, re
         load: Number.isFinite(load) ? load : null,
         loadLabel: isPointLoad ? "P" : "w",
         ...(result || {})
-    }, (nextSpan, event) => {
-        beamLengthInput.value = String(nextSpan);
-        updateBeamDeflectionDiagram(true);
-        calculateBeamDeflection();
-        if (event && event.type === "keydown") {
-            const replacement = document.querySelector("#beamDiagram .beam-span-handle");
-            if (replacement) replacement.focus();
-        }
     }));
     const caption = document.getElementById("beamDiagramCaption");
     if (caption) {

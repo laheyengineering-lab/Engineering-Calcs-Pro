@@ -8,7 +8,7 @@
         "cant-udl": { support: "cantilever", load: "distributed", name: "Cantilever with full-span uniform load" }
     };
 
-    function render(document, state, onSpanChange) {
+    function render(document, state) {
         const definition = cases[state.caseId];
         const diagram = root.FormulaFoundryDiagram;
         const label = definition
@@ -96,20 +96,6 @@
             add("text", { x: 300, y: 276, class: "beam-diagram-note", "text-anchor": "middle" }, "Calculate to show the actual maximum deflection");
         }
 
-        if (span !== null && typeof onSpanChange === "function") {
-            const range = diagram.rangeAround(span, 0.5, 1.5);
-            if (range) {
-                const handle = add("circle", {
-                    cx: 300, cy: 230, r: 10, class: "beam-span-handle",
-                    "aria-label": "Drag or use arrow keys to adjust beam span"
-                });
-                diagram.bindSliderControl(handle, svg, {
-                    ...range, value: span, start: left, end: right,
-                    formatValue: (number) => number + (state.lengthUnit ? " " + state.lengthUnit : ""),
-                    onChange: onSpanChange
-                });
-            }
-        }
         return svg;
     }
 
