@@ -5,6 +5,8 @@ import { JSDOM } from 'jsdom';
 const scripts = [
     'js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js',
     'js/cylinder-force.js', 'js/differential-thermal-expansion.js',
+    'js/press-fit-calculation.js', 'js/hertzian-contact-calculation.js',
+    'js/shaft-torsion-calculation.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js',
     'js/design-study-core.js', 'js/design-study-adapters.js', 'js/study-chart.js', 'js/design-studies.js'
 ];
 
@@ -131,5 +133,71 @@ describe('Design Studies page', () => {
         second.document.getElementById('studySelect').value = raw.studies[0].id;
         second.document.getElementById('studySelect').dispatchEvent(new second.window.Event('change', { bubbles: true }));
         expect(second.document.getElementById('studyWorkspace').hidden).toBe(false);
+    });
+
+    it('edits categorical calculator inputs, marks results stale, and recalculates through the calculator engine', () => {
+        const { window, document } = load();
+        document.getElementById('newStudyName').value = 'Press-fit study';
+        document.getElementById('newStudyCalculator').value = 'press-fit';
+        document.getElementById('newStudyForm').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+        click(window, document.getElementById('addScenario'));
+
+        const card = document.querySelector('.scenario-card');
+        const field = (label) => Array.from(card.querySelectorAll('label'))
+            .find((item) => item.textContent.startsWith(label)).querySelector('input, select');
+        const set = (label, value) => change(window, field(label), String(value));
+        set('Interface diameter', 50);
+        set('Diametral interference (Δd)', 0.05);
+        set('Hub outer diameter', 100);
+        set('Shaft bore diameter', 0);
+        set('Engagement length', 50);
+        set('Assumed friction coefficient', 0.12);
+        set('Hub material', 'carbon-steel');
+        set('Shaft material', 'carbon-steel');
+        click(window, buttonByText(card, 'Recalculate'));
+        expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
+        const pressure = () => Array.from(card.querySelectorAll('tbody tr'))
+            .find((row) => row.cells[0].textContent === 'Contact pressure').cells[1].textContent;
+        expect(Number(pressure())).toBeCloseTo(75, 2);
+
+        set('Hub material', 'aluminum');
+        expect(card.querySelector('[data-role="status"]').textContent).toMatch(/recalculate/);
+        click(window, buttonByText(card, 'Recalculate'));
+        expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
+        expect(Number(pressure())).not.toBeCloseTo(75, 2);
+    });
+
+    it('fills editable study properties from a material and retains manual overrides', () => {
+        const { window, document } = load();
+        document.getElementById('newStudyName').value = 'Shaft material study';
+        document.getElementById('newStudyCalculator').value = 'shaft-torsion';
+        document.getElementById('newStudyForm').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+        click(window, document.getElementById('addScenario'));
+
+        const card = document.querySelector('.scenario-card');
+        const field = (label) => Array.from(card.querySelectorAll('label'))
+            .find((item) => item.textContent.startsWith(label) && !item.textContent.startsWith(label + ' unit')).querySelector('input, select');
+        const set = (label, value) => change(window, field(label), String(value));
+        set('Shaft geometry', 'solid');
+        set('Applied torque', 500);
+        set('Outer diameter', 0.05);
+        set('Shaft length', 2);
+        set('Shaft material', 'carbon-steel');
+        expect(field('Shear modulus (G)').value).toBe('80');
+        click(window, buttonByText(card, 'Recalculate'));
+        const stress = () => Number(Array.from(card.querySelectorAll('tbody tr'))
+            .find((row) => row.cells[0].textContent === 'Maximum shear stress (signed)').cells[1].textContent);
+        const twist = () => Number(Array.from(card.querySelectorAll('tbody tr'))
+            .find((row) => row.cells[0].textContent === 'Angle of twist (signed)').cells[1].textContent);
+        expect(stress()).toBeCloseTo(20.3718, 3);
+        const initialTwist = twist();
+
+        set('Shear modulus (G)', 40);
+        expect(card.querySelector('[data-role="status"]').textContent).toMatch(/recalculate/);
+        click(window, buttonByText(card, 'Recalculate'));
+        expect(stress()).toBeCloseTo(20.3718, 3);
+        expect(twist()).toBeCloseTo(initialTwist * 2, 8);
+        const saved = JSON.parse(window.localStorage.getItem('formulaFoundry.designStudies'));
+        expect(saved.studies[0].scenarios[0].inputs).toMatchObject({ material: 'carbon-steel', shearModulus: 40 });
     });
 });

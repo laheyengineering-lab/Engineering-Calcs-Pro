@@ -10,7 +10,11 @@ function memoryStorage() {
 }
 
 function open(page, script, storage) {
-    const loaded = loadCalculatorPage(`calculators/${page}.html`, [...base, `js/${script}.js`]);
+    const calculationScripts = {
+        'hertzian-contact': ['js/hertzian-contact-calculation.js'],
+        'press-fit': ['js/press-fit-calculation.js']
+    };
+    const loaded = loadCalculatorPage(`calculators/${page}.html`, [...base, ...(calculationScripts[script] || []), `js/${script}.js`]);
     loaded.window.FormulaFoundryReport.store.setStorage(storage);
     return loaded;
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadCalculatorPage, getResultText, setInputValue, setSelectValue, extractNumber } from '../helpers/browser-test-utils.js';
 
-const scripts = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', 'js/hertzian-contact.js'];
+const scripts = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/hertzian-contact-calculation.js', 'js/report-builder.js', 'js/hertzian-contact.js'];
 const load = () => loadCalculatorPage('calculators/hertzian-contact.html', scripts);
 const steel = { E1: 200e9, nu1: 0.3, E2: 200e9, nu2: 0.3 };
 

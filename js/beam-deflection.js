@@ -111,40 +111,7 @@ function updateBeamDeflectionMaterialModulus() {
     youngsModulusInput.value = String(convertModulusToUnit(youngsModulusPa, modulusUnitSelect.value));
 }
 
-const beamDeflectionCases = {
-    "ss-point": {
-        name: "Simply supported, center point load",
-        support: "Simply supported (pin and roller)",
-        formula: String.raw`\delta_{\max}=\frac{PL^3}{48EI}`,
-        moment: (load, span) => load * span / 4,
-        locationFraction: 0.5,
-        location: "Midspan (L/2)"
-    },
-    "ss-udl": {
-        name: "Simply supported, full-span uniform load",
-        support: "Simply supported (pin and roller)",
-        formula: String.raw`\delta_{\max}=\frac{5wL^4}{384EI}`,
-        moment: (load, span) => load * span ** 2 / 8,
-        locationFraction: 0.5,
-        location: "Midspan (L/2)"
-    },
-    "cant-point": {
-        name: "Cantilever, point load at free end",
-        support: "Cantilever (fixed root, free end)",
-        formula: String.raw`\delta_{\max}=\frac{PL^3}{3EI}`,
-        moment: (load, span) => load * span,
-        locationFraction: 1,
-        location: "Free end (L)"
-    },
-    "cant-udl": {
-        name: "Cantilever, full-span uniform load",
-        support: "Cantilever (fixed root, free end)",
-        formula: String.raw`\delta_{\max}=\frac{wL^4}{8EI}`,
-        moment: (load, span) => load * span ** 2 / 2,
-        locationFraction: 1,
-        location: "Free end (L)"
-    }
-};
+const beamDeflectionCases = window.FormulaFoundryBeamCalculations.cases;
 
 function beamDeflectionEscape(value) {
     return String(value).replace(/[&<>"']/g, (character) => ({
@@ -220,11 +187,6 @@ function calculateBeamDeflection() {
         const { dimensions, entries } = beamDeflectionProfileInputs(profile);
         const properties = window.BeamSectionProperties.calculate(profile, dimensions);
         const inertiaM4 = axis === "x" ? properties.inertiaX : properties.inertiaY;
-        const flexuralRigidity = modulusPa * inertiaM4;
-        if (!Number.isFinite(flexuralRigidity) || flexuralRigidity <= 0) {
-            throw new Error("The flexural rigidity is outside the supported numerical range.");
-        }
-
         const isPointLoad = loadingCaseSelect.value.endsWith("point");
         const loadInput = isPointLoad ? pointLoadInput : distributedLoadInput;
         const loadRaw = loadInput.value.trim();
@@ -237,15 +199,10 @@ function calculateBeamDeflection() {
         const loadSI = isPointLoad ? convertForce(load, loadUnit) : convertDistributedLoad(load, loadUnit);
         if (!Number.isFinite(loadSI) || loadSI === 0) throw new Error("Load and its selected units must be finite and non-zero.");
 
-        let maxDeflectionM;
-        if (loadingCaseSelect.value === "ss-point") maxDeflectionM = loadSI * spanM ** 3 / (48 * flexuralRigidity);
-        else if (loadingCaseSelect.value === "ss-udl") maxDeflectionM = 5 * loadSI * spanM ** 4 / (384 * flexuralRigidity);
-        else if (loadingCaseSelect.value === "cant-point") maxDeflectionM = loadSI * spanM ** 3 / (3 * flexuralRigidity);
-        else maxDeflectionM = loadSI * spanM ** 4 / (8 * flexuralRigidity);
-        const maxMomentNm = caseDefinition.moment(loadSI, spanM);
-        if (!Number.isFinite(maxDeflectionM) || !Number.isFinite(maxMomentNm)) {
-            throw new Error("The result is outside the supported numerical range.");
-        }
+        const calculation = window.FormulaFoundryBeamCalculations.computeDeflection({
+            caseId: loadingCaseSelect.value, spanM, modulusPa, inertiaM4, loadSI
+        });
+        const { flexuralRigidity, maxDeflectionM, maxMomentNm } = calculation;
 
         const deflectionUnit = deflectionUnitSelect.value;
         const inertiaUnit = inertiaUnitSelect.value;
@@ -253,7 +210,7 @@ function calculateBeamDeflection() {
         const lengthDisplayUnit = entries[0].unit;
         const deflectionOutput = convertDistanceToUnit(maxDeflectionM, deflectionUnit);
         const deflectionMagnitude = Math.abs(deflectionOutput);
-        const location = spanM * caseDefinition.locationFraction;
+        const location = calculation.locationM;
         const locationOutput = convertDistanceToUnit(location, lengthUnit);
         const maxMomentOutput = convertMomentToUnit(maxMomentNm, "N·m");
         const areaOutput = convertAreaToUnit(properties.area, areaUnit);
