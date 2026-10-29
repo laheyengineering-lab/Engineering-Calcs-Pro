@@ -2,13 +2,13 @@
 
 ## Purpose
 
-This document defines the calculator architecture for **Formula Foundry** based on the repository as it exists today. It is the reference for future calculator work and for the repository-wide audit/refactor planned for PR #4.
+This document describes the **implemented Formula Foundry architecture** and identifies the integration points for future work. Recommendations are distinguished from current behavior; this is not a roadmap.
 
 This document intentionally separates:
 
 - **Current architecture** — what the repository actually does now
-- **Preferred standard** — the target pattern future calculators should follow
-- **Known inconsistencies** — real gaps that should be addressed in PR #4, not in this PR
+- **Recommended patterns** — how new calculators and shared features should integrate
+- **Current limitations** — constraints of the implemented features
 
 ## 1. Architecture Overview
 
@@ -17,19 +17,28 @@ Formula Foundry is a static browser application built from plain HTML, CSS, and 
 ### Current structure
 
 ```text
-index.html
-├── js/calculator-data.js
-└── js/homepage.js
-
-calculators/*.html
-├── ../css/style.css
-├── ../js/katex-loader.js
-├── ../js/engineering-units.js
-├── optional shared support file(s)
-│   └── ../js/bolt-database.js
-└── calculator-specific script
-    └── ../js/<calculator>.js
+index.html, about.html, references.html, methodology.html
+calculators/*.html                         Standalone calculator pages
+design-studies.html, report.html           Study and report workspaces
+css/style.css                              Shared site and calculator styles
+css/studies.css, css/study-chart.css,
+css/report.css                             Workspace-specific styles
+js/                                        Shared utilities, calculation engines,
+                                           diagrams, study adapters, report UI
+docs/                                      Architecture and feature guides
+tests/{core,calculators,smoke,helpers}/    Vitest + jsdom tests
 ```
+
+### Application systems
+
+- **Homepage and catalog:** `js/calculator-data.js` owns calculator metadata and `js/homepage.js` renders and searches the catalog. `js/report-builder.js` also adds navigation links and report actions.
+- **Calculator pages:** Each `calculators/*.html` page loads shared styles, `js/katex-loader.js`, `js/engineering-units.js`, any required support scripts, and its calculator script. Most page-specific UI and calculations remain in a calculator-specific script; selected calculations also have DOM-free engines for reuse.
+- **Shared engineering utilities:** `js/engineering-units.js` contains unit conversions and material data. `js/calculator-utils.js` provides shared material dropdown and HTML-escaping helpers. Other focused helpers include `js/calculator-context.js`, `js/bolt-database.js`, and `js/beam-section-properties.js`.
+- **Interactive diagrams:** `js/engineering-diagram.js` provides shared SVG creation and accessible pointer/keyboard control helpers. Calculator-specific rendering lives in `js/beam-deflection-diagram.js` and `js/beam-section-properties.js`; diagrams display calculator state and do not act as separate solvers.
+- **Design Studies:** `js/design-study-core.js` owns the DOM-free scenario model, comparison/sweep logic, validation, and local persistence. `js/design-study-adapters.js` integrates supported calculator engines. `js/design-studies.js` and `design-studies.html` provide the workspace UI; `js/study-chart.js` and `css/study-chart.css` render sweep charts.
+- **Project reports:** `js/report-builder.js` captures and stores snapshots; `js/report-page.js` renders the editable report and its diagrams/charts. `report.html` and `css/report.css` provide the report page and print layout. PDF output uses the browser's print dialog.
+
+The site is static HTML, CSS, and JavaScript with no application backend, framework, or production build step. The test suite uses npm/Vitest; npm is not required to serve the site.
 
 ### Responsibility flow
 
@@ -48,7 +57,7 @@ Unit conversions / material data / shared support utilities
 - **HTML** owns page structure, engineering explanation, form controls, and result placeholders.
 - **Calculator JavaScript** owns input retrieval, validation, unit normalization, calculator-specific math, formatting, and DOM updates.
 - **Engineering Core (`js/engineering-units.js`)** owns reusable engineering conversions and centralized material properties.
-- **Other shared utilities** support specific cross-page concerns, such as homepage metadata (`js/calculator-data.js`), homepage rendering (`js/homepage.js`), KaTeX loading (`js/katex-loader.js`), and bolt size tables (`js/bolt-database.js`).
+- **Other shared utilities** support cross-page concerns, including material controls and escaping (`js/calculator-utils.js`), diagrams (`js/engineering-diagram.js`), reports (`js/report-builder.js`), Design Studies (`js/design-study-core.js` and `js/design-study-adapters.js`), homepage metadata/rendering, KaTeX, and calculator-specific support data.
 
 ### Architectural principles
 
@@ -144,7 +153,7 @@ Current pages already benefit from:
 - explicit button text
 - responsive layout from shared CSS
 
-Current gaps to keep in mind for PR #4 and future work:
+Current accessibility limitations:
 
 - calculators rely heavily on `innerHTML` result replacement rather than dedicated live regions
 - inline SVG diagrams generally do not include explicit accessibility metadata
@@ -474,7 +483,7 @@ The overall philosophy is consistent, but some implementation details remain cal
 
 ### Preferred standard
 
-PR #4 should standardize on:
+Recommended pattern for new calculators:
 
 - convert inputs at the calculator boundary
 - perform calculations in one consistent internal unit system
@@ -500,18 +509,16 @@ Examples:
 
 ### Current state
 
-`js/calculator-data.js` is currently a homepage catalog file, not a full calculator metadata system.
+`js/calculator-data.js` is the canonical homepage catalog, not a full content-management system.
 
 It centralizes:
 
-- calculator name
-- category
-- short description
-- link
+- stable ID and display name
+- category and short/full descriptions
+- page path and status
+- related calculator IDs and search keywords
 
-It is used by `js/homepage.js` to render and filter homepage cards.
-
-It currently includes both live calculators and “Coming Soon” placeholders.
+It is used by `js/homepage.js` to render and filter homepage cards. It includes active calculators and “Coming Soon” placeholders, and the homepage validates catalog metadata at startup.
 
 ### What is still embedded directly in pages
 
@@ -526,26 +533,9 @@ Calculator-specific pages still own:
 - page-specific assumptions
 - input/output structure
 
-### Intended role going forward
+### Boundaries
 
-The current file is the seed of a future metadata layer, but it is intentionally limited today.
-
-A future metadata system could reasonably centralize:
-
-- status
-- category
-- title
-- short summary
-- canonical page path
-- related-calculator relationships
-- complexity classification
-- testing status or identifiers
-
-It should not automatically centralize full theory text or all engineering explanations unless there is a clear maintenance benefit.
-
-### Relationship to PR #5
-
-PR #5 can build on this document by expanding metadata deliberately. This PR should only document the current metadata role and the likely future direction.
+The catalog does not own full theory, equations, worked examples, references, assumptions, or input/output definitions; those remain in each calculator page. No richer metadata layer or automated catalog generation is implemented.
 
 ## 8. Mathematical Rendering / KaTeX
 
@@ -738,7 +728,7 @@ Do not increase abstraction automatically. More complex engineering content does
 
 ### Current state
 
-Validation is calculator-local. There is no shared validation utility yet.
+Validation is calculator-local. There is no general shared validation utility; validation remains calculator-local.
 
 Common current behavior:
 
@@ -966,23 +956,17 @@ Recommended workflow:
 
 Skip irrelevant steps for simple calculators. The workflow is intended to keep the repository consistent without forcing unnecessary complexity.
 
-## Remaining Architectural Inconsistencies
+## Current Limitations and Planned Work
 
-PR #4 resolved the main repository-wide inconsistencies around material dropdown sourcing, duplicated area conversion logic, repeated escaping helpers, reset naming, and the split between assumptions and engineering considerations. The remaining gaps are intentionally smaller:
+### Implemented boundaries and limitations
 
-1. **Result formatting precision still varies by calculator.**
-   - Primary and secondary outputs use different decimal conventions depending on the engineering quantity.
-   - That is acceptable today, but future calculators should stay deliberate and internally consistent.
+- Most calculator logic remains coupled to page DOM. Only selected calculators expose DOM-free calculation engines that can be reused by Design Studies.
+- Design Studies currently has adapters for seven calculators. New adapters require compatible, tested calculation entry points; see [`design-studies.md`](design-studies.md).
+- Interactive calculator diagrams are currently limited to the beam deflection model and beam section profiles. The deflected curve is illustrative; arbitrary support, load, or geometry models are not implied. See [`interactive-diagrams.md`](interactive-diagrams.md).
+- Design Studies and project reports are stored in browser `localStorage`, with session-memory fallback when storage is unavailable. They are not synchronized to a server or another browser.
+- Reports contain snapshots and are not recomputed when calculators change. PDF output is provided by browser printing, not generated by the application. See [`reporting.md`](reporting.md).
+- Result precision and some unit/UI patterns vary by calculator; dynamic result math generally uses HTML/Unicode rather than KaTeX re-rendering.
 
-2. **Dynamic math handling remains intentionally static-first.**
-   - Static theory content uses KaTeX.
-   - Dynamic result content generally uses HTML/Unicode instead of re-rendered TeX.
-   - That is now an explicit repository pattern rather than an accidental inconsistency.
+### Planned catalog entries
 
-3. **Metadata remains split between homepage data and page-local content.**
-   - `js/calculator-data.js` only centralizes homepage catalog data today.
-   - Related-calculator relationships, complexity, and richer metadata are still page-local.
-
-4. **Calculator-specific engineering patterns still differ where the engineering model differs.**
-   - Multi-mode calculators do not all use identical UI flows.
-   - Material-assisted calculators may prefill different properties while still using the same shared access pattern.
+`js/calculator-data.js` currently marks Bolt Preload (`bolt-preload`), Bearing PV (`bearing-pv`), and Deep Drawing (`deep-drawing`) as “Coming Soon.” These are catalog placeholders, not implemented calculator features. No other unimplemented capability should be treated as committed roadmap work.
