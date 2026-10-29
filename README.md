@@ -1,207 +1,74 @@
 # Formula Foundry
 
-**A growing collection of professional-grade, browser-based engineering calculators for mechanical engineers, designers, machinists, and students.**
+Formula Foundry is a browser-based engineering calculator platform for mechanical engineers, designers, machinists, and students. It combines standalone calculators with interactive diagrams, Design Studies, and print-ready project reports.
 
-**Live Demo:** [https://engineering-calcs-pro.vercel.app](https://engineering-calcs-pro.vercel.app)
+**Live site:** [engineering-calcs-pro.vercel.app](https://engineering-calcs-pro.vercel.app)
 
----
+## Features
 
-## 📋 Project Purpose
+- **Engineering calculators:** 18 active calculators covering mechanical, materials, fastener, and manufacturing topics. The searchable homepage catalog also marks three planned calculators as Coming Soon; see [`js/calculator-data.js`](js/calculator-data.js) for the current catalog.
+- **Interactive diagrams:** Beam Deflection diagrams show supported beam/load cases and let users explore span and, where applicable, load through accessible controls. Beam Bending Stress diagrams show section geometry and axes. Diagram shapes are explanatory, not additional calculation models.
+- **Design Studies:** Save calculator scenarios, compare calculated scenarios against a baseline, and sweep supported continuous inputs to explore model results. Adapters currently support seven calculators. Sweeps are calculations at sampled values, not physical tests.
+- **Project reports:** Collect calculator and study snapshots, annotate and reorder entries, and print or save through the browser's print dialog. Formula Foundry does not generate PDF files itself.
+- **Shared engineering utilities:** Centralized unit conversions and material data, common calculator helpers, shared SVG diagram utilities, and KaTeX equation rendering.
+- **Responsive static site:** Plain HTML, CSS, and JavaScript with no application framework or production build step.
 
-Formula Foundry provides fast, reliable engineering calculation tools that run entirely in the browser—no installation, no backend, no dependencies. Each calculator is built to handle real engineering inputs across metric and imperial unit systems, and draws from a shared engineering core library for consistent unit conversions and material data.
+## Data and privacy
 
-The goal is to make fundamental mechanical engineering calculations accessible to anyone: a seasoned engineer who needs a quick sanity check, a student working through a problem set, or a designer validating a fastener choice on the floor.
+Calculations run in the browser; the project has no application backend or account-based storage. Design Studies and project reports are saved in this browser's `localStorage` (`formulaFoundry.designStudies` and `formulaFoundry.projectReport`); if browser storage is unavailable, those features fall back to memory for the current session. Calculator form values are not persisted on their own; studies and report entries are saved as snapshots when users add them. Data is not synchronized between browsers.
 
----
+The site loads KaTeX from a CDN to render equations. Hosting is static; no server-side calculation service is required.
 
-## ✨ Key Features
+## Run locally
 
-| Feature | Details |
-|---|---|
-| **Zero Runtime Dependencies** | Pure vanilla HTML, CSS, and JavaScript in production—no frontend framework or build step |
-| **Dual Unit Systems** | Full metric and imperial support across all calculators |
-| **Shared Engineering Core** | Centralized unit conversion and material database (`js/engineering-units.js`) |
-| **Responsive Design** | Mobile-friendly layouts with CSS grid and media queries |
-| **Searchable Homepage** | Built-in search to quickly find any calculator |
-| **Instant Results** | Calculations update in real time from form inputs |
-| **Professional UI** | Clean, consistent styling with accessibility in mind |
+The app is static. From the repository root, start a local HTTP server:
 
----
-
-## 🧮 Calculator Categories
-
-### ⚙️ Mechanical
-
-| Calculator | Description | Status |
-|---|---|---|
-| **Moment Calculator** | Torque from force and perpendicular distance | ✅ Live |
-| **Beam Deflection** | Structural beam deflection under load | ✅ Live |
-| **Shaft Torsion** | Shear stress and angle of twist for shafts | ✅ Live |
-
-### 🔩 Fasteners
-
-| Calculator | Description | Status |
-|---|---|---|
-| **Bolt Torque** | Tightening torque for threaded fasteners (metric and imperial) | ✅ Live |
-| **Bolt Preload** | Fastener preload and clamping force analysis | 🔜 Coming Soon |
-
-### 🧱 Materials
-
-| Calculator | Description | Status |
-|---|---|---|
-| **Stress-Strain** | Stress and strain from load and geometry | ✅ Live |
-| **Thermal Expansion** | Linear thermal expansion for common engineering materials | ✅ Live |
-| **Bearing PV** | Bearing performance (pressure × velocity) | 🔜 Coming Soon |
-
-### 🏭 Manufacturing
-
-| Calculator | Description | Status |
-|---|---|---|
-| **Deep Drawing** | Sheet metal forming / draw ratio calculations | 🔜 Coming Soon |
-
----
-
-## 🏗️ Repository Structure
-
-```
-Engineering-Calcs-Pro/
-├── index.html                      # Homepage with searchable calculator directory
-├── css/
-│   └── style.css                   # Responsive styling and visual themes
-├── js/
-│   ├── engineering-units.js        # Shared engineering core: unit conversions + material database
-│   ├── calculator-data.js          # Calculator catalog metadata (titles, categories, links)
-│   ├── homepage.js                 # Homepage search and card rendering logic
-│   ├── bolt-database.js            # Bolt size and thread pitch tables (metric + imperial)
-│   ├── bolt-torque.js              # Bolt torque calculation logic
-│   ├── moment.js                   # Moment/torque calculation logic
-│   ├── stress-strain.js            # Stress and strain calculation logic
-│   ├── shaft-torsion.js            # Shaft torsion calculation logic
-│   ├── beam-deflection.js          # Beam deflection calculation logic
-│   └── thermal-expansion.js        # Thermal expansion calculation logic
-├── calculators/
-│   ├── bolt-torque.html            # Bolt torque calculator page
-│   ├── moment.html                 # Moment calculator page
-│   ├── stress-strain.html          # Stress-strain calculator page
-│   ├── shaft-torsion.html          # Shaft torsion calculator page
-│   ├── beam-deflection.html        # Beam deflection calculator page
-│   └── thermal-expansion.html      # Thermal expansion calculator page
-├── docs/
-│   ├── engineering-units.md        # Detailed documentation for the shared engineering core
-│   └── testing.md                  # Automated testing setup and philosophy
-├── tests/                          # Vitest + jsdom engineering calculation tests
-├── package.json                    # Test scripts and development dependencies
-└── README.md                       # This file
-```
-
----
-
-## 🔧 How the App Is Organized
-
-Each calculator is a self-contained HTML page inside `calculators/`. The page loads:
-
-1. **`js/engineering-units.js`** — the shared engineering core (loaded first, available globally)
-2. Any calculator-specific support files (e.g., `bolt-database.js`)
-3. The calculator logic script (e.g., `bolt-torque.js`)
-
-This layered loading ensures every calculator has access to consistent unit conversions and material property data without duplicating that logic.
-
-### Shared Engineering Core
-
-`js/engineering-units.js` is the foundation of the app. It provides:
-
-- **Unit conversion tables** for force, length, moment, stress, area moment of inertia, distributed load, and temperature
-- **Conversion helper functions** (`convertForce`, `convertDistance`, `convertMoment`, `convertStress`, etc.)
-- **Material property database** with engineering data for carbon steel, stainless steel, aluminum, copper, brass, titanium, mild steel, high-strength steel, cast iron, and magnesium
-- **Material utility functions** (`getMaterial`, `getMaterialProperty`, `getMaterialList`, `getMaterialListFormatted`)
-
-> 📄 For full documentation on `engineering-units.js`, see [`docs/engineering-units.md`](docs/engineering-units.md).
-
----
-
-## 🛠️ Tech Stack
-
-- **Frontend:** Vanilla HTML5, CSS3, JavaScript (ES6+)
-- **Testing:** Vitest + jsdom
-- **Styling:** Custom CSS with responsive grid layouts
-- **Hosting:** [Vercel](https://vercel.com)
-- **Source Control:** GitHub
-
-No frontend build pipeline, no transpiler, and no runtime framework. The browser app still runs as static files; npm is only used for automated tests.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Any modern web browser (Chrome, Firefox, Safari, Edge)
-- No installation required
-
-### Run Locally
-
-**Using Python:**
 ```bash
-git clone https://github.com/laheyengineering-lab/Engineering-Calcs-Pro.git
-cd Engineering-Calcs-Pro
-python -m http.server 8000
+python3 -m http.server 8000
 ```
 
-**Using Node.js:**
+Then open [http://localhost:8000](http://localhost:8000). A local server is needed because the app loads scripts and catalog pages with relative URLs; opening `index.html` via `file://` can block them.
+
+## Test
+
+Node.js and npm are needed only for the test suite. Install the locked development dependencies and run Vitest:
+
 ```bash
-git clone https://github.com/laheyengineering-lab/Engineering-Calcs-Pro.git
-cd Engineering-Calcs-Pro
-npx http-server
+npm ci
+npm test
 ```
 
-Then open [http://localhost:8000](http://localhost:8000) in your browser.
+For watch mode, run `npm run test:watch`. There is no build command. See [`docs/testing.md`](docs/testing.md) for test organization and examples.
 
-> **Note:** A local server is required because the calculators load JavaScript files via relative paths. Opening `index.html` directly from the filesystem (using a `file://` URL) will block those script loads in most browsers.
+## Repository map
 
----
+```text
+index.html, about.html, references.html, methodology.html  Static site pages
+calculators/                                               Calculator pages
+css/style.css                                              Shared site and calculator styles
+css/studies.css, css/study-chart.css, css/report.css       Study, chart, and report styles
+js/                                                        Shared utilities and calculator scripts
+design-studies.html, report.html                          Study and report workspaces
+docs/                                                      Architecture and usage guides
+tests/                                                     Vitest + jsdom tests
+```
 
-## 📚 How to Use
+## Architecture and contribution guides
 
-1. **Open the homepage** — browse or search for a calculator
-2. **Select a calculator** — click to open the dedicated page
-3. **Choose your unit system** — metric or imperial, depending on your inputs
-4. **Enter your values** — fill in the required fields
-5. **Read the results** — output is shown instantly with unit labels
-6. **Return to the homepage** to run another calculation
+- [Calculator architecture](docs/calculator-architecture.md) — current application structure and integration points.
+- [Calculator development guide](docs/calculator-development-guide.md) — adding calculators.
+- [Interactive diagrams](docs/interactive-diagrams.md) — shared SVG framework and diagram patterns.
+- [Design Studies](docs/design-studies.md) — adapters, scenario comparison, sweeps, persistence, and report integration.
+- [Project reporting](docs/reporting.md) — report snapshots and print workflow.
+- [Engineering units](docs/engineering-units.md) — shared conversion and material utilities.
+- [Branding](docs/branding.md) — asset layout and usage.
 
----
+New calculators should be registered in `js/calculator-data.js` and use `js/engineering-units.js` for shared engineering units and materials. To make a calculator available in Design Studies, provide a DOM-free calculation entry point and integrate it through `js/design-study-adapters.js`; see the linked guides for details.
 
-## 🔗 Links
+## License
 
-- **Live Site:** [https://engineering-calcs-pro.vercel.app](https://engineering-calcs-pro.vercel.app)
-- **Repository:** [https://github.com/laheyengineering-lab/Engineering-Calcs-Pro](https://github.com/laheyengineering-lab/Engineering-Calcs-Pro)
-- **Engineering Core Docs:** [`docs/engineering-units.md`](docs/engineering-units.md)
-- **Calculator Architecture:** [`docs/calculator-architecture.md`](docs/calculator-architecture.md)
-- **Calculator Development Guide:** [`docs/calculator-development-guide.md`](docs/calculator-development-guide.md)
-- **Testing Guide:** [`docs/testing.md`](docs/testing.md)
-- **Issues & Feature Requests:** [https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues](https://github.com/laheyengineering-lab/Engineering-Calcs-Pro/issues)
+This project is currently unlicensed. Contact the repository owner for licensing inquiries.
 
----
+## Suggested GitHub repository description
 
-## 📝 License
-
-This project is currently unlicensed. For licensing inquiries, please contact the repository owner.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome. If you have ideas for new calculators, bug fixes, or improvements:
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Make your changes
-4. Open a Pull Request against `main`
-
-When adding a new calculator, load `js/engineering-units.js` first in your HTML so the shared unit and material infrastructure is available to your calculator script.
-
----
-
-**Built by [laheyengineering-lab](https://github.com/laheyengineering-lab)**
-
-*Practical engineering tools, available anywhere.*
+> Browser-based engineering calculators with interactive diagrams, Design Studies for scenario comparisons and parametric sweeps, and print-ready project reports. Static HTML, CSS, and JavaScript; calculations and saved studies stay in your browser.
