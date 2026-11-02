@@ -15,7 +15,7 @@ Formula Foundry is a browser-based engineering calculator platform for mechanica
 
 ## Data and privacy
 
-Calculations run in the browser; the project has no application backend or account-based storage. Design Studies and project reports are saved in this browser's `localStorage` (`formulaFoundry.designStudies` and `formulaFoundry.projectReport`); if browser storage is unavailable, those features fall back to memory for the current session. Calculator form values are not persisted on their own; studies and report entries are saved as snapshots when users add them. Data is not synchronized between browsers.
+Calculations run in the browser; the project has no application backend or account-based storage. Design Studies and project reports are saved in this browser's `localStorage` (`formulaFoundry.designStudies` and `formulaFoundry.projectReport`). If browser storage is unavailable, they fall back to page-local memory, which is lost on reload or navigation; without working storage, report entries cannot be carried to the separate report page. Calculator form values are not persisted on their own. Design Study input edits are saved when changed, while study and calculator results are copied into project reports only when explicitly added. Data is not synchronized between browsers.
 
 The site loads KaTeX from a CDN to render equations. Hosting is static; no server-side calculation service is required.
 
