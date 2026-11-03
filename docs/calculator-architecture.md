@@ -2,13 +2,32 @@
 
 ## Purpose
 
-This document describes the **implemented Formula Foundry architecture** and identifies the integration points for future work. Recommendations are distinguished from current behavior; this is not a roadmap.
+This document describes the **implemented Formula Foundry architecture** and identifies the integration points for future work. Recommendations are distinguished from current behavior; development priorities are listed in the [README](../README.md#development-priorities), and nothing here is a commitment or schedule.
 
 This document intentionally separates:
 
 - **Current architecture** — what the repository actually does now
 - **Recommended patterns** — how new calculators and shared features should integrate
 - **Current limitations** — constraints of the implemented features
+
+### Architectural philosophy and direction
+
+Formula Foundry is meant to support one engineering workflow rather than a set of isolated pages:
+
+```text
+Calculator  →  Diagram  →  Design Study  →  Project report
+ (compute)     (explain)     (compare)        (communicate)
+```
+
+- **Standalone calculators** remain the entry point. Each page should be readable and useful on its own.
+- **Reusable calculation engines** (DOM-free functions) are what let the same model be tested, explored in a study, and reproduced in a report without duplicating equations.
+- **Diagrams** display calculator state; they are views, not solvers.
+- **Design Studies** call those engines to compare scenarios and sweep inputs.
+- **Reports** store snapshots of calculator and study results so decisions can be documented and printed.
+
+Established patterns: centralized units and materials, a calculator catalog in `js/calculator-data.js`, DOM-free engines for the calculators supported by Design Studies, a shared SVG diagram helper, and snapshot-based reports.
+
+Still developing: **not every calculator has a fully separated calculation engine.** Many keep their math alongside page-specific DOM code, and calculation, validation, unit, and result-formatting conventions are not yet uniform. Diagrams exist for only two calculators, and Design Studies support seven. Extracting engines and unifying conventions is done incrementally, only where it improves clarity or enables reuse, so simple calculators can stay simple.
 
 ## 1. Architecture Overview
 
