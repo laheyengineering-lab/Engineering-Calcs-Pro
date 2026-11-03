@@ -1,17 +1,33 @@
 # Formula Foundry
 
-Formula Foundry is a browser-based engineering calculator platform for mechanical engineers, designers, machinists, and students. It combines standalone calculators with interactive diagrams, Design Studies, and print-ready project reports.
+**Calculate it. Explore it. Compare it. Explain it.**
+
+Formula Foundry is a browser-based engineering workspace that helps mechanical engineers, designers, machinists, and students calculate results, explore how they change, compare design options, and communicate the decisions behind them. It started as a set of standalone calculators and is growing into a connected workflow: calculators, interactive diagrams, Design Studies, and project reports.
 
 **Live site:** [engineering-calcs-pro.vercel.app](https://engineering-calcs-pro.vercel.app)
 
-## Features
+> **Actively developed.** Formula Foundry is evolving. Coverage, depth, and consistency vary between calculators, and results are aids to engineering judgment, not a substitute for it. Check assumptions and limits on each calculator page.
 
-- **Engineering calculators:** 18 active calculators covering mechanical, materials, fastener, and manufacturing topics. The searchable homepage catalog also marks three planned calculators as Coming Soon; see [`js/calculator-data.js`](js/calculator-data.js) for the current catalog.
+## What you can do today
+
+- **Engineering calculators:** 18 active calculators covering mechanical, materials, fastener, and manufacturing topics. The searchable homepage catalog also marks three planned calculators as Coming Soon (placeholders only); see [`js/calculator-data.js`](js/calculator-data.js) for the current catalog.
 - **Interactive diagrams:** Beam Deflection diagrams show supported beam/load cases and let users explore span and, where applicable, load through accessible controls. Beam Bending Stress diagrams show section geometry and axes. Diagram shapes are explanatory, not additional calculation models.
 - **Design Studies:** Save calculator scenarios, compare calculated scenarios against a baseline, and sweep supported continuous inputs to explore model results. Adapters currently support seven calculators. Sweeps are calculations at sampled values, not physical tests.
 - **Project reports:** Collect calculator and study snapshots, annotate and reorder entries, and print or save through the browser's print dialog. Formula Foundry does not generate PDF files itself.
 - **Shared engineering utilities:** Centralized unit conversions and material data, common calculator helpers, shared SVG diagram utilities, and KaTeX equation rendering.
-- **Responsive static site:** Plain HTML, CSS, and JavaScript with no application framework or production build step.
+- **Static site:** Plain HTML, CSS, and JavaScript with no application framework or production build step.
+
+## Development priorities
+
+These are directions for continuing work, not commitments or release dates.
+
+- Expand practical engineering calculator coverage.
+- Improve consistency and engineering validation across calculators.
+- Extend Design Studies to more calculators.
+- Develop explanatory, interactive engineering diagrams.
+- Improve comparison, documentation, and reporting workflows.
+
+Anything not listed under "What you can do today" should be treated as planned or exploratory. See the [architecture guide](docs/calculator-architecture.md#architectural-philosophy-and-direction) for how the pieces are meant to fit together.
 
 ## Data and privacy
 
@@ -68,7 +84,3 @@ New calculators should be registered in `js/calculator-data.js` and use `js/engi
 ## License
 
 This project is currently unlicensed. Contact the repository owner for licensing inquiries.
-
-## Suggested GitHub repository description
-
-> Browser-based engineering calculators with interactive diagrams, Design Studies for scenario comparisons and parametric sweeps, and print-ready project reports. Static HTML, CSS, and JavaScript; calculations and saved studies stay in your browser.
