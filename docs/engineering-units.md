@@ -21,7 +21,8 @@ Each unit category is defined as a plain JavaScript object whose keys are unit s
 | Category | SI Base Unit | Supported Units |
 |---|---|---|
 | Force | Newton (N) | `N`, `kN`, `lbf` |
-| Distance / Length | Meter (m) | `mm`, `cm`, `m`, `in`, `ft` |
+| Distance / Length | Meter (m) | `µm`, `mm`, `cm`, `m`, `in`, `ft` |
+| Area | Square meter (m²) | `mm²`, `cm²`, `m²`, `in²` |
 | Moment / Torque | Newton-meter (N·m) | `N·mm`, `N·m`, `kN·m`, `lbf·in`, `lbf·ft` |
 | Stress / Pressure | Pascal (Pa) | `Pa`, `MPa`, `GPa`, `psi`, `ksi` |
 | Area Moment of Inertia | m⁴ | `mm⁴`, `cm⁴`, `m⁴`, `in⁴` |
@@ -247,7 +248,7 @@ Without a shared file, each calculator page would need to redefine the same `for
 A new calculator author only needs to load `engineering-units.js` and they immediately have access to the full unit system and material database. There is no need to understand or copy existing conversion logic.
 
 ### Testability
-A centralized file can be tested independently of any calculator page. A future test suite could import `engineering-units.js` and verify every conversion factor and material property without loading a browser or any HTML.
+The existing suite covers the shared core in `tests/core/engineering-units.test.js` and material data in `tests/core/materials.test.js`; calculator tests exercise these helpers through real calculator pages.
 
 ---
 

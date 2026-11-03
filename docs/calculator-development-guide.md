@@ -402,7 +402,7 @@ New calculator pages must use the Formula Foundry brand. Copy the `<head>` of an
 
 ## Visual Standards and Shared CSS
 
-All styling lives in `css/style.css`. Do not add a CSS framework, and do not hard-code colors, spacing, or radii in calculator pages; use the design tokens (CSS custom properties defined in `:root`).
+Calculator and shared-site styling primarily lives in `css/style.css`; the Design Studies and report workspaces also use focused stylesheets (`css/studies.css`, `css/study-chart.css`, and `css/report.css`). Do not add a CSS framework, and do not hard-code colors, spacing, or radii in calculator pages; use the design tokens (CSS custom properties defined in `:root`).
 
 ### Design tokens
 
