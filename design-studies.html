@@ -62,6 +62,14 @@
     </section>
 
     <div id="studyWorkspace" hidden>
+        <section class="content-card study-context" id="studyContext" aria-labelledby="contextHeading">
+            <h2 id="contextHeading">Engineering context</h2>
+            <div class="study-context-layout">
+                <div id="contextTheory"></div>
+                <div id="contextDiagram"></div>
+            </div>
+        </section>
+
         <section class="content-card" aria-labelledby="scenarioHeading">
             <h2 id="scenarioHeading">Scenarios</h2>
             <p><small>Each scenario stores its own inputs and a snapshot of its last calculated results. Editing inputs never changes other scenarios, and results only change when you press Recalculate.</small></p>
@@ -96,6 +104,8 @@
 <script src="js/katex-loader.js"></script>
 <script src="js/engineering-units.js"></script>
 <script src="js/calculator-utils.js"></script>
+<script src="js/engineering-diagram.js"></script>
+<script src="js/beam-deflection-diagram.js"></script>
 <script src="js/report-builder.js"></script>
 <script src="js/cylinder-force.js"></script>
 <script src="js/differential-thermal-expansion.js"></script>
@@ -106,6 +116,7 @@
 <script src="js/beam-study-calculations.js"></script>
 <script src="js/design-study-core.js"></script>
 <script src="js/design-study-adapters.js"></script>
+<script src="js/design-study-context.js"></script>
 <script src="js/study-chart.js"></script>
 <script src="js/design-studies.js"></script>
 </body>
