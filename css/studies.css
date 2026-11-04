@@ -41,3 +41,38 @@
 .sweep-layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 900px) { .sweep-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .saved-sweep { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border, #ddd6cb); padding: 6px 0; }
+
+/* Engineering context panel and diagrams */
+.study-context-layout { display: grid; gap: var(--space-4, 16px); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 900px) { .study-context-layout { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); } }
+.ctx-method { margin: 0 0 8px; }
+.ctx-section { margin: 6px 0; border: 1px solid var(--color-border, #ddd6cb); border-radius: var(--radius-sm, 6px); padding: 4px 10px; }
+.ctx-section summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.ctx-section ul { margin: 4px 0 8px; padding-left: 20px; }
+.ctx-equation { overflow-x: auto; max-width: 100%; }
+.ctx-link { margin: 8px 0 0; }
+.study-diagram { margin: 0; min-width: 0; }
+.study-diagram-svg { display: block; width: 100%; height: auto; max-height: 340px; background: var(--color-surface, #fff); border: 1px solid var(--color-border, #ddd6cb); border-radius: var(--radius-sm, 6px); }
+.study-diagram figcaption { font-size: var(--text-xs, .8125rem); color: var(--color-text-muted, #5c6066); }
+.study-diagram .sd-caption { margin: 6px 0 0; }
+.study-diagram .sd-text-alt summary { cursor: pointer; font-weight: 600; }
+.study-diagram .sd-text-alt ul { margin: 4px 0; padding-left: 20px; }
+.sd-body { fill: #dce6ee; stroke: #333; stroke-width: 1.5; }
+.sd-body-alt { fill: #c9d6e2; stroke: #0b5394; stroke-width: 1.5; }
+.sd-fluid { fill: #fbece3; stroke: none; }
+.sd-void { fill: #fff; stroke: #333; stroke-width: 1.5; }
+.sd-wall { fill: #dce6ee; stroke: #333; stroke-width: 1.5; }
+.sd-hatch, .sd-dim { stroke: #555; stroke-width: 1; }
+.sd-hidden { stroke: #333; stroke-width: 1.2; stroke-dasharray: 5 3; }
+.sd-axis { stroke: #c05621; stroke-width: 2; stroke-dasharray: 6 4; }
+.sd-extension { fill: none; stroke: #c05621; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.sd-interference { fill: none; stroke: #c05621; stroke-width: 1.5; stroke-dasharray: 3 3; }
+.sd-contact { fill: #b42318; stroke: #b42318; stroke-width: 1; }
+.sd-load { fill: #b42318; stroke: #b42318; stroke-width: 2.5; }
+.sd-motion { fill: #0b5394; stroke: #0b5394; stroke-width: 2.5; }
+.sd-curve { fill: none; }
+.sd-head { stroke-width: 1; }
+.study-diagram text { font-family: inherit; }
+.sd-label { fill: #26282b; font-size: 11px; }
+.sd-note { fill: #555; font-size: 10.5px; }
+.sd-dim-label { fill: #26282b; font-size: 12px; font-weight: 600; }

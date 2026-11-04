@@ -79,11 +79,52 @@
         const study = current();
         $("studyWorkspace").hidden = !study;
         if (!study) return;
+        theorySignature = null;
         renderScenarios();
         renderComparison();
         renderSweepForm();
         renderSweepResult();
         renderSavedSweeps();
+    }
+
+    // ---------- Engineering context (theory + diagram) ----------
+
+    function contextScenario(study) {
+        return study.scenarios.find((s) => s.id === study.baselineId) || study.scenarios[0] || null;
+    }
+
+    function renderDiagram() {
+        const host = $("contextDiagram");
+        const study = current();
+        host.textContent = "";
+        if (!study || !window.FormulaFoundryStudyContext) return;
+        host.appendChild(window.FormulaFoundryStudyContext.renderDiagram(doc, adapterOf(study), contextScenario(study)));
+    }
+
+    let theorySignature = null;
+
+    // The diagram follows the selected scenario's inputs; the theory is rebuilt only when its content changes,
+    // so collapsed/expanded sections survive input edits.
+    function renderContext() {
+        const study = current();
+        const host = $("contextTheory");
+        if (!study || !window.FormulaFoundryStudyContext) {
+            host.textContent = "";
+            $("contextDiagram").textContent = "";
+            theorySignature = null;
+            return;
+        }
+        const Context = window.FormulaFoundryStudyContext;
+        const adapter = adapterOf(study);
+        const scenario = contextScenario(study);
+        const signature = [study.id, study.calculatorId].concat(Context.contextFor(adapter, scenario).equations).join("\u0001");
+        if (signature !== theorySignature) {
+            theorySignature = signature;
+            host.textContent = "";
+            host.appendChild(Context.renderTheory(doc, adapter, scenario));
+            if (typeof window.FormulaFoundryRenderMath === "function") window.FormulaFoundryRenderMath();
+        }
+        renderDiagram();
     }
 
     // ---------- Scenarios ----------
@@ -97,11 +138,16 @@
         const adapter = adapterOf(study);
         const list = $("scenarioList");
         list.textContent = "";
+        refreshContext();
         if (!study.scenarios.length) {
             list.appendChild(el("p", null, "No scenarios yet. Add a baseline scenario to begin."));
             return;
         }
         study.scenarios.forEach((scenario) => list.appendChild(buildScenarioCard(study, adapter, scenario)));
+    }
+
+    function refreshContext() {
+        if (current()) renderContext();
     }
 
     function buildScenarioCard(study, adapter, scenario) {
@@ -575,6 +621,7 @@
             openStudy(study.id);
         });
         $("studySelect").addEventListener("change", (event) => openStudy(event.target.value));
+        $("scenarioList").addEventListener("change", refreshContext);
         $("saveStudy").addEventListener("click", () => { if (!current()) { status("Open or create a study first.", true); return; } persist(); });
         $("deleteStudy").addEventListener("click", () => {
             const study = current();
