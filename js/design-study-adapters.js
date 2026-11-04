@@ -359,7 +359,7 @@
         ],
         equations: HERTZ_COMMON_EQUATIONS,
         equationsFor(values) {
-            return values.configuration === "cylinders" ? HERTZ_CYLINDER_EQUATIONS : HERTZ_SPHERE_EQUATIONS;
+            return values.configuration === "spheres" ? HERTZ_SPHERE_EQUATIONS : HERTZ_CYLINDER_EQUATIONS;
         },
         comparisonKey(scenario) {
             return scenario.inputs.configuration;
@@ -580,7 +580,9 @@
         ]),
         equations: window.FormulaFoundryBeamCalculations.bendingEquations("rectangular", "x"),
         equationsFor(values) {
-            return window.FormulaFoundryBeamCalculations.bendingEquations(values.sectionType, values.bendingAxis);
+            const sectionType = sectionOptions.includes(values.sectionType) ? values.sectionType : "rectangular";
+            const axis = axisOptions.includes(values.bendingAxis) ? values.bendingAxis : "x";
+            return window.FormulaFoundryBeamCalculations.bendingEquations(sectionType, axis);
         },
         assumptions: [
             "Linear-elastic, homogeneous material response; small deformation; prismatic cross-section and simple elastic flexure.",
@@ -644,9 +646,10 @@
         ]),
         equations: [window.FormulaFoundryBeamCalculations.cases["ss-point"].formula],
         equationsFor(values) {
-            return window.BeamSectionProperties.equations(values.sectionType).concat([
-                window.FormulaFoundryBeamCalculations.cases[values.loadingCase].formula
-            ]);
+            const caseDefinition = window.FormulaFoundryBeamCalculations.cases[values.loadingCase];
+            if (!caseDefinition) return [];
+            const sectionType = sectionOptions.includes(values.sectionType) ? values.sectionType : "rectangular";
+            return window.BeamSectionProperties.equations(sectionType).concat([caseDefinition.formula]);
         },
         assumptions: [
             "Linear-elastic homogeneous material, small deflection, prismatic beam and constant E and I.",

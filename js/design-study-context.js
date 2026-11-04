@@ -23,8 +23,9 @@
     function contextFor(adapter, scenario) {
         const source = adapter && typeof adapter === "object" ? adapter : {};
         let equations = source.equations;
-        if (typeof source.equationsFor === "function" && scenario && scenario.inputs) {
-            try { equations = source.equationsFor(scenario.inputs); } catch (error) { equations = source.equations; }
+        if (typeof source.equationsFor === "function") {
+            const inputs = scenario && scenario.inputs && typeof scenario.inputs === "object" ? scenario.inputs : {};
+            try { equations = source.equationsFor(inputs); } catch (error) { equations = []; }
         }
         return {
             name: typeof source.name === "string" ? source.name : "",
@@ -183,7 +184,7 @@
             const top = index === 0 ? 62 : 142;
             let x = 52;
             member.sections.forEach((section, i) => {
-                const width = Math.max(44, (section.length / longest) * 250);
+                const width = 44 + (250 - 44 * member.sections.length) * (section.length / longest);
                 c.rect(x, top, width, 36, i % 2 ? "sd-body-alt" : "sd-body");
                 const label = width >= 80 && section.shown ? section.id + ": " + section.shown : section.id;
                 c.text(x + width / 2, top + 22, label, "sd-label", "middle");
@@ -344,14 +345,18 @@
         } else if (type === "hollow-rectangular") {
             const [w, h] = fit(dim("outerWidth") || 2, dim("outerHeight") || 3);
             const base = Math.min(w, h);
-            const t = clamp(dim("wallThickness") ? base * dim("wallThickness") / Math.min(dim("outerWidth") || 2, dim("outerHeight") || 3) : base * 0.12, 3, base * 0.4);
+            const maxThickness = base * 0.4;
+            const t = clamp(dim("wallThickness") ? base * dim("wallThickness") / Math.min(dim("outerWidth") || 2, dim("outerHeight") || 3) : base * 0.12,
+                Math.min(3, maxThickness), maxThickness);
             c.rect(cx - w / 2, cy - h / 2, w, h, "sd-body-alt");
             c.rect(cx - w / 2 + t, cy - h / 2 + t, w - 2 * t, h - 2 * t, "sd-void");
         } else if (type === "i-beam" || type === "t-section") {
             const [w, h] = fit(dim("flangeWidth") || 2, dim("height") || 3);
             const H = dim("height") || 3;
-            const tf = clamp((dim("flangeThickness") || H * 0.12) * h / H, 3, h * 0.35);
-            const tw = clamp((dim("webThickness") || H * 0.08) * h / H, 3, w * 0.7);
+            const maxFlangeThickness = h * 0.35;
+            const maxWebThickness = w * 0.7;
+            const tf = clamp((dim("flangeThickness") || H * 0.12) * h / H, Math.min(3, maxFlangeThickness), maxFlangeThickness);
+            const tw = clamp((dim("webThickness") || H * 0.08) * h / H, Math.min(3, maxWebThickness), maxWebThickness);
             const x0 = cx - w / 2;
             const y0 = cy - h / 2;
             const web = [cx - tw / 2, cx + tw / 2];

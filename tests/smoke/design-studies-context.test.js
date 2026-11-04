@@ -50,9 +50,13 @@ describe('Design Studies engineering context', () => {
             expect(theory.textContent).toContain(adapter.method);
             adapter.assumptions.forEach((a) => expect(theory.textContent).toContain(a));
             adapter.warnings.forEach((w) => expect(theory.textContent).toContain(w));
-            const equationCount = theory.querySelectorAll('.ctx-equation').length;
-            expect(equationCount).toBeGreaterThan(0);
-            expect(theory.querySelector('.ctx-equation').textContent).toMatch(/^\\\[.*\\\]$/s);
+            const equations = theory.querySelectorAll('.ctx-equation');
+            if (id === 'beam-deflection') {
+                expect(equations.length).toBe(0);
+            } else {
+                expect(equations.length).toBeGreaterThan(0);
+                expect(equations[0].textContent).toMatch(/^\\\[.*\\\]$/s);
+            }
             expect(theory.querySelector('.ctx-link a').getAttribute('href')).toBe(adapter.path);
             const figure = document.querySelector('#contextDiagram figure');
             expect(figure.dataset.diagram).toBe(id);
@@ -146,8 +150,30 @@ describe('Design Studies engineering context', () => {
         });
         const info = C.contextFor(cases[4]);
         expect(info).toMatchObject({ method: '', equations: [], assumptions: ['ok'], warnings: [], path: '' });
-        expect(C.contextFor(cases[5]).equations).toEqual(['a=b']);
+        expect(C.contextFor(cases[5]).equations).toEqual([]);
         expect(C.renderTheory(doc, {}, null).textContent).toBe('');
+    });
+
+    it('keeps equations aligned with diagram defaults and selected beam cases', () => {
+        const { window } = load();
+        const S = window.FormulaFoundryStudies;
+        const C = window.FormulaFoundryStudyContext;
+        const doc = window.document;
+        const hertz = S.getAdapter('hertzian-contact');
+        const hertzScenario = { inputs: {} };
+        expect(C.contextFor(hertz, hertzScenario).equations).toEqual(hertz.equationsFor({ configuration: 'cylinders' }));
+        expect(C.renderDiagram(doc, hertz, hertzScenario).querySelector('svg').getAttribute('aria-label')).toContain('parallel cylinders');
+
+        const bending = S.getAdapter('beam-bending-stress');
+        const bendingScenario = { inputs: {} };
+        expect(C.contextFor(bending, bendingScenario).equations).toEqual(bending.equationsFor({ sectionType: 'rectangular', bendingAxis: 'x' }));
+        expect(C.contextFor(bending, { inputs: { bendingAxis: 'y' } }).equations.at(-1)).toContain('\\sigma_y');
+        expect(C.renderDiagram(doc, bending, bendingScenario).querySelector('svg').getAttribute('aria-label')).toContain('x bending axis');
+
+        const deflection = S.getAdapter('beam-deflection');
+        expect(C.contextFor(deflection, { inputs: { loadingCase: 'cant-point' } }).equations.at(-1))
+            .toBe(window.FormulaFoundryBeamCalculations.cases['cant-point'].formula);
+        expect(C.contextFor(deflection, { inputs: {} }).equations).toEqual([]);
     });
 
     it('keeps diagrams safe and valid for extreme, blank and malformed inputs', () => {
@@ -201,6 +227,32 @@ describe('Design Studies engineering context', () => {
         });
         const dte = draw('differential-thermal-expansion', { A1Length: 100, A2Length: 50, A3Length: 20, B1Length: 300 });
         expect(dte.querySelectorAll('svg rect').length).toBeGreaterThan(6);
+        const longMember = draw('differential-thermal-expansion', { A1Length: 1000, A2Length: 10, A3Length: 10 });
+        const memberSections = Array.from(longMember.querySelectorAll('svg rect')).filter((rect) =>
+            Number(rect.getAttribute('y')) === 62 && ['sd-body', 'sd-body-alt'].includes(rect.getAttribute('class')));
+        expect(memberSections.reduce((sum, rect) => sum + Number(rect.getAttribute('width')), 0)).toBeCloseTo(250);
+        const expansionArrow = longMember.querySelector('svg line.sd-motion');
+        const memberLabel = Array.from(longMember.querySelectorAll('svg text')).find((text) => text.textContent === 'Member A');
+        expect(Number(expansionArrow.getAttribute('x2'))).toBeLessThan(420);
+        expect(Number(memberLabel.getAttribute('x'))).toBeLessThan(420);
+
+        const narrowHollow = draw('beam-bending-stress', {
+            sectionType: 'hollow-rectangular', section_outerWidth: 5, section_outerHeight: 100, section_wallThickness: 1
+        });
+        const outer = narrowHollow.querySelector('svg rect.sd-body-alt');
+        const inner = narrowHollow.querySelector('svg rect.sd-void');
+        expect(Number(inner.getAttribute('width'))).toBeGreaterThan(0);
+        expect(Number(inner.getAttribute('height'))).toBeGreaterThan(0);
+        expect(Number(inner.getAttribute('width'))).toBeLessThan(Number(outer.getAttribute('width')));
+
+        ['i-beam', 't-section'].forEach((sectionType) => {
+            const shallowSection = draw('beam-bending-stress', {
+                sectionType, section_flangeWidth: 100, section_height: 5, section_flangeThickness: 1, section_webThickness: 1
+            });
+            const points = shallowSection.querySelector('svg polygon.sd-body-alt').getAttribute('points').split(/\s+/)
+                .map((pair) => pair.split(',').map(Number));
+            expect(points.every(([x, y]) => x >= 55 && x <= 165 && y >= 40 && y <= 150)).toBe(true);
+        });
         draw('press-fit', { interfaceDiameter: 40, hubOuterDiameter: 80, shaftBoreDiameter: 20, diametralInterference: 0.05, engagementLength: 30 });
     });
 });
