@@ -74,7 +74,8 @@
                 <li><strong>\(F_{ext}, F_{ret}\)</strong> = theoretical extension / retraction force</li>
                 <li><strong>\(\eta\)</strong> = user-supplied efficiency estimate (fraction)</li>
             </ul>
-            <h3>Assumptions &amp; Limitations</h3>
+
+    <h3>Assumptions &amp; Limitations</h3>
             <ul>
                 <li>Net gauge pressure on the working side with zero pressure on the opposite side; back pressure reduces force and is not modeled</li>
                 <li>Static theoretical force only; no friction, pressure drop, acceleration or side load</li>
@@ -86,6 +87,12 @@
         </section>
     </div>
     <div class="calculator-column">
+
+<figure class="ff-figure">
+        <div id="calcDiagram" class="ff-diagram-host" data-diagram="cylinder-force"></div>
+        <figcaption id="calcDiagramCaption"></figcaption>
+    </figure>
+
         <section class="content-card calculator-box">
     <h2>Calculation</h2>
     <h3>Geometry</h3>
@@ -172,6 +179,12 @@
 <script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/diagram-renderers-loads.js"></script>
+<script src="../js/diagram-renderers-fasteners.js"></script>
+<script src="../js/diagram-renderers-structural.js"></script>
+<script src="../js/calculator-diagram-pages.js"></script>
 <script src="../js/report-builder.js"></script>
 <script src="../js/cylinder-force.js"></script>
 </body>

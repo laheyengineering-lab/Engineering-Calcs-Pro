@@ -223,7 +223,9 @@ function calculateDifferentialThermalExpansion() {
             outputs.push({ label: "Differential movement (A − B)", value: out(result.differential), unit: outUnit });
             outputs.push({ label: "Final length difference (A − B)", value: out(result.finalLengthDifference), unit: outUnit });
         }
+        const diagram = window.FormulaFoundryReport.currentCalcDiagram ? window.FormulaFoundryReport.currentCalcDiagram() : null;
         window.FormulaFoundryReport.recordResult({
+            ...(diagram ? { diagram } : {}),
             calculatorId: "differential-thermal-expansion",
             calculatorName: "Differential Thermal Expansion",
             path: "calculators/differential-thermal-expansion.html",

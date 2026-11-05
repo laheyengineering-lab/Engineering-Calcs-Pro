@@ -74,7 +74,8 @@
                         <li><strong>\(U\)</strong> — applied load divided by nominal capacity (dimensionless utilization)</li>
                     </ul>
 
-                    <h3>Assumptions &amp; Limitations</h3>
+
+    <h3>Assumptions &amp; Limitations</h3>
                     <ul>
                         <li>Axial, static, concentric tensile load; linear capacity comparison using user-entered strengths.</li>
                         <li>The thread stripping estimate is a screening approximation, not a complete ISO, AISC, or NASA design verification.</li>
@@ -86,6 +87,12 @@
             </div>
 
             <div class="calculator-column">
+
+<figure class="ff-figure">
+        <div id="calcDiagram" class="ff-diagram-host" data-diagram="thread-strength"></div>
+        <figcaption id="calcDiagramCaption"></figcaption>
+    </figure>
+
                 <section class="content-card calculator-box">
                     <h2>Calculation</h2>
                     <label class="input-label" for="distanceUnit">Diameter and Engagement Units</label>
@@ -178,6 +185,12 @@
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
 <script src="../js/thread-strength.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/diagram-renderers-loads.js"></script>
+<script src="../js/diagram-renderers-fasteners.js"></script>
+<script src="../js/diagram-renderers-structural.js"></script>
+<script src="../js/calculator-diagram-pages.js"></script>
 <script src="../js/report-builder.js"></script>
 </body>
 </html>

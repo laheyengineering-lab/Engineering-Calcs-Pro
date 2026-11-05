@@ -58,8 +58,60 @@
         return out;
     }
 
+    const CALC_DIAGRAM_IDS = [
+        "bearing-life", "beam-bending-stress", "bolt-torque", "column-buckling", "cylinder-force",
+        "differential-thermal-expansion", "factor-of-safety", "fillet-weld", "hertzian-contact", "moment",
+        "press-fit", "shaft-torsion", "spring-calculations", "stress-strain", "thermal-expansion",
+        "thick-walled-cylinder", "thick-walled-cylinder-plot", "thread-strength"
+    ];
+
+    // Model data for calculator diagrams: plain keys with finite numbers, short strings, or small numeric arrays.
+    // The diagram renderer re-validates the model against its own schema when the report is drawn.
+    function cleanCalcModel(model) {
+        if (!model || typeof model !== "object" || Array.isArray(model)) return null;
+        const keys = Object.keys(model);
+        if (keys.length > 40) return null;
+        const out = {};
+        for (const key of keys) {
+            if (!/^[A-Za-z][A-Za-z0-9]{0,31}$/.test(key)) return null;
+            const value = model[key];
+            if (typeof value === "number") {
+                if (!Number.isFinite(value)) return null;
+                out[key] = value;
+            } else if (typeof value === "string") {
+                if (value.length > 80) return null;
+                out[key] = value;
+            } else if (Array.isArray(value)) {
+                if (value.length > 64) return null;
+                const rows = [];
+                for (const item of value) {
+                    if (typeof item === "number" && Number.isFinite(item)) rows.push(item);
+                    else if (Array.isArray(item) && item.length <= 4 && item.every((n) => typeof n === "number" && Number.isFinite(n))) rows.push(item.slice());
+                    else return null;
+                }
+                out[key] = rows;
+            } else {
+                return null;
+            }
+        }
+        return out;
+    }
+
     function cleanDiagram(raw) {
         if (raw === undefined || raw === null) return null;
+        if (raw && raw.type === "calc-diagram") {
+            if (!CALC_DIAGRAM_IDS.includes(raw.id)) return null;
+            const model = cleanCalcModel(raw.model);
+            if (!model) return null;
+            const result = { type: "calc-diagram", id: raw.id, model };
+            if (raw.companion !== undefined && raw.companion !== null) {
+                if (!CALC_DIAGRAM_IDS.includes(raw.companion.id)) return null;
+                const companionModel = cleanCalcModel(raw.companion.model);
+                if (!companionModel) return null;
+                result.companion = { id: raw.companion.id, model: companionModel };
+            }
+            return result;
+        }
         if (raw && raw.type === "beam-deflection") {
             const pointCases = ["ss-point", "cant-point"];
             const distributedCases = ["ss-udl", "cant-udl"];
@@ -503,6 +555,17 @@
         return element.id || "Input";
     }
 
+    // Serializable model of the mounted calculator diagram (never the SVG markup). Invalid or absent: null.
+    function currentCalcDiagram() {
+        const page = root.FormulaFoundryCalculatorDiagramPage;
+        if (page && typeof page.update === "function") page.update();
+        const diagrams = root.FormulaFoundryCalculatorDiagrams;
+        const host = Array.from(root.document.querySelectorAll("[data-diagram]")).find((node) => !node.closest("[hidden]"));
+        if (!diagrams || !host) return null;
+        const snapshot = diagrams.snapshot(host);
+        return snapshot && cleanDiagram(snapshot) ? snapshot : null;
+    }
+
     function scrapeSnapshot() {
         const doc = root.document;
         const slug = pageSlug();
@@ -557,7 +620,7 @@
             const firstParagraph = theory.querySelector("p");
             method = firstParagraph ? firstParagraph.textContent.replace(/\s+/g, " ").trim() : "";
         }
-        return {
+        const snapshot = {
             calculatorId: slug,
             calculatorName: name,
             path: "calculators/" + slug + ".html",
@@ -569,6 +632,9 @@
             method,
             warnings: ["Captured from the calculator page display; values are shown as formatted on screen."]
         };
+        const diagram = currentCalcDiagram();
+        if (diagram) snapshot.diagram = diagram;
+        return snapshot;
     }
 
     function observeResultPanel() {
@@ -622,6 +688,7 @@
         updateCount,
         declareStructured() { structured = true; },
         scrapeSnapshot,
+        currentCalcDiagram,
         addSnapshot: (snapshot) => {
             const result = store.addEntry(snapshot);
             if (result.ok) updateCount();

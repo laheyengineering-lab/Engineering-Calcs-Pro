@@ -69,34 +69,6 @@
         <li><strong>L</strong> = Unsupported column length</li>
     </ul>
 
-    <div class="engineering-diagram">
-        <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
-            <text x="350" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">Euler Column Buckling Concept</text>
-
-            <line x1="220" y1="80" x2="220" y2="340" stroke="#0b5394" stroke-width="8"/>
-            <path d="M220 80 Q250 170 220 260 Q190 330 220 340" fill="none" stroke="#cc6600" stroke-width="4" stroke-dasharray="6,4"/>
-
-            <line x1="220" y1="50" x2="220" y2="75" stroke="#cc0000" stroke-width="4"/>
-            <polygon points="220,50 210,65 230,65" fill="#cc0000"/>
-            <line x1="220" y1="370" x2="220" y2="345" stroke="#cc0000" stroke-width="4"/>
-            <polygon points="220,370 210,355 230,355" fill="#cc0000"/>
-            <text x="240" y="62" font-size="16" fill="#cc0000">P</text>
-            <text x="240" y="362" font-size="16" fill="#cc0000">P</text>
-
-            <line x1="170" y1="80" x2="170" y2="340" stroke="#555" stroke-width="1"/>
-            <line x1="160" y1="80" x2="180" y2="80" stroke="#555" stroke-width="2"/>
-            <line x1="160" y1="340" x2="180" y2="340" stroke="#555" stroke-width="2"/>
-            <text x="140" y="215" font-size="18" fill="#555" font-style="italic">L</text>
-
-            <rect x="430" y="90" width="200" height="220" fill="none" stroke="#ddd"/>
-            <text x="530" y="120" text-anchor="middle" font-size="15" fill="#0b5394" font-weight="bold">Boundary Condition K</text>
-            <text x="445" y="155" font-size="14">Fixed-Free: 2.0</text>
-            <text x="445" y="185" font-size="14">Pinned-Pinned: 1.0</text>
-            <text x="445" y="215" font-size="14">Fixed-Pinned: 0.699</text>
-            <text x="445" y="245" font-size="14">Fixed-Fixed: 0.5</text>
-            <text x="445" y="285" font-size="13" fill="#666">K·L controls buckling capacity</text>
-        </svg>
-    </div>
 
     <h3>Assumptions &amp; Limitations</h3>
     <ul>
@@ -109,6 +81,12 @@
 </div>
 
 <div class="calculator-column">
+
+<figure class="ff-figure">
+        <div id="calcDiagram" class="ff-diagram-host" data-diagram="column-buckling"></div>
+        <figcaption id="calcDiagramCaption"></figcaption>
+    </figure>
+
 <section class="content-card calculator-box">
     <h2>Calculation</h2>
 
@@ -366,6 +344,12 @@ Always apply an appropriate factor of safety to the calculated critical load for
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
 <script src="../js/column-buckling.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/diagram-renderers-loads.js"></script>
+<script src="../js/diagram-renderers-fasteners.js"></script>
+<script src="../js/diagram-renderers-structural.js"></script>
+<script src="../js/calculator-diagram-pages.js"></script>
 <script src="../js/report-builder.js"></script>
 </body>
 </html>

@@ -70,7 +70,8 @@
                 <li><strong>\(p_i, p_o\)</strong> = internal and external gauge pressure</li>
                 <li><strong>\(\sigma_r\)</strong> = radial stress; <strong>\(\sigma_\theta\)</strong> = circumferential (hoop) stress; <strong>\(\sigma_z\)</strong> = axial stress</li>
             </ul>
-            <h3>Assumptions &amp; Limitations</h3>
+
+    <h3>Assumptions &amp; Limitations</h3>
             <ul>
                 <li>Linear elastic, isotropic, homogeneous material; small deformations</li>
                 <li>Long cylinder with uniform circular cross-section, remote from end closures, flanges, holes and other discontinuities</li>
@@ -82,6 +83,12 @@
         </section>
     </div>
     <div class="calculator-column">
+
+<figure class="ff-figure">
+        <div id="calcDiagram" class="ff-diagram-host" data-diagram="thick-walled-cylinder"></div>
+        <figcaption id="calcDiagramCaption"></figcaption>
+    </figure>
+
         <section class="content-card calculator-box">
     <h2>Calculation</h2>
     <h3>Geometry</h3>
@@ -166,6 +173,12 @@ At the outer surface (r = b): σ<sub>r</sub> = 33.33 − 33.33 = 0; σ<sub>θ</s
 <script src="../js/katex-loader.js"></script>
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/diagram-renderers-loads.js"></script>
+<script src="../js/diagram-renderers-fasteners.js"></script>
+<script src="../js/diagram-renderers-structural.js"></script>
+<script src="../js/calculator-diagram-pages.js"></script>
 <script src="../js/report-builder.js"></script>
 <script src="../js/thick-walled-cylinder.js"></script>
 </body>
