@@ -9,7 +9,10 @@
 // js/design-study-core.js.
 //
 // Supported: cylinder-force, differential-thermal-expansion, press-fit,
-// Hertzian contact, shaft torsion, and the two beam calculators.
+// Hertzian contact, shaft torsion, the two beam calculators, and the
+// bolt-torque, moment, bearing-life, column-buckling, factor-of-safety,
+// fillet-weld, spring, stress-strain, thermal-expansion, thick-walled-cylinder
+// and thread-strength calculators (via their *-calculation.js engines).
 // ======================================================
 (function (root) {
     "use strict";
@@ -690,6 +693,703 @@
         }
     };
 
+    // ---------- Extended calculator library ----------
+    // Each adapter below delegates to the DOM-free engine extracted from its calculator page
+    // (js/<name>-calculation.js); no engineering formulas are repeated here.
+
+    const dimensionless = (label, unit) => unitGroup(label, [unit], unit, (value) => value, (value) => value, false);
+    const lengthChangeGroup = (label, options, defaultUnit) => distanceGroup(label, options, defaultUnit);
+    const num = (values, id) => (values[id] === null || values[id] === undefined ? NaN : values[id]);
+    const optionalNum = (values, id) => (values[id] === null || values[id] === undefined ? null : values[id]);
+    const labelMap = (pairs) => Object.fromEntries(pairs);
+    const forceUnitsList = ["N", "kN", "lbf"];
+
+    function numberedMaterialBinding(selectionId, inputId, property) {
+        return { selectionId, inputs: [{ id: inputId, property }] };
+    }
+
+    // ---------- Bolt Torque ----------
+
+    const boltTorque = {
+        id: "bolt-torque",
+        name: "Bolt Torque",
+        version: "1",
+        path: "calculators/bolt-torque.html",
+        groups: {
+            diameter: distanceGroup("nominal bolt diameter", ["mm", "in"], "mm"),
+            force: forceGroup("clamp load", "kN"),
+            factor: unitGroup("nut factor", ["K"], "K", (v) => v, (v) => v, false),
+            torque: momentGroup()
+        },
+        inputs: [
+            { id: "nominalDiameter", label: "Nominal bolt diameter (D)", group: "diameter", min: 0, minExclusive: true, sweepable: true },
+            { id: "clampLoad", label: "Target clamp load (F), assumed", group: "force", min: 0, minExclusive: true, sweepable: true },
+            { id: "nutFactor", label: "Nut factor (K), assumed", group: "factor", unit: "", min: 0, minExclusive: true, sweepable: true }
+        ],
+        outputs: [{ id: "torque", label: "Installation torque (T)", group: "torque", quantity: "torque" }],
+        equations: BOLT_TORQUE_EQUATIONS,
+        assumptions: [
+            "Simplified torque–preload relation T = K·D·F; the nut factor K lumps thread and bearing-face friction into one assumed number.",
+            "Nut factor and clamp load are explicit assumptions supplied by you, not predictions of the real preload or friction distribution.",
+            "The nominal diameter is entered directly; standard bolt sizes are not looked up in Design Studies."
+        ],
+        warnings: [
+            "Actual preload scatters widely with lubrication, surface finish, coatings and tightening method; this estimate does not predict it.",
+            "Bolt strength, proof load, joint stiffness and embedment are not checked."
+        ],
+        method: "Calls computeBoltTorque() with the SI-converted nominal diameter, assumed clamp load and assumed nut factor.",
+        calculate(values, units) {
+            const r = computeBoltTorque({
+                diameterM: convertDistance(num(values, "nominalDiameter"), units.diameter),
+                clampLoadN: convertForce(num(values, "clampLoad"), units.force),
+                nutFactor: num(values, "nutFactor")
+            });
+            return { torque: convertMomentToUnit(r.torqueNm, units.torque) };
+        }
+    };
+
+    // ---------- Moment ----------
+
+    const moment = {
+        id: "moment",
+        name: "Moment (Force × Distance)",
+        version: "1",
+        path: "calculators/moment.html",
+        groups: { force: forceGroup(), distance: distanceGroup("perpendicular distance", distanceUnits, "m"), moment: momentGroup() },
+        inputs: [
+            { id: "force", label: "Force (F, signed; sign sets moment sign)", group: "force", sweepable: true },
+            { id: "distance", label: "Perpendicular distance (d)", group: "distance", min: 0, minExclusive: true, sweepable: true }
+        ],
+        outputs: [{ id: "moment", label: "Moment (M, signed with force)", group: "moment", quantity: "moment" }],
+        equations: MOMENT_EQUATIONS,
+        assumptions: [
+            "A single force acting at a perpendicular distance from the reference point.",
+            "The moment keeps the sign of the entered force; the distance is a positive perpendicular distance.",
+            "No other load positions, force angles or arbitrary geometry are modeled."
+        ],
+        warnings: ["Enter the perpendicular (moment-arm) distance; resolve inclined forces into components first."],
+        method: "Calls computeMoment() with the SI-converted force and distance.",
+        calculate(values, units) {
+            const r = computeMoment({ forceN: convertForce(num(values, "force"), units.force), distanceM: convertDistance(num(values, "distance"), units.distance) });
+            return { moment: convertMomentToUnit(r.momentNm, units.moment) };
+        }
+    };
+
+    // ---------- Bearing Life ----------
+
+    const bearingLife = {
+        id: "bearing-life",
+        name: "Bearing Life (L10)",
+        version: "1",
+        path: "calculators/bearing-life.html",
+        groups: {
+            rating: forceGroup("dynamic load rating", "kN"),
+            load: forceGroup("equivalent dynamic load", "kN"),
+            speed: unitGroup("rotational speed", ["rpm", "rps"], "rpm", (v, u) => convertRotationalSpeed(v, u), (v, u) => convertRotationalSpeedToUnit(v, u)),
+            exponent: dimensionless("life exponent", "–"),
+            ratio: dimensionless("load ratio", "–"),
+            millionRev: dimensionless("L10 life", "million rev"),
+            revolutions: dimensionless("L10 life", "rev"),
+            hours: dimensionless("L10h life", "h")
+        },
+        inputs: [
+            categorical("bearingType", "Bearing type (life exponent)", ["ball", "roller"], { ball: "Ball bearing (p = 3)", roller: "Roller bearing (p = 10/3)" }),
+            { id: "dynamicLoadRating", label: "Basic dynamic load rating (C)", group: "rating", min: 0, minExclusive: true, sweepable: true },
+            { id: "equivalentLoad", label: "Equivalent dynamic load (P)", group: "load", min: 0, minExclusive: true, sweepable: true },
+            { id: "speed", label: "Rotational speed (n)", group: "speed", min: 0, minExclusive: true, sweepable: true }
+        ],
+        outputs: [
+            { id: "exponent", label: "Life exponent (p)", group: "exponent", quantity: "life-exponent", plottable: false },
+            { id: "loadRatio", label: "Load ratio (P/C)", group: "ratio", quantity: "ratio" },
+            { id: "lifeMillionRevolutions", label: "Basic rating life L10 (million revolutions)", group: "millionRev", quantity: "life-million-revolutions" },
+            { id: "lifeRevolutions", label: "Basic rating life L10 (revolutions)", group: "revolutions", quantity: "life-revolutions" },
+            { id: "lifeHours", label: "Basic rating life L10h (operating hours)", group: "hours", quantity: "time" }
+        ],
+        equations: BEARING_LIFE_EQUATIONS,
+        assumptions: [
+            "Basic rating life L10: 90 % reliability, standard bearing material and ideal lubrication; the exponent is 3 for ball and 10/3 for roller bearings.",
+            "C and P are supplied by you; P is the equivalent dynamic load including any radial/axial combination, which is not derived here.",
+            "Constant load and speed."
+        ],
+        warnings: [
+            "L10 is a statistical basic rating life, not a prediction of actual service life; no reliability, lubrication, contamination or misalignment life modification factors are applied.",
+            "Results with P ≥ C fall outside the normal range of the basic rating-life equation."
+        ],
+        method: "Calls computeBearingLife() with C and P in newtons and speed in rpm.",
+        calculate(values, units) {
+            const r = computeBearingLife({
+                bearingType: values.bearingType,
+                dynamicLoadRatingN: convertForce(num(values, "dynamicLoadRating"), units.rating),
+                equivalentLoadN: convertForce(num(values, "equivalentLoad"), units.load),
+                speedRpm: convertRotationalSpeed(num(values, "speed"), units.speed)
+            });
+            return {
+                exponent: r.exponent, loadRatio: r.loadRatio, lifeMillionRevolutions: r.lifeMillionRevolutions,
+                lifeRevolutions: r.lifeRevolutions, lifeHours: r.lifeHours
+            };
+        }
+    };
+
+    // ---------- Column Buckling ----------
+
+    const columnMaterials = materialsWithProperties("youngsModulus");
+    const columnBuckling = {
+        id: "column-buckling",
+        name: "Column Buckling (Euler)",
+        version: "1",
+        path: "calculators/column-buckling.html",
+        groups: {
+            distance: distanceGroup("column length and diameters", distanceUnits, "mm"),
+            inertia: inertiaGroup,
+            force: forceGroup("critical load", "kN"),
+            k: dimensionless("effective length factor", "K"),
+            effectiveLength: distanceGroup("effective length", distanceUnits, "mm")
+        },
+        inputs: [
+            categorical("sectionType", "Cross-section", ["solid", "hollow"], { solid: "Solid circular", hollow: "Hollow circular" }),
+            categorical("material", "Material (supplies Young's modulus)", columnMaterials, materialLabels),
+            { id: "length", label: "Column length (L)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "outerDiameter", label: "Outer diameter (D)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "innerDiameter", label: "Inner diameter (hollow sections only)", group: "distance", optional: true, min: 0, minExclusive: true, sweepable: true },
+            categorical("boundaryCondition", "End condition (K)", Object.keys(COLUMN_END_CONDITION_FACTORS), {
+                "fixed-free": "Fixed–free (K = 2.0)", "pinned-pinned": "Pinned–pinned (K = 1.0)",
+                "fixed-pinned": "Fixed–pinned (K = 0.699)", "fixed-fixed": "Fixed–fixed (K = 0.5)"
+            })
+        ],
+        outputs: [
+            { id: "inertia", label: "Area moment of inertia (I)", group: "inertia", quantity: "area-moment-of-inertia" },
+            { id: "kFactor", label: "Effective length factor (K)", group: "k", quantity: "effective-length-factor", plottable: false },
+            { id: "effectiveLength", label: "Effective length (KL)", group: "effectiveLength", quantity: "length" },
+            { id: "criticalLoad", label: "Euler critical buckling load (Pcr)", group: "force", quantity: "force" }
+        ],
+        equations: COLUMN_BUCKLING_EQUATIONS,
+        assumptions: [
+            "Euler elastic buckling of a straight, prismatic, concentrically loaded circular column (solid or hollow).",
+            "Idealized end conditions with the effective length factors K of the calculator; the selection is categorical.",
+            "Young's modulus is the selected material's database value; no material nonlinearity, imperfections or eccentricity.",
+            "Inner diameter is ignored for solid sections."
+        ],
+        warnings: [
+            "Euler's formula applies only to slender columns; short columns can yield or crush before buckling. Slenderness and yield are not checked.",
+            "Pcr is an ideal critical load, not an allowable load; no safety factor or design-code column curve is applied."
+        ],
+        method: "Calls computeColumnBuckling() with the SI-converted geometry, selected end condition and material modulus.",
+        calculate(values, units) {
+            if (!values.material) throw new Error("Please select a material.");
+            const hollow = values.sectionType === "hollow";
+            const inner = optionalNum(values, "innerDiameter");
+            const r = computeColumnBuckling({
+                sectionType: values.sectionType,
+                boundaryCondition: values.boundaryCondition,
+                lengthM: convertDistance(num(values, "length"), units.distance),
+                outerDiameterM: convertDistance(num(values, "outerDiameter"), units.distance),
+                innerDiameterM: hollow && inner !== null ? convertDistance(inner, units.distance) : null,
+                youngsModulusPa: getMaterialProperty(values.material, "youngsModulus")
+            });
+            return {
+                inertia: convertAreaMomentInertiaToUnit(r.inertiaM4, units.inertia), kFactor: r.kFactor,
+                effectiveLength: convertDistanceToUnit(r.effectiveLengthM, units.effectiveLength),
+                criticalLoad: convertForceToUnit(r.criticalLoadN, units.force)
+            };
+        }
+    };
+
+    // ---------- Factor of Safety ----------
+
+    const fosMaterials = materialsWithProperties("yieldStrength");
+    const factorOfSafety = {
+        id: "factor-of-safety",
+        name: "Factor of Safety",
+        version: "1",
+        path: "calculators/factor-of-safety.html",
+        groups: {
+            stress: stressGroup("strength and applied stress", ["Pa", "MPa", "GPa", "psi", "ksi"]),
+            force: forceGroup("failure and applied load", "kN"),
+            stressFactor: dimensionless("stress-based factor of safety", "×"),
+            loadFactor: dimensionless("load-based factor of safety", "×")
+        },
+        inputs: [
+            categorical("mode", "Factor-of-safety definition", ["stress", "load"], { stress: "Stress-based (strength ÷ applied stress)", load: "Load-based (failure load ÷ applied load)" }),
+            categorical("strengthSource", "Strength source (stress-based only)", ["direct", "material-yield", "material-tensile"], {
+                direct: "Direct entry", "material-yield": "Material yield strength", "material-tensile": "Material tensile strength"
+            }, true),
+            categorical("material", "Material (when strength source is a material)", materialsWithProperties(), materialLabels, true),
+            { id: "strength", label: "Strength (direct entry; stress-based)", group: "stress", optional: true, min: 0, minExclusive: true, sweepable: true },
+            { id: "appliedStress", label: "Applied stress (stress-based)", group: "stress", optional: true, min: 0, minExclusive: true, sweepable: true },
+            { id: "failureLoad", label: "Failure load (load-based)", group: "force", optional: true, min: 0, minExclusive: true, sweepable: true },
+            { id: "appliedLoad", label: "Applied load (load-based)", group: "force", optional: true, min: 0, minExclusive: true, sweepable: true }
+        ],
+        outputs: [
+            { id: "stressFactor", label: "Stress-based factor of safety (strength ÷ applied stress)", group: "stressFactor", quantity: "factor-of-safety-stress", optional: true },
+            { id: "loadFactor", label: "Load-based factor of safety (failure load ÷ applied load)", group: "loadFactor", quantity: "factor-of-safety-load", optional: true },
+            { id: "strengthUsed", label: "Strength used (stress-based)", group: "stress", quantity: "stress", optional: true }
+        ],
+        equations: FACTOR_OF_SAFETY_EQUATIONS.stress.concat(FACTOR_OF_SAFETY_EQUATIONS.load),
+        equationsFor(values) {
+            return FACTOR_OF_SAFETY_EQUATIONS[values.mode] ? FACTOR_OF_SAFETY_EQUATIONS[values.mode].slice() : [];
+        },
+        comparisonKey(scenario) {
+            const i = scenario.inputs;
+            return "mode:" + i.mode + (i.mode === "stress" ? "|source:" + (i.strengthSource || "") : "");
+        },
+        assumptions: [
+            "The factor of safety is the ratio of a specified capacity (strength or failure load) to a specified demand (applied stress or load); it is only as meaningful as those inputs.",
+            "Stress-based and load-based factors use different definitions and are never compared with each other.",
+            "A material strength source supplies the database yield or tensile strength; direct entry uses the strength typed here.",
+            "Only the inputs for the selected definition are used; the other definition's inputs are ignored."
+        ],
+        warnings: [
+            "FoS = 1 means the applied condition equals the specified strength or failure value, not that failure is imminent or acceptable.",
+            "Required factors of safety depend on codes, consequences and uncertainty; none is recommended here.",
+            "Different strength sources (yield, tensile, direct) give factors with different meanings."
+        ],
+        method: "Calls computeFactorOfSafety() for the selected definition; strength comes from direct entry or the selected material property.",
+        calculate(values, units) {
+            if (values.mode === "load") {
+                const r = computeFactorOfSafety({
+                    mode: "load", failureLoadN: convertForce(num(values, "failureLoad"), units.force),
+                    appliedLoadN: convertForce(num(values, "appliedLoad"), units.force)
+                });
+                return { loadFactor: r.factorOfSafety };
+            }
+            if (values.mode !== "stress") throw new Error("Select a stress-based or load-based factor of safety.");
+            const source = values.strengthSource;
+            let strengthPa;
+            if (source === "direct") strengthPa = convertStress(num(values, "strength"), units.stress);
+            else if (source === "material-yield" || source === "material-tensile") {
+                if (!values.material) throw new Error("Select a material for the chosen strength source.");
+                strengthPa = getMaterialProperty(values.material, source === "material-yield" ? "yieldStrength" : "tensileStrength");
+                if (!Number.isFinite(strengthPa)) throw new Error("The selected material does not include that strength property. Use direct entry.");
+            } else throw new Error("Select a strength source.");
+            const r = computeFactorOfSafety({ mode: "stress", strengthPa, appliedStressPa: convertStress(num(values, "appliedStress"), units.stress) });
+            return { stressFactor: r.factorOfSafety, strengthUsed: convertStressToUnit(strengthPa, units.stress) };
+        }
+    };
+
+    // ---------- Fillet Weld ----------
+
+    const filletWeld = {
+        id: "fillet-weld",
+        name: "Fillet Weld Strength",
+        version: "1",
+        path: "calculators/fillet-weld.html",
+        groups: {
+            leg: distanceGroup("weld leg size", ["mm", "cm", "in"], "mm"),
+            length: distanceGroup("weld length", ["mm", "cm", "in"], "mm"),
+            force: forceGroup("force", "kN"),
+            stress: stressGroup("filler-metal stress", ["MPa", "GPa", "psi", "ksi"]),
+            area: areaGroup,
+            utilization: dimensionless("capacity utilization", "×")
+        },
+        inputs: [
+            { id: "weldLeg", label: "Weld leg size (w)", group: "leg", min: 0, minExclusive: true, sweepable: true },
+            { id: "weldLength", label: "Weld length (L)", group: "length", min: 0, minExclusive: true, sweepable: true },
+            categorical("electrode", "Electrode classification (F_EXX)", Object.keys(filletWeldElectrodes), {
+                E60XX: "E60XX (60 ksi)", E70XX: "E70XX (70 ksi)", E80XX: "E80XX (80 ksi)"
+            }),
+            categorical("loadDirection", "Load direction to weld axis", ["0", "90"], { 0: "0° (longitudinal)", 90: "90° (transverse)" }),
+            categorical("designMethod", "Design method", ["LRFD", "ASD"], { LRFD: "LRFD (φ = 0.75)", ASD: "ASD (Ω = 2.00)" }),
+            { id: "appliedLoad", label: "Applied load (optional, factored for LRFD / service for ASD)", group: "force", optional: true, min: 0, sweepable: true }
+        ],
+        outputs: [
+            { id: "throat", label: "Effective throat (a_e)", group: "leg", quantity: "length" },
+            { id: "area", label: "Effective weld area (A_w)", group: "area", quantity: "area" },
+            { id: "fexx", label: "Electrode strength (F_EXX)", group: "stress", quantity: "stress" },
+            { id: "nominalStress", label: "Nominal weld stress (F_nw)", group: "stress", quantity: "stress" },
+            { id: "nominalStrength", label: "Nominal strength (R_n)", group: "force", quantity: "force" },
+            { id: "lrfdStrength", label: "LRFD design strength (φR_n)", group: "force", quantity: "force" },
+            { id: "asdStrength", label: "ASD allowable strength (R_n/Ω)", group: "force", quantity: "force" },
+            { id: "designCapacity", label: "Design capacity (selected method)", group: "force", quantity: "design-capacity" },
+            { id: "requiredLeg", label: "Required leg size for the applied load", group: "leg", quantity: "length", optional: true },
+            { id: "utilization", label: "Utilization (load ÷ design capacity)", group: "utilization", quantity: "utilization", optional: true },
+            { id: "remainingCapacity", label: "Remaining capacity (design capacity − load)", group: "force", quantity: "force", optional: true }
+        ],
+        equations: FILLET_WELD_EQUATIONS,
+        comparisonKey: (scenario) => "method:" + scenario.inputs.designMethod,
+        assumptions: [
+            "Direct-load AISC 360 Chapter J2 fillet-weld strength with a single load direction relative to the weld axis (0° or 90°).",
+            "Effective throat is 0.707 times the leg size for equal-leg welds; weld metal strength only (no base-metal check).",
+            "LRFD and ASD capacities are different definitions; scenarios using different methods are not compared.",
+            "Eccentric loading, combined loading, weld groups and fatigue are not modeled."
+        ],
+        warnings: [
+            "Check base-metal strength, minimum/maximum weld size, end returns and applicable code provisions separately.",
+            "Capacity is for the selected design method only; an LRFD load must be factored and an ASD load a service load."
+        ],
+        method: "Calls computeFilletWeldChecked() with the SI-converted weld size, length, electrode, load direction, method and optional applied load.",
+        calculate(values, units) {
+            const load = optionalNum(values, "appliedLoad");
+            const r = computeFilletWeldChecked({
+                legM: convertDistance(num(values, "weldLeg"), units.leg),
+                lengthM: convertDistance(num(values, "weldLength"), units.length),
+                electrode: values.electrode,
+                angleDeg: values.loadDirection === null || values.loadDirection === undefined ? NaN : Number(values.loadDirection),
+                method: values.designMethod,
+                loadN: load === null ? null : convertForce(load, units.force)
+            });
+            const force = (v) => convertForceToUnit(v, units.force);
+            const out = {
+                throat: convertDistanceToUnit(r.throatM, units.leg), area: convertAreaToUnit(r.areaM2, units.area),
+                fexx: convertStressToUnit(r.FexxPa, units.stress), nominalStress: convertStressToUnit(r.Fnw, units.stress),
+                nominalStrength: force(r.nominalN), lrfdStrength: force(r.lrfdN), asdStrength: force(r.asdN), designCapacity: force(r.designN)
+            };
+            if (load !== null) {
+                out.requiredLeg = convertDistanceToUnit(r.requiredLegM, units.leg);
+                out.utilization = r.utilization;
+                out.remainingCapacity = force(r.remainingN);
+            }
+            return out;
+        }
+    };
+
+    // ---------- Helical Spring ----------
+
+    const springRateUnits = { "N/mm": ["N", "mm"], "N/m": ["N", "m"], "kN/m": ["kN", "m"], "lbf/in": ["lbf", "in"], "lbf/ft": ["lbf", "ft"] };
+    const springMaterials = materialsWithProperties("shearModulus");
+    const helicalSpring = {
+        id: "spring-calculations",
+        name: "Helical Compression Spring",
+        version: "1",
+        path: "calculators/spring-calculations.html",
+        groups: {
+            distance: distanceGroup("wire and coil diameter", distanceUnits, "mm"),
+            force: forceGroup("axial force", "N"),
+            modulus: unitGroup("shear modulus", ["GPa", "MPa", "psi", "ksi"], "GPa", (v, u) => convertModulus(v, u), (v, u) => convertModulusToUnit(v, u)),
+            stress: stressGroup("shear stress", ["MPa", "GPa", "psi", "ksi"]),
+            deflection: distanceGroup("deflection", distanceUnits, "mm"),
+            rate: unitGroup("spring rate", Object.keys(springRateUnits), "N/mm",
+                (v, u) => convertForce(v, springRateUnits[u][0]) / convertDistance(1, springRateUnits[u][1]),
+                (v, u) => convertForceToUnit(v * convertDistance(1, springRateUnits[u][1]), springRateUnits[u][0])),
+            index: dimensionless("spring index", "C"),
+            wahl: dimensionless("Wahl factor", "K_W")
+        },
+        inputs: [
+            { id: "wireDiameter", label: "Wire diameter (d)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "meanDiameter", label: "Mean coil diameter (D)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "activeCoils", label: "Active coils (N_a)", group: null, unit: "", min: 0, minExclusive: true, sweepable: true },
+            { id: "force", label: "Applied axial force (F)", group: "force", min: 0, sweepable: true },
+            categorical("material", "Spring material (supplies shear modulus)", springMaterials, materialLabels, true),
+            { id: "shearModulus", label: "Shear modulus (G)", group: "modulus", min: 0, minExclusive: true, sweepable: true }
+        ],
+        materialBindings: [numberedMaterialBinding("material", "shearModulus", "shearModulus")],
+        outputs: [
+            { id: "rate", label: "Spring rate (k)", group: "rate", quantity: "spring-rate" },
+            { id: "index", label: "Spring index (C = D/d)", group: "index", quantity: "spring-index", plottable: true },
+            { id: "deflection", label: "Axial deflection (δ)", group: "deflection", quantity: "length" },
+            { id: "wahlFactor", label: "Wahl correction factor (K_W)", group: "wahl", quantity: "wahl-factor" },
+            { id: "shearStress", label: "Corrected maximum shear stress (τ_max)", group: "stress", quantity: "stress" }
+        ],
+        equations: SPRING_EQUATIONS,
+        assumptions: [
+            "Round-wire helical compression spring with constant coil diameter and linear elastic behavior.",
+            "Spring rate uses the active coils entered; end-coil treatment is your responsibility.",
+            "Shear stress includes the Wahl curvature/direct-shear correction factor.",
+            "A selected material supplies its database shear modulus; a directly entered value takes precedence."
+        ],
+        warnings: [
+            "Fatigue, buckling, coil contact (solid height), relaxation and set removal are not evaluated.",
+            "Stress is not compared with any allowable value; check against the material's torsional yield and fatigue limits."
+        ],
+        method: "Calls computeSpring() with SI-converted wire and coil diameters, active coils, force and shear modulus.",
+        calculate(values, units) {
+            const modulus = materialInput(helicalSpring, values, units, "material", "shearModulus", "shearModulus");
+            const r = computeSpring({
+                wireDiameterM: convertDistance(num(values, "wireDiameter"), units.distance),
+                meanDiameterM: convertDistance(num(values, "meanDiameter"), units.distance),
+                activeCoils: num(values, "activeCoils"), forceN: convertForce(num(values, "force"), units.force),
+                shearModulusPa: convertModulus(modulus, units.modulus)
+            });
+            return {
+                rate: helicalSpring.groups.rate.fromBase(r.rateNPerM, units.rate), index: r.index,
+                deflection: convertDistanceToUnit(r.deflectionM, units.deflection), wahlFactor: r.wahlFactor,
+                shearStress: convertStressToUnit(r.shearStressPa, units.stress)
+            };
+        }
+    };
+
+    // ---------- Stress & Strain ----------
+
+    const stressStrainModes = { stress: "Stress (σ = F/A)", strain: "Strain (ε = ΔL/L₀)", youngsModulus: "Young's modulus (E = σ/ε)", deformation: "Elongation (ΔL = FL₀/AE)" };
+    const stressStrain = {
+        id: "stress-strain",
+        name: "Stress & Strain",
+        version: "1",
+        path: "calculators/stress-strain.html",
+        groups: {
+            force: forceGroup(),
+            area: areaGroup,
+            length: distanceGroup("original length", distanceUnits, "mm"),
+            deltaLength: lengthChangeGroup("length change", ["mm", "cm", "m", "in"], "mm"),
+            modulus: modulusGroup,
+            stress: stressGroup("stress", ["MPa", "GPa", "Pa", "psi", "ksi"]),
+            strain: dimensionless("strain", "m/m"),
+            elasticModulus: unitGroup("modulus output", ["MPa", "GPa", "Pa", "psi", "ksi"], "GPa", (v, u) => convertStress(v, u), (v, u) => convertStressToUnit(v, u)),
+            elongation: lengthChangeGroup("elongation", ["mm", "cm", "m", "in"], "mm")
+        },
+        inputs: [
+            categorical("mode", "Calculation mode (what is solved for)", Object.keys(stressStrainModes), stressStrainModes),
+            { id: "force", label: "Axial force (F; stress, modulus, elongation modes)", group: "force", optional: true, sweepable: true },
+            { id: "area", label: "Cross-sectional area (A; stress, modulus, elongation modes)", group: "area", optional: true, min: 0, minExclusive: true, sweepable: true },
+            { id: "originalLength", label: "Original length (L₀; strain, elongation modes)", group: "length", optional: true, min: 0, minExclusive: true, sweepable: true },
+            { id: "deltaLength", label: "Change in length (ΔL; strain mode)", group: "deltaLength", optional: true, sweepable: true },
+            { id: "strain", label: "Strain (ε; modulus mode)", group: null, unit: "m/m", optional: true, sweepable: true },
+            categorical("material", "Material (fills Young's modulus; elongation mode)", materialsWithProperties("youngsModulus"), materialLabels, true),
+            { id: "youngsModulus", label: "Young's modulus (E; elongation mode)", group: "modulus", optional: true, min: 0, minExclusive: true, sweepable: true }
+        ],
+        materialBindings: [numberedMaterialBinding("material", "youngsModulus", "youngsModulus")],
+        outputs: [
+            { id: "stress", label: "Normal stress (σ)", group: "stress", quantity: "stress", optional: true },
+            { id: "strain", label: "Normal strain (ε)", group: "strain", quantity: "strain", optional: true },
+            { id: "modulus", label: "Young's modulus (E = σ/ε)", group: "elasticModulus", quantity: "elastic-modulus", optional: true },
+            { id: "elongation", label: "Elongation (ΔL)", group: "elongation", quantity: "length-change", optional: true }
+        ],
+        equations: Object.values(STRESS_STRAIN_EQUATIONS).flat(),
+        equationsFor(values) {
+            return STRESS_STRAIN_EQUATIONS[values.mode] ? STRESS_STRAIN_EQUATIONS[values.mode].slice() : [];
+        },
+        comparisonKey: (scenario) => "mode:" + scenario.inputs.mode,
+        assumptions: [
+            "Uniform axial stress in a prismatic bar; linear-elastic, isotropic material within the proportional limit.",
+            "Each mode solves for one quantity from its own inputs; stress, strain, modulus and elongation are different physical quantities and are never compared with each other.",
+            "In elongation mode a selected material supplies Young's modulus; a directly entered value takes precedence.",
+            "Inputs not used by the selected mode are ignored."
+        ],
+        warnings: [
+            "Results are not checked against yield or ultimate strength; do not extrapolate beyond the elastic range.",
+            "Stress concentrations, buckling in compression and thermal effects are not included."
+        ],
+        method: "Calls computeStressStrain() for the selected mode with SI-converted inputs.",
+        calculate(values, units) {
+            const optional = (id, convert) => (values[id] === null || values[id] === undefined ? undefined : convert(values[id]));
+            const mode = values.mode;
+            const args = {
+                mode,
+                forceN: optional("force", (v) => convertForce(v, units.force)),
+                areaM2: optional("area", (v) => convertArea(v, units.area)),
+                originalLengthM: optional("originalLength", (v) => convertDistance(v, units.length)),
+                deltaLengthM: optional("deltaLength", (v) => convertDistance(v, units.deltaLength)),
+                strain: optional("strain", (v) => v)
+            };
+            if (mode === "deformation") {
+                args.modulusPa = convertModulus(materialInput(stressStrain, values, units, "material", "youngsModulus", "youngsModulus"), units.modulus);
+            }
+            const r = computeStressStrain(args);
+            const out = {};
+            if (r.stressPa !== undefined) out.stress = convertStressToUnit(r.stressPa, units.stress);
+            if (r.strain !== undefined) out.strain = r.strain;
+            if (r.modulusPa !== undefined) out.modulus = convertStressToUnit(r.modulusPa, units.elasticModulus);
+            if (r.deltaLengthM !== undefined) out.elongation = convertDistanceToUnit(r.deltaLengthM, units.elongation);
+            return out;
+        }
+    };
+
+    // ---------- Thermal Expansion ----------
+
+    const thermalMaterials = materialsWithProperties("thermalExpansionCoefficient");
+    const thermalExpansion = {
+        id: "thermal-expansion",
+        name: "Thermal Expansion",
+        version: "1",
+        path: "calculators/thermal-expansion.html",
+        groups: {
+            alpha: unitGroup("coefficient of thermal expansion", ["1/°C", "1/K"], "1/°C", (v) => v, (v) => v, false),
+            length: distanceGroup("original length", distanceUnits, "mm"),
+            temperature: unitGroup("temperature change", ["°C", "K", "°F"], "°C", (v, u) => convertTemperatureChange(v, u), (v, u) => (u === "°F" ? v * 1.8 : v), false),
+            modulus: modulusGroup,
+            outputLength: distanceGroup("length output", ["mm", "m", "in"], "mm"),
+            stress: stressGroup("thermal stress", ["MPa", "GPa", "Pa", "psi", "ksi"]),
+            strain: dimensionless("thermal strain", "m/m")
+        },
+        inputs: [
+            categorical("condition", "Boundary condition", ["free", "restrained"], { free: "Free expansion", restrained: "Fully restrained (thermal stress)" }),
+            categorical("material", "Material (fills α and E)", materialsWithProperties("thermalExpansionCoefficient"), materialLabels, true),
+            { id: "alpha", label: "Coefficient of thermal expansion (α)", group: "alpha", min: 0, minExclusive: true, sweepable: true },
+            { id: "originalLength", label: "Original length (L₀)", group: "length", min: 0, minExclusive: true, sweepable: true },
+            { id: "temperatureChange", label: "Temperature change (ΔT, signed interval)", group: "temperature", sweepable: true },
+            { id: "youngsModulus", label: "Young's modulus (E; restrained only)", group: "modulus", optional: true, min: 0, minExclusive: true, sweepable: true }
+        ],
+        materialBindings: [{
+            selectionId: "material",
+            inputs: [{ id: "alpha", property: "thermalExpansionCoefficient" }, { id: "youngsModulus", property: "youngsModulus" }]
+        }],
+        outputs: [
+            { id: "expansion", label: "Free length change (ΔL)", group: "outputLength", quantity: "length-change" },
+            { id: "finalLength", label: "Final free length (L_f)", group: "outputLength", quantity: "length" },
+            { id: "thermalStrain", label: "Thermal strain (ε = αΔT)", group: "strain", quantity: "strain" },
+            { id: "restrainedStress", label: "Fully restrained thermal stress (σ, signed)", group: "stress", quantity: "restrained-thermal-stress", optional: true }
+        ],
+        equations: THERMAL_EXPANSION_EQUATIONS.free.concat(THERMAL_EXPANSION_EQUATIONS.restrained),
+        equationsFor(values) {
+            if (values.condition === "free") return THERMAL_EXPANSION_EQUATIONS.free.slice();
+            if (values.condition === "restrained") return THERMAL_EXPANSION_EQUATIONS.free.concat(THERMAL_EXPANSION_EQUATIONS.restrained);
+            return [];
+        },
+        comparisonKey: (scenario) => "condition:" + scenario.inputs.condition,
+        assumptions: [
+            "Uniform temperature change and constant coefficient α over the range; isotropic, linear-elastic material.",
+            "Free expansion reports the unrestrained length change, final length and thermal strain.",
+            "Restrained stress assumes the member is fully prevented from expanding (rigid supports); it is a compression for heating and a tension for cooling.",
+            "A selected material supplies α and E; directly entered values take precedence. E is used only for the restrained condition."
+        ],
+        warnings: [
+            "Free and restrained conditions are different physical situations; the restrained stress is an upper bound for rigid constraint.",
+            "Buckling, yielding, support compliance and temperature gradients are not evaluated."
+        ],
+        method: "Calls computeThermalExpansion() with SI-converted length and temperature interval; modulus is passed only for the restrained condition.",
+        calculate(values, units) {
+            if (values.condition !== "free" && values.condition !== "restrained") throw new Error("Select free or fully restrained expansion.");
+            const alpha = materialInput(thermalExpansion, values, units, "material", "alpha", "thermalExpansionCoefficient");
+            let modulusPa = null;
+            if (values.condition === "restrained") {
+                modulusPa = convertModulus(materialInput(thermalExpansion, values, units, "material", "youngsModulus", "youngsModulus"), units.modulus);
+                if (!Number.isFinite(modulusPa)) throw new Error("Enter Young's modulus or select a material for restrained thermal stress.");
+            }
+            const r = computeThermalExpansion({
+                alpha, originalLengthM: convertDistance(num(values, "originalLength"), units.length),
+                deltaTC: convertTemperatureChange(num(values, "temperatureChange"), units.temperature), modulusPa
+            });
+            const out = {
+                expansion: convertDistanceToUnit(r.deltaLM, units.outputLength), finalLength: convertDistanceToUnit(r.finalLengthM, units.outputLength),
+                thermalStrain: r.thermalStrain
+            };
+            if (r.thermalStressPa !== null) out.restrainedStress = convertStressToUnit(r.thermalStressPa, units.stress);
+            return out;
+        }
+    };
+
+    // ---------- Thick-Walled Cylinder ----------
+
+    const thickWalled = {
+        id: "thick-walled-cylinder",
+        name: "Thick-Walled Cylinder (Lamé)",
+        version: "1",
+        path: "calculators/thick-walled-cylinder.html",
+        groups: {
+            distance: distanceGroup("inner and outer diameter", distanceUnits, "mm"),
+            pressure: stressGroup("pressure", ["MPa", "bar", "kPa", "Pa", "GPa", "psi", "ksi"]),
+            stress: stressGroup("stress", ["MPa", "bar", "kPa", "Pa", "GPa", "psi", "ksi"])
+        },
+        inputs: [
+            { id: "innerDiameter", label: "Inner diameter (2a)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "outerDiameter", label: "Outer diameter (2b)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "internalPressure", label: "Internal gauge pressure (p_i)", group: "pressure", min: 0, sweepable: true },
+            { id: "externalPressure", label: "External gauge pressure (p_o)", group: "pressure", min: 0, sweepable: true },
+            categorical("endCondition", "End condition", ["closed", "open"], { closed: "Closed ends (axial stress carried)", open: "Open / free ends (axial stress = 0)" })
+        ],
+        outputs: [
+            { id: "innerRadial", label: "Radial stress at inner surface", group: "stress", quantity: "stress" },
+            { id: "innerHoop", label: "Hoop stress at inner surface", group: "stress", quantity: "stress" },
+            { id: "midRadial", label: "Radial stress at mid-wall", group: "stress", quantity: "stress" },
+            { id: "midHoop", label: "Hoop stress at mid-wall", group: "stress", quantity: "stress" },
+            { id: "outerRadial", label: "Radial stress at outer surface", group: "stress", quantity: "stress" },
+            { id: "outerHoop", label: "Hoop stress at outer surface", group: "stress", quantity: "stress" },
+            { id: "axialStress", label: "Axial stress (uniform)", group: "stress", quantity: "stress" },
+            { id: "governingHoop", label: "Governing hoop stress (signed, larger magnitude surface)", group: "stress", quantity: "stress" }
+        ],
+        equations: THICK_CYLINDER_EQUATIONS,
+        comparisonKey: (scenario) => "end:" + scenario.inputs.endCondition,
+        assumptions: THICK_CYLINDER_ASSUMPTIONS,
+        warnings: [
+            "Closed-end and open-end scenarios have different axial stress and are not compared with each other.",
+            "No yield, fatigue or von Mises check is performed; stresses are elastic Lamé values."
+        ],
+        method: "Calls computeThickCylinder() with SI-converted radii (diameter ÷ 2), pressures and the selected end condition.",
+        calculate(values, units) {
+            const r = computeThickCylinder({
+                innerRadius: convertDistance(num(values, "innerDiameter"), units.distance) / 2,
+                outerRadius: convertDistance(num(values, "outerDiameter"), units.distance) / 2,
+                internalPressure: convertStress(num(values, "internalPressure"), units.pressure),
+                externalPressure: convertStress(num(values, "externalPressure"), units.pressure),
+                endCondition: values.endCondition
+            });
+            const s = (v) => convertStressToUnit(v, units.stress);
+            return {
+                innerRadial: s(r.inner.radial), innerHoop: s(r.inner.hoop), midRadial: s(r.mid.radial), midHoop: s(r.mid.hoop),
+                outerRadial: s(r.outer.radial), outerHoop: s(r.outer.hoop), axialStress: s(r.axial), governingHoop: s(r.governing.hoop)
+            };
+        }
+    };
+
+    // ---------- Thread Strength ----------
+
+    const threadMaterials = materialsWithProperties("tensileStrength");
+    const threadStrength = {
+        id: "thread-strength",
+        name: "Thread Strength",
+        version: "1",
+        path: "calculators/thread-strength.html",
+        groups: {
+            distance: distanceGroup("major diameter and engagement length", distanceUnits, "mm"),
+            pitch: unitGroup("thread pitch", ["mm", "in", "TPI"], "mm",
+                (v, u) => (u === "TPI" ? 0.0254 / v : convertDistance(v, u)),
+                (v, u) => (u === "TPI" ? 0.0254 / v : convertDistanceToUnit(v, u)), false),
+            area: areaGroup,
+            force: forceGroup("force and capacity", "kN"),
+            strength: stressGroup("strength and stress", ["MPa", "GPa", "psi", "ksi"]),
+            utilization: dimensionless("utilization", "%")
+        },
+        inputs: [
+            { id: "majorDiameter", label: "Nominal major diameter (D)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "threadPitch", label: "Thread pitch (P)", group: "pitch", min: 0, minExclusive: true, sweepable: true },
+            { id: "tensileStressArea", label: "Tensile stress area (A_t)", group: "area", min: 0, minExclusive: true, sweepable: true },
+            { id: "engagementLength", label: "Thread engagement length (L_e)", group: "distance", min: 0, minExclusive: true, sweepable: true },
+            { id: "appliedLoad", label: "Applied tensile load (F)", group: "force", min: 0, sweepable: true },
+            categorical("boltMaterial", "Fastener material (fills tensile strength)", threadMaterials, materialLabels, true),
+            { id: "boltStrength", label: "Fastener tensile strength (S_u)", group: "strength", min: 0, minExclusive: true, sweepable: true },
+            categorical("internalMaterial", "Internal-thread material (fills tensile strength)", threadMaterials, materialLabels, true),
+            { id: "internalStrength", label: "Internal-thread tensile strength (optional; enables stripping check)", group: "strength", optional: true, min: 0, minExclusive: true, sweepable: true }
+        ],
+        materialBindings: [
+            numberedMaterialBinding("boltMaterial", "boltStrength", "tensileStrength"),
+            numberedMaterialBinding("internalMaterial", "internalStrength", "tensileStrength")
+        ],
+        outputs: [
+            { id: "fastenerCapacity", label: "Fastener tensile capacity (A_t·S_u)", group: "force", quantity: "force" },
+            { id: "appliedStress", label: "Applied tensile stress (F/A_t)", group: "strength", quantity: "stress" },
+            { id: "fastenerUtilization", label: "Fastener tensile utilization (F ÷ capacity)", group: "utilization", quantity: "utilization" },
+            { id: "internalShearArea", label: "Approximate internal-thread shear area", group: "area", quantity: "area", optional: true },
+            { id: "strippingCapacity", label: "Internal-thread stripping capacity (approximate)", group: "force", quantity: "force", optional: true },
+            { id: "strippingUtilization", label: "Internal-thread stripping utilization (F ÷ capacity)", group: "utilization", quantity: "utilization", optional: true },
+            { id: "governingCapacity", label: "Lower of the assessed capacities (governing)", group: "force", quantity: "force" }
+        ],
+        equations: THREAD_STRENGTH_EQUATIONS,
+        assumptions: [
+            "Preliminary check of two distinct failure modes: fastener tensile capacity and approximate internal-thread stripping.",
+            "Stripping uses an approximate shear area 0.5413·π·D·L_e and a von Mises shear factor of 0.577 on the internal-thread strength; the load is assumed to engage the whole length uniformly.",
+            "No thread-by-thread load distribution, pitch-dependent stripping area or external-thread stripping is modeled.",
+            "A selected material supplies its tensile strength; a directly entered value takes precedence.",
+            "The governing failure mode is named on the source calculator page; Design Studies reports only the numeric lower capacity, and the two utilizations show which mode is closer to its limit."
+        ],
+        warnings: [
+            "Engagement outside roughly 1–2 nominal diameters, or a pitch not smaller than the diameter, is outside the intended preliminary range.",
+            "Capacities are not allowable loads; no safety factor, preload, fatigue or thread tolerance effects are applied."
+        ],
+        method: "Calls computeThreadStrength() with SI-converted geometry, load and strengths; internal-thread strength is optional.",
+        calculate(values, units) {
+            const internal = materialInput(threadStrength, values, units, "internalMaterial", "internalStrength", "tensileStrength");
+            const r = computeThreadStrength({
+                diameterM: convertDistance(num(values, "majorDiameter"), units.distance),
+                pitchM: threadStrength.groups.pitch.toBase(num(values, "threadPitch"), units.pitch),
+                engagementM: convertDistance(num(values, "engagementLength"), units.distance),
+                stressAreaM2: convertArea(num(values, "tensileStressArea"), units.area),
+                forceN: convertForce(num(values, "appliedLoad"), units.force),
+                boltStrengthPa: convertStress(materialInput(threadStrength, values, units, "boltMaterial", "boltStrength", "tensileStrength"), units.strength),
+                internalStrengthPa: Number.isFinite(internal) ? convertStress(internal, units.strength) : null
+            });
+            const force = (v) => convertForceToUnit(v, units.force);
+            const out = {
+                fastenerCapacity: force(r.boltCapacityN), appliedStress: convertStressToUnit(r.appliedStressPa, units.strength),
+                fastenerUtilization: r.boltUtilization * 100, governingCapacity: force(r.governingCapacityN)
+            };
+            if (r.internalCapacityN !== null) {
+                out.internalShearArea = convertAreaToUnit(r.internalShearAreaM2, units.area);
+                out.strippingCapacity = force(r.internalCapacityN);
+                out.strippingUtilization = r.internalUtilization * 100;
+            }
+            return out;
+        }
+    };
+
     Studies.registerAdapter(cylinder);
     Studies.registerAdapter(differentialThermal);
     Studies.registerAdapter(pressFit);
@@ -697,4 +1397,15 @@
     Studies.registerAdapter(shaftTorsion);
     Studies.registerAdapter(beamBending);
     Studies.registerAdapter(beamDeflection);
+    Studies.registerAdapter(boltTorque);
+    Studies.registerAdapter(moment);
+    Studies.registerAdapter(bearingLife);
+    Studies.registerAdapter(columnBuckling);
+    Studies.registerAdapter(factorOfSafety);
+    Studies.registerAdapter(filletWeld);
+    Studies.registerAdapter(helicalSpring);
+    Studies.registerAdapter(stressStrain);
+    Studies.registerAdapter(thermalExpansion);
+    Studies.registerAdapter(thickWalled);
+    Studies.registerAdapter(threadStrength);
 })(window);

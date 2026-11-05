@@ -7,11 +7,13 @@ const scripts = [
     'js/beam-deflection-diagram.js',
     'js/cylinder-force.js', 'js/differential-thermal-expansion.js',
     'js/press-fit-calculation.js', 'js/hertzian-contact-calculation.js',
-    'js/shaft-torsion-calculation.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js',
+    'js/shaft-torsion-calculation.js', 'js/bolt-torque-calculation.js', 'js/moment-calculation.js', 'js/bearing-life-calculation.js', 'js/column-buckling-calculation.js', 'js/factor-of-safety-calculation.js', 'js/fillet-weld-calculation.js', 'js/spring-calculation.js', 'js/stress-strain-calculation.js', 'js/thermal-expansion-calculation.js', 'js/thick-walled-cylinder-calculation.js', 'js/thread-strength-calculation.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js',
     'js/design-study-core.js', 'js/design-study-adapters.js', 'js/design-study-context.js', 'js/study-chart.js', 'js/design-studies.js'
 ];
 
-const IDS = ['cylinder-force', 'differential-thermal-expansion', 'press-fit', 'hertzian-contact', 'shaft-torsion', 'beam-bending-stress', 'beam-deflection'];
+const IDS = ['cylinder-force', 'differential-thermal-expansion', 'press-fit', 'hertzian-contact', 'shaft-torsion', 'beam-bending-stress', 'beam-deflection',
+    'bolt-torque', 'moment', 'bearing-life', 'column-buckling', 'factor-of-safety', 'fillet-weld', 'spring-calculations', 'stress-strain',
+    'thermal-expansion', 'thick-walled-cylinder', 'thread-strength'];
 
 function load(storageState) {
     const dom = new JSDOM(fs.readFileSync('design-studies.html', 'utf8'), { runScripts: 'dangerously', url: 'http://localhost/design-studies.html' });
@@ -40,7 +42,7 @@ function expectSafe(markup) {
 }
 
 describe('Design Studies engineering context', () => {
-    it('shows adapter-sourced context and the matching diagram for all seven adapters, before any calculation', () => {
+    it('shows adapter-sourced context and the matching diagram for every adapter, before any calculation', () => {
         const { window, document } = load();
         const S = window.FormulaFoundryStudies;
         IDS.forEach((id) => {
@@ -51,7 +53,7 @@ describe('Design Studies engineering context', () => {
             adapter.assumptions.forEach((a) => expect(theory.textContent).toContain(a));
             adapter.warnings.forEach((w) => expect(theory.textContent).toContain(w));
             const equations = theory.querySelectorAll('.ctx-equation');
-            if (id === 'beam-deflection') {
+            if (['beam-deflection', 'factor-of-safety', 'stress-strain', 'thermal-expansion'].includes(id)) {
                 expect(equations.length).toBe(0);
             } else {
                 expect(equations.length).toBeGreaterThan(0);
