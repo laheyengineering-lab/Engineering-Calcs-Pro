@@ -99,9 +99,57 @@ describe('calculator diagram renderers', () => {
         expect(registry.render(document, 'thermal-expansion', { length: 1, deltaT: 5 }).textContent).toMatch(/exaggerated/i);
     });
 
+    it('renders zero strain and zero temperature change without deformation or stress indicators', () => {
+        const strain = registry.render(document, 'stress-strain', { force: 10, area: 2, length: 1, deltaLength: 0 });
+        expect(strain.textContent).toContain('Zero deformation');
+        expect(strain.querySelectorAll('.ff-arrow-force')).toHaveLength(0);
+        const thermal = registry.render(document, 'thermal-expansion', { length: 1, deltaT: 0, deltaLength: 0, stress: 120 });
+        expect(thermal.textContent).toContain('no thermal deformation or stress');
+        expect(thermal.querySelectorAll('.ff-arrow-motion, .ff-arrow-reaction')).toHaveLength(0);
+        expect(thermal.textContent).not.toContain('compressive σ');
+        expect(thermal.textContent).not.toContain('tensile σ');
+    });
+
+    it('keeps the moment graphic schematic and the T-section topology and centroid consistent', () => {
+        const moment = registry.render(document, 'moment', { force: 5, forceUnit: 'N', distance: 2, distanceUnit: 'm' });
+        expect(moment.getAttribute('viewBox')).toBe('0 0 520 300');
+        expect(moment.textContent).not.toMatch(/position vector|line of action/);
+        const xAxis = registry.render(document, 'beam-bending-stress', {
+            profile: 't-section', axis: 'x', moment: 10, momentUnit: 'N·m', centroidXRatio: 0.5, centroidYRatio: 0.7, c: 0.08, distanceUnit: 'm'
+        });
+        const yAxis = registry.render(document, 'beam-bending-stress', {
+            profile: 't-section', axis: 'y', moment: -10, momentUnit: 'N·m', centroidXRatio: 0.5, centroidYRatio: 0.7, c: 0.05, distanceUnit: 'm'
+        });
+        expect(xAxis.querySelector('.ff-section-path').getAttribute('d')).toBe(yAxis.querySelector('.ff-section-path').getAttribute('d'));
+        expect(Number(xAxis.querySelector('.ff-neutral-axis').getAttribute('y1'))).toBeCloseTo(197.6, 1);
+        expect(xAxis.textContent).toContain('c = 0.08 m');
+        expect(yAxis.textContent).toMatch(/Tension/);
+        expect(yAxis.textContent).toMatch(/Compression/);
+    });
+
     it('does not imply thermal stress for free expansion and flags no restraint in DTE', () => {
         expect(registry.render(document, 'thermal-expansion', { deltaT: 5 }).textContent).toContain('no thermal stress');
         expect(registry.render(document, 'differential-thermal-expansion', MODELS['differential-thermal-expansion'][0]).textContent).toContain('no thermal stress');
+    });
+
+    it('accepts two-column thermal member rows and keeps negative peak chart labels in view', () => {
+        const model = { a: [[1, -0.001]], b: [[1, 0.001]], expA: -0.002, expB: 0.001, diff: -0.003, lengthUnit: 'm' };
+        expect(registry.normalize('differential-thermal-expansion', model, true)).toEqual(model);
+        const svg = registry.render(document, 'differential-thermal-expansion', model);
+        const values = [...svg.querySelectorAll('text')].filter((node) => /-0\.00[23] m/.test(node.textContent));
+        expect(values.length).toBeGreaterThan(0);
+        values.forEach((node) => expect(Number(node.getAttribute('x'))).toBeGreaterThanOrEqual(0));
+    });
+
+    it('places spring annotations below the longest drawn spring and shows hollow-shaft inner-wall stress', () => {
+        const spring = registry.render(document, 'spring-calculations', { wire: 6, coil: 18, coils: 8, force: 100, distanceUnit: 'mm', forceUnit: 'N' });
+        const height = Number(spring.getAttribute('viewBox').split(' ')[3]);
+        const annotations = [...spring.querySelectorAll('text')].filter((node) => /Active coils|Free length|Elastic, static/.test(node.textContent));
+        expect(height).toBeGreaterThan(420);
+        expect(Math.min(...annotations.map((node) => Number(node.getAttribute('y'))))).toBeGreaterThan(350);
+        const shaft = registry.render(document, 'shaft-torsion', { shaftType: 'hollow', torque: 5, outer: 40, inner: 20, diameterUnit: 'mm', length: 1 });
+        expect(shaft.textContent).toContain('τinner');
+        expect(registry.caption('shaft-torsion')).toContain('nonzero τ_inner');
     });
 
     it('describes factor of safety as a ratio, not a verdict', () => {

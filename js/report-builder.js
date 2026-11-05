@@ -431,6 +431,7 @@
 
     function fingerprint() {
         return Array.from(formRoot().querySelectorAll("input, select, textarea"))
+            .filter((element) => !element.closest(".ff-diagram-controls"))
             .map((element) => (element.id || element.name || "") + "=" + (element.type === "checkbox" || element.type === "radio" ? element.checked : element.value))
             .join("|");
     }
@@ -573,7 +574,7 @@
         const name = heading ? heading.textContent.trim() : slug;
         const inputs = [];
         formRoot().querySelectorAll("input, select").forEach((element) => {
-            if (element.closest("#result")) return;
+            if (element.closest("#result, .ff-diagram-controls")) return;
             const isSelect = element.tagName === "SELECT";
             const value = isSelect ? (element.selectedOptions[0] ? element.selectedOptions[0].textContent.trim() : "") : element.value.trim();
             if (value === "") return;

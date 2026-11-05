@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { loadCalculatorPage, loadCore, setInputValue } from '../helpers/browser-test-utils.js';
+import { loadCalculatorPage, loadCore, setInputValue, setSelectValue } from '../helpers/browser-test-utils.js';
 
 const DIAGRAM_SCRIPTS = [
     'js/engineering-units.js',
@@ -98,6 +98,70 @@ describe('calculator diagram page wiring', () => {
         const range = page.document.getElementById('ff-range-boreDiameter');
         range.dispatchEvent(new page.window.Event('input', { bubbles: true }));
         expect(page.document.querySelector('#result .result-value')).toBeNull();
+    });
+
+    it('converts independently selected dimensions and filters inactive stress-strain fields', () => {
+        const shaft = open('shaft-torsion', 'shaft-torsion');
+        setSelectValue(shaft.document, 'shaftType', 'hollow');
+        setInputValue(shaft.document, 'outerDiameter', 50);
+        setSelectValue(shaft.document, 'diameterUnit', 'mm');
+        setInputValue(shaft.document, 'innerDiameter', 1);
+        setSelectValue(shaft.document, 'innerDiameterUnit', 'in');
+        shaft.window.FormulaFoundryCalculatorDiagramPage.update();
+        const shaftModel = shaft.window.FormulaFoundryCalculatorDiagrams.snapshot(shaft.document.getElementById('calcDiagram')).model;
+        expect(shaftModel.inner).toBeCloseTo(25.4, 6);
+        expect(shaftModel.diameterUnit).toBe('mm');
+
+        const thread = open('thread-strength', 'thread-strength');
+        setInputValue(thread.document, 'majorDiameter', 10);
+        setInputValue(thread.document, 'engagementLength', 10);
+        setInputValue(thread.document, 'threadPitch', 1.5);
+        setSelectValue(thread.document, 'distanceUnit', 'in');
+        setSelectValue(thread.document, 'pitchUnit', 'mm');
+        thread.window.FormulaFoundryCalculatorDiagramPage.update();
+        let threadModel = thread.window.FormulaFoundryCalculatorDiagrams.snapshot(thread.document.getElementById('calcDiagram')).model;
+        expect(threadModel.pitch).toBeCloseTo(1.5 / 25.4, 8);
+        setInputValue(thread.document, 'threadPitch', 20);
+        setSelectValue(thread.document, 'pitchUnit', 'TPI');
+        thread.window.FormulaFoundryCalculatorDiagramPage.update();
+        threadModel = thread.window.FormulaFoundryCalculatorDiagrams.snapshot(thread.document.getElementById('calcDiagram')).model;
+        expect(threadModel.pitch).toBeCloseTo(0.05, 8);
+
+        const strain = open('stress-strain', 'stress-strain');
+        setSelectValue(strain.document, 'calculationMode', 'strain');
+        setInputValue(strain.document, 'originalLength', 1);
+        setSelectValue(strain.document, 'lengthUnit', 'm');
+        setInputValue(strain.document, 'deltaLength', 1);
+        setSelectValue(strain.document, 'deltaLengthUnit', 'mm');
+        strain.window.FormulaFoundryCalculatorDiagramPage.update();
+        let strainModel = strain.window.FormulaFoundryCalculatorDiagrams.snapshot(strain.document.getElementById('calcDiagram')).model;
+        expect(strainModel.deltaLength).toBeCloseTo(0.001, 9);
+        expect(strainModel.force).toBeUndefined();
+        setSelectValue(strain.document, 'calculationMode', 'stress');
+        strain.window.FormulaFoundryCalculatorDiagramPage.update();
+        strainModel = strain.window.FormulaFoundryCalculatorDiagrams.snapshot(strain.document.getElementById('calcDiagram')).model;
+        expect(strainModel.deltaLength).toBeUndefined();
+        expect(strainModel.strain).toBeUndefined();
+    });
+
+    it('passes centroid geometry to the T-section diagram using calculator units', () => {
+        const page = loadCalculatorPage('calculators/beam-bending-stress.html', [
+            'js/engineering-units.js', 'js/calculator-utils.js', 'js/engineering-diagram.js',
+            'js/beam-section-properties.js', 'js/beam-study-calculations.js', 'js/beam-section-ui.js',
+            'js/calculator-diagrams.js', 'js/diagram-renderers-loads.js', 'js/diagram-renderers-fasteners.js',
+            'js/diagram-renderers-structural.js', 'js/calculator-diagram-pages.js', 'js/report-builder.js',
+            'js/beam-bending-stress.js'
+        ]);
+        setSelectValue(page.document, 'sectionType', 't-section');
+        setInputValue(page.document, 'overallHeight', 120);
+        setInputValue(page.document, 'flangeWidth', 80);
+        setInputValue(page.document, 'flangeThickness', 10);
+        setInputValue(page.document, 'webThickness', 8);
+        page.window.FormulaFoundryCalculatorDiagramPage.update();
+        const model = page.window.FormulaFoundryCalculatorDiagrams.snapshot(page.document.getElementById('calcDiagram')).model;
+        expect(model.centroidYRatio).toBeCloseTo(83.5714 / 120, 4);
+        expect(model.c).toBeCloseTo(83.5714, 3);
+        expect(model.distanceUnit).toBe('mm');
     });
 });
 
@@ -229,5 +293,27 @@ describe('report snapshots of calculator diagrams', () => {
         storage.data[Object.keys(storage.data)[0]] = JSON.stringify(stored);
         const { document } = openReport(storage);
         expect(document.querySelectorAll('.report-entry')).toHaveLength(1);
+    });
+
+    it('omits diagram sliders from report inputs and ignores them in freshness fingerprints', () => {
+        const page = open('spring-calculations', 'spring-calculations');
+        setInputValue(page.document, 'wireDiameter', 2);
+        setInputValue(page.document, 'meanCoilDiameter', 16);
+        setInputValue(page.document, 'activeCoils', 8);
+        setInputValue(page.document, 'appliedForce', 100);
+        page.window.FormulaFoundryCalculatorDiagramPage.update();
+        const snapshot = page.window.FormulaFoundryReport.scrapeSnapshot();
+        expect(snapshot.inputs.filter((input) => input.label === 'Wire Diameter (d)')).toHaveLength(1);
+        const range = page.document.querySelector('.ff-diagram-controls input[type="range"]');
+        expect(range).not.toBeNull();
+        page.document.getElementById('result').textContent = 'Calculated result';
+        page.window.FormulaFoundryReport.recordResult({
+            calculatorId: 'spring-calculations', calculatorName: 'Spring', path: 'calculators/spring-calculations.html',
+            title: 'Spring', inputs: [{ label: 'Wire', value: 2, unit: 'mm' }],
+            outputs: [{ label: 'Load', value: 100, unit: 'N' }], equations: ['F = kδ'], assumptions: ['Static loading'],
+            method: 'Spring calculation', warnings: []
+        });
+        range.value = String(Number(range.value) + 1);
+        expect(page.window.FormulaFoundryReport.addCurrentResult().ok).toBe(true);
     });
 });

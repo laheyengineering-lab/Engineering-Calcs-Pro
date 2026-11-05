@@ -98,6 +98,7 @@
         schema: {
             profile: T.pick(["rectangular", "solid-circular", "hollow-circular", "hollow-rectangular", "i-beam", "t-section"]),
             axis: T.pick(["x", "y"]), moment: T.num(), momentUnit: T.unit(), c: T.pos(), distanceUnit: T.unit(),
+            centroidXRatio: T.num(), centroidYRatio: T.num(),
             stress: T.num(), stressUnit: T.unit()
         },
         build(document, m, h) {
@@ -118,8 +119,12 @@
             // Section
             const cx = 190, cy = 224, w = 96, ht = 132;
             const p = m.profile || "rectangular";
-            const rw = bendX ? w : ht * 0.8;
-            const rh = bendX ? ht : w * 0.9;
+            const rw = w;
+            const rh = ht;
+            const centroidXRatio = finite(m.centroidXRatio) ? m.centroidXRatio : 0.5;
+            const centroidYRatio = finite(m.centroidYRatio) ? m.centroidYRatio : 0.5;
+            const neutralX = cx + (centroidXRatio - 0.5) * rw;
+            const neutralY = cy + (0.5 - centroidYRatio) * rh;
             const half = bendX ? rh / 2 : rw / 2;
             if (p === "solid-circular" || p === "hollow-circular") {
                 S.circle(cx, cy, 62, "ff-section");
@@ -131,39 +136,41 @@
             } else if (p === "hollow-rectangular") {
                 S.hatchPath(`M ${cx - rw / 2} ${cy - rh / 2} h ${rw} v ${rh} h ${-rw} Z M ${cx - rw / 2 + 14} ${cy - rh / 2 + 14} v ${rh - 28} h ${rw - 28} v ${-(rh - 28)} Z`);
             } else if (p === "i-beam" || p === "t-section") {
-                const fw = bendX ? 96 : 120, ft = bendX ? 18 : 18, wt = 16;
+                const fw = 96, ft = 18, wt = 16;
                 const yTop = cy - rh / 2, yBot = cy + rh / 2;
-                if (bendX) {
-                    const d = p === "i-beam"
-                        ? `M ${cx - fw / 2} ${yTop} h ${fw} v ${ft} h ${-(fw - wt) / 2} v ${rh - 2 * ft} h ${(fw - wt) / 2} v ${ft} h ${-fw} v ${-ft} h ${(fw - wt) / 2} v ${-(rh - 2 * ft)} h ${-(fw - wt) / 2} Z`
-                        : `M ${cx - fw / 2} ${yTop} h ${fw} v ${ft} h ${-(fw - wt) / 2} v ${rh - ft} h ${-wt} v ${-(rh - ft)} h ${-(fw - wt) / 2} Z`;
-                    S.hatchPath(d);
-                } else {
-                    S.hatchRect(cx - fw / 2, cy - 11, fw, 22);
-                    S.hatchRect(cx - fw / 2, cy - 40, 18, 80);
-                    S.hatchRect(cx + fw / 2 - 18, cy - 40, 18, 80);
-                }
+                const d = p === "i-beam"
+                    ? `M ${cx - fw / 2} ${yTop} h ${fw} v ${ft} h ${-(fw - wt) / 2} v ${rh - 2 * ft} h ${(fw - wt) / 2} v ${ft} h ${-fw} v ${-ft} h ${(fw - wt) / 2} v ${-(rh - 2 * ft)} h ${-(fw - wt) / 2} Z`
+                    : `M ${cx - fw / 2} ${yTop} h ${fw} v ${ft} h ${-(fw - wt) / 2} v ${rh - ft} h ${-wt} v ${-(rh - ft)} h ${-(fw - wt) / 2} Z`;
+                S.hatchPath(d);
             } else {
                 S.hatchRect(cx - rw / 2, cy - rh / 2, rw, rh);
             }
             const reach = p === "solid-circular" || p === "hollow-circular" ? 62 : half;
             const nlen = bendX ? Math.max(80, (p === "solid-circular" || p === "hollow-circular") ? 74 : rw / 2 + 28) : Math.max(80, rh / 2 + 28);
-            if (bendX) S.line(cx - nlen - 14, cy, cx + nlen + 14, cy, "ff-neutral-axis");
-            else S.line(cx, cy - ht / 2 - 28, cx, cy + ht / 2 + 28, "ff-neutral-axis");
-            S.text(bendX ? cx + nlen + 20 : cx + 8, bendX ? cy - 6 : cy + ht / 2 + 44, "neutral axis (σ = 0)", { cls: "ff-label ff-label-small", anchor: "start" });
+            if (bendX) S.line(cx - nlen - 14, neutralY, cx + nlen + 14, neutralY, "ff-neutral-axis");
+            else S.line(neutralX, cy - ht / 2 - 28, neutralX, cy + ht / 2 + 28, "ff-neutral-axis");
+            S.text(bendX ? cx + nlen + 20 : 20, bendX ? neutralY - 6 : cy + rh / 2 + 10, "neutral axis (σ = 0)", { cls: "ff-label ff-label-small", anchor: "start" });
 
             if (bendX) {
-                S.dimension(cx + (p.endsWith("circular") ? 62 : rw / 2), cy, cx + (p.endsWith("circular") ? 62 : rw / 2), cy - reach, "c", { offset: -34, extensions: true });
+                const topY = cy - rh / 2, bottomY = cy + rh / 2;
+                const farY = neutralY - topY >= bottomY - neutralY ? topY : bottomY;
+                const cText = m.c ? "c = " + q(h, m.c, m.distanceUnit) : "c";
+                S.dimension(cx + rw / 2, neutralY, cx + rw / 2, farY, cText, { offset: -18, extensions: true });
                 const top = sign > 0 ? "Compression" : "Tension";
                 const bot = sign > 0 ? "Tension" : "Compression";
-                S.text(cx - nlen - 10, cy - reach / 2, top, { anchor: "end", cls: "ff-label ff-label-small" });
-                S.text(cx - nlen - 10, cy + reach / 2, bot, { anchor: "end", cls: "ff-label ff-label-small" });
-                S.leader(cx, cy + reach, cx + 40, cy + reach + 26, "σ_max at extreme fiber", { anchor: "start" });
+                S.text(cx - nlen - 10, (neutralY + topY) / 2, top, { anchor: "end", cls: "ff-label ff-label-small" });
+                S.text(cx - nlen - 10, (neutralY + bottomY) / 2, bot, { anchor: "end", cls: "ff-label ff-label-small" });
+                S.leader(cx, farY, cx + 40, farY + (farY < neutralY ? -24 : 24), "σ_max at extreme fiber", { anchor: "start" });
             } else {
-                S.dimension(cx, cy + 4 + (ht / 2 + 24), cx + reach, cy + 4 + (ht / 2 + 24), "c", { offset: 12, extensions: false });
-                S.text(cx - 10, cy - ht / 2 - 38, "Compression", { anchor: "end", cls: "ff-label ff-label-small" });
-                S.text(cx + 10, cy - ht / 2 - 38, "Tension", { anchor: "start", cls: "ff-label ff-label-small" });
-                S.leader(cx + reach, cy + 40, cx + reach + 24, cy + 70, "σ_max at extreme fiber", { anchor: "start" });
+                const leftX = cx - rw / 2, rightX = cx + rw / 2;
+                const farX = neutralX - leftX >= rightX - neutralX ? leftX : rightX;
+                const cText = m.c ? "c = " + q(h, m.c, m.distanceUnit) : "c";
+                S.dimension(neutralX, cy + rh / 2 + 4, farX, cy + rh / 2 + 4, cText, { offset: Math.sign(farX - neutralX) * 10, extensions: false });
+                const left = sign > 0 ? "Compression" : "Tension";
+                const right = sign > 0 ? "Tension" : "Compression";
+                S.text(leftX - 10, cy - rh / 2 - 38, left, { anchor: "end", cls: "ff-label ff-label-small" });
+                S.text(rightX + 10, cy - rh / 2 - 38, right, { anchor: "start", cls: "ff-label ff-label-small" });
+                S.text(cx + rw / 2 + 14, cy + rh / 2 + 30, "σ_max at extreme fiber", { anchor: "start", cls: "ff-label ff-label-small" });
             }
             S.text(cx, cy + 118, "Bending about the " + (bendX ? "x (horizontal)" : "y (vertical)") + " centroidal axis", { anchor: "middle", cls: "ff-label ff-label-small" });
             S.lines(430, 150, [
@@ -190,10 +197,11 @@
                 label: "Axial member with original and deformed length, axial force, cross-sectional area, gauge length and elongation",
                 description: "A bar fixed at the left is loaded axially. A dashed outline shows the original length and a solid bar shows the exaggerated deformed length."
             });
-            let sign = 1;
-            if (finite(m.deltaLength) && m.deltaLength !== 0) sign = Math.sign(m.deltaLength);
-            else if (finite(m.strain) && m.strain !== 0) sign = Math.sign(m.strain);
-            else if (finite(m.force) && m.force !== 0) sign = Math.sign(m.force);
+            const zeroDeformation = m.deltaLength === 0 || m.strain === 0;
+            let sign = zeroDeformation ? 0 : 1;
+            if (!zeroDeformation && finite(m.deltaLength) && m.deltaLength !== 0) sign = Math.sign(m.deltaLength);
+            else if (!zeroDeformation && finite(m.strain) && m.strain !== 0) sign = Math.sign(m.strain);
+            else if (!zeroDeformation && finite(m.force) && m.force !== 0) sign = Math.sign(m.force);
             const x0 = 70, L = 250, y = 140, hh = 28;
             const dx = sign * 34;
             S.line(x0, y - hh - 24, x0, y + hh + 24, "ff-wall-line");
@@ -204,7 +212,7 @@
             S.rect(x0, y - hh * (1 - sign * 0.07), L + dx, 2 * hh * (1 - sign * 0.07), "ff-outline");
             const endX = x0 + L + dx;
             if (sign > 0) S.arrow(endX, y, endX + 66, y, { kind: "force" });
-            else S.arrow(endX + 66, y, endX, y, { kind: "force" });
+            else if (sign < 0) S.arrow(endX + 66, y, endX, y, { kind: "force" });
             S.text(endX + 28, y - 14, "F = " + q(h, m.force, m.forceUnit), { cls: "ff-label ff-label-force", anchor: "start" });
             S.dimension(x0, y + hh + 10, x0 + L, y + hh + 10, "L₀ = " + q(h, m.length, m.lengthUnit), { offset: 20, extensions: true });
             S.dimension(x0 + L, y - hh - 8, endX, y - hh - 8, "ΔL" + (finite(m.deltaLength) ? " = " + q(h, m.deltaLength, m.lengthUnit) : ""), { offset: -22, extensions: true });
@@ -217,7 +225,9 @@
                 "σ = F / A     ε = ΔL / L₀ (dimensionless)",
                 finite(m.strain) ? "ε = " + q(h, m.strain) : "ε = ΔL / L₀"
             ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 318, "Deformation exaggerated — not to scale. " + (sign > 0 ? "Tension: elongation." : "Compression: shortening."), "start");
+            S.note(20, 318, zeroDeformation
+                ? "Zero deformation: original and deformed outlines coincide."
+                : "Deformation exaggerated — not to scale. " + (sign > 0 ? "Tension: elongation." : "Compression: shortening."), "start");
             return S.svg;
         }
     });
@@ -236,7 +246,8 @@
                 label: "Thermal expansion of a free member and of a fully restrained member with temperature change",
                 description: "A free bar changes length with temperature without stress. The same bar between two rigid walls cannot change length and develops compressive stress on heating or tensile stress on cooling."
             });
-            const sign = finite(m.deltaT) && m.deltaT < 0 ? -1 : 1;
+            const zeroChange = m.deltaT === 0;
+            const sign = zeroChange ? 0 : finite(m.deltaT) && m.deltaT < 0 ? -1 : 1;
             const x0 = 110, L = 220, hh = 22;
             const dx = sign * 30;
             // Free
@@ -246,10 +257,10 @@
             S.rect(x0, 94, L, 2 * hh, "ff-ghost-fill ff-dashed");
             S.rect(x0, 94, L + dx, 2 * hh, "ff-section");
             S.rect(x0, 94, L + dx, 2 * hh, "ff-outline");
-            S.arrow(x0 + L + dx + 4, 116, x0 + L + dx + 44, 116, { kind: "motion" });
-            if (sign < 0) { S.arrow(x0 + L + dx + 44, 116, x0 + L + dx + 4, 116, { kind: "motion" }); }
+            if (sign > 0) S.arrow(x0 + L + dx + 4, 116, x0 + L + dx + 44, 116, { kind: "motion" });
+            if (sign < 0) S.arrow(x0 + L + dx + 44, 116, x0 + L + dx + 4, 116, { kind: "motion" });
             S.dimension(x0, 94 + 2 * hh, x0 + L, 94 + 2 * hh, "L₀ = " + q(h, m.length, m.lengthUnit), { offset: 16, extensions: true });
-            S.dimension(x0 + L, 94, x0 + L + dx, 94, "ΔL" + (finite(m.deltaLength) ? " = " + q(h, m.deltaLength, m.lengthUnit) : ""), { offset: -22, extensions: true });
+            S.dimension(x0 + L, 94, x0 + L + dx, 94, "ΔL" + (finite(m.deltaLength) ? " = " + q(h, m.deltaLength, m.lengthUnit) : ""), { offset: -22 * sign, extensions: true });
             S.text(x0 + L / 2, 121, "ΔT = " + q(h, m.deltaT, m.tempUnit), { cls: "ff-label ff-label-strong", anchor: "middle" });
 
             // Restrained
@@ -265,12 +276,16 @@
             if (sign > 0) {
                 S.arrow(x0 - 30, 286, x0 - 2, 286, { kind: "reaction" });
                 S.arrow(x0 + L + 30, 286, x0 + L + 2, 286, { kind: "reaction" });
-            } else {
+            } else if (sign < 0) {
                 S.arrow(x0 + 2, 286, x0 - 30, 286, { kind: "reaction" });
                 S.arrow(x0 + L - 2, 286, x0 + L + 30, 286, { kind: "reaction" });
             }
-            S.text(x0 + L / 2, 291, sign > 0 ? "compressive σ" : "tensile σ", { cls: "ff-label ff-label-strong", anchor: "middle" });
-            S.text(x0 + L / 2, 342, finite(m.stress) ? "σ = EαΔT = " + q(h, m.stress, m.stressUnit) : "σ = EαΔT (enter E to evaluate)", { cls: "ff-label", anchor: "middle" });
+            if (!zeroChange) {
+                S.text(x0 + L / 2, 291, sign > 0 ? "compressive σ" : "tensile σ", { cls: "ff-label ff-label-strong", anchor: "middle" });
+                S.text(x0 + L / 2, 342, finite(m.stress) ? "σ = EαΔT = " + q(h, m.stress, m.stressUnit) : "σ = EαΔT (enter E to evaluate)", { cls: "ff-label", anchor: "middle" });
+            } else {
+                S.text(x0 + L / 2, 342, "ΔT = 0: no thermal deformation or stress", { cls: "ff-label", anchor: "middle" });
+            }
             S.note(20, 386, "Length change exaggerated. Walls assumed rigid; ΔT assumed uniform.", "start");
             return S.svg;
         }
@@ -281,7 +296,7 @@
         title: "Differential thermal expansion of two members",
         caption: "Members A and B are each built from up to three series sections and expand freely and independently from a common datum on the left, so no restraint or thermal stress is modelled. Each section's drawn growth is exaggerated using its thermal strain αΔT, which keeps relative sizes consistent but is not to scale. The bar chart compares the calculated length changes to the same scale.",
         schema: {
-            a: T.rows(3, 3), b: T.rows(3, 3), lengthUnit: T.unit(),
+            a: T.rows(3, 2), b: T.rows(3, 2), lengthUnit: T.unit(),
             expA: T.num(), expB: T.num(), diff: T.num()
         },
         build(document, m, h) {
@@ -323,14 +338,14 @@
             S.text(x0 + 4, 208, "dashed = original length;  solid = exaggerated expanded length", { cls: "ff-label ff-label-small", anchor: "start" });
 
             // bar chart
-            const mid = 210;
+            const mid = 250;
             const peak = Math.max(1e-12, Math.abs(m.expA || 0), Math.abs(m.expB || 0), Math.abs(m.diff || 0));
             const bar = (label, value, y, cls) => {
-                const w = finite(value) ? Math.min(220, Math.abs(value) / peak * 220) : 0;
+                const w = finite(value) ? Math.min(80, Math.abs(value) / peak * 80) : 0;
                 const dir = finite(value) && value < 0 ? -1 : 1;
                 S.rect(dir > 0 ? mid : mid - w, y, w, 16, cls);
                 S.text(20, y + 13, label, { cls: "ff-label ff-label-small", anchor: "start" });
-                S.text(dir > 0 ? mid + w + 8 : mid - w - 8, y + 13, q(h, value, m.lengthUnit, "—"), { cls: "ff-label ff-label-small", anchor: dir > 0 ? "start" : "end" });
+                S.text(500, y + 13, q(h, value, m.lengthUnit, "—"), { cls: "ff-label ff-label-small", anchor: "end" });
             };
             S.line(mid, 244, mid, 372, "ff-outline-thin");
             S.text(20, 238, "Calculated length changes (same scale)", { cls: "ff-label ff-label-strong", anchor: "start" });

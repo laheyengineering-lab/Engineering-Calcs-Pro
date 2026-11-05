@@ -26,6 +26,12 @@
     };
     const positive = (value) => (value !== undefined && value > 0 ? value : undefined);
     const nonneg = (value) => (value !== undefined && value >= 0 ? value : undefined);
+    const convertDistance = (value, fromUnit, toUnit) => {
+        if (value === undefined || !fromUnit || !toUnit) return undefined;
+        if (fromUnit === toUnit) return value;
+        if (typeof root.convertDistance !== "function" || typeof root.convertDistanceToUnit !== "function") return undefined;
+        return root.convertDistanceToUnit(root.convertDistance(value, fromUnit), toUnit);
+    };
     const run = (name) => () => {
         const result = el("result");
         if (result && result.querySelector(".result-value") && typeof root[name] === "function") root[name]();
@@ -84,9 +90,12 @@
             watch: ["shaftType", "torque", "outerDiameter", "innerDiameter", "length", "torqueUnit", "diameterUnit", "innerDiameterUnit", "lengthUnit"],
             model: () => {
                 const torque = num("torque");
+                const diameterUnit = str("diameterUnit");
                 return {
                     shaftType: str("shaftType"), torque: torque !== 0 ? torque : undefined, torqueUnit: str("torqueUnit"),
-                    outer: positive(num("outerDiameter")), inner: nonneg(num("innerDiameter")), diameterUnit: str("diameterUnit"),
+                    outer: positive(num("outerDiameter")),
+                    inner: nonneg(convertDistance(num("innerDiameter"), str("innerDiameterUnit"), diameterUnit)),
+                    diameterUnit,
                     length: positive(num("length")), lengthUnit: str("lengthUnit")
                 };
             },
@@ -108,11 +117,19 @@
         },
         "thread-strength": {
             watch: ["majorDiameter", "engagementLength", "threadPitch", "appliedLoad", "distanceUnit", "pitchUnit", "forceUnit"],
-            model: () => ({
-                diameter: positive(num("majorDiameter")), diameterUnit: str("distanceUnit"), engagement: positive(num("engagementLength")),
-                engagementUnit: str("distanceUnit"), pitch: str("pitchUnit") === "TPI" ? undefined : positive(num("threadPitch")),
-                load: nonneg(num("appliedLoad")), loadUnit: str("forceUnit")
-            })
+            model: () => {
+                const distanceUnit = str("distanceUnit");
+                const pitchUnit = str("pitchUnit");
+                const rawPitch = positive(num("threadPitch"));
+                const pitch = pitchUnit === "TPI"
+                    ? (rawPitch ? convertDistance(1 / rawPitch, "in", distanceUnit) : undefined)
+                    : convertDistance(rawPitch, pitchUnit, distanceUnit);
+                return {
+                    diameter: positive(num("majorDiameter")), diameterUnit: distanceUnit, engagement: positive(num("engagementLength")),
+                    engagementUnit: distanceUnit, pitch: positive(pitch),
+                    load: nonneg(num("appliedLoad")), loadUnit: str("forceUnit")
+                };
+            }
         },
         "fillet-weld": {
             watch: ["weldLeg", "weldLegUnit", "weldLength", "weldLengthUnit", "loadDirection", "appliedLoad", "forceUnit"],
@@ -141,15 +158,58 @@
             model: () => ({ condition: str("boundaryCondition"), length: positive(num("length")), lengthUnit: str("lengthUnit") })
         },
         "beam-bending-stress": {
-            watch: ["sectionType", "bendingAxis", "moment", "momentUnit"],
-            model: () => ({ profile: str("sectionType"), axis: str("bendingAxis"), moment: num("moment"), momentUnit: str("momentUnit") })
+            watch: ["sectionType", "bendingAxis", "moment", "momentUnit", "rectWidth", "rectWidthUnit", "rectHeight", "rectHeightUnit",
+                "diameter", "diameterUnit", "outerDiameter", "outerDiameterUnit", "innerDiameter", "innerDiameterUnit",
+                "outerWidth", "outerWidthUnit", "outerHeight", "outerHeightUnit", "wallThickness", "wallThicknessUnit",
+                "overallHeight", "overallHeightUnit", "flangeWidth", "flangeWidthUnit", "flangeThickness", "flangeThicknessUnit", "webThickness", "webThicknessUnit"],
+            model: () => {
+                const profile = str("sectionType");
+                const axis = str("bendingAxis");
+                const model = { profile, axis, moment: num("moment"), momentUnit: str("momentUnit") };
+                const fields = root.BeamSectionUI && root.BeamSectionUI.getFields(profile);
+                if (!fields || !root.BeamSectionProperties || typeof root.convertDistance !== "function") return model;
+                const dimensions = {};
+                for (const field of fields) {
+                    const value = num(field.id);
+                    const unit = str(field.unit);
+                    if (value === undefined || !unit) return model;
+                    dimensions[field.key] = root.convertDistance(value, unit);
+                }
+                try {
+                    const properties = root.BeamSectionProperties.calculate(profile, dimensions);
+                    const width = dimensions.width || dimensions.diameter || dimensions.outerDiameter || dimensions.outerWidth || dimensions.flangeWidth;
+                    const height = dimensions.height || dimensions.diameter || dimensions.outerDiameter || dimensions.outerHeight;
+                    const unit = str(fields[0].unit);
+                    const c = axis === "x" ? properties.extremeFiberX : properties.extremeFiberY;
+                    return Object.assign(model, {
+                        centroidXRatio: properties.centroidX / width, centroidYRatio: properties.centroidY / height,
+                        c: root.convertDistanceToUnit(c, unit), distanceUnit: unit
+                    });
+                } catch (error) {
+                    return model;
+                }
+            }
         },
         "stress-strain": {
-            watch: ["calculationMode", "force", "forceUnit", "area", "areaUnit", "originalLength", "lengthUnit", "deltaLength", "strain"],
-            model: () => ({
-                force: num("force"), forceUnit: str("forceUnit"), area: positive(num("area")), areaUnit: str("areaUnit"),
-                length: positive(num("originalLength")), lengthUnit: str("lengthUnit"), deltaLength: num("deltaLength"), strain: num("strain")
-            })
+            watch: ["calculationMode", "force", "forceUnit", "area", "areaUnit", "originalLength", "lengthUnit", "deltaLength", "deltaLengthUnit", "strain"],
+            model: () => {
+                const mode = str("calculationMode");
+                const usesForce = mode !== "strain";
+                const usesLength = mode !== "stress";
+                const model = {
+                    force: usesForce ? num("force") : undefined,
+                    forceUnit: usesForce ? str("forceUnit") : undefined,
+                    area: usesForce ? positive(num("area")) : undefined,
+                    areaUnit: usesForce ? str("areaUnit") : undefined,
+                    length: usesLength ? positive(num("originalLength")) : undefined,
+                    lengthUnit: usesLength ? str("lengthUnit") : undefined
+                };
+                if (mode === "strain" || mode === "youngsModulus") {
+                    model.deltaLength = convertDistance(num("deltaLength"), str("deltaLengthUnit"), str("lengthUnit"));
+                    model.strain = num("strain");
+                }
+                return model;
+            }
         },
         "thermal-expansion": {
             watch: ["originalLength", "lengthUnit", "temperatureChange", "temperatureUnit"],

@@ -1575,9 +1575,9 @@ footer,
     .ff-diagram-control { grid-template-columns: 1fr auto; }
     .ff-diagram-control input[type="range"] { grid-column: 1 / -1; grid-row: 2; }
     .ff-figure { padding: var(--space-2); }
-    /* Keep drawing text legible: scroll horizontally rather than shrinking below ~10px. */
-    .ff-figure .ff-diagram-host { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .ff-figure .ff-diagram-host > .ff-diagram { min-width: 430px; }
+    /* Keep drawing text legible: scroll horizontally rather than shrinking into overlaps. */
+    .ff-figure .ff-diagram-host { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+    .ff-figure .ff-diagram-host > .ff-diagram { min-width: 560px; }
 }
 
 @media print {

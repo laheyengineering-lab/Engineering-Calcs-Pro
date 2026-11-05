@@ -17,47 +17,26 @@
     // ---------------------------------------------------------------- Moment
     registry.register("moment", {
         title: "Moment of a force about a pivot",
-        caption: "Schematic of M = F·d. The calculator takes d as the perpendicular distance from the pivot to the line of action of F, so no force angle is entered; the oblique force direction drawn here is illustrative and only shows why r (position vector) is not the same as d.",
+        caption: "Schematic of M = F·d. The calculator takes d as the perpendicular distance from the pivot to the line of action of F; the force direction is illustrative.",
         schema: { force: T.num(), forceUnit: T.unit(), distance: T.pos(), distanceUnit: T.unit(), moment: T.num(), momentUnit: T.unit() },
         build(document, m, h) {
             const S = diagram.scene(document, {
-                size: [520, 360],
-                label: "Moment of a force about a pivot: force F, position vector r and perpendicular distance d",
-                description: "A body pivots about point O. Force F acts along a line of action. The perpendicular distance d from O to that line is the moment arm used in M equals F times d. The position vector r from O to the point of application is longer than d."
+                size: [520, 300],
+                label: "Moment of a force about a pivot with perpendicular distance",
+                description: "A lever pivots at O. A force F acts perpendicular to the lever at distance d, producing moment M."
             });
             const sense = m.force < 0 ? -1 : 1;
-            const O = [96, 160];
-            const A = [316, 92];
-            const u = [0.5, -0.866];
-            const dot = (O[0] - A[0]) * u[0] + (O[1] - A[1]) * u[1];
-            const foot = [A[0] + dot * u[0], A[1] + dot * u[1]];
-
-            S.rect(O[0] - 14, O[1] - 7, A[0] - O[0] + 36, 14, "ff-body-muted");
+            const O = [100, 145], A = [360, 145];
+            S.rect(O[0], O[1] - 7, A[0] - O[0], 14, "ff-body-muted");
             S.polygon([[O[0], O[1] - 7], [O[0] - 16, O[1] + 24], [O[0] + 16, O[1] + 24]], "ff-support-body");
             S.groundHatch(O[0] - 26, O[0] + 26, O[1] + 24);
-
-            S.construction(foot[0] - u[0] * 26, foot[1] - u[1] * 26, A[0] + u[0] * 120, A[1] + u[1] * 120);
-            S.construction(O[0], O[1], foot[0], foot[1]);
-            const e1 = [(O[0] - foot[0]) / Math.hypot(O[0] - foot[0], O[1] - foot[1]), (O[1] - foot[1]) / Math.hypot(O[0] - foot[0], O[1] - foot[1])];
-            S.polyline([[foot[0] + e1[0] * 11, foot[1] + e1[1] * 11], [foot[0] + e1[0] * 11 + u[0] * 11, foot[1] + e1[1] * 11 + u[1] * 11], [foot[0] + u[0] * 11, foot[1] + u[1] * 11]], "ff-outline-thin");
-            S.dimension(O[0], O[1], foot[0], foot[1], "d = " + q(h, m.distance, m.distanceUnit), { offset: 0, extensions: false });
-
-            S.arrow(O[0], O[1], A[0], A[1], { kind: "stress" });
-            S.text((O[0] + A[0]) / 2 - 8, (O[1] + A[1]) / 2 - 12, "r (position vector)", { anchor: "middle", cls: "ff-label ff-label-small" });
-            S.arrow(A[0], A[1], A[0] + sense * u[0] * 84, A[1] + sense * u[1] * 84, { kind: "force" });
-            S.text(A[0] + sense * u[0] * 84 + 10, A[1] + sense * u[1] * 84 + (sense > 0 ? 2 : 14), "F = " + q(h, m.force, m.forceUnit), { cls: "ff-label ff-label-force" });
-            S.circle(A[0], A[1], 4, "ff-pivot");
-
             S.pivot(O[0], O[1], 6);
-            S.text(O[0] - 6, O[1] - 50, "O (pivot)", { anchor: "start" });
-            S.momentArrow(O[0], O[1], 34, sense > 0 ? 25 : 255, sense > 0 ? 255 : 25, { label: "M", labelX: O[0] - 46, labelY: O[1] + 50 });
-            S.text(foot[0] + 14, foot[1] + 4, "line of action of F", { cls: "ff-label ff-label-small" });
-
-            S.lines(20, 292, [
-                "M = F·d  (d is perpendicular to the line of action; r ≥ d).",
-                "Sign: follows the sign of F; positive F is drawn counter-clockwise."
-            ], { cls: "ff-note", anchor: "start" });
-            S.note(20, 330, "Force direction is schematic. The calculator has no angle input.", "start");
+            S.text(O[0] - 6, O[1] - 48, "O (pivot)", { anchor: "start" });
+            S.arrow(A[0], 62, A[0], A[1] - 8, { kind: "force" });
+            S.text(A[0] + 14, 78, "F = " + q(h, m.force, m.forceUnit), { cls: "ff-label ff-label-force" });
+            S.momentArrow(O[0], O[1], 36, sense > 0 ? 25 : 255, sense > 0 ? 255 : 25, { label: "M", labelX: O[0] - 44, labelY: O[1] + 52 });
+            S.dimension(O[0], O[1] + 12, A[0], A[1] + 12, "d = " + q(h, m.distance, m.distanceUnit), { offset: 56, extensions: true });
+            S.note(20, 270, "M = F·d; d is measured perpendicular to the force line.", "start");
             return S.svg;
         }
     });
@@ -178,7 +157,7 @@
             };
             endView(100, false);
             endView(272, true);
-            S.lines(20, 352, [
+            S.lines(20, 370, [
                 "D = " + q(h, m.bore, m.distanceUnit) + ",  d = " + q(h, m.rod, m.distanceUnit) + ",  p = " + q(h, m.pressure, m.pressureUnit) + " (gauge)",
                 m.efficiency !== undefined ? "Efficiency η = " + q(h, m.efficiency, "%") + " (user estimate; scales force only, geometry unchanged)" : "Theoretical force: no efficiency applied."
             ], { cls: "ff-label ff-label-small", anchor: "start" });
@@ -255,12 +234,13 @@
             if (compress > 0) {
                 S.dimension(loadedCx + R + 30, top - 2, loadedCx + R + 30, top + (free - loadedH) - 2, h.has(m.deflection) ? "δ = " + q(h, m.deflection, m.distanceUnit) : "δ", { offset: -8, extensions: false });
             }
-            S.lines(20, 300, [
+            const annotationY = Math.max(300, top + freeH + 108, top + loadedH + 108);
+            S.lines(20, annotationY, [
                 "d = " + q(h, m.wire, m.distanceUnit) + ",  D = " + q(h, m.coil, m.distanceUnit),
                 "Active coils N_a = " + q(h, m.coils) + " (" + turns + " drawn)"
             ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 360, "Free length L_f is not an input. Deflection drawn is illustrative.", "start");
-            S.note(20, 380, "Elastic, static round-wire spring only; no coil-bind or buckling check.", "start");
+            S.note(20, annotationY + 54, "Free length L_f is not an input. Deflection drawn is illustrative.", "start");
+            S.note(20, annotationY + 74, "Elastic, static round-wire spring only; no coil-bind or buckling check.", "start");
             return S.svg;
         }
     });
@@ -268,7 +248,7 @@
     // ------------------------------------------------------- Shaft torsion
     registry.register("shaft-torsion", {
         title: "Circular shaft in torsion",
-        caption: "Schematic of a solid or hollow circular shaft carrying a constant torque T, with an equal and opposite reaction torque at the other end. The twist drawn is exaggerated. Shear stress varies linearly from zero at the centre (or inner surface of a hollow shaft's void) to τ_max at the outer surface, per the elastic torsion relation τ = Tr/J. Torque is a moment about the shaft axis, not an axial force.",
+        caption: "Schematic of a solid or hollow circular shaft carrying a constant torque T, with an equal and opposite reaction torque at the other end. The twist drawn is exaggerated. Shear stress varies linearly with radius: from zero at the centre of a solid shaft, or from nonzero τ_inner at the inner wall of a hollow shaft, to τ_max at the outer surface, per τ = Tr/J.",
         schema: {
             shaftType: T.pick(["solid", "hollow"]), torque: T.num(), torqueUnit: T.unit(),
             outer: T.pos(), inner: T.nonneg(), diameterUnit: T.unit(), length: T.pos(), lengthUnit: T.unit(),
@@ -311,7 +291,12 @@
             S.centerline(ex - R - 12, ey, ex + R + 12, ey);
             S.centerline(ex, ey - R - 12, ex, ey + R + 12);
             const r0 = hollow ? R * ratio : 0;
-            S.line(ex + r0, ey, ex + R, ey - 38 * sense, "ff-construction");
+            S.line(ex + r0, ey - 38 * (r0 / R) * sense, ex + R, ey - 38 * sense, "ff-construction");
+            if (hollow) {
+                const innerStress = 38 * r0 / R;
+                S.arrow(ex + r0, ey, ex + r0, ey - innerStress * sense, { kind: "stress" });
+                S.text(ex + r0 - 8, ey - innerStress * sense - 8, "τ_inner", { cls: "ff-label ff-label-small", anchor: "end" });
+            }
             for (let k = 1; k <= 3; k += 1) {
                 const r = hollow ? r0 + (R - r0) * k / 3 : R * k / 3;
                 const len = 38 * (r / R) * sense;
