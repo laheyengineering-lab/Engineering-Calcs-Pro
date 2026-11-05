@@ -105,6 +105,22 @@
     height: auto;
 }
 
+.report-profile-diagram.report-calc-diagram {
+    max-width: 560px;
+    text-align: left;
+}
+
+.report-calc-diagram-group {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.report-calc-diagram .ff-diagram {
+    min-width: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
 .report-profile-diagram figcaption {
     margin-top: var(--space-1);
     color: var(--color-text-muted);

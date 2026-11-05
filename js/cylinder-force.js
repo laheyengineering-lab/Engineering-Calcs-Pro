@@ -134,7 +134,9 @@ function calculateCylinderForce() {
             outputs.push({ label: "Estimated usable extension force", value: usable.extension, unit: forceUnit });
             outputs.push({ label: "Estimated usable retraction force", value: usable.retraction, unit: forceUnit });
         }
+        const diagram = window.FormulaFoundryReport.currentCalcDiagram ? window.FormulaFoundryReport.currentCalcDiagram() : null;
         window.FormulaFoundryReport.recordResult({
+            ...(diagram ? { diagram } : {}),
             calculatorId: "cylinder-force",
             calculatorName: "Hydraulic/Pneumatic Cylinder Force",
             path: "calculators/cylinder-force.html",

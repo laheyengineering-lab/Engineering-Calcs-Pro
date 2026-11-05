@@ -169,90 +169,6 @@
             </div>
 
 
-            <div class="engineering-diagram">
-
-                <svg
-                viewBox="0 0 700 400"
-                xmlns="http://www.w3.org/2000/svg">
-
-                <!-- Title -->
-                <text x="350" y="25" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">
-                    Circular Shaft Under Torsion
-                </text>
-
-                <!-- Solid Shaft (left) -->
-                <g id="solid-shaft">
-                    <text x="200" y="50" font-size="14" font-weight="bold" fill="#0b5394">Solid Shaft</text>
-                    
-                    <!-- Shaft cylinder -->
-                    <ellipse cx="200" cy="120" rx="50" ry="20" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    <rect x="150" y="120" width="100" height="120" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    <ellipse cx="200" cy="240" rx="50" ry="20" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    
-                    <!-- Left torque arrow -->
-                    <path d="M 130 100 A 50 50 0 0 1 130 140" fill="none" stroke="#cc0000" stroke-width="3" marker-end="url(#torque-arrow)"/>
-                    <text x="100" y="115" font-size="16" font-weight="bold" fill="#cc0000">T</text>
-                    
-                    <!-- Right torque arrow -->
-                    <path d="M 270 260 A 50 50 0 0 1 270 300" fill="none" stroke="#cc0000" stroke-width="3" marker-end="url(#torque-arrow)"/>
-                    <text x="290" y="290" font-size="16" font-weight="bold" fill="#cc0000">T</text>
-                    
-                    <!-- Dimension: Diameter -->
-                    <line x1="250" y1="120" x2="320" y2="120" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-                    <text x="270" y="110" font-size="14" fill="#555">D</text>
-                    
-                    <!-- Dimension: Length -->
-                    <line x1="330" y1="120" x2="330" y2="240" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-                    <text x="345" y="185" font-size="14" fill="#555">L</text>
-                </g>
-
-                <!-- Hollow Shaft (right) -->
-                <g id="hollow-shaft">
-                    <text x="550" y="50" font-size="14" font-weight="bold" fill="#0b5394">Hollow Shaft</text>
-                    
-                    <!-- Outer cylinder -->
-                    <ellipse cx="550" cy="120" rx="50" ry="20" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    <rect x="500" y="120" width="100" height="120" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    <ellipse cx="550" cy="240" rx="50" ry="20" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    
-                    <!-- Inner hole -->
-                    <ellipse cx="550" cy="120" rx="25" ry="10" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    <rect x="525" y="120" width="50" height="120" fill="white" stroke="none"/>
-                    <line x1="525" y1="120" x2="575" y2="120" stroke="#0b5394" stroke-width="2"/>
-                    <line x1="525" y1="240" x2="575" y2="240" stroke="#0b5394" stroke-width="2"/>
-                    <ellipse cx="550" cy="240" rx="25" ry="10" fill="none" stroke="#0b5394" stroke-width="2"/>
-                    
-                    <!-- Left torque arrow -->
-                    <path d="M 480 100 A 60 60 0 0 1 480 140" fill="none" stroke="#cc0000" stroke-width="3" marker-end="url(#torque-arrow)"/>
-                    <text x="450" y="115" font-size="16" font-weight="bold" fill="#cc0000">T</text>
-                    
-                    <!-- Right torque arrow -->
-                    <path d="M 620 260 A 60 60 0 0 1 620 300" fill="none" stroke="#cc0000" stroke-width="3" marker-end="url(#torque-arrow)"/>
-                    <text x="640" y="290" font-size="16" font-weight="bold" fill="#cc0000">T</text>
-                    
-                    <!-- Dimension: Outer diameter -->
-                    <line x1="600" y1="120" x2="660" y2="120" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-                    <text x="610" y="110" font-size="12" fill="#555">D<tspan baseline-shift="sub">o</tspan></text>
-                    
-                    <!-- Dimension: Inner diameter -->
-                    <line x1="600" y1="140" x2="660" y2="140" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-                    <text x="610" y="160" font-size="12" fill="#555">D<tspan baseline-shift="sub">i</tspan></text>
-                    
-                    <!-- Dimension: Length -->
-                    <line x1="680" y1="120" x2="680" y2="240" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-                    <text x="695" y="185" font-size="14" fill="#555">L</text>
-                </g>
-
-                <!-- Marker definition for torque arrows -->
-                <defs>
-                    <marker id="torque-arrow" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
-                        <polygon points="0,0 10,3 0,6" fill="#cc0000"/>
-                    </marker>
-                </defs>
-
-                </svg>
-
-            </div>
           
           <h3>Assumptions &amp; Limitations</h3>
 
@@ -297,6 +213,12 @@
 
 
     <div class="calculator-column">
+
+<figure class="ff-figure">
+        <div id="calcDiagram" class="ff-diagram-host" data-diagram="shaft-torsion"></div>
+        <figcaption id="calcDiagramCaption"></figcaption>
+    </figure>
+
 
 
         <section class="content-card calculator-box">
@@ -634,6 +556,12 @@ This calculator uses classical torsion theory and does not account for stress co
 <script src="../js/shaft-torsion-calculation.js"></script>
 <script src="../js/shaft-torsion.js"></script>
 
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/diagram-renderers-loads.js"></script>
+<script src="../js/diagram-renderers-fasteners.js"></script>
+<script src="../js/diagram-renderers-structural.js"></script>
+<script src="../js/calculator-diagram-pages.js"></script>
 <script src="../js/report-builder.js"></script>
 </body>
 

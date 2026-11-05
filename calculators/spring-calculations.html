@@ -75,7 +75,8 @@
                         <li><strong>\(\tau_{\max}\)</strong> — corrected maximum wire shear stress (output; stress)</li>
                     </ul>
 
-                    <h3>Assumptions &amp; Limitations</h3>
+
+    <h3>Assumptions &amp; Limitations</h3>
                     <ul>
                         <li>Round wire, close-coiled compression spring, uniform coil diameter, and linear-elastic material response.</li>
                         <li>The entered coil count is the active coil count; end coils are not inferred.</li>
@@ -87,6 +88,12 @@
             </div>
 
             <div class="calculator-column">
+
+<figure class="ff-figure">
+        <div id="calcDiagram" class="ff-diagram-host" data-diagram="spring-calculations"></div>
+        <figcaption id="calcDiagramCaption"></figcaption>
+    </figure>
+
                 <section class="content-card calculator-box">
                     <h2>Calculation</h2>
                     <label class="input-label" for="distanceUnit">Distance Units</label>
@@ -171,6 +178,12 @@
 <script src="../js/engineering-units.js"></script>
 <script src="../js/calculator-utils.js"></script>
 <script src="../js/spring-calculations.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/diagram-renderers-loads.js"></script>
+<script src="../js/diagram-renderers-fasteners.js"></script>
+<script src="../js/diagram-renderers-structural.js"></script>
+<script src="../js/calculator-diagram-pages.js"></script>
 <script src="../js/report-builder.js"></script>
 </body>
 </html>

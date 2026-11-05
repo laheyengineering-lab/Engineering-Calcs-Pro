@@ -92,7 +92,36 @@
         return block;
     }
 
+    function calcDiagramFigure(id, model, withCaption) {
+        const diagrams = window.FormulaFoundryCalculatorDiagrams;
+        if (!diagrams || !diagrams.has(id)) return null;
+        const clean = diagrams.normalize(id, model, true);
+        if (!clean) return null;
+        const figure = el("figure", "report-profile-diagram report-calc-diagram");
+        figure.appendChild(diagrams.render(doc, id, clean));
+        if (withCaption) figure.appendChild(el("figcaption", null, diagrams.caption(id)));
+        return figure;
+    }
+
     function profileDiagramSection(diagram) {
+        if (diagram && diagram.type === "calc-diagram") {
+            try {
+                const figure = calcDiagramFigure(diagram.id, diagram.model, true);
+                if (!figure) return null;
+                if (diagram.companion) {
+                    const extra = calcDiagramFigure(diagram.companion.id, diagram.companion.model, true);
+                    if (extra) {
+                        const wrapper = el("div", "report-calc-diagram-group");
+                        wrapper.appendChild(figure);
+                        wrapper.appendChild(extra);
+                        return wrapper;
+                    }
+                }
+                return figure;
+            } catch (error) {
+                return null;
+            }
+        }
         if (diagram && diagram.type === "beam-deflection"
             && window.FormulaFoundryBeamDeflectionDiagram
             && typeof window.FormulaFoundryBeamDeflectionDiagram.render === "function") {

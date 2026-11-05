@@ -126,7 +126,9 @@ function calculateHertzContact() {
             { label: "Body 2 Young's modulus (E₂)", value: raw.E2, unit: modulusUnit2 },
             { label: "Body 2 Poisson's ratio (ν₂)", value: raw.nu2, unit: "" }
         );
+        const diagram = window.FormulaFoundryReport.currentCalcDiagram ? window.FormulaFoundryReport.currentCalcDiagram() : null;
         window.FormulaFoundryReport.recordResult({
+            ...(diagram ? { diagram } : {}),
             calculatorId: "hertzian-contact",
             calculatorName: "Hertzian Contact Stress",
             path: "calculators/hertzian-contact.html",

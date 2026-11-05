@@ -69,32 +69,6 @@
     <p>The second moment of area describes how area is distributed about an axis; unlike area, it has units of length to the fourth power. In a rectangle, the dimension perpendicular to the selected axis is cubed because material farther from the neutral axis contributes disproportionately. The section modulus \(S=I/c\) combines the selected inertia with the extreme-fiber distance and is not itself an inertia.</p>
     <p>The x-axis is horizontal across the section and the y-axis is vertical. Bending about x uses \(I_x\) and the vertical extreme-fiber distance; bending about y uses \(I_y\) and the horizontal distance.</p>
 
-    <div class="engineering-diagram">
-        <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
-            <text x="350" y="30" font-size="18" font-weight="bold" text-anchor="middle" fill="#0b5394">Elastic Bending Stress Concept</text>
-
-            <line x1="120" y1="170" x2="580" y2="170" stroke="#0b5394" stroke-width="8"/>
-            <line x1="230" y1="120" x2="230" y2="165" stroke="#cc0000" stroke-width="4"/>
-            <polygon points="230,120 220,135 240,135" fill="#cc0000"/>
-            <line x1="470" y1="220" x2="470" y2="175" stroke="#cc0000" stroke-width="4"/>
-            <polygon points="470,220 460,205 480,205" fill="#cc0000"/>
-            <text x="245" y="132" fill="#cc0000" font-size="16">M</text>
-            <text x="485" y="210" fill="#cc0000" font-size="16">M</text>
-
-            <rect x="260" y="250" width="180" height="120" fill="none" stroke="#0b5394" stroke-width="3"/>
-            <line x1="260" y1="310" x2="440" y2="310" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>
-            <text x="447" y="315" font-size="14" fill="#666">Neutral Axis</text>
-
-            <line x1="470" y1="250" x2="470" y2="310" stroke="#555" stroke-width="1"/>
-            <line x1="470" y1="250" x2="485" y2="250" stroke="#555" stroke-width="2"/>
-            <line x1="470" y1="310" x2="485" y2="310" stroke="#555" stroke-width="2"/>
-            <text x="490" y="285" font-size="16" fill="#555" font-style="italic">c</text>
-
-            <text x="280" y="275" font-size="13" fill="#cc0000">Compression</text>
-            <text x="280" y="345" font-size="13" fill="#cc0000">Tension</text>
-            <text x="350" y="395" text-anchor="middle" font-size="14" fill="#666">σ<sub>max</sub> occurs at outermost fiber</text>
-        </svg>
-    </div>
 
     <h3>Assumptions &amp; Limitations</h3>
     <ul>
@@ -106,6 +80,12 @@
 </div>
 
 <div class="calculator-column">
+
+<figure class="ff-figure">
+        <div id="calcDiagram" class="ff-diagram-host" data-diagram="beam-bending-stress"></div>
+        <figcaption id="calcDiagramCaption"></figcaption>
+    </figure>
+
 <section class="content-card calculator-box">
     <h2>Calculation</h2>
 
@@ -380,6 +360,11 @@ Local buckling, lateral-torsional buckling, fatigue, shear stress, and beam defl
 <script src="../js/beam-study-calculations.js"></script>
 <script src="../js/beam-section-ui.js"></script>
 <script src="../js/beam-bending-stress.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/diagram-renderers-loads.js"></script>
+<script src="../js/diagram-renderers-fasteners.js"></script>
+<script src="../js/diagram-renderers-structural.js"></script>
+<script src="../js/calculator-diagram-pages.js"></script>
 <script src="../js/report-builder.js"></script>
 </body>
 </html>

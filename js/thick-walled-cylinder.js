@@ -7,7 +7,8 @@ if (window.FormulaFoundryReport) {
     window.FormulaFoundryReport.declareStructured();
 }
 
-const THICK_CYLINDER_POINTS = 10; // equal radial intervals -> 11 stations
+const THICK_CYLINDER_POINTS = 10;
+const THICK_CYLINDER_PLOT_SAMPLES = 40; // smooth curve for the plot only; the table keeps 11 stations // equal radial intervals -> 11 stations
 
 const THICK_CYLINDER_EQUATIONS = [
     "\\sigma_r(r) = \\frac{a^2 p_i - b^2 p_o}{b^2 - a^2} - \\frac{a^2 b^2\\,(p_i - p_o)}{\\left(b^2 - a^2\\right) r^2}",
@@ -38,6 +39,7 @@ function thickCylinderError(message) {
         <p>${escapeHtml(message)}</p>
     `;
     thickCylinderEl("plot").innerHTML = "";
+    thickCylinderEl("plot")._ffDiagram = null;
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
 }
 
@@ -103,6 +105,25 @@ ${xTicks}
 </svg>`;
 }
 
+// Prefers the shared diagram renderer; keeps the inline plot when the diagram scripts are not loaded.
+function thickCylinderRenderPlot(r, radiusOut, s, stressUnit, distanceUnit, plotStations) {
+    const plot = thickCylinderEl("plot");
+    const diagrams = window.FormulaFoundryCalculatorDiagrams;
+    if (!diagrams || !diagrams.has("thick-walled-cylinder-plot")) {
+        plot.innerHTML = thickCylinderPlotSvg(plotStations, stressUnit, distanceUnit);
+        return;
+    }
+    const samples = [];
+    const count = THICK_CYLINDER_PLOT_SAMPLES;
+    const a = r.inner.r;
+    const b = r.outer.r;
+    for (let i = 0; i <= count; i += 1) {
+        const v = r.stressAt(a + (b - a) * i / count);
+        samples.push([radiusOut(v.r), s(v.radial), s(v.hoop)]);
+    }
+    diagrams.mount(plot, "thick-walled-cylinder-plot", { samples, axial: s(r.axial), distanceUnit, stressUnit });
+}
+
 function calculateThickCylinder() {
     const innerDiameter = readNumberInput("innerDiameter");
     const outerDiameter = readNumberInput("outerDiameter");
@@ -152,7 +173,7 @@ function calculateThickCylinder() {
     `;
 
     const plotStations = r.stations.map((v) => ({ x: radiusOut(v.r), radial: s(v.radial), hoop: s(v.hoop) }));
-    thickCylinderEl("plot").innerHTML = thickCylinderPlotSvg(plotStations, stressUnit, distanceUnit);
+    thickCylinderRenderPlot(r, radiusOut, s, stressUnit, distanceUnit, plotStations);
 
     if (window.FormulaFoundryReport) {
         const pair = (name, v) => [
@@ -160,7 +181,11 @@ function calculateThickCylinder() {
             { label: name + " hoop stress (σθ)", value: s(v.hoop), unit: stressUnit },
             { label: name + " axial stress (σz)", value: s(v.axial), unit: stressUnit }
         ];
+                const diagram = window.FormulaFoundryReport.currentCalcDiagram ? window.FormulaFoundryReport.currentCalcDiagram() : null;
+        const plotSnapshot = window.FormulaFoundryCalculatorDiagrams && window.FormulaFoundryCalculatorDiagrams.snapshot(thickCylinderEl("plot"));
+        if (diagram && plotSnapshot) diagram.companion = { id: plotSnapshot.id, model: plotSnapshot.model };
         window.FormulaFoundryReport.recordResult({
+            ...(diagram ? { diagram } : {}),
             calculatorId: "thick-walled-cylinder",
             calculatorName: "Thick-Walled Cylinder Stress Analysis",
             path: "calculators/thick-walled-cylinder.html",
@@ -191,5 +216,6 @@ function resetThickCylinderCalculator() {
     thickCylinderEl("stressUnit").value = "MPa";
     thickCylinderEl("result").innerHTML = "Ready to calculate.";
     thickCylinderEl("plot").innerHTML = "";
+    thickCylinderEl("plot")._ffDiagram = null;
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
 }
