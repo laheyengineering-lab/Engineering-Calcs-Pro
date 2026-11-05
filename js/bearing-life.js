@@ -11,18 +11,13 @@ const bearingSpeedInput = document.getElementById("speed");
 const bearingSpeedUnitSelect = document.getElementById("speedUnit");
 const bearingResultPanel = document.getElementById("result");
 
-const bearingLifeExponents = {
-    ball: 3,
-    roller: 10 / 3
-};
-
 function calculateBearingLife() {
     const bearingType = bearingTypeSelect.value;
     const dynamicLoadRating = Number(bearingDynamicRatingInput.value);
     const equivalentDynamicLoad = Number(bearingEquivalentLoadInput.value);
     const speed = Number(bearingSpeedInput.value);
 
-    if (!(bearingType in bearingLifeExponents)) {
+    if (!(bearingType in BEARING_LIFE_EXPONENTS)) {
         bearingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please select a valid bearing type.</p>";
         return;
     }
@@ -37,10 +32,9 @@ function calculateBearingLife() {
         const equivalentLoadN = convertForce(equivalentDynamicLoad, bearingEquivalentLoadUnitSelect.value);
         const speedRpm = convertRotationalSpeed(speed, bearingSpeedUnitSelect.value);
 
-        const exponent = bearingLifeExponents[bearingType];
-        const lifeMillionRevolutions = Math.pow(dynamicLoadRatingN / equivalentLoadN, exponent);
-        const lifeRevolutions = lifeMillionRevolutions * 1e6;
-        const lifeHours = lifeRevolutions / (60 * speedRpm);
+        const { exponent, lifeMillionRevolutions, lifeRevolutions, lifeHours } = computeBearingLife({
+            bearingType, dynamicLoadRatingN, equivalentLoadN, speedRpm
+        });
         const safeBearingType = escapeHtml(bearingType);
 
         const loadWarning = equivalentLoadN >= dynamicLoadRatingN

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadCalculatorPage, getResultText, setInputValue, setSelectValue } from '../helpers/browser-test-utils.js';
 
-const scripts = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', 'js/thick-walled-cylinder.js'];
+const scripts = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', 'js/thick-walled-cylinder-calculation.js', 'js/thick-walled-cylinder.js'];
 
 function load() {
     return loadCalculatorPage('calculators/thick-walled-cylinder.html', scripts);

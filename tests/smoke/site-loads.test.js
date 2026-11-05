@@ -3,22 +3,22 @@ import { describe, it, expect } from 'vitest';
 import { loadCalculatorPage } from '../helpers/browser-test-utils.js';
 
 const calculatorPages = [
-    ['calculators/moment.html', ['js/engineering-units.js', 'js/moment.js']],
-    ['calculators/bolt-torque.html', ['js/engineering-units.js', 'js/bolt-database.js', 'js/bolt-torque.js']],
-    ['calculators/stress-strain.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/stress-strain.js']],
+    ['calculators/moment.html', ['js/engineering-units.js', 'js/moment-calculation.js', 'js/moment.js']],
+    ['calculators/bolt-torque.html', ['js/engineering-units.js', 'js/bolt-database.js', 'js/bolt-torque-calculation.js', 'js/bolt-torque.js']],
+    ['calculators/stress-strain.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/stress-strain-calculation.js', 'js/stress-strain.js']],
     ['calculators/shaft-torsion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/shaft-torsion.js']],
-    ['calculators/thermal-expansion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thermal-expansion.js']],
+    ['calculators/thermal-expansion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thermal-expansion-calculation.js', 'js/thermal-expansion.js']],
     ['calculators/beam-deflection.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/engineering-diagram.js', 'js/beam-section-properties.js', 'js/beam-section-ui.js', 'js/beam-deflection-diagram.js', 'js/beam-deflection.js']],
-    ['calculators/column-buckling.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/column-buckling.js']],
+    ['calculators/column-buckling.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/column-buckling-calculation.js', 'js/column-buckling.js']],
     ['calculators/beam-bending-stress.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/engineering-diagram.js', 'js/beam-section-properties.js', 'js/beam-section-ui.js', 'js/beam-bending-stress.js']],
-    ['calculators/bearing-life.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/bearing-life.js']],
-    ['calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/factor-of-safety.js']],
-    ['calculators/spring-calculations.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/spring-calculations.js']],
-    ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength.js']],
+    ['calculators/bearing-life.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/bearing-life-calculation.js', 'js/bearing-life.js']],
+    ['calculators/factor-of-safety.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/factor-of-safety-calculation.js', 'js/factor-of-safety.js']],
+    ['calculators/spring-calculations.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/spring-calculation.js', 'js/spring-calculations.js']],
+    ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength-calculation.js', 'js/thread-strength.js']],
     ['calculators/hertzian-contact.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/hertzian-contact.js']],
     ['calculators/differential-thermal-expansion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/differential-thermal-expansion.js']],
     ['calculators/cylinder-force.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/cylinder-force.js']],
-    ['calculators/thick-walled-cylinder.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thick-walled-cylinder.js']]
+    ['calculators/thick-walled-cylinder.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thick-walled-cylinder-calculation.js', 'js/thick-walled-cylinder.js']]
 ];
 
 describe('page smoke tests', () => {

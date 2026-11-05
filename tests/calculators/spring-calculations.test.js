@@ -11,7 +11,7 @@ function setup() {
     return loadCalculatorPage('calculators/spring-calculations.html', [
         'js/engineering-units.js',
         'js/calculator-utils.js',
-        'js/spring-calculations.js'
+        'js/spring-calculation.js', 'js/spring-calculations.js'
     ]);
 }
 

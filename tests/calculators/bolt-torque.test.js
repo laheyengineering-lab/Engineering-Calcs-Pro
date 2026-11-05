@@ -12,7 +12,7 @@ function setup() {
     return loadCalculatorPage('calculators/bolt-torque.html', [
         'js/engineering-units.js',
         'js/bolt-database.js',
-        'js/bolt-torque.js'
+        'js/bolt-torque-calculation.js', 'js/bolt-torque.js'
     ]);
 }
 

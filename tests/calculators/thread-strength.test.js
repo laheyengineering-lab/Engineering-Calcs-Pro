@@ -11,7 +11,7 @@ function setup() {
     return loadCalculatorPage('calculators/thread-strength.html', [
         'js/engineering-units.js',
         'js/calculator-utils.js',
-        'js/thread-strength.js'
+        'js/thread-strength-calculation.js', 'js/thread-strength.js'
     ]);
 }
 

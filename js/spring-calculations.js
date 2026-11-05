@@ -56,29 +56,20 @@ function calculateSpring() {
         return;
     }
 
-    const index = DM / dM;
-    if (!Number.isFinite(index) || index <= 1) {
-        springError("Spring geometry produces an invalid spring index.");
+    let calculated;
+    try {
+        calculated = computeSpring({ wireDiameterM: dM, meanDiameterM: DM, activeCoils, forceN, shearModulusPa: modulusPa });
+    } catch (error) {
+        springError(error.message);
         return;
     }
-
-    const rateNPerM = modulusPa * Math.pow(dM, 4) /
-        (8 * Math.pow(DM, 3) * activeCoils);
-    const deflectionM = forceN / rateNPerM;
-    const wahlFactor = (4 * index - 1) / (4 * index - 4) + 0.615 / index;
-    const shearStressPa = wahlFactor * 8 * forceN * DM / (Math.PI * Math.pow(dM, 3));
-    const values = [rateNPerM, deflectionM, wahlFactor, shearStressPa];
-
-    if (!values.every(Number.isFinite) || rateNPerM <= 0 || deflectionM < 0 || shearStressPa < 0) {
-        springError("The calculation produced a non-finite result. Check the inputs and units.");
-        return;
-    }
+    const { index, rateNPerM, deflectionM, wahlFactor, shearStressPa } = calculated;
 
     const rateOutput = convertForceToUnit(rateNPerM * distanceUnits[distanceUnit], forceUnit);
     const deflectionOutput = convertDistanceToUnit(deflectionM, distanceUnit);
     const stressOutput = convertStressToUnit(shearStressPa, stressUnit);
     const warnings = [];
-    if (index < 4 || index > 16) {
+    if (calculated.indexOutsideTypicalRange) {
         warnings.push("Spring index is outside the typical range of 4–16; review the geometry and applicable design guidance.");
     }
 

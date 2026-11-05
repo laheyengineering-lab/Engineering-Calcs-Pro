@@ -24,7 +24,7 @@ function calculateMoment() {
 
     const forceN = convertForce(force, forceUnit);
     const distanceM = convertDistance(distance, distanceUnit);
-    const momentNm = forceN * distanceM;
+    const { momentNm } = computeMoment({ forceN, distanceM });
     const output = convertMomentToUnit(momentNm, outputUnit);
 
     // Format output once and reuse

@@ -9,7 +9,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/moment.html', ['js/engineering-units.js', 'js/moment.js']);
+    return loadCalculatorPage('calculators/moment.html', ['js/engineering-units.js', 'js/moment-calculation.js', 'js/moment.js']);
 }
 
 describe('moment calculator', () => {

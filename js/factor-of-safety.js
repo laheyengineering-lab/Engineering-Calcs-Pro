@@ -55,20 +55,6 @@ function updateMaterialStrength() {
     fosStrengthInput.readOnly = true;
 }
 
-function getFoSInterpretation(fosValue) {
-    const tolerance = 1e-9;
-
-    if (fosValue > 1 + tolerance) {
-        return "FoS > 1: The specified applied condition is below the specified strength/failure value.";
-    }
-
-    if (Math.abs(fosValue - 1) <= tolerance) {
-        return "FoS = 1: The specified applied condition equals the specified strength/failure value.";
-    }
-
-    return "FoS < 1: The specified applied condition exceeds the specified strength/failure value.";
-}
-
 function calculateFactorOfSafety() {
     const mode = fosModeSelect.value;
 
@@ -84,9 +70,8 @@ function calculateFactorOfSafety() {
 
             const strengthPa = convertStress(strengthValue, fosStrengthUnitSelect.value);
             const appliedStressPa = convertStress(appliedStressValue, fosAppliedStressUnitSelect.value);
-            const fosValue = strengthPa / appliedStressPa;
+            const { factorOfSafety: fosValue, interpretation } = computeFactorOfSafety({ mode, strengthPa, appliedStressPa });
 
-            const interpretation = getFoSInterpretation(fosValue);
             const strengthUnit = fosStrengthUnitSelect.value;
             const appliedStressUnit = fosAppliedStressUnitSelect.value;
             const strengthDisplay = convertStressToUnit(strengthPa, strengthUnit);
@@ -118,9 +103,8 @@ function calculateFactorOfSafety() {
 
         const failureLoadN = convertForce(failureLoadValue, fosFailureLoadUnitSelect.value);
         const appliedLoadN = convertForce(appliedLoadValue, fosAppliedLoadUnitSelect.value);
-        const fosValue = failureLoadN / appliedLoadN;
+        const { factorOfSafety: fosValue, interpretation } = computeFactorOfSafety({ mode, failureLoadN, appliedLoadN });
 
-        const interpretation = getFoSInterpretation(fosValue);
         const failureLoadUnit = fosFailureLoadUnitSelect.value;
         const appliedLoadUnit = fosAppliedLoadUnitSelect.value;
         const failureDisplay = convertForceToUnit(failureLoadN, failureLoadUnit);
