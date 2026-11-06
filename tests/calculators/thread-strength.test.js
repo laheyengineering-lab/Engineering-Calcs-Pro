@@ -108,11 +108,11 @@ describe('thread strength calculator', () => {
         setSelectValue(document, 'internalMaterial', 'aluminum');
         document.getElementById('boltMaterial').dispatchEvent(new window.Event('change'));
         document.getElementById('internalMaterial').dispatchEvent(new window.Event('change'));
-        expect(Number(document.getElementById('boltStrength').value)).toBe(250);
+        expect(Number(document.getElementById('boltStrength').value)).toBe(400); // A36 specified-minimum UTS (legacy 250)
         expect(Number(document.getElementById('internalStrength').value)).toBe(310);
         setSelectValue(document, 'strengthUnit', 'psi');
         document.getElementById('strengthUnit').dispatchEvent(new window.Event('change'));
-        expect(Number(document.getElementById('boltStrength').value)).toBeCloseTo(250e6 / 6894.757, 0);
+        expect(Number(document.getElementById('boltStrength').value)).toBeCloseTo(400e6 / 6894.757, 0);
         expect(Number(document.getElementById('internalStrength').value)).toBeCloseTo(310e6 / 6894.757, 0);
     });
 });

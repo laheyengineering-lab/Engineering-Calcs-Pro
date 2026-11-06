@@ -144,7 +144,7 @@ describe('Design Studies page', () => {
 
         const card = document.querySelector('.scenario-card');
         const field = (label) => Array.from(card.querySelectorAll('label'))
-            .find((item) => item.textContent.startsWith(label)).querySelector('input, select');
+            .find((item) => item.textContent.startsWith(label) && !item.textContent.startsWith(label + ' unit')).querySelector('input, select');
         const set = (label, value) => change(window, field(label), String(value));
         set('Interface diameter', 50);
         set('Diametral interference (Δd)', 0.05);
@@ -183,7 +183,9 @@ describe('Design Studies page', () => {
         set('Outer diameter', 0.05);
         set('Shaft length', 2);
         set('Shaft material', 'carbon-steel');
-        expect(field('Shear modulus (G)').value).toBe('80');
+        expect(field('Shear modulus (G)').value).toBe('79.3');
+        set('Shaft material', 'aluminum');
+        expect(field('Shear modulus (G)').value).toBe('26');
         click(window, buttonByText(card, 'Recalculate'));
         const stress = () => Number(Array.from(card.querySelectorAll('tbody tr'))
             .find((row) => row.cells[0].textContent === 'Maximum shear stress (signed)').cells[1].textContent);
@@ -192,12 +194,48 @@ describe('Design Studies page', () => {
         expect(stress()).toBeCloseTo(20.3718, 3);
         const initialTwist = twist();
 
-        set('Shear modulus (G)', 40);
+        set('Shear modulus (G)', 26);
         expect(card.querySelector('[data-role="status"]').textContent).toMatch(/recalculate/);
+        set('Shaft material', 'stainless-steel');
+        expect(field('Shear modulus (G)').value).toBe('26');
+        expect(field('Shear modulus (G)').title).toMatch(/Manual override/);
+        set('Shear modulus (G)', 40);
         click(window, buttonByText(card, 'Recalculate'));
         expect(stress()).toBeCloseTo(20.3718, 3);
-        expect(twist()).toBeCloseTo(initialTwist * 2, 8);
+        expect(twist()).toBeCloseTo(initialTwist * 26 / 40, 4);
         const saved = JSON.parse(window.localStorage.getItem('formulaFoundry.designStudies'));
-        expect(saved.studies[0].scenarios[0].inputs).toMatchObject({ material: 'carbon-steel', shearModulus: 40 });
+        expect(saved.studies[0].scenarios[0].inputs).toMatchObject({ material: 'stainless-steel', shearModulus: 40 });
+    });
+
+    it('flags historical material-reference results and uses current values only after recalculation', () => {
+        const { window, document } = load();
+        document.getElementById('newStudyName').value = 'Material revision study';
+        document.getElementById('newStudyCalculator').value = 'shaft-torsion';
+        document.getElementById('newStudyForm').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+        click(window, document.getElementById('addScenario'));
+
+        let card = document.querySelector('.scenario-card');
+        const field = (label) => Array.from(card.querySelectorAll('label'))
+            .find((item) => item.textContent.startsWith(label) && !item.textContent.startsWith(label + ' unit')).querySelector('input, select');
+        const set = (label, value) => change(window, field(label), String(value));
+        set('Shaft geometry', 'solid');
+        set('Applied torque', 500);
+        set('Outer diameter', 0.05);
+        set('Shaft length', 2);
+        set('Shaft material', 'carbon-steel');
+        click(window, buttonByText(card, 'Recalculate'));
+
+        const saved = JSON.parse(window.localStorage.getItem('formulaFoundry.designStudies'));
+        saved.studies[0].scenarios[0].result.calculatorVersion = '1';
+        const reopened = load({ 'formulaFoundry.designStudies': JSON.stringify(saved) });
+        const studySelect = reopened.document.getElementById('studySelect');
+        studySelect.value = saved.studies[0].id;
+        studySelect.dispatchEvent(new reopened.window.Event('change', { bubbles: true }));
+        card = reopened.document.querySelector('.scenario-card');
+        expect(card.querySelector('[data-role="status"]').textContent).toBe('Reference data changed: recalculate');
+        expect(card.textContent).toContain('saved historical result');
+
+        click(reopened.window, buttonByText(card, 'Recalculate'));
+        expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
     });
 });

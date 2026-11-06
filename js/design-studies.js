@@ -129,7 +129,9 @@
 
     // ---------- Scenarios ----------
 
-    function statusLabel(scenario) {
+    function statusLabel(scenario, adapter) {
+        if (scenario.result && scenario.result.calculatorVersion &&
+            scenario.result.calculatorVersion !== adapter.version) return "Reference data changed: recalculate";
         return { new: "Not calculated", calculated: "Calculated", stale: "Inputs edited: recalculate", error: "Error" }[scenario.status];
     }
 
@@ -181,7 +183,7 @@
         radioLabel.appendChild(radio);
         radioLabel.appendChild(doc.createTextNode(" Baseline"));
         head.appendChild(radioLabel);
-        const badge = el("span", "status-badge is-" + scenario.status, statusLabel(scenario));
+        const badge = el("span", "status-badge is-" + scenario.status, statusLabel(scenario, adapter));
         badge.dataset.role = "status";
         head.appendChild(badge);
         card.appendChild(head);
@@ -279,22 +281,62 @@
             const raw = field.value.trim();
             const value = input.options ? (raw || null) : (raw === "" ? null : Number(raw));
             if (!input.options && value !== null && !Number.isFinite(value)) { status("Enter a valid number for " + input.label + ".", true); return; }
+            if (!input.options && (adapter.materialBindings || []).some((binding) =>
+                binding.inputs.some((property) => property.id === input.id))) {
+                if (value === null) delete field.dataset.materialManualOverride;
+                else {
+                    field.dataset.materialManualOverride = "true";
+                    field.title = "Manual override; this value is not being supplied by the selected material.";
+                }
+            }
             mutateScenario(scenario.id, (s) => {
                 let next = S.setScenarioInput(adapter, s, input.id, value);
-                const materialBinding = value && (adapter.materialBindings || []).find((binding) => binding.selectionId === input.id);
-                if (materialBinding) {
-                    materialBinding.inputs.forEach((binding) => {
-                        const materialValue = getMaterialProperty(value, binding.property);
-                        if (!Number.isFinite(materialValue)) return;
+                const selectedBinding = (adapter.materialBindings || []).find((binding) => binding.selectionId === input.id);
+                if (selectedBinding) {
+                    const previousMaterial = s.inputs[input.id];
+                    const selectedMaterial = value;
+                    selectedBinding.inputs.forEach((binding) => {
+                        const previousPropertyValue = getMaterialProperty(previousMaterial, binding.property);
                         const target = adapter.inputs.find((item) => item.id === binding.id);
+                        const previousDisplayedValue = Number.isFinite(previousPropertyValue)
+                            ? (target && target.group
+                                ? adapter.groups[target.group].fromBase(previousPropertyValue, next.units[target.group])
+                                : previousPropertyValue)
+                            : null;
+                        const currentValue = s.inputs[binding.id];
+                        const targetField = Array.from(card.querySelectorAll("[data-input-id]"))
+                            .find((element) => element.dataset.inputId === binding.id);
+                        const wasMaterialSupplied = currentValue === null || currentValue === undefined ||
+                            (!targetField?.dataset.materialManualOverride &&
+                                Number.isFinite(previousDisplayedValue) && currentValue === previousDisplayedValue);
+                        if (!wasMaterialSupplied) return;
+
+                        const materialValue = getMaterialProperty(selectedMaterial, binding.property);
+                        if (!Number.isFinite(materialValue)) {
+                            if (currentValue !== null && currentValue !== undefined) {
+                                next = S.setScenarioInput(adapter, next, binding.id, null);
+                            }
+                            if (targetField) {
+                                targetField.value = "";
+                                delete targetField.dataset.materialManualOverride;
+                                targetField.title = "No reference value for this property is available from the selected material.";
+                            }
+                            return;
+                        }
+
                         const displayedValue = target && target.group
                             ? adapter.groups[target.group].fromBase(materialValue, next.units[target.group])
                             : materialValue;
                         if (Number.isFinite(displayedValue)) {
                             next = S.setScenarioInput(adapter, next, binding.id, displayedValue);
-                            const targetField = Array.from(card.querySelectorAll("[data-input-id]"))
-                                .find((element) => element.dataset.inputId === binding.id);
-                            if (targetField) targetField.value = String(displayedValue);
+                            if (targetField) {
+                                targetField.value = String(displayedValue);
+                                delete targetField.dataset.materialManualOverride;
+                                const basis = getMaterialPropertyBasis(selectedMaterial, binding.property);
+                                targetField.title = getMaterial(selectedMaterial).displayName + ": "
+                                    + (MATERIAL_PROPERTY_BASES[basis] || "reference property")
+                                    + ". Edit to use a manual override.";
+                            }
                         }
                     });
                 }
@@ -332,7 +374,7 @@
         const adapter = adapterOf(current());
         const badge = card.querySelector('[data-role="status"]');
         badge.className = "status-badge is-" + scenario.status;
-        badge.textContent = statusLabel(scenario);
+        badge.textContent = statusLabel(scenario, adapter);
         adapter.inputs.forEach((input) => {
             const unit = card.querySelector('[data-input-unit="' + input.id + '"]');
             if (unit) unit.textContent = S.unitOfInput(adapter, input, scenario.units);
@@ -340,7 +382,11 @@
         const results = card.querySelector('[data-role="results"]');
         results.textContent = "";
         if (scenario.status === "error") results.appendChild(el("p", "scenario-error", "Calculation failed: " + scenario.error));
-        if (scenario.status === "stale") results.appendChild(el("p", "scenario-error", "Inputs or units were edited after the last calculation. The results below are the previously saved snapshot; press Recalculate to update them."));
+        if (scenario.status === "stale" && scenario.result && scenario.result.calculatorVersion &&
+            scenario.result.calculatorVersion !== adapter.version) {
+            results.appendChild(el("p", "scenario-error", "The material reference data revision has changed. This is the saved historical result; recalculate to use current reference properties."));
+        }
+        else if (scenario.status === "stale") results.appendChild(el("p", "scenario-error", "Inputs or units were edited after the last calculation. The results below are the previously saved snapshot; press Recalculate to update them."));
         if (scenario.result) {
             const wrap = el("div", "table-scroll");
             const table = el("table", "study-table");

@@ -70,7 +70,7 @@ describe('differential thermal expansion', () => {
         const { document, window } = load();
         setSelectValue(document, 'secA1Material', 'carbon-steel');
         window.applyDteMaterial('secA1');
-        expect(Number(document.getElementById('secA1Alpha').value)).toBeCloseTo(12, 6);
+        expect(Number(document.getElementById('secA1Alpha').value)).toBeCloseTo(11.7, 6); // A36 corrected from 12.0;
     });
 
     it.each([

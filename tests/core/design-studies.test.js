@@ -784,9 +784,9 @@ describe('engineering calculator study adapters', () => {
             contactLength: null, contactForce: 500, material1: 'carbon-steel', material2: 'aluminum'
         });
         expect(contact.status).toBe('calculated');
-        expect(out(contact, 'maxPressure').value).toBeCloseTo(795.083, 1);
+        expect(out(contact, 'maxPressure').value).toBeCloseTo(793.7197, 1); // independent sphere-on-flat Hertz reference, corrected A36 nu = 0.26
         expect(contact.result.inputs.find((input) => input.id === 'modulus1')).toMatchObject({ value: 200, unit: 'GPa' });
-        expect(contact.result.inputs.find((input) => input.id === 'poisson1').value).toBe(0.27);
+        expect(contact.result.inputs.find((input) => input.id === 'poisson1').value).toBe(0.26);
         expect(hertz.inputs.find((input) => input.id === 'material1').options).toContain('carbon-steel');
 
         const shaft = S.getAdapter('shaft-torsion');
@@ -796,17 +796,17 @@ describe('engineering calculator study adapters', () => {
         };
         const torsion = calculateStudyScenario(S, shaft.id, 'Material shaft', torsionInputs);
         expect(out(torsion, 'maximumShearStress').value).toBeCloseTo(20.3718, 3);
-        expect(torsion.result.inputs.find((input) => input.id === 'shearModulus')).toMatchObject({ value: 80, unit: 'GPa' });
+        expect(torsion.result.inputs.find((input) => input.id === 'shearModulus')).toMatchObject({ value: 79.3, unit: 'GPa' });
         expect(shaft.inputs.find((input) => input.id === 'material').options).toContain('carbon-steel');
         const imperialTorsion = calculateStudyScenario(S, shaft.id, 'Material shaft imperial', torsionInputs, {
             modulus: 'psi', stress: 'ksi', angle: 'rad'
         });
         expect(out(imperialTorsion, 'maximumShearStress').value).toBeCloseTo(out(torsion, 'maximumShearStress').value / 6.894757, 3);
         expect(imperialTorsion.result.inputs.find((input) => input.id === 'shearModulus'))
-            .toMatchObject({ value: 80e9 / 6894.757, unit: 'psi' });
+            .toMatchObject({ value: 79.3e9 / 6894.757, unit: 'psi' });
         const override = calculateStudyScenario(S, shaft.id, 'Custom G', { ...torsionInputs, shearModulus: 40 });
         expect(out(override, 'maximumShearStress').value).toBeCloseTo(out(torsion, 'maximumShearStress').value, 8);
-        expect(out(override, 'angleOfTwist').value).toBeCloseTo(out(torsion, 'angleOfTwist').value * 2, 8);
+        expect(out(override, 'angleOfTwist').value).toBeCloseTo(out(torsion, 'angleOfTwist').value * 79.3 / 40, 8);
 
         const beam = S.getAdapter('beam-deflection');
         const deflection = calculateStudyScenario(S, beam.id, 'Material beam', {
@@ -821,10 +821,12 @@ describe('engineering calculator study adapters', () => {
             A1Length: 1000, A1Material: 'carbon-steel', A1Ti: 20, A1Tf: 120,
             B1Length: 1000, B1Material: 'aluminum', B1Ti: 20, B1Tf: 120
         });
-        expect(out(expansion, 'memberAExpansion').value).toBeCloseTo(1.2, 8);
+        expect(out(expansion, 'memberAExpansion').value).toBeCloseTo(1.17, 8);
         expect(out(expansion, 'memberBExpansion').value).toBeCloseTo(2.36, 8);
-        expect(out(expansion, 'differential').value).toBeCloseTo(-1.16, 8);
-        expect(expansion.result.inputs.find((input) => input.id === 'A1Alpha')).toMatchObject({ value: 12, unit: '10⁻⁶/°C' });
+        expect(out(expansion, 'differential').value).toBeCloseTo(-1.19, 8);
+        const alphaInput = expansion.result.inputs.find((input) => input.id === 'A1Alpha');
+        expect(alphaInput.value).toBeCloseTo(11.7, 9);
+        expect(alphaInput.unit).toBe('10⁻⁶/°C');
         expect(dte.inputs.find((input) => input.id === 'A1Material').options).toContain('carbon-steel');
     });
 });

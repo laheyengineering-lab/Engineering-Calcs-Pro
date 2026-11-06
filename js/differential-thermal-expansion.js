@@ -107,6 +107,9 @@ function buildDteRows() {
             populateMaterialSelect(dteEl(id + "Material"), {
                 placeholderText: "-- Custom (enter α) --",
                 formatLabel(material) {
+                    if (!Number.isFinite(material.thermalExpansionCoefficient)) {
+                        return `${material.displayName} (α unavailable; enter manually)`;
+                    }
                     return `${material.displayName} (${(material.thermalExpansionCoefficient * 1e6).toFixed(1)} × 10⁻⁶ /°C)`;
                 }
             });
@@ -115,10 +118,9 @@ function buildDteRows() {
 }
 
 function applyDteMaterial(id) {
-    const key = dteEl(id + "Material").value;
-    if (!key) return;
-    const perCelsius = getMaterialProperty(key, "thermalExpansionCoefficient");
-    dteEl(id + "Alpha").value = Number((perCelsius / DTE_ALPHA_UNITS[dteEl("alphaUnit").value]).toPrecision(8));
+    applyMaterialPropertyToInput(dteEl(id + "Material"), dteEl(id + "Alpha"), "thermalExpansionCoefficient", {
+        formatValue: (value) => Number((value / DTE_ALPHA_UNITS[dteEl("alphaUnit").value]).toPrecision(8))
+    });
 }
 
 function readDteSections(member, units) {

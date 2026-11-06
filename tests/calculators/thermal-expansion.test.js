@@ -80,6 +80,31 @@ describe('thermal expansion calculator', () => {
         expect(Number(document.getElementById('youngsModulus').value)).toBe(95000);
     });
 
+    it('clears only the old material-supplied coefficient when the next material has no reference value', () => {
+        const { document, window } = setup();
+        setSelectValue(document, 'material', 'carbon-steel');
+        window.updateMaterialAlpha();
+        expect(Number(document.getElementById('alpha').value)).toBeCloseTo(11.7e-6, 12);
+
+        setSelectValue(document, 'material', 'aluminum-6061-o');
+        window.updateMaterialAlpha();
+        expect(document.getElementById('alpha').value).toBe('');
+        expect(Number(document.getElementById('youngsModulus').value)).toBeCloseTo(68.9, 6);
+
+        setInputValue(document, 'alpha', 19e-6);
+        setSelectValue(document, 'material', 'aluminum-6061-o');
+        window.updateMaterialAlpha();
+        expect(Number(document.getElementById('alpha').value)).toBeCloseTo(19e-6, 12);
+    });
+
+    it('rejects a missing coefficient rather than treating a blank field as zero', () => {
+        const { document, window } = setup();
+        setInputValue(document, 'originalLength', 2);
+        setInputValue(document, 'temperatureChange', 50);
+        window.calculateThermalExpansion();
+        expect(getResultText(document)).toContain('Invalid Input');
+    });
+
     it('rejects non-positive modulus when restrained stress is requested', () => {
         const { document, window } = setup();
 

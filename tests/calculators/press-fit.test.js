@@ -87,7 +87,7 @@ describe('press fit calculator', () => {
 
         const e = lame({ d: 0.05, dd: 0.00005, D: 0.1, di: 0, L: 0.05, mu: 0.12, Eh: 68.9e9, nuh: 0.33, Es: 200e9, nus: 0.27 });
         const ref = window.eval("[getMaterialProperty('aluminum','youngsModulus'), getMaterialProperty('aluminum','poissonRatio')]");
-        const e2 = lame({ d: 0.05, dd: 0.00005, D: 0.1, di: 0, L: 0.05, mu: 0.12, Eh: ref[0], nuh: ref[1], Es: 200e9, nus: 0.27 });
+        const e2 = lame({ d: 0.05, dd: 0.00005, D: 0.1, di: 0, L: 0.05, mu: 0.12, Eh: ref[0], nuh: ref[1], Es: 200e9, nus: 0.26 });
         expect(e.p).toBeGreaterThan(0);
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(e2.p / 1e6, 2);
     });
@@ -140,6 +140,19 @@ describe('press fit calculator', () => {
         window.eval("delete materialDatabase['carbon-steel'].youngsModulus;");
         window.calculatePressFit();
         expect(getResultText(document)).toContain("Young's modulus");
+    });
+
+    it('does not report a controlling margin when a member has no yield strength', () => {
+        const { document, window } = setup();
+        fill(document, { hubMaterial: 'cast-iron', shaftMaterial: 'carbon-steel' });
+        window.calculatePressFit();
+
+        const text = getResultText(document);
+        expect(text).toContain('Hub: Not assessed (yield-strength data unavailable)');
+        expect(text).toMatch(/Shaft: [\d.]+/);
+        expect(text).toContain('screening is incomplete for Hub');
+        expect(text).not.toContain('Controlling (lowest)');
+        expect(text).not.toContain('margin is reasonable');
     });
 
     it('is deterministic for the database carbon-steel worked example', () => {

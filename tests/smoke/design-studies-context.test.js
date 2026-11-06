@@ -182,12 +182,12 @@ describe('Design Studies engineering context', () => {
         const { window } = load();
         const adapter = window.FormulaFoundryStudies.getAdapter('factor-of-safety');
         const figure = window.FormulaFoundryStudyContext.renderDiagram(window.document, adapter, {
-            inputs: { mode: 'stress', strengthSource: 'material-yield', material: 'carbon-steel', strength: 250, appliedStress: 200 },
+            inputs: { mode: 'stress', strengthSource: 'material-yield', material: 'carbon-steel', strength: 250, appliedStress: 300 },
             units: { stress: 'MPa' }
         });
         const svg = figure.querySelector('svg');
         expect(svg.textContent).toContain('Yield strength (capacity)');
-        expect(svg.textContent).toContain('Yield strength = 170 MPa');
+        expect(svg.textContent).toContain('Yield strength = 250 MPa');
         expect(svg.querySelector('.sd-extension')).not.toBeNull();
     });
 

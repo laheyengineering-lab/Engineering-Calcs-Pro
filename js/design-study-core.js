@@ -240,7 +240,9 @@
             equations: (typeof adapter.equationsFor === "function" ? adapter.equationsFor(scenario.inputs) : adapter.equations).slice(),
             assumptions: adapter.assumptions.slice(),
             method: adapter.method,
-            warnings: (adapter.warnings || []).slice()
+            warnings: (adapter.warnings || []).concat(
+                typeof adapter.warningsFor === "function" ? adapter.warningsFor(scenario.inputs, outputs) : []
+            )
         };
         return next;
     }

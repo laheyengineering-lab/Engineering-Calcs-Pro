@@ -106,9 +106,10 @@ function markBeamDeflectionInputsStale() {
 }
 
 function updateBeamDeflectionMaterialModulus() {
-    const youngsModulusPa = getMaterialProperty(beamMaterialSelect.value, "youngsModulus");
-    if (!Number.isFinite(youngsModulusPa) || youngsModulusPa <= 0) return;
-    youngsModulusInput.value = String(convertModulusToUnit(youngsModulusPa, modulusUnitSelect.value));
+    applyMaterialPropertyToInput(beamMaterialSelect, youngsModulusInput, "youngsModulus", {
+        formatValue: (value) => convertModulusToUnit(value, modulusUnitSelect.value),
+        overwriteInitial: true
+    });
 }
 
 const beamDeflectionCases = window.FormulaFoundryBeamCalculations.cases;

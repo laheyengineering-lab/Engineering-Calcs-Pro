@@ -71,7 +71,33 @@ describe('factor of safety calculator', () => {
 
         window.updateMaterialStrength();
 
-        expect(Number(document.getElementById('strength').value)).toBeCloseTo(170, 3);
+        expect(Number(document.getElementById('strength').value)).toBeCloseTo(250, 3); // A36 specified-minimum yield corrected from 170 MPa;
+    });
+
+    it('shows material strength basis and clears a previous preset when the new material lacks yield strength', () => {
+        const { document, window } = setup();
+        setSelectValue(document, 'strengthSource', 'material-yield');
+        setSelectValue(document, 'material', 'aluminum');
+        window.updateMaterialStrength();
+        expect(Number(document.getElementById('strength').value)).toBeCloseTo(276, 3);
+
+        setInputValue(document, 'appliedStress', 100);
+        window.calculateFactorOfSafety();
+        expect(getResultText(document)).toContain('Typical');
+        expect(getResultText(document)).toContain('not a certified design allowable');
+
+        setSelectValue(document, 'material', 'carbon-steel');
+        window.updateMaterialStrength();
+        expect(Number(document.getElementById('strength').value)).toBeCloseTo(250, 3);
+        window.calculateFactorOfSafety();
+        expect(getResultText(document)).toContain('Minimum required by the governing specification');
+
+        setSelectValue(document, 'material', 'cast-iron');
+        window.updateMaterialStrength();
+        expect(document.getElementById('strength').value).toBe('');
+        expect(document.getElementById('strength').readOnly).toBe(false);
+        window.calculateFactorOfSafety();
+        expect(getResultText(document)).toContain('Material Data Missing');
     });
 
     it('rejects zero applied load inputs', () => {

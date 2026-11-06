@@ -34,24 +34,22 @@ function updateFactorOfSafetyMode() {
 }
 
 function updateMaterialStrength() {
-    const material = fosMaterialSelect.value;
     const strengthSource = fosStrengthSourceSelect.value;
+    const propertyName = strengthSource === "material-yield" ? "yieldStrength" : "tensileStrength";
 
-    if (!material || (strengthSource !== "material-yield" && strengthSource !== "material-tensile")) {
+    if (strengthSource !== "material-yield" && strengthSource !== "material-tensile") {
         return;
     }
 
-    const propertyName = strengthSource === "material-yield" ? "yieldStrength" : "tensileStrength";
-    const strengthPa = getMaterialProperty(material, propertyName);
-
-    if (!Number.isFinite(strengthPa) || strengthPa <= 0) {
+    const result = applyMaterialPropertyToInput(fosMaterialSelect, fosStrengthInput, propertyName, {
+        formatValue: (value) => convertStressToUnit(value, fosStrengthUnitSelect.value),
+        overwriteManual: true
+    });
+    if (result === null) {
         fosResultPanel.innerHTML = "<h3>Material Data Missing</h3><p>The selected material does not include that strength property. Use direct entry.</p>";
         fosStrengthInput.readOnly = false;
         return;
     }
-
-    const displayStrength = convertStressToUnit(strengthPa, fosStrengthUnitSelect.value);
-    fosStrengthInput.value = displayStrength.toFixed(3);
     fosStrengthInput.readOnly = true;
 }
 
@@ -60,6 +58,15 @@ function calculateFactorOfSafety() {
 
     try {
         if (mode === "stress") {
+            const strengthSource = fosStrengthSourceSelect.value;
+            if (strengthSource === "material-yield" || strengthSource === "material-tensile") {
+                const property = strengthSource === "material-yield" ? "yieldStrength" : "tensileStrength";
+                const materialStrength = getMaterialProperty(fosMaterialSelect.value, property);
+                if (!Number.isFinite(materialStrength) || materialStrength <= 0) {
+                    fosResultPanel.innerHTML = "<h3>Material Data Missing</h3><p>The selected material does not include that strength property. Use direct entry.</p>";
+                    return;
+                }
+            }
             const strengthValue = Number(fosStrengthInput.value);
             const appliedStressValue = Number(fosAppliedStressInput.value);
 
@@ -76,12 +83,19 @@ function calculateFactorOfSafety() {
             const appliedStressUnit = fosAppliedStressUnitSelect.value;
             const strengthDisplay = convertStressToUnit(strengthPa, strengthUnit);
             const appliedDisplay = convertStressToUnit(appliedStressPa, appliedStressUnit);
+            const propertyName = fosStrengthSourceSelect.value === "material-yield" ? "yieldStrength" : "tensileStrength";
+            const provenance = fosStrengthSourceSelect.value === "direct"
+                ? "Direct user entry; its basis and applicability have not been independently verified."
+                : getMaterial(fosMaterialSelect.value).displayName + " " + propertyName + " ("
+                    + (MATERIAL_PROPERTY_BASES[getMaterialPropertyBasis(fosMaterialSelect.value, propertyName)] || "unclassified reference value")
+                    + "); reference strength, not a certified design allowable.";
 
             fosResultPanel.innerHTML = `
                 <h3>Result</h3>
                 <div class="result-value">FoS = ${fosValue.toLocaleString(undefined, { maximumFractionDigits: 6 })}</div>
                 <hr>
                 <p><strong>Capacity/Strength:</strong> ${strengthDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(strengthUnit)}</p>
+                <p><strong>Strength provenance:</strong> ${escapeHtml(provenance)}</p>
                 <p><strong>Applied Stress:</strong> ${appliedDisplay.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(appliedStressUnit)}</p>
                 <p><strong>Interpretation:</strong> ${escapeHtml(interpretation)}</p>
                 <hr>

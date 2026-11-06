@@ -39,6 +39,10 @@ The suite currently covers:
 - important invalid-input and divide-by-zero paths
 - regression-sensitive conversion behavior, including GPa/MPa scaling
 - shared material dropdown initialization for material-driven calculators
+- material database schema, SI units, physical plausibility and provenance (`tests/core/materials-reference.test.js`), checked against specification values typed independently of the database
+- material compatibility: legacy keys, missing optional properties, manual overrides and unchanged saved Design Study snapshots (`tests/calculators/material-compat.test.js`)
+
+When a material value is corrected on purpose, update the affected expectation with a comment naming the correction and record it in `docs/material-reference.md`; do not loosen tolerances.
 
 ## Run all tests
 

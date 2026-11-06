@@ -32,7 +32,11 @@ function readPressFitNumber(id) {
     return Number(raw);
 }
 
-function interpretPressFit(fos) {
+function interpretPressFit(fos, unscreenedMembers = []) {
+    if (unscreenedMembers.length) {
+        return "Yield screening is incomplete for the " + unscreenedMembers.join(" and ")
+            + " because yield-strength data is unavailable. No overall controlling factor or safety conclusion is reported.";
+    }
     if (fos === null) {
         return "No yield-strength screening was possible because yield strength data was unavailable.";
     }
@@ -114,15 +118,17 @@ function calculatePressFit() {
         const forceOut = convertForceToUnit(results.pressForce, forceUnit);
         const torqueOut = convertMomentToUnit(results.torqueCapacity, torqueUnit);
 
-        let fosHtml = "";
-        if (results.fosControlling !== null) {
-            fosHtml = `
+        const formatScreening = (label, value) => value === null
+            ? `<p>${label}: <strong>Not assessed</strong> (yield-strength data unavailable)</p>`
+            : `<p>${label}: ${pressFitFmt(value, 2)}</p>`;
+        const fosHtml = `
             <p><strong>Elastic/yield stress screening factor of safety</strong></p>
-            ${results.fosHub !== null ? `<p>Hub: ${pressFitFmt(results.fosHub, 2)}</p>` : ""}
-            ${results.fosShaft !== null ? `<p>Shaft: ${pressFitFmt(results.fosShaft, 2)}</p>` : ""}
-            <p>Controlling (lowest): <strong>${pressFitFmt(results.fosControlling, 2)}</strong></p>
+            ${formatScreening("Hub", results.fosHub)}
+            ${formatScreening("Shaft", results.fosShaft)}
+            ${results.fosControlling !== null
+                ? `<p>Controlling (lowest): <strong>${pressFitFmt(results.fosControlling, 2)}</strong></p>`
+                : `<p><strong>Overall controlling factor:</strong> Not reported; screening is incomplete for ${escapeHtml(results.unscreenedMembers.join(" and "))}.</p>`}
             <p><em>Interface hoop stress vs. yield only; not a complete press-fit design-code safety factor.</em></p>`;
-        }
 
         pressFitEl("result").innerHTML = `
             <h3>Result</h3>
@@ -136,7 +142,7 @@ function calculatePressFit() {
             <p><strong>Torque Capacity:</strong> ${pressFitFmt(torqueOut)} ${escapeHtml(torqueUnit)}</p>
             ${fosHtml}
             <hr>
-            <p><strong>Interpretation:</strong> ${escapeHtml(interpretPressFit(results.fosControlling))}</p>
+            <p><strong>Interpretation:</strong> ${escapeHtml(interpretPressFit(results.fosControlling, results.unscreenedMembers))}</p>
             <p><em>Friction results are idealized and use the assumed friction coefficient μ = ${escapeHtml(values.frictionCoefficient)}.</em></p>
         `;
     } catch (error) {
@@ -162,17 +168,6 @@ function resetPressFitCalculator() {
 
 document.addEventListener("DOMContentLoaded", function () {
     ["hubMaterial", "shaftMaterial"].forEach((id) => {
-        const select = pressFitEl(id);
-        select.innerHTML = "";
-        const placeholder = document.createElement("option");
-        placeholder.value = "";
-        placeholder.textContent = "-- Select Material --";
-        select.appendChild(placeholder);
-        getMaterialListFormatted().forEach((material) => {
-            const option = document.createElement("option");
-            option.value = material.key;
-            option.textContent = material.displayName;
-            select.appendChild(option);
-        });
+        populateMaterialSelect(pressFitEl(id));
     });
 });

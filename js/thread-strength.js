@@ -12,13 +12,9 @@ function threadFormat(value, digits = 3) {
 }
 
 function updateThreadMaterial(selectId, strengthId) {
-    const material = threadElement(selectId).value;
-    if (!material) return;
-
-    const strengthPa = getMaterialProperty(material, "tensileStrength");
-    if (Number.isFinite(strengthPa) && strengthPa > 0) {
-        threadElement(strengthId).value = String(convertStressToUnit(strengthPa, threadElement("strengthUnit").value));
-    }
+    applyMaterialPropertyToInput(threadElement(selectId), threadElement(strengthId), "tensileStrength", {
+        formatValue: (value) => convertStressToUnit(value, threadElement("strengthUnit").value)
+    });
 }
 
 function threadError(message) {

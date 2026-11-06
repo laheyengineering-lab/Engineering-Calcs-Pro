@@ -18,25 +18,17 @@ const thermalStressUnitSelect = document.getElementById("stressUnit");
 
 // Update thermal expansion coefficient when material is selected
 function updateMaterialAlpha() {
-    const material = thermalMaterialSelect.value;
-    
-    if (material) {
-        const alphaValue = getMaterialProperty(material, "thermalExpansionCoefficient");
-        if (alphaValue !== null) {
-            // Thermal expansion coefficient is already in 1/°C
-            thermalAlphaInput.value = alphaValue;
-            thermalAlphaUnitSelect.value = "1/°C";
-        }
-
-        const youngsModulusValue = getMaterialProperty(material, "youngsModulus");
-        if (Number.isFinite(youngsModulusValue) && youngsModulusValue > 0) {
-            thermalYoungsModulusInput.value = String(convertModulusToUnit(youngsModulusValue, thermalModulusUnitSelect.value));
-        }
-    }
+    applyMaterialPropertyToInput(thermalMaterialSelect, thermalAlphaInput, "thermalExpansionCoefficient", {
+        unitElement: thermalAlphaUnitSelect, unit: "1/°C"
+    });
+    applyMaterialPropertyToInput(thermalMaterialSelect, thermalYoungsModulusInput, "youngsModulus", {
+        formatValue: (value) => convertModulusToUnit(value, thermalModulusUnitSelect.value)
+    });
 }
 
 function calculateThermalExpansion() {
-    const alpha = Number(thermalAlphaInput.value);
+    const alphaRaw = thermalAlphaInput.value.trim();
+    const alpha = alphaRaw === "" ? NaN : Number(alphaRaw);
     const originalLength = Number(thermalOriginalLengthInput.value);
     const temperatureChange = Number(thermalTemperatureChangeInput.value);
     const youngsModulusRaw = thermalYoungsModulusInput.value.trim();
@@ -160,6 +152,9 @@ document.addEventListener("DOMContentLoaded", function() {
     populateMaterialSelect(thermalMaterialSelect, {
         placeholderText: "-- Select Material or Enter Custom --",
         formatLabel(material) {
+            if (!Number.isFinite(material.thermalExpansionCoefficient)) {
+                return `${material.displayName} (α unavailable; enter manually)`;
+            }
             return `${material.displayName} (${(material.thermalExpansionCoefficient * 1e6).toLocaleString(undefined, {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1
