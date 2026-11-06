@@ -122,6 +122,7 @@
             return loadFromBase(baseUrl);
         }), Promise.reject(null)).then(() => true).catch((error) => {
             warn("KaTeX unavailable; equations will be shown as plain text", error && error.message);
+            readyPromise = null;
             return false;
         });
 
@@ -144,6 +145,10 @@
     // Safe at any time: requests made before readiness are queued and coalesced into one render pass
     // that runs after DOM readiness and KaTeX loading, so content inserted meanwhile is included.
     function renderAllMath() {
+        if (document.readyState !== "loading" && typeof window.renderMathInElement === "function"
+            && window.katex && typeof window.katex.render === "function") {
+            return Promise.resolve(renderNow());
+        }
         renderQueued = true;
         if (renderPromise) {
             return renderPromise;
