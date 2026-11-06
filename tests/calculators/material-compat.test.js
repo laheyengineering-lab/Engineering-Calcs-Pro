@@ -23,6 +23,29 @@ describe('material selectors', () => {
         expect(document.querySelectorAll('.material-data-note')).toHaveLength(1);
         expect(document.querySelector('.material-data-note').textContent).toMatch(/not certified design allowables/);
     });
+
+    it('marks unavailable properties in shaft and thermal selector labels', () => {
+        const shaft = loadCalculatorPage('calculators/shaft-torsion.html', [
+            'js/engineering-units.js', 'js/calculator-utils.js', 'js/shaft-torsion-calculation.js', 'js/shaft-torsion.js'
+        ]);
+        const shaftOption = shaft.document.querySelector('#material option[value="titanium-grade-5"]');
+        expect(shaftOption.textContent).toMatch(/G unavailable; enter manually/);
+        expect(shaftOption.textContent).not.toMatch(/NaN/);
+
+        const thermal = loadCalculatorPage('calculators/thermal-expansion.html', [
+            'js/engineering-units.js', 'js/calculator-utils.js', 'js/thermal-expansion-calculation.js', 'js/thermal-expansion.js'
+        ]);
+        const thermalOption = thermal.document.querySelector('#material option[value="aluminum-6061-o"]');
+        expect(thermalOption.textContent).toMatch(/α unavailable; enter manually/);
+        expect(thermalOption.textContent).not.toMatch(/NaN/);
+
+        const differential = loadCalculatorPage('calculators/differential-thermal-expansion.html', [
+            'js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', 'js/differential-thermal-expansion.js'
+        ]);
+        const differentialOption = differential.document.querySelector('#secA1Material option[value="aluminum-6061-o"]');
+        expect(differentialOption.textContent).toMatch(/α unavailable; enter manually/);
+        expect(differentialOption.textContent).not.toMatch(/NaN/);
+    });
 });
 
 describe('missing material properties are handled safely', () => {
@@ -62,6 +85,23 @@ describe('missing material properties are handled safely', () => {
         }));
         // ASTM A48 Class 30 minimum tensile strength 207 MPa
         expect(tensile.result.outputs.find((o) => o.id === 'stressFactor').value).toBeCloseTo(3, 9);
+    });
+
+    it('does not label a partial press-fit yield screening as controlling', () => {
+        const { window } = loadCore(studyScripts);
+        const S = window.FormulaFoundryStudies;
+        const adapter = S.getAdapter('press-fit');
+        expect(adapter.version).toBe('3');
+        const scenario = S.calculateScenario(adapter, S.createScenario(adapter, 'Cast iron hub', {
+            interfaceDiameter: 50, diametralInterference: 0.05, hubOuterDiameter: 100,
+            shaftBoreDiameter: 0, engagementLength: 50, frictionCoefficient: 0.12,
+            hubMaterial: 'cast-iron', shaftMaterial: 'carbon-steel'
+        }));
+        expect(scenario.status).toBe('calculated');
+        expect(scenario.result.outputs.find((output) => output.id === 'shaftFos')).toBeTruthy();
+        expect(scenario.result.outputs.find((output) => output.id === 'hubFos')).toBeUndefined();
+        expect(scenario.result.outputs.find((output) => output.id === 'controllingFos')).toBeUndefined();
+        expect(scenario.result.warnings.join(' ')).toMatch(/hub.*no overall controlling factor/i);
     });
 });
 

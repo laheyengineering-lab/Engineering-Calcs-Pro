@@ -703,7 +703,6 @@ const materialDatabase = {
         youngsModulus: 205e9,
         shearModulus: 80e9,
         poissonRatio: 0.29,
-        thermalExpansionCoefficient: 12.3e-6,
         tensileStrength: 655e6,
         yieldStrength: 415e6,
         elongationAtBreak: 0.257,
@@ -718,7 +717,7 @@ const materialDatabase = {
             referenceTemperatureC: 20,
             propertyBasis: {
                 density: "typical", youngsModulus: "nominal", shearModulus: "nominal", poissonRatio: "nominal",
-                thermalExpansionCoefficient: "typical", tensileStrength: "typical", yieldStrength: "typical",
+                tensileStrength: "typical", yieldStrength: "typical",
                 elongationAtBreak: "typical", hardness: "typical", thermalConductivity: "typical"
             },
             sources: ["matweb-4140-annealed", "efunda-4140"],

@@ -148,6 +148,9 @@ document.addEventListener("DOMContentLoaded", function() {
     populateMaterialSelect(torsionMaterialSelect, {
         placeholderText: "-- Select Material or Enter Custom --",
         formatLabel(material) {
+            if (!Number.isFinite(material.shearModulus)) {
+                return `${material.displayName} (G unavailable; enter manually)`;
+            }
             return `${material.displayName} (${(material.shearModulus / 1e9).toLocaleString(undefined, {
                 maximumFractionDigits: 0
             })} GPa)`;

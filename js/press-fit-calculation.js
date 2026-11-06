@@ -48,8 +48,12 @@ function computePressFit({ d, deltaDiametral, D, di, L, mu, hub, shaft }) {
 
     const fosHub = hub.Sy ? hub.Sy / hubHoop : null;
     const fosShaft = shaft.Sy ? shaft.Sy / Math.abs(shaftHoop) : null;
-    const fosValues = [fosHub, fosShaft].filter((value) => value !== null);
-    const fosControlling = fosValues.length ? Math.min(...fosValues) : null;
+    const unscreenedMembers = [];
+    if (fosHub === null) unscreenedMembers.push("Hub");
+    if (fosShaft === null) unscreenedMembers.push("Shaft");
+    const fosControlling = unscreenedMembers.length
+        ? null
+        : Math.min(fosHub, fosShaft);
 
-    return { p, hubHoop, shaftHoop, pressForce, torqueCapacity, fosHub, fosShaft, fosControlling };
+    return { p, hubHoop, shaftHoop, pressForce, torqueCapacity, fosHub, fosShaft, fosControlling, unscreenedMembers };
 }

@@ -152,6 +152,9 @@ document.addEventListener("DOMContentLoaded", function() {
     populateMaterialSelect(thermalMaterialSelect, {
         placeholderText: "-- Select Material or Enter Custom --",
         formatLabel(material) {
+            if (!Number.isFinite(material.thermalExpansionCoefficient)) {
+                return `${material.displayName} (α unavailable; enter manually)`;
+            }
             return `${material.displayName} (${(material.thermalExpansionCoefficient * 1e6).toLocaleString(undefined, {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1

@@ -161,6 +161,8 @@ describe('material database schema and metadata', () => {
         expect(window.getMaterial('cast-iron')).not.toHaveProperty('yieldStrength');
         // Unverified-property omissions on new entries
         expect(window.getMaterialProperty('aluminum-6061-o', 'thermalExpansionCoefficient')).toBeNull();
+        expect(window.getMaterialProperty('steel-4140-annealed', 'thermalExpansionCoefficient')).toBeNull();
+        expect(window.getMaterial('steel-4140-annealed')).not.toHaveProperty('thermalExpansionCoefficient');
         expect(window.getMaterialProperty('titanium-grade-5', 'shearModulus')).toBeNull();
         expect(window.getMaterialProperty('stainless-17-4ph-h900', 'thermalConductivity')).toBeNull();
         // Hardness removed where the legacy value contradicted the specification

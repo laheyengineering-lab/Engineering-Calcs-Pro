@@ -233,7 +233,7 @@
     const pressFit = {
         id: "press-fit",
         name: "Press-Fit Stress",
-        version: "2",
+        version: "3",
         path: "calculators/press-fit.html",
         groups: {
             distance: distanceGroup("diameter and engagement length", distanceUnits, "mm"),
@@ -273,8 +273,17 @@
         ],
         warnings: [
             "The yield comparison is an elastic hoop-stress screening factor, not a complete press-fit design-code factor of safety.",
+            "An overall controlling screening factor is reported only when both hub and shaft yield strengths are available.",
             "Verify fit tolerances, material data, friction, stress concentrations, and applicable fit standards."
         ],
+        warningsFor(values) {
+            const unscreened = [];
+            if (!Number.isFinite(getMaterialProperty(values.hubMaterial, "yieldStrength"))) unscreened.push("hub");
+            if (!Number.isFinite(getMaterialProperty(values.shaftMaterial, "yieldStrength"))) unscreened.push("shaft");
+            return unscreened.length
+                ? ["Yield-strength screening is unavailable for the " + unscreened.join(" and ") + "; no overall controlling factor is reported."]
+                : [];
+        },
         method: "Calls computePressFit() from the press-fit calculator's SI calculation engine after applying the selected materials and unit conversions.",
         calculate(values, units) {
             const required = ["interfaceDiameter", "diametralInterference", "hubOuterDiameter", "shaftBoreDiameter", "engagementLength", "frictionCoefficient"];

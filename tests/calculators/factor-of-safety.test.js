@@ -86,6 +86,12 @@ describe('factor of safety calculator', () => {
         expect(getResultText(document)).toContain('Typical');
         expect(getResultText(document)).toContain('not a certified design allowable');
 
+        setSelectValue(document, 'material', 'carbon-steel');
+        window.updateMaterialStrength();
+        expect(Number(document.getElementById('strength').value)).toBeCloseTo(250, 3);
+        window.calculateFactorOfSafety();
+        expect(getResultText(document)).toContain('Minimum required by the governing specification');
+
         setSelectValue(document, 'material', 'cast-iron');
         window.updateMaterialStrength();
         expect(document.getElementById('strength').value).toBe('');

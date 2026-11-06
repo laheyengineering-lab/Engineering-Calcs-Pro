@@ -107,6 +107,9 @@ function buildDteRows() {
             populateMaterialSelect(dteEl(id + "Material"), {
                 placeholderText: "-- Custom (enter α) --",
                 formatLabel(material) {
+                    if (!Number.isFinite(material.thermalExpansionCoefficient)) {
+                        return `${material.displayName} (α unavailable; enter manually)`;
+                    }
                     return `${material.displayName} (${(material.thermalExpansionCoefficient * 1e6).toFixed(1)} × 10⁻⁶ /°C)`;
                 }
             });

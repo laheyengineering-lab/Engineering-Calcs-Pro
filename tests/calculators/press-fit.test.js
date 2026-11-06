@@ -142,6 +142,19 @@ describe('press fit calculator', () => {
         expect(getResultText(document)).toContain("Young's modulus");
     });
 
+    it('does not report a controlling margin when a member has no yield strength', () => {
+        const { document, window } = setup();
+        fill(document, { hubMaterial: 'cast-iron', shaftMaterial: 'carbon-steel' });
+        window.calculatePressFit();
+
+        const text = getResultText(document);
+        expect(text).toContain('Hub: Not assessed (yield-strength data unavailable)');
+        expect(text).toMatch(/Shaft: [\d.]+/);
+        expect(text).toContain('screening is incomplete for Hub');
+        expect(text).not.toContain('Controlling (lowest)');
+        expect(text).not.toContain('margin is reasonable');
+    });
+
     it('is deterministic for the database carbon-steel worked example', () => {
         const { document, window } = setup();
         fill(document);

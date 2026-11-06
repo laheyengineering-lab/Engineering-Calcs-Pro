@@ -68,7 +68,7 @@ The A36 strength values in the entry apply to plate no thicker than 203 mm (8 in
 
 ## Known data gaps
 
-- Many properties are intentionally unavailable (see inventory). Examples: no G for 2024-T3, 7075-T6 and Ti-6Al-4V; no α or k for 6061-O; no k for 17-4 PH H900; no hardness for A36, 304, 316, copper, titanium and A514.
+- Many properties are intentionally unavailable (see inventory). Examples: no G for 2024-T3, 7075-T6 and Ti-6Al-4V; no α or k for 6061-O; no α for 4140 annealed; no k for 17-4 PH H900; no hardness for A36, 304, 316, copper, titanium and A514.
 - Values are at room temperature (reference temperature per material). Temperature dependence is not modelled.
 - Values were compiled from standards and datasheets available at the time. Paywalled standard texts (ASTM) were cited by identifier; the specification minimums quoted are those published in public datasheets.
 - Several 17-4 PH, 2024-T3 and 7075-T6 values come from supplier or secondary compilations and are marked accordingly in the source registry.
@@ -459,7 +459,7 @@ Caveats: Typical values for cold-drawn bar; yield and hardness fall with bar siz
 | E GPa | 205 | N |
 | G GPa | 80 | N |
 | ν | 0.29 | N |
-| α 1e-6/°C | 12.3 | T |
+| α 1e-6/°C | *unavailable* | — |
 | UTS MPa | 655 | T |
 | Sy MPa | 415 | T |
 | Elong. % | 25.7 | T |
@@ -468,7 +468,7 @@ Caveats: Typical values for cold-drawn bar; yield and hardness fall with bar siz
 
 Sources: [matweb-4140-annealed] MatWeb (as reproduced by Xometry); [efunda-4140] eFunda
 
-Caveats: Applies only to the stated annealed condition and 25 mm section; quenched-and-tempered 4140 is much stronger and is not covered. Expansion (20-100 °C) and conductivity (100 °C) come from eFunda and a different heat treatment of 4140.
+Caveats: Applies only to the stated annealed condition and 25 mm section; quenched-and-tempered 4140 is much stronger and is not covered. Conductivity (100 °C) comes from eFunda and a different heat treatment of 4140. Thermal expansion is omitted because no value was established for the stated condition.
 
 ### `titanium-grade-5` — Titanium Ti-6Al-4V (Grade 5, annealed)
 
