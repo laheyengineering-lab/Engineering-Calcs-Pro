@@ -90,10 +90,10 @@ describe('helical spring calculator', () => {
         const { document, window } = setup();
         setSelectValue(document, 'springMaterial', 'carbon-steel');
         document.getElementById('springMaterial').dispatchEvent(new window.Event('change'));
-        expect(Number(document.getElementById('shearModulus').value)).toBe(80);
+        expect(Number(document.getElementById('shearModulus').value)).toBe(79.3); // A36 G corrected from 80 GPa
         setSelectValue(document, 'modulusUnit', 'psi');
         document.getElementById('modulusUnit').dispatchEvent(new window.Event('change'));
-        expect(Number(document.getElementById('shearModulus').value)).toBeCloseTo(80e9 / 6894.757, 0);
+        expect(Number(document.getElementById('shearModulus').value)).toBeCloseTo(79.3e9 / 6894.757, 0);
         setInputValue(document, 'wireDiameter', 5);
         window.resetSpringCalculator();
         expect(document.getElementById('wireDiameter').value).toBe('');

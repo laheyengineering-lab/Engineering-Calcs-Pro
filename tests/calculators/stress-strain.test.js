@@ -100,6 +100,6 @@ describe('stress and strain calculator', () => {
         setSelectValue(document, 'material', 'aluminum');
         window.updateMaterialYoungsModulus();
 
-        expect(Number(document.getElementById('youngsModulus').value)).toBeCloseTo(69, 6);
+        expect(Number(document.getElementById('youngsModulus').value)).toBeCloseTo(68.9, 6);
     });
 });

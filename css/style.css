@@ -1590,3 +1590,5 @@ footer,
     .calculator-column { display: flex; flex-direction: column; }
     .calculator-column > .ff-figure { order: 2; width: 100%; }
 }
+
+.material-data-note { display: block; margin-top: 4px; font-size: 13px; color: var(--ff-ink, inherit); opacity: 0.8; }

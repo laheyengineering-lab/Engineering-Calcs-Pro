@@ -183,7 +183,7 @@ describe('Design Studies page', () => {
         set('Outer diameter', 0.05);
         set('Shaft length', 2);
         set('Shaft material', 'carbon-steel');
-        expect(field('Shear modulus (G)').value).toBe('80');
+        expect(field('Shear modulus (G)').value).toBe('79.3');
         click(window, buttonByText(card, 'Recalculate'));
         const stress = () => Number(Array.from(card.querySelectorAll('tbody tr'))
             .find((row) => row.cells[0].textContent === 'Maximum shear stress (signed)').cells[1].textContent);
@@ -196,7 +196,7 @@ describe('Design Studies page', () => {
         expect(card.querySelector('[data-role="status"]').textContent).toMatch(/recalculate/);
         click(window, buttonByText(card, 'Recalculate'));
         expect(stress()).toBeCloseTo(20.3718, 3);
-        expect(twist()).toBeCloseTo(initialTwist * 2, 8);
+        expect(twist()).toBeCloseTo(initialTwist * 79.3 / 40, 4);
         const saved = JSON.parse(window.localStorage.getItem('formulaFoundry.designStudies'));
         expect(saved.studies[0].scenarios[0].inputs).toMatchObject({ material: 'carbon-steel', shearModulus: 40 });
     });

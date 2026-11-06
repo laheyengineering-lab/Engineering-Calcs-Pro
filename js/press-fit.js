@@ -162,17 +162,6 @@ function resetPressFitCalculator() {
 
 document.addEventListener("DOMContentLoaded", function () {
     ["hubMaterial", "shaftMaterial"].forEach((id) => {
-        const select = pressFitEl(id);
-        select.innerHTML = "";
-        const placeholder = document.createElement("option");
-        placeholder.value = "";
-        placeholder.textContent = "-- Select Material --";
-        select.appendChild(placeholder);
-        getMaterialListFormatted().forEach((material) => {
-            const option = document.createElement("option");
-            option.value = material.key;
-            option.textContent = material.displayName;
-            select.appendChild(option);
-        });
+        populateMaterialSelect(pressFitEl(id));
     });
 });

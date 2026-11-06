@@ -71,7 +71,7 @@ describe('factor of safety calculator', () => {
 
         window.updateMaterialStrength();
 
-        expect(Number(document.getElementById('strength').value)).toBeCloseTo(170, 3);
+        expect(Number(document.getElementById('strength').value)).toBeCloseTo(250, 3); // A36 specified-minimum yield corrected from 170 MPa;
     });
 
     it('rejects zero applied load inputs', () => {

@@ -87,7 +87,7 @@ describe('press fit calculator', () => {
 
         const e = lame({ d: 0.05, dd: 0.00005, D: 0.1, di: 0, L: 0.05, mu: 0.12, Eh: 68.9e9, nuh: 0.33, Es: 200e9, nus: 0.27 });
         const ref = window.eval("[getMaterialProperty('aluminum','youngsModulus'), getMaterialProperty('aluminum','poissonRatio')]");
-        const e2 = lame({ d: 0.05, dd: 0.00005, D: 0.1, di: 0, L: 0.05, mu: 0.12, Eh: ref[0], nuh: ref[1], Es: 200e9, nus: 0.27 });
+        const e2 = lame({ d: 0.05, dd: 0.00005, D: 0.1, di: 0, L: 0.05, mu: 0.12, Eh: ref[0], nuh: ref[1], Es: 200e9, nus: 0.26 });
         expect(e.p).toBeGreaterThan(0);
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(e2.p / 1e6, 2);
     });

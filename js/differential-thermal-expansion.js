@@ -118,6 +118,8 @@ function applyDteMaterial(id) {
     const key = dteEl(id + "Material").value;
     if (!key) return;
     const perCelsius = getMaterialProperty(key, "thermalExpansionCoefficient");
+    // Materials without a verified expansion coefficient leave the manual value untouched.
+    if (!Number.isFinite(perCelsius)) return;
     dteEl(id + "Alpha").value = Number((perCelsius / DTE_ALPHA_UNITS[dteEl("alphaUnit").value]).toPrecision(8));
 }
 

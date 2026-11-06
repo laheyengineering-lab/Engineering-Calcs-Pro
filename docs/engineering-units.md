@@ -75,10 +75,47 @@ Calculator scripts call these functions to normalize user inputs to SI before pe
 
 ### 3. Material Property Database
 
-The `materialDatabase` object contains engineering property data for ten common structural and mechanical materials. Each material is keyed by a short identifier string and includes the following properties, all stored in SI units:
+The `materialDatabase` object contains reference engineering property data for 18 structural and mechanical metal presets. Each material is keyed by a short identifier string and stores properties in SI units. **Values are reference properties, not certified design allowables.** The full inventory, grades/conditions, sources, corrected legacy values and known gaps are in [material-reference.md](material-reference.md).
 
 | Property | SI Unit | Description |
 |---|---|---|
+| `displayName` | — | Human-readable name including grade/condition |
+| `density` | kg/m³ | Mass per unit volume |
+| `youngsModulus` | Pa | Elastic (tensile) modulus |
+| `shearModulus` | Pa | Shear modulus of rigidity |
+| `poissonRatio` | dimensionless | Lateral-to-axial strain ratio |
+| `thermalExpansionCoefficient` | 1/°C | Linear coefficient of thermal expansion |
+| `tensileStrength` | Pa | Ultimate tensile strength |
+| `yieldStrength` | Pa | 0.2% offset yield strength (omitted for materials without a yield point, e.g. gray iron) |
+| `elongationAtBreak` | decimal fraction | Ductility (e.g., 0.25 = 25%) |
+| `hardness` | Brinell (HB) | Surface hardness |
+| `thermalConductivity` | W/(m·K) | Ability to conduct heat |
+| `metadata` | — | Optional: `family`, `designation`, `grade`, `condition`, `productForm`, `referenceTemperatureC`, `propertyBasis`, `sources`, `caveats` |
+
+**Optional properties.** A material need not have every property. Unknown properties are omitted — never `0` — and `getMaterialProperty()` returns `null` for them. Calculators must treat `null` as "unavailable" and keep any manual entry.
+
+**Property basis.** `metadata.propertyBasis[property]` is `typical`, `nominal`, `specified-minimum` or `unverified`. Specification minimums (for example A36 yield 250 MPa) are lower bounds, not typical values.
+
+**Materials currently in the database** (legacy keys are preserved; see the reference for grade/condition and values):
+
+| Key | Display Name |
+|---|---|
+| `carbon-steel` | Carbon Steel (ASTM A36) |
+| `stainless-steel` | Stainless Steel 304 |
+| `aluminum` | Aluminum 6061-T6 |
+| `copper` | Copper C11000 (ETP), annealed |
+| `brass` | Brass (Cu-30Zn), temper not specified |
+| `titanium` | Titanium Grade 2 |
+| `mild-steel` | Mild Steel (generic low-carbon, unspecified) |
+| `high-strength-steel` | High Strength Steel (ASTM A514) |
+| `cast-iron` | Cast Iron (Gray, ASTM A48 Class 30) |
+| `magnesium` | Magnesium AZ91D |
+| `aluminum-6061-o`, `aluminum-2024-t3`, `aluminum-7075-t6` | Added aluminum tempers |
+| `stainless-316`, `stainless-17-4ph-h900` | Added stainless steels |
+| `steel-1018-cold-drawn`, `steel-4140-annealed` | Added carbon/alloy steels |
+| `titanium-grade-5` | Ti-6Al-4V (Grade 5) |
+
+---|---|---|
 | `displayName` | — | Human-readable name for UI display |
 | `density` | kg/m³ | Mass per unit volume |
 | `youngsModulus` | Pa | Elastic (tensile) modulus |
@@ -110,7 +147,7 @@ The `materialDatabase` object contains engineering property data for ten common 
 
 ### 4. Material Utility Functions
 
-Four helper functions provide clean access to the material database for calculator scripts and UI components.
+Helper functions provide clean access to the material database for calculator scripts and UI components.
 
 #### `getMaterial(materialKey)`
 
@@ -145,8 +182,17 @@ Returns an array of `{ key, displayName }` objects, ready to be used for populat
 
 ```javascript
 const items = getMaterialListFormatted();
-// [{ key: "carbon-steel", displayName: "Carbon Steel (AISI 1020)" }, ...]
+// [{ key: "carbon-steel", displayName: "Carbon Steel (ASTM A36)" }, ...]
 ```
+
+#### Metadata helpers
+
+- `getMaterialMetadata(key)` returns the optional `metadata` object or `null`.
+- `getMaterialPropertyBasis(key, property)` returns `typical`, `nominal`, `specified-minimum`, `unverified` or `null`.
+- `getMaterialSources(key)` returns the cited source records (`title`, `publisher`, `url`/`identifier`).
+- `getMaterialListGrouped()` returns `[{ family, materials: [{ key, displayName }] }]`. `populateMaterialSelect()` in `calculator-utils.js` uses it to render `<optgroup>` families and a one-line "reference properties" note.
+
+Existing helper signatures are unchanged.
 
 ---
 
@@ -273,8 +319,8 @@ The existing conversion tables all follow the same pattern. Adding support for n
 The `materialDatabase` object can grow to include additional material classes:
 
 - **Structural:** concrete, timber, masonry, fiber composites
-- **Polymers:** PEEK, nylon, ABS, polycarbonate, UHMW
-- **Alloys:** tool steels, superalloys (Inconel, Hastelloy), duplex stainless steels
+- **Polymers:** PEEK, nylon, ABS, polycarbonate, UHMW (only with grade, moisture and temperature context; see the deferred list in [material-reference.md](material-reference.md))
+- **Alloys:** quenched-and-tempered and tool steels (with a defined condition), superalloys (Inconel, Hastelloy), duplex stainless steels
 - **Fastener grades:** SAE grades, metric property classes (8.8, 10.9, 12.9)
 - **Custom materials:** project-specific entries defined by the user
 

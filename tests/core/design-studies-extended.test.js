@@ -185,7 +185,7 @@ describe('column buckling adapter', () => {
     it('uses material presets and alternate units', () => {
         const { S } = setup();
         const aluminum = calc(S, 'column-buckling', { ...COLUMN, material: 'aluminum' });
-        expect(value(aluminum, 'criticalLoad')).toBeCloseTo(15.5031 * 69 / 200, 3);
+        expect(value(aluminum, 'criticalLoad')).toBeCloseTo(15.5031 * 68.9 / 200, 3);
         const imperial = calc(S, 'column-buckling', { ...COLUMN, length: 1000 / 25.4, outerDiameter: 20 / 25.4 }, { distance: 'in', force: 'lbf', inertia: 'in⁴', effectiveLength: 'in' });
         expect(value(imperial, 'criticalLoad')).toBeCloseTo(15503.1 / 4.4482216152605, 0);
         expect(value(imperial, 'effectiveLength')).toBeCloseTo(1000 / 25.4, 6);
@@ -207,10 +207,11 @@ describe('factor of safety adapter', () => {
 
     it('reads yield or tensile strength from material presets and preserves unit conversion', () => {
         const { S } = setup();
-        const yielded = calc(S, 'factor-of-safety', { mode: 'stress', strengthSource: 'material-yield', material: 'carbon-steel', appliedStress: 85 }, { stress: 'MPa' });
+        const yielded = calc(S, 'factor-of-safety', { mode: 'stress', strengthSource: 'material-yield', material: 'carbon-steel', appliedStress: 125 }, { stress: 'MPa' });
+        // A36 specified-minimum yield corrected from legacy 170 MPa to 250 MPa
         expect(value(yielded, 'stressFactor')).toBeCloseTo(2, 12);
-        expect(value(yielded, 'strengthUsed')).toBeCloseTo(170, 9);
-        const tensile = calc(S, 'factor-of-safety', { mode: 'stress', strengthSource: 'material-tensile', material: 'carbon-steel', appliedStress: 100 });
+        expect(value(yielded, 'strengthUsed')).toBeCloseTo(250, 9);
+        const tensile = calc(S, 'factor-of-safety', { mode: 'stress', strengthSource: 'material-tensile', material: 'carbon-steel', appliedStress: 160 });
         expect(value(tensile, 'stressFactor')).toBeCloseTo(2.5, 12);
         const psi = calc(S, 'factor-of-safety', { mode: 'stress', strengthSource: 'direct', strength: 36259.43, appliedStress: 14503.77 }, { stress: 'psi' });
         expect(value(psi, 'stressFactor')).toBeCloseTo(2.5, 4);
@@ -292,10 +293,10 @@ describe('helical spring adapter', () => {
     it('matches hand-calculated rate, deflection, Wahl factor and shear stress', () => {
         const { S } = setup();
         const s = calc(S, 'spring-calculations', SPRING);
-        expect(value(s, 'rate')).toBeCloseTo(2, 9); // N/mm
+        expect(value(s, 'rate')).toBeCloseTo(1.9825, 9); // N/mm, G = 79.3 GPa
         expect(out(s, 'rate').unit).toBe('N/mm');
         expect(value(s, 'index')).toBeCloseTo(10, 12);
-        expect(value(s, 'deflection')).toBeCloseTo(50, 9);
+        expect(value(s, 'deflection')).toBeCloseTo(100 / 1.9825, 9);
         expect(value(s, 'wahlFactor')).toBeCloseTo(1.144833, 6);
         expect(value(s, 'shearStress')).toBeCloseTo(728.82, 1);
     });
@@ -303,9 +304,9 @@ describe('helical spring adapter', () => {
     it('converts spring-rate units and lets an entered modulus override the material', () => {
         const { S } = setup();
         const lbf = calc(S, 'spring-calculations', SPRING, { rate: 'lbf/in' });
-        expect(value(lbf, 'rate')).toBeCloseTo(2000 * 0.0254 / 4.4482216152605, 4);
+        expect(value(lbf, 'rate')).toBeCloseTo(1982.5 * 0.0254 / 4.4482216152605, 4);
         const kn = calc(S, 'spring-calculations', SPRING, { rate: 'kN/m' });
-        expect(value(kn, 'rate')).toBeCloseTo(2, 9);
+        expect(value(kn, 'rate')).toBeCloseTo(1.9825, 9);
         const override = calc(S, 'spring-calculations', { ...SPRING, shearModulus: 40 }, { modulus: 'GPa' });
         expect(value(override, 'rate')).toBeCloseTo(1, 9);
     });
@@ -345,7 +346,7 @@ describe('stress and strain adapter', () => {
         const entered = calc(S, 'stress-strain', { mode: 'deformation', force: 10, area: 100, originalLength: 1000, material: 'aluminum', youngsModulus: 200 }, units);
         expect(value(entered, 'elongation')).toBeCloseTo(0.5, 9);
         const al = calc(S, 'stress-strain', { mode: 'deformation', force: 10, area: 100, originalLength: 1000, material: 'aluminum' }, units);
-        expect(value(al, 'elongation')).toBeCloseTo(0.5 * 200 / 69, 6);
+        expect(value(al, 'elongation')).toBeCloseTo(0.5 * 200 / 68.9, 6);
         const imperial = calc(S, 'stress-strain', { mode: 'stress', force: 1000, area: 1 }, { force: 'lbf', area: 'in²', stress: 'psi' });
         expect(value(imperial, 'stress')).toBeCloseTo(1000, 2);
     });
@@ -377,12 +378,12 @@ describe('thermal expansion adapter', () => {
     it('matches hand calculations for free and fully restrained conditions', () => {
         const { S } = setup();
         const f = calc(S, 'thermal-expansion', free);
-        expect(value(f, 'expansion')).toBeCloseTo(1.2, 9);
-        expect(value(f, 'finalLength')).toBeCloseTo(2001.2, 9);
-        expect(value(f, 'thermalStrain')).toBeCloseTo(6e-4, 12);
+        expect(value(f, 'expansion')).toBeCloseTo(1.17, 9); // A36 alpha corrected from 12.0 to 11.7 um/m/C
+        expect(value(f, 'finalLength')).toBeCloseTo(2001.17, 9);
+        expect(value(f, 'thermalStrain')).toBeCloseTo(5.85e-4, 12);
         expect(out(f, 'restrainedStress')).toBeUndefined();
         const r = calc(S, 'thermal-expansion', { ...free, condition: 'restrained' });
-        expect(value(r, 'restrainedStress')).toBeCloseTo(-120, 9);
+        expect(value(r, 'restrainedStress')).toBeCloseTo(-117, 9);
         expect(out(r, 'restrainedStress').quantity).toBe('restrained-thermal-stress');
         expect(S.getAdapter('thermal-expansion').equationsFor({ condition: 'restrained' })).toHaveLength(2);
         expect(S.getAdapter('thermal-expansion').equationsFor({ condition: 'restrained' }).at(-1)).toMatch(/= -E/);
@@ -391,13 +392,13 @@ describe('thermal expansion adapter', () => {
     it('handles temperature intervals, coefficient units, entered values and cooling', () => {
         const { S } = setup();
         const fahrenheit = calc(S, 'thermal-expansion', { ...free, temperatureChange: 90 }, { temperature: '°F' });
-        expect(value(fahrenheit, 'expansion')).toBeCloseTo(1.2, 9);
+        expect(value(fahrenheit, 'expansion')).toBeCloseTo(1.17, 9);
         const kelvin = calc(S, 'thermal-expansion', { ...free, material: null, alpha: 12e-6, temperatureChange: 50 }, { alpha: '1/K', temperature: 'K', outputLength: 'm' });
         expect(value(kelvin, 'expansion')).toBeCloseTo(0.0012, 12);
         const cooling = calc(S, 'thermal-expansion', { ...free, condition: 'restrained', temperatureChange: -50 });
-        expect(value(cooling, 'restrainedStress')).toBeCloseTo(120, 9);
+        expect(value(cooling, 'restrainedStress')).toBeCloseTo(117, 9);
         const entered = calc(S, 'thermal-expansion', { ...free, condition: 'restrained', youngsModulus: 100 }, { modulus: 'GPa' });
-        expect(value(entered, 'restrainedStress')).toBeCloseTo(-60, 9);
+        expect(value(entered, 'restrainedStress')).toBeCloseTo(-58.5, 9);
         const aluminum = calc(S, 'thermal-expansion', { ...free, material: 'aluminum' });
         expect(value(aluminum, 'expansion')).toBeCloseTo(23.6e-6 * 2000 * 50, 6);
     });
@@ -482,7 +483,7 @@ describe('thread strength adapter', () => {
         expect(out(noInternal, 'strippingCapacity')).toBeUndefined();
         expect(value(noInternal, 'governingCapacity')).toBeCloseTo(46.4, 6);
         const material = calc(S, 'thread-strength', { ...THREAD, boltStrength: null, boltMaterial: 'high-strength-steel', internalStrength: null, internalMaterial: 'aluminum' });
-        expect(value(material, 'fastenerCapacity')).toBeCloseTo(58e-6 * 1380e6 / 1000, 6);
+        expect(value(material, 'fastenerCapacity')).toBeCloseTo(58e-6 * 760e6 / 1000, 6);
         expect(value(material, 'strippingCapacity')).toBeCloseTo(0.577 * 310e6 * 0.5413 * Math.PI * 100e-6 / 1000, 4);
     });
 
@@ -631,7 +632,7 @@ describe('parametric sweeps on the new adapters', () => {
     it('keeps the selected mode, boundary and definition in each sweep and rejects categorical sweeps', () => {
         const { S } = setup();
         const thermal = sweep(S, 'thermal-expansion', { condition: 'restrained', material: 'carbon-steel', originalLength: 2000, temperatureChange: 50 }, { inputId: 'temperatureChange', outputId: 'restrainedStress', start: 0, end: 100, step: 50 }).result.sweep;
-        expect(thermal.points.map((p) => p.y)).toEqual([0, -120, -240].map((v) => expect.closeTo(v, 9)));
+        expect(thermal.points.map((p) => p.y)).toEqual([0, -117, -234].map((v) => expect.closeTo(v, 9)));
         expect(thermal.baseInputs.find((i) => i.id === 'condition').value).toBe('restrained');
         const weld = sweep(S, 'fillet-weld', { ...WELD, designMethod: 'ASD' }, { inputId: 'weldLeg', outputId: 'designCapacity', start: 4, end: 8, step: 2 }).result.sweep;
         expect(weld.baseInputs.find((i) => i.id === 'designMethod').value).toBe('ASD');

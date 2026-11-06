@@ -139,7 +139,10 @@ If the calculator depends on engineering material data:
 
 - read it from `getMaterialProperty(...)`
 - keep the calculator-specific assumption outside the material database
-- handle missing properties explicitly
+- handle missing properties explicitly: optional properties are omitted (never `0`), so `getMaterialProperty()` can return `null`; guard with `Number.isFinite` and leave manual fields untouched
+- never assume a property is a typical value: check `getMaterialPropertyBasis()` where it matters (specification minimums are lower bounds)
+- use `populateMaterialSelect()` for selectors, so families, labels and the reference-data note stay consistent
+- when adding a material, follow [material-reference.md](material-reference.md): cite a real source, state grade and condition, and omit properties you cannot verify
 
 Examples of centralized material facts:
 
