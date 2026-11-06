@@ -34,17 +34,9 @@ function updateShaftTorsionMode() {
 
 // Update shear modulus when material is selected
 function updateMaterialShearModulus() {
-    const material = torsionMaterialSelect.value;
-    
-    if (material) {
-        const shearModulusValue = getMaterialProperty(material, "shearModulus");
-        if (shearModulusValue !== null) {
-            // Convert from SI (Pa) to GPa for display
-            const shearModulusGPa = shearModulusValue / 1e9;
-            torsionShearModulusInput.value = shearModulusGPa;
-            torsionModulusUnitSelect.value = "GPa";
-        }
-    }
+    applyMaterialPropertyToInput(torsionMaterialSelect, torsionShearModulusInput, "shearModulus", {
+        formatValue: (value) => value / 1e9, unitElement: torsionModulusUnitSelect, unit: "GPa"
+    });
 }
 
 function calculateShaftTorsion() {

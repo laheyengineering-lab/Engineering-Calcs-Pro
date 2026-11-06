@@ -23,11 +23,11 @@ Optional `metadata` fields: `family`, `designation`, `grade`, `condition`, `prod
 
 ## Summary of corrected legacy values
 
-Existing keys are unchanged, so saved studies and reports still resolve. Saved Design Studies keep their stored result snapshots; only a new calculation uses the corrected data.
+Existing keys are unchanged, so saved studies and reports still resolve. Saved Design Studies keep their stored result snapshots; adapters that use material reference values are now revision 2. Historical results remain visible and are flagged for explicit recalculation before current reference values are used or compared.
 
 | Key | Property | Before | After | Reason / reference |
 |---|---|---|---|---|
-| `carbon-steel` (A36) | Yield | 170 MPa | 250 MPa (specified min.) | ASTM A36 minimum yield (36 ksi) |
+| `carbon-steel` (A36) | Yield | 170 MPa | 250 MPa (specified min.) | ASTM A36 plate, thickness ≤203 mm (8 in); thicker plate has a lower minimum |
 | | UTS | 250 MPa | 400 MPa (lower bound of 400–550) | ASTM A36 |
 | | G / ν / α | 80 GPa / 0.27 / 12.0 | 79.3 GPa / 0.26 / 11.7 | AZoM A36 data |
 | | Hardness | 110 HB | removed | A36 has no hardness requirement; value unverified |
@@ -41,8 +41,8 @@ Existing keys are unchanged, so saved studies and reports still resolve. Saved D
 | | Hardness | 40 HB | removed | 40 is a Rockwell F value, not Brinell |
 | `brass` (Cu-30Zn) | ρ / E / G / ν / k | 8470 / 100 / 37 / 0.34 / 111 | 8530 / 110 / 40 / 0.38 / 120 | C26000 data. Strengths, α, elongation and hardness are temper-dependent and retained as **unverified** |
 | `titanium` (Grade 2) | Elongation | 18% | 20% (specified min.) | ASTM B265. Hardness (160 HB) removed (unverified) |
-| `high-strength-steel` (A514) | Yield | 1170 MPa | 690 MPa (specified min.) | ASTM A514 Grade B, 100 ksi |
-| | UTS | 1380 MPa | 760 MPa (lower bound of 760–895) | ASTM A514 |
+| `high-strength-steel` (A514) | Yield | 1170 MPa | 690 MPa (specified min.) | ASTM A514 Grade B plate, thickness ≤65 mm (2.5 in) |
+| | UTS | 1380 MPa | 760 MPa (lower bound of 760–895) | ASTM A514 Grade B, thickness ≤65 mm (2.5 in) |
 | | Elongation | 11% | 18% (specified min.) | Plate specification |
 | | Hardness | 380 HB | removed | Unverified |
 | `cast-iron` (gray, A48 Class 30) | Yield | 150 MPa | removed | Gray iron has no yield point. Use UTS (tension) and compressive strength |
@@ -53,6 +53,8 @@ Existing keys are unchanged, so saved studies and reports still resolve. Saved D
 Display names changed for `copper` ("Copper C11000 (ETP), annealed"), `brass` ("…, temper not specified"), `mild-steel` ("…generic low-carbon, unspecified") and `cast-iron` ("…Gray, ASTM A48 Class 30"); keys are unchanged.
 
 Calculated results that change as a consequence (equations unchanged): any A36 calculation using yield, UTS, G, ν or α (e.g. factor of safety with A36 yield now uses 250 MPa; free thermal expansion of A36 is 2.5% smaller; Hertz pressures shift slightly with ν = 0.26) and A514 strength-based calculations. Tests mark these as intentional data corrections.
+
+The A36 strength values in the entry apply to plate no thicker than 203 mm (8 in); do not apply the 250 MPa yield minimum to thicker plate or to other A36 product forms without checking the governing specification. The A514 entry is specifically Grade B plate no thicker than 65 mm (2.5 in), not a value for all A514 grades or thicknesses. Its minimum yield strength is lower for thicker plate.
 
 ## Deferred candidates (not added)
 
@@ -73,11 +75,11 @@ Calculated results that change as a consequence (equations unchanged): any A36 c
 
 ## Material inventory
 
-### `carbon-steel` — Carbon Steel (ASTM A36)
+### `carbon-steel` — Carbon Steel (ASTM A36 plate)
 
 - Family: Carbon steel; designation: ASTM A36/A36M; grade: A36
-- Condition: As-rolled (hot-rolled) structural plate, shapes and bar
-- Product form: Structural plate, shapes, bar; reference temperature: 20 °C
+- Condition: As-rolled plate, thickness up to 203 mm (8 in)
+- Product form: Structural plate up to 203 mm (8 in); reference temperature: 20 °C
 
 | Property | Value | Basis |
 |---|---|---|
@@ -94,7 +96,7 @@ Calculated results that change as a consequence (equations unchanged): any A36 c
 
 Sources: [astm-a36] ASTM International; [azom-a36] AZoM
 
-Caveats: Strengths are specification minimums (tensile range 400-550 MPa); typical as-rolled yield is higher. Elongation is 23% minimum in 50 mm (20% in 200 mm). A36 has no hardness requirement.
+Caveats: Strengths are specification minimums for the stated plate thickness (tensile range 400-550 MPa); thicker plate has a 220 MPa minimum yield. Typical as-rolled yield is higher. Elongation is 23% minimum in 50 mm (20% in 200 mm). A36 has no hardness requirement.
 
 ### `stainless-steel` — Stainless Steel 304
 
@@ -236,7 +238,7 @@ Caveats: Generic legacy entry retained for compatibility with saved work. It has
 
 ### `high-strength-steel` — High Strength Steel (ASTM A514)
 
-- Family: Alloy steel; designation: ASTM A514/A514M; grade: A514 (all grades share mechanical requirements)
+- Family: Alloy steel; designation: ASTM A514/A514M; grade: Grade B
 - Condition: Quenched and tempered plate, up to 65 mm (2.5 in) thick
 - Product form: Plate; reference temperature: 20 °C
 
@@ -255,7 +257,11 @@ Caveats: Generic legacy entry retained for compatibility with saved work. It has
 
 Sources: [astm-a514] ASTM International; [ssab-a514b] SSAB
 
-Caveats: Strengths are specification minimums (tensile range 760-895 MPa). Minimum yield drops to 620 MPa for plate over 65 mm. Elastic and thermal values are generic steel values retained from the legacy entry. Hardness omitted: A514 has no hardness requirement.
+Caveats: Strengths are Grade B specification minimums for plate up to 65 mm (tensile range 760-895 MPa). Do not apply these strengths to other A514 grades or thicker plate; minimum yield drops to 620 MPa over 65 mm. Elastic and thermal values are generic steel values retained from the legacy entry. Hardness omitted: A514 has no hardness requirement.
+
+## Elastic-property consistency
+
+The isotropic linear-elastic relation \(G=E/[2(1+\nu)]\) is a useful consistency check, not a requirement to replace independently reported values. With the rounded database values, the largest discrepancies are 304 stainless (given 77 GPa vs 74.8 GPa implied, 2.9%), 316 stainless (77 vs 74.2 GPa implied, 3.7%), and the generic mild-steel entry (80 vs 82.7 GPa implied, 3.2%). A514 is 1.8% low and AZ91D is 2.0% high. The stainless values are retained as independently sourced nominal moduli and typical Poisson ratios (RoyMech); the generic mild-steel values are explicitly unverified. Other entries differ by no more than 2% (rounding/independent tabulation). These are reference properties, not fitted isotropic constants.
 
 ### `cast-iron` — Cast Iron (Gray, ASTM A48 Class 30)
 
@@ -489,6 +495,8 @@ Caveats: Strengths are ASTM B265 annealed minimums; typical annealed values are 
 
 ## Source registry
 
+ASTM identifiers below identify the governing specifications, but the paywalled standard text was not directly reviewed in this audit; the quoted minimums are cross-referenced to the public provider records listed alongside them. Public producer/supplier datasheets (including Aalco, SSAB, Penticton Foundry, S+D Metals and True Precision Machining) are distinct from secondary property compilations. MatWeb values reproduced by Xometry, Components.ca, MechCodex, Metals4U, RoyMech, AZoM and eFunda are compilations, not ASTM or Aluminum Association specifications. A listed source does not imply that every property in an entry comes from that source; the condition, property basis and caveats above constrain how each value should be used.
+
 | ID | Title | Publisher | Location |
 |---|---|---|---|
 | `astm-a36` | ASTM A36/A36M, Standard Specification for Carbon Structural Steel | ASTM International | ASTM A36/A36M |
@@ -503,8 +511,10 @@ Caveats: Strengths are ASTM B265 annealed minimums; typical annealed values are 
 | `astm-a564` | ASTM A564/A564M, Standard Specification for Hot-Rolled and Cold-Finished Age-Hardening Stainless Steel Bars and Shapes | ASTM International | ASTM A564/A564M |
 | `tpm-17-4ph` | 17-4PH Stainless Machining Datasheet (H900: UTS 190 ksi, yield 170 ksi, E 28.5 Msi) | True Precision Machining | https://www.trueprecisionmachining.com/engineering/datasheets/stainless-17-4ph/ |
 | `mechcodex-17-4ph` | 17-4 PH (H900) Properties | MechCodex (secondary compilation) | https://mechcodex.com/materials/17-4-ph-stainless-steel |
-| `metals4u-316` | 1.4401 Grade 316 Stainless Steel Properties (ASTM A240 minimums, ASM-type physical data) | metals4U | https://www.metals4u.co.uk/blog/316-stainless-steel |
-| `roymech-316` | 316 Stainless Steel data sheet | RoyMech | https://www.roymech.co.uk/material-properties/metals/ferrous-metals/316-Stainless-Steel-Q000dQ |
+| `aalco-304` | Stainless Steel 304 datasheet (flat-rolled ASTM A240/A240M products) | Aalco Metals | https://www.farnell.com/datasheets/33229.pdf |
+| `metals4u-316` | 1.4401 Grade 316 Stainless Steel Properties (ASTM A240 minimums, ASM-type physical data) | metals4U (secondary compilation) | https://www.metals4u.co.uk/blog/316-stainless-steel |
+| `roymech-304` | 304 Stainless Steel data sheet | RoyMech (secondary compilation) | https://www.roymech.co.uk/material-properties/metals/ferrous-metals/304-Stainless-Steel-Q0006Q |
+| `roymech-316` | 316 Stainless Steel data sheet | RoyMech (secondary compilation) | https://www.roymech.co.uk/material-properties/metals/ferrous-metals/316-Stainless-Steel-Q000dQ |
 | `matweb-1018-cd` | AISI 1018 Steel, cold drawn (MatWeb data sheet) | MatWeb | https://apm.matweb.com/search/DataSheet.aspx?MatGUID=3a9cc570fbb24d119f08db22a53e2421 |
 | `matweb-4140-annealed` | AISI 4140 steel, annealed at 815 °C, furnace cooled to 665 °C, air cooled, 25 mm round (MatWeb data sheet) | MatWeb (as reproduced by Xometry) | https://s3.amazonaws.com/xometry.craft/files/specsheets/datasheet-AISI-4140-steel.pdf |
 | `efunda-4140` | Properties of Alloy Steel AISI 4140 | eFunda | https://www.efunda.com/Materials/alloys/alloy_steels/show_alloy.cfm?ID=AISI_4140&show_prop=all&Page_Title=AISI%204140 |

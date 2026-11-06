@@ -209,6 +209,8 @@ const materialReferences = {
     "astm-a514": { title: "ASTM A514/A514M, Standard Specification for High-Yield-Strength, Quenched and Tempered Alloy Steel Plate, Suitable for Welding", publisher: "ASTM International", identifier: "ASTM A514/A514M" },
     "ssab-a514b": { title: "ASTM A514 Grade B product data (minimum yield 100 ksi / 690 MPa)", publisher: "SSAB", url: "https://www.ssab.com/en-us/brands-and-products/commercial-steel/structural-steel/astm-a514/grade-b" },
     "astm-a240": { title: "ASTM A240/A240M, Standard Specification for Chromium and Chromium-Nickel Stainless Steel Plate, Sheet, and Strip", publisher: "ASTM International", identifier: "ASTM A240/A240M" },
+    "aalco-304": { title: "Stainless Steel 304 datasheet (flat-rolled ASTM A240/A240M products)", publisher: "Aalco Metals", url: "https://www.farnell.com/datasheets/33229.pdf" },
+    "roymech-304": { title: "304 Stainless Steel data sheet", publisher: "RoyMech (secondary compilation)", url: "https://www.roymech.co.uk/material-properties/metals/ferrous-metals/304-Stainless-Steel-Q0006Q" },
     "astm-a48": { title: "ASTM A48/A48M, Standard Specification for Gray Iron Castings", publisher: "ASTM International", identifier: "ASTM A48/A48M" },
     "penticton-a48-30": { title: "Gray Iron ASTM A48 Class 30 Data Sheet", publisher: "Penticton Foundry", url: "https://www.pentictonfoundry.com/news/gray-iron-astm-a48-class-30/" },
     "astm-b265": { title: "ASTM B265, Standard Specification for Titanium and Titanium Alloy Strip, Sheet, and Plate", publisher: "ASTM International", identifier: "ASTM B265" },
@@ -249,8 +251,8 @@ const materialDatabase = {
             family: "Carbon steel",
             designation: "ASTM A36/A36M",
             grade: "A36",
-            condition: "As-rolled (hot-rolled) structural plate, shapes and bar",
-            productForm: "Structural plate, shapes, bar",
+            condition: "As-rolled plate, thickness up to 203 mm (8 in)",
+            productForm: "Structural plate, thickness up to 203 mm (8 in)",
             referenceTemperatureC: 20,
             propertyBasis: {
                 density: "nominal", youngsModulus: "nominal", shearModulus: "nominal", poissonRatio: "nominal",
@@ -286,7 +288,7 @@ const materialDatabase = {
                 thermalExpansionCoefficient: "typical", tensileStrength: "specified-minimum",
                 yieldStrength: "specified-minimum", elongationAtBreak: "specified-minimum", thermalConductivity: "typical"
             },
-            sources: ["astm-a240", "metals4u-316"],
+            sources: ["astm-a240", "aalco-304", "roymech-304"],
             caveats: "Strengths are ASTM A240 annealed minimums. Thermal expansion is the 0-100 °C mean and conductivity is quoted at 100 °C (about 15 W/(m·K) at 20 °C in EN data). Cold-worked 304 is stronger. Hardness omitted: A240 gives only a maximum (201 HBW)."
         }
     },
@@ -453,7 +455,7 @@ const materialDatabase = {
         metadata: {
             family: "Alloy steel",
             designation: "ASTM A514/A514M",
-            grade: "A514 (all grades share mechanical requirements)",
+            grade: "Grade B",
             condition: "Quenched and tempered plate, up to 65 mm (2.5 in) thick",
             productForm: "Plate",
             referenceTemperatureC: 20,

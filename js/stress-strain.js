@@ -42,17 +42,9 @@ function updateStressStrainMode() {
 
 // Update Young's modulus when material is selected
 function updateMaterialYoungsModulus() {
-    const material = stressStrainMaterialSelect.value;
-    
-    if (material) {
-        const youngsModulusValue = getMaterialProperty(material, "youngsModulus");
-        if (youngsModulusValue !== null) {
-            // Convert from SI (Pa) to GPa for display
-            const youngsModulusGPa = youngsModulusValue / 1e9;
-            stressStrainYoungsModulusInput.value = youngsModulusGPa;
-            stressStrainModulusUnitSelect.value = "GPa";
-        }
-    }
+    applyMaterialPropertyToInput(stressStrainMaterialSelect, stressStrainYoungsModulusInput, "youngsModulus", {
+        formatValue: (value) => value / 1e9, unitElement: stressStrainModulusUnitSelect, unit: "GPa"
+    });
 }
 
 function calculateStressStrain() {

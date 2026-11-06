@@ -12,10 +12,10 @@ const NEW_KEYS = ['aluminum-6061-o', 'aluminum-2024-t3', 'aluminum-7075-t6', 'st
 // Reference values below come from the governing standards / datasheets, typed independently of the database.
 // [key, property, expected SI value]
 const SPECIFIED = [
-    ['carbon-steel', 'yieldStrength', 250e6],            // ASTM A36 minimum yield
-    ['carbon-steel', 'tensileStrength', 400e6],          // ASTM A36 minimum of 400-550 MPa
-    ['high-strength-steel', 'yieldStrength', 690e6],     // ASTM A514 minimum, 100 ksi
-    ['high-strength-steel', 'tensileStrength', 760e6],   // ASTM A514 range lower bound, 110 ksi
+    ['carbon-steel', 'yieldStrength', 250e6],            // ASTM A36 plate, up to 203 mm (8 in)
+    ['carbon-steel', 'tensileStrength', 400e6],          // ASTM A36 plate, lower bound of 400-550 MPa
+    ['high-strength-steel', 'yieldStrength', 690e6],     // ASTM A514 Grade B plate, up to 65 mm
+    ['high-strength-steel', 'tensileStrength', 760e6],   // Grade B lower bound, 110 ksi
     ['stainless-316', 'tensileStrength', 515e6],         // ASTM A240 minimum
     ['stainless-316', 'yieldStrength', 205e6],           // ASTM A240 minimum
     ['titanium-grade-5', 'tensileStrength', 895e6],      // ASTM B265 minimum
@@ -130,6 +130,31 @@ describe('material database schema and metadata', () => {
         expect(window.getMaterialPropertyBasis('missing-material', 'yieldStrength')).toBeNull();
     });
 
+    it('limits A36 and A514 strengths to their stated product forms and thicknesses', () => {
+        const a36 = window.getMaterialMetadata('carbon-steel');
+        expect(a36.condition).toMatch(/plate.*203 mm \(8 in\)/);
+        expect(a36.productForm).toMatch(/plate.*203 mm \(8 in\)/);
+        expect(a36.propertyBasis.yieldStrength).toBe('specified-minimum');
+        expect(a36.propertyBasis.tensileStrength).toBe('specified-minimum');
+
+        const a514 = window.getMaterialMetadata('high-strength-steel');
+        expect(a514.grade).toBe('Grade B');
+        expect(a514.condition).toMatch(/65 mm/);
+        expect(a514.propertyBasis.yieldStrength).toBe('specified-minimum');
+        expect(a514.propertyBasis.tensileStrength).toBe('specified-minimum');
+    });
+
+    it('retains independently sourced elastic properties and bounds their documented discrepancy', () => {
+        const expectedG = (key) => {
+            const material = window.getMaterial(key);
+            return material.youngsModulus / (2 * (1 + material.poissonRatio));
+        };
+        expect(window.getMaterial('stainless-steel').shearModulus).toBe(77e9);
+        expect(window.getMaterial('stainless-316').shearModulus).toBe(77e9);
+        expect(Math.abs(window.getMaterial('stainless-steel').shearModulus / expectedG('stainless-steel') - 1)).toBeCloseTo(0.029, 3);
+        expect(Math.abs(window.getMaterial('stainless-316').shearModulus / expectedG('stainless-316') - 1)).toBeCloseTo(0.037, 3);
+    });
+
     it('omits properties that are not established instead of inventing them', () => {
         // Gray iron has no yield point; a generic yield must not be offered.
         expect(window.getMaterialProperty('cast-iron', 'yieldStrength')).toBeNull();
@@ -180,6 +205,8 @@ describe('material lookup, grouping and conversion helpers', () => {
         expect(window.getMaterialSources('carbon-steel').length).toBeGreaterThan(0);
         expect(window.getMaterialSources('missing-material')).toEqual([]);
         expect(window.getMaterialMetadata('missing-material')).toBeNull();
+        expect(window.getMaterialSources('stainless-steel').map((source) => source.title).join(' '))
+            .toMatch(/304 datasheet/);
     });
 
     it('keeps getMaterialListFormatted a plain {key, displayName} list', () => {

@@ -12,14 +12,9 @@ function springFormat(value, digits = 3) {
 }
 
 function updateSpringMaterial() {
-    const material = springElement("springMaterial").value;
-    if (!material) return;
-
-    const modulusPa = getMaterialProperty(material, "shearModulus");
-    const unit = springElement("modulusUnit").value;
-    if (Number.isFinite(modulusPa) && modulusPa > 0) {
-        springElement("shearModulus").value = String(convertModulusToUnit(modulusPa, unit));
-    }
+    applyMaterialPropertyToInput(springElement("springMaterial"), springElement("shearModulus"), "shearModulus", {
+        formatValue: (value) => convertModulusToUnit(value, springElement("modulusUnit").value)
+    });
 }
 
 function springError(message) {

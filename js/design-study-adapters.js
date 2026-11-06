@@ -138,7 +138,7 @@
     const differentialThermal = {
         id: "differential-thermal-expansion",
         name: "Differential Thermal Expansion",
-        version: "1",
+        version: "2",
         path: "calculators/differential-thermal-expansion.html",
         groups: {
             length: distanceGroup("input length", ["mm", "cm", "m", "in", "ft"], "mm"),
@@ -233,7 +233,7 @@
     const pressFit = {
         id: "press-fit",
         name: "Press-Fit Stress",
-        version: "1",
+        version: "2",
         path: "calculators/press-fit.html",
         groups: {
             distance: distanceGroup("diameter and engagement length", distanceUnits, "mm"),
@@ -316,7 +316,7 @@
     const hertz = {
         id: "hertzian-contact",
         name: "Hertzian Contact Stress",
-        version: "1",
+        version: "2",
         path: "calculators/hertzian-contact.html",
         groups: {
             distance: distanceGroup("body diameter and contact length", ["µm", ...distanceUnits], "mm"),
@@ -408,7 +408,7 @@
     const shaftTorsion = {
         id: "shaft-torsion",
         name: "Shaft Torsion",
-        version: "1",
+        version: "2",
         path: "calculators/shaft-torsion.html",
         groups: {
             torque: momentGroup(),
@@ -614,7 +614,7 @@
     const beamDeflection = {
         id: "beam-deflection",
         name: "Beam Bending Stress and Deflection",
-        version: "1",
+        version: "2",
         path: "calculators/beam-deflection.html",
         groups: Object.assign({}, beamGroups, {
             force: forceGroup(),
@@ -836,7 +836,7 @@
     const columnBuckling = {
         id: "column-buckling",
         name: "Column Buckling (Euler)",
-        version: "1",
+        version: "2",
         path: "calculators/column-buckling.html",
         groups: {
             distance: distanceGroup("column length and diameters", distanceUnits, "mm"),
@@ -900,7 +900,7 @@
     const factorOfSafety = {
         id: "factor-of-safety",
         name: "Factor of Safety",
-        version: "1",
+        version: "2",
         path: "calculators/factor-of-safety.html",
         groups: {
             stress: stressGroup("strength and applied stress", ["Pa", "MPa", "GPa", "psi", "ksi"]),
@@ -936,12 +936,14 @@
             "The factor of safety is the ratio of a specified capacity (strength or failure load) to a specified demand (applied stress or load); it is only as meaningful as those inputs.",
             "Stress-based and load-based factors use different definitions and are never compared with each other.",
             "A material strength source supplies the database yield or tensile strength; direct entry uses the strength typed here.",
+            "A database strength can be typical, nominal, specified-minimum, or unverified; it is a reference property, not a certified design allowable.",
             "Only the inputs for the selected definition are used; the other definition's inputs are ignored."
         ],
         warnings: [
             "FoS = 1 means the applied condition equals the specified strength or failure value, not that failure is imminent or acceptable.",
             "Required factors of safety depend on codes, consequences and uncertainty; none is recommended here.",
-            "Different strength sources (yield, tensile, direct) give factors with different meanings."
+            "Different strength sources (yield, tensile, direct) give factors with different meanings.",
+            "Verify the selected material's strength basis and product condition before relying on a material-based factor of safety."
         ],
         method: "Calls computeFactorOfSafety() for the selected definition; strength comes from direct entry or the selected material property.",
         calculate(values, units) {
@@ -1049,7 +1051,7 @@
     const helicalSpring = {
         id: "spring-calculations",
         name: "Helical Compression Spring",
-        version: "1",
+        version: "2",
         path: "calculators/spring-calculations.html",
         groups: {
             distance: distanceGroup("wire and coil diameter", distanceUnits, "mm"),
@@ -1113,7 +1115,7 @@
     const stressStrain = {
         id: "stress-strain",
         name: "Stress & Strain",
-        version: "1",
+        version: "2",
         path: "calculators/stress-strain.html",
         groups: {
             force: forceGroup(),
@@ -1190,7 +1192,7 @@
     const thermalExpansion = {
         id: "thermal-expansion",
         name: "Thermal Expansion",
-        version: "1",
+        version: "2",
         path: "calculators/thermal-expansion.html",
         groups: {
             alpha: unitGroup("coefficient of thermal expansion", ["1/°C", "1/K"], "1/°C", (v) => v, (v) => v, false),
@@ -1317,7 +1319,7 @@
     const threadStrength = {
         id: "thread-strength",
         name: "Thread Strength",
-        version: "1",
+        version: "2",
         path: "calculators/thread-strength.html",
         groups: {
             distance: distanceGroup("major diameter and engagement length", distanceUnits, "mm"),

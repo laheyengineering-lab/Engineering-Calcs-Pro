@@ -38,18 +38,10 @@ function updateHertzShape() {
 }
 
 function applyHertzMaterial(body) {
-    const key = hertzEl("material" + body).value;
-    if (!key) return;
-    const youngsModulusPa = getMaterialProperty(key, "youngsModulus");
-    const poissonRatio = getMaterialProperty(key, "poissonRatio");
-    // A missing property leaves the current manual value untouched instead of writing 0.
-    if (Number.isFinite(youngsModulusPa) && youngsModulusPa > 0) {
-        hertzEl("modulus" + body).value = youngsModulusPa / 1e9;
-        hertzEl("modulusUnit" + body).value = "GPa";
-    }
-    if (Number.isFinite(poissonRatio)) {
-        hertzEl("poisson" + body).value = poissonRatio;
-    }
+    applyMaterialPropertyToInput(hertzEl("material" + body), hertzEl("modulus" + body), "youngsModulus", {
+        formatValue: (value) => value / 1e9, unitElement: hertzEl("modulusUnit" + body), unit: "GPa"
+    });
+    applyMaterialPropertyToInput(hertzEl("material" + body), hertzEl("poisson" + body), "poissonRatio");
 }
 
 function calculateHertzContact() {

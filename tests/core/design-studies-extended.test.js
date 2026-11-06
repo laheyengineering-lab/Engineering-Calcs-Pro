@@ -51,10 +51,14 @@ const THREAD = {
 describe('extended Design Studies registry', () => {
     it('registers all eleven additional calculators with stable ids, versions and paths', () => {
         const { S } = setup();
+        const materialRevisionTwo = new Set([
+            'column-buckling', 'factor-of-safety', 'spring-calculations',
+            'stress-strain', 'thermal-expansion', 'thread-strength'
+        ]);
         NEW_IDS.forEach((id) => {
             const adapter = S.getAdapter(id);
             expect(adapter, id).not.toBeNull();
-            expect(adapter.version).toBe('1');
+            expect(adapter.version).toBe(materialRevisionTwo.has(id) ? '2' : '1');
             expect(adapter.path).toBe('calculators/' + id + '.html');
             expect(adapter.equations.length).toBeGreaterThan(0);
             expect(adapter.assumptions.length).toBeGreaterThan(0);
