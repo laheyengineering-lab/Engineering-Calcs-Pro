@@ -216,6 +216,7 @@
         context.appendChild(link);
 
         header.insertAdjacentElement('afterend', context);
+        if (typeof window.FormulaFoundryRenderMath === 'function') window.FormulaFoundryRenderMath();
     }
 
     if (document.readyState === 'loading') {
