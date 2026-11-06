@@ -131,6 +131,9 @@ describe('bearing life adapter', () => {
         expect(out(s, 'lifeRevolutions').unit).toBe('rev');
         expect(out(s, 'lifeHours')).toMatchObject({ unit: 'h', quantity: 'time' });
         expect(S.getAdapter('bearing-life').warnings.join(' ')).toMatch(/not a prediction of actual service life/);
+        const slower = calc(S, 'bearing-life', { ...BEARING, speed: 750 });
+        const comparison = S.compareScenarios([s, slower], s.id);
+        expect(comparison.outputRows.find((row) => row.id === 'lifeHours').cells[1].percent.value).toBeCloseTo(100, 9);
     });
 
     it('uses the roller exponent 10/3 and converts rps and lbf', () => {
@@ -379,9 +382,10 @@ describe('thermal expansion adapter', () => {
         expect(value(f, 'thermalStrain')).toBeCloseTo(6e-4, 12);
         expect(out(f, 'restrainedStress')).toBeUndefined();
         const r = calc(S, 'thermal-expansion', { ...free, condition: 'restrained' });
-        expect(value(r, 'restrainedStress')).toBeCloseTo(120, 9);
+        expect(value(r, 'restrainedStress')).toBeCloseTo(-120, 9);
         expect(out(r, 'restrainedStress').quantity).toBe('restrained-thermal-stress');
         expect(S.getAdapter('thermal-expansion').equationsFor({ condition: 'restrained' })).toHaveLength(2);
+        expect(S.getAdapter('thermal-expansion').equationsFor({ condition: 'restrained' }).at(-1)).toMatch(/= -E/);
     });
 
     it('handles temperature intervals, coefficient units, entered values and cooling', () => {
@@ -391,9 +395,9 @@ describe('thermal expansion adapter', () => {
         const kelvin = calc(S, 'thermal-expansion', { ...free, material: null, alpha: 12e-6, temperatureChange: 50 }, { alpha: '1/K', temperature: 'K', outputLength: 'm' });
         expect(value(kelvin, 'expansion')).toBeCloseTo(0.0012, 12);
         const cooling = calc(S, 'thermal-expansion', { ...free, condition: 'restrained', temperatureChange: -50 });
-        expect(value(cooling, 'restrainedStress')).toBeCloseTo(-120, 9);
+        expect(value(cooling, 'restrainedStress')).toBeCloseTo(120, 9);
         const entered = calc(S, 'thermal-expansion', { ...free, condition: 'restrained', youngsModulus: 100 }, { modulus: 'GPa' });
-        expect(value(entered, 'restrainedStress')).toBeCloseTo(60, 9);
+        expect(value(entered, 'restrainedStress')).toBeCloseTo(-60, 9);
         const aluminum = calc(S, 'thermal-expansion', { ...free, material: 'aluminum' });
         expect(value(aluminum, 'expansion')).toBeCloseTo(23.6e-6 * 2000 * 50, 6);
     });
@@ -562,7 +566,8 @@ describe('page and Design Studies parity', () => {
         thermal.window.calculateThermalExpansion();
         const t = calc(S, 'thermal-expansion', { condition: 'restrained', alpha: 12e-6, originalLength: 2, temperatureChange: 50, youngsModulus: 200 }, { length: 'm', modulus: 'GPa' });
         expect(value(t, 'expansion')).toBeCloseTo(extractLeadingNumber(getResultValueText(thermal.document)), 6);
-        expect(getResultText(thermal.document)).toContain(value(t, 'restrainedStress') + ' MPa');
+        expect(value(t, 'restrainedStress')).toBeCloseTo(-120, 9);
+        expect(getResultText(thermal.document)).toContain('120 MPa');
 
         const moment = loadCalculatorPage('calculators/moment.html', ['js/engineering-units.js', 'js/moment-calculation.js', 'js/moment.js']);
         setInputValue(moment.document, 'force', 100);
@@ -626,7 +631,7 @@ describe('parametric sweeps on the new adapters', () => {
     it('keeps the selected mode, boundary and definition in each sweep and rejects categorical sweeps', () => {
         const { S } = setup();
         const thermal = sweep(S, 'thermal-expansion', { condition: 'restrained', material: 'carbon-steel', originalLength: 2000, temperatureChange: 50 }, { inputId: 'temperatureChange', outputId: 'restrainedStress', start: 0, end: 100, step: 50 }).result.sweep;
-        expect(thermal.points.map((p) => p.y)).toEqual([0, 120, 240].map((v) => expect.closeTo(v, 9)));
+        expect(thermal.points.map((p) => p.y)).toEqual([0, -120, -240].map((v) => expect.closeTo(v, 9)));
         expect(thermal.baseInputs.find((i) => i.id === 'condition').value).toBe('restrained');
         const weld = sweep(S, 'fillet-weld', { ...WELD, designMethod: 'ASD' }, { inputId: 'weldLeg', outputId: 'designCapacity', start: 4, end: 8, step: 2 }).result.sweep;
         expect(weld.baseInputs.find((i) => i.id === 'designMethod').value).toBe('ASD');

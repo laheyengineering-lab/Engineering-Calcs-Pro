@@ -515,15 +515,31 @@
         const mode = v.text("mode");
         const load = mode === "load";
         const description = "Two horizontal bars compare the capacity (" + (load ? "failure load" : "strength") + ") with the demand (" + (load ? "applied load" : "applied stress") + "). The factor of safety is capacity divided by demand.";
+        let capacity = v.pos(load ? "failureLoad" : "strength");
+        let capacityLabel = load ? "Failure load (capacity)" : "Strength (capacity)";
+        let capacityValue = v.show(load ? "failureLoad" : "strength");
+        if (!load) {
+            const source = v.text("strengthSource");
+            if (source === "material-yield" || source === "material-tensile") {
+                const property = source === "material-yield" ? "yieldStrength" : "tensileStrength";
+                const materialStrength = getMaterialProperty(v.text("material"), property);
+                capacity = Number.isFinite(materialStrength) && materialStrength > 0 ? materialStrength : null;
+                capacityLabel = source === "material-yield" ? "Yield strength (capacity)" : "Tensile strength (capacity)";
+                const unit = v.unitOf("appliedStress");
+                capacityValue = capacity === null ? null : capacityLabel.replace(" (capacity)", "") + " = " + fmt(convertStressToUnit(capacity, unit)) + (unit ? " " + unit : "");
+            } else if (source !== "direct") {
+                capacity = null;
+                capacityValue = null;
+            }
+        }
         const c = canvas(document, "0 0 420 240", description, "Factor of safety schematic");
-        const capacity = v.pos(load ? "failureLoad" : "strength");
         const demand = v.pos(load ? "appliedLoad" : "appliedStress");
         const w = ratio(demand, capacity, 0.05, 1.5, 0.5);
         c.rect(60, 70, 280, 34, "sd-body");
         c.rect(60, 130, Number((280 * Math.min(w, 1.5) / 1.5).toFixed(1)), 34, w > 1 ? "sd-extension" : "sd-fluid");
-        c.text(60, 60, load ? "Failure load (capacity)" : "Strength (capacity)", "sd-label");
+        c.text(60, 60, capacityLabel, "sd-label");
         c.text(60, 122, load ? "Applied load (demand)" : "Applied stress (demand)", "sd-label");
-        c.text(350, 92, (load ? v.show("failureLoad") : v.show("strength")) || "", "sd-dim-label");
+        c.text(350, 92, capacityValue || "", "sd-dim-label");
         c.text(350, 152, (load ? v.show("appliedLoad") : v.show("appliedStress")) || "", "sd-dim-label");
         c.text(210, 204, load ? "FoS = failure load ÷ applied load" : "FoS = strength ÷ applied stress", "sd-label", "middle");
         c.text(210, 232, "Bar lengths are schematic; different definitions are not interchangeable.", "sd-note", "middle");
@@ -594,7 +610,7 @@
         if (restrained) {
             c.rect(272, 60, 12, 120, "sd-wall");
             c.arrow(176, 80, 176, 96, "sd-load");
-            c.text(210, 168, "σ = E α ΔT (fully restrained)", "sd-label", "middle");
+            c.text(210, 168, "σ = −E α ΔT (tension positive)", "sd-label", "middle");
         } else {
             c.rect(272, 100, 50, 40, "sd-extension");
             c.arrow(326, 120, 372, 120, "sd-motion");

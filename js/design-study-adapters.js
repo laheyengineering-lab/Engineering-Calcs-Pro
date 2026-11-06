@@ -697,7 +697,7 @@
     // Each adapter below delegates to the DOM-free engine extracted from its calculator page
     // (js/<name>-calculation.js); no engineering formulas are repeated here.
 
-    const dimensionless = (label, unit) => unitGroup(label, [unit], unit, (value) => value, (value) => value, false);
+    const dimensionless = (label, unit) => unitGroup(label, [unit], unit, (value) => value, (value) => value);
     const lengthChangeGroup = (label, options, defaultUnit) => distanceGroup(label, options, defaultUnit);
     const num = (values, id) => (values[id] === null || values[id] === undefined ? NaN : values[id]);
     const optionalNum = (values, id) => (values[id] === null || values[id] === undefined ? null : values[id]);
@@ -1186,6 +1186,7 @@
     // ---------- Thermal Expansion ----------
 
     const thermalMaterials = materialsWithProperties("thermalExpansionCoefficient");
+    const THERMAL_STUDY_RESTRAINED_EQUATION = String.raw`\sigma_{th} = -E\,\alpha\,\Delta T\;\text{(tension positive; member fully restrained)}`;
     const thermalExpansion = {
         id: "thermal-expansion",
         name: "Thermal Expansion",
@@ -1218,10 +1219,10 @@
             { id: "thermalStrain", label: "Thermal strain (ε = αΔT)", group: "strain", quantity: "strain" },
             { id: "restrainedStress", label: "Fully restrained thermal stress (σ, signed)", group: "stress", quantity: "restrained-thermal-stress", optional: true }
         ],
-        equations: THERMAL_EXPANSION_EQUATIONS.free.concat(THERMAL_EXPANSION_EQUATIONS.restrained),
+        equations: THERMAL_EXPANSION_EQUATIONS.free.concat([THERMAL_STUDY_RESTRAINED_EQUATION]),
         equationsFor(values) {
             if (values.condition === "free") return THERMAL_EXPANSION_EQUATIONS.free.slice();
-            if (values.condition === "restrained") return THERMAL_EXPANSION_EQUATIONS.free.concat(THERMAL_EXPANSION_EQUATIONS.restrained);
+            if (values.condition === "restrained") return THERMAL_EXPANSION_EQUATIONS.free.concat([THERMAL_STUDY_RESTRAINED_EQUATION]);
             return [];
         },
         comparisonKey: (scenario) => "condition:" + scenario.inputs.condition,
@@ -1252,7 +1253,7 @@
                 expansion: convertDistanceToUnit(r.deltaLM, units.outputLength), finalLength: convertDistanceToUnit(r.finalLengthM, units.outputLength),
                 thermalStrain: r.thermalStrain
             };
-            if (r.thermalStressPa !== null) out.restrainedStress = convertStressToUnit(r.thermalStressPa, units.stress);
+            if (r.thermalStressPa !== null) out.restrainedStress = convertStressToUnit(r.thermalStressPa === 0 ? 0 : -r.thermalStressPa, units.stress);
             return out;
         }
     };

@@ -178,6 +178,30 @@ describe('Design Studies engineering context', () => {
         expect(C.contextFor(deflection, { inputs: {} }).equations).toEqual([]);
     });
 
+    it('uses the selected material strength as factor-of-safety diagram capacity', () => {
+        const { window } = load();
+        const adapter = window.FormulaFoundryStudies.getAdapter('factor-of-safety');
+        const figure = window.FormulaFoundryStudyContext.renderDiagram(window.document, adapter, {
+            inputs: { mode: 'stress', strengthSource: 'material-yield', material: 'carbon-steel', strength: 250, appliedStress: 200 },
+            units: { stress: 'MPa' }
+        });
+        const svg = figure.querySelector('svg');
+        expect(svg.textContent).toContain('Yield strength (capacity)');
+        expect(svg.textContent).toContain('Yield strength = 170 MPa');
+        expect(svg.querySelector('.sd-extension')).not.toBeNull();
+    });
+
+    it('labels restrained thermal stress with tensile-positive sign convention', () => {
+        const { window } = load();
+        const adapter = window.FormulaFoundryStudies.getAdapter('thermal-expansion');
+        const equation = window.FormulaFoundryStudyContext.contextFor(adapter, { inputs: { condition: 'restrained' } }).equations.at(-1);
+        expect(equation).toMatch(/= -E/);
+        const figure = window.FormulaFoundryStudyContext.renderDiagram(window.document, adapter, {
+            inputs: { condition: 'restrained', temperatureChange: 50 }
+        });
+        expect(figure.textContent).toContain('σ = −E α ΔT (tension positive)');
+    });
+
     it('keeps diagrams safe and valid for extreme, blank and malformed inputs', () => {
         const { window } = load();
         const S = window.FormulaFoundryStudies;
