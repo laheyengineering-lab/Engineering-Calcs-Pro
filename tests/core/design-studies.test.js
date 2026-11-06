@@ -6,7 +6,7 @@ const scripts = [
     'js/calculator-utils.js',
     'js/press-fit-calculation.js',
     'js/hertzian-contact-calculation.js',
-    'js/shaft-torsion-calculation.js',
+    'js/shaft-torsion-calculation.js', 'js/bolt-torque-calculation.js', 'js/moment-calculation.js', 'js/bearing-life-calculation.js', 'js/column-buckling-calculation.js', 'js/factor-of-safety-calculation.js', 'js/fillet-weld-calculation.js', 'js/spring-calculation.js', 'js/stress-strain-calculation.js', 'js/thermal-expansion-calculation.js', 'js/thick-walled-cylinder-calculation.js', 'js/thread-strength-calculation.js',
     'js/beam-section-properties.js',
     'js/beam-study-calculations.js',
     'js/cylinder-force.js',
@@ -549,8 +549,9 @@ describe('registry', () => {
     it('only registers valid adapters and exposes the supported calculators', () => {
         const { S } = setup();
         expect(S.listAdapters().map((a) => a.id).sort()).toEqual([
-            'beam-bending-stress', 'beam-deflection', 'cylinder-force',
-            'differential-thermal-expansion', 'hertzian-contact', 'press-fit', 'shaft-torsion'
+            'beam-bending-stress', 'beam-deflection', 'bearing-life', 'bolt-torque', 'column-buckling', 'cylinder-force',
+            'differential-thermal-expansion', 'factor-of-safety', 'fillet-weld', 'hertzian-contact', 'moment', 'press-fit',
+            'shaft-torsion', 'spring-calculations', 'stress-strain', 'thermal-expansion', 'thick-walled-cylinder', 'thread-strength'
         ]);
         expect(() => S.registerAdapter({ id: 'Bad Id' })).toThrow();
         expect(() => S.registerAdapter({ id: 'ok', name: 'n', version: '1', path: 'p.html', groups: {}, inputs: [{ id: 'x', group: 'missing' }], outputs: [], calculate() {} })).toThrow(/unknown unit group/);

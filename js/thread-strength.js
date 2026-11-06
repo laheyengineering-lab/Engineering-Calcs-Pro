@@ -1,6 +1,3 @@
-const THREAD_INTERNAL_DEPTH_FACTOR = 0.5413;
-const THREAD_VON_MISES_SHEAR_FACTOR = 0.577;
-
 function threadElement(id) {
     return document.getElementById(id);
 }
@@ -70,41 +67,21 @@ function calculateThreadStrength() {
         threadError("Check the selected units; the inputs could not be converted to finite values.");
         return;
     }
-    if (pitchM >= diameterM) {
-        threadError("Thread pitch must be less than the nominal major diameter.");
+    let calculated;
+    try {
+        calculated = computeThreadStrength({
+            diameterM, pitchM, engagementM, stressAreaM2, forceN, boltStrengthPa, internalStrengthPa
+        });
+    } catch (error) {
+        threadError(error.message);
         return;
     }
-
-    const boltCapacityN = stressAreaM2 * boltStrengthPa;
-    const appliedStressPa = forceN / stressAreaM2;
-    const internalShearAreaM2 = internalStrengthPa === null
-        ? null
-        : Math.PI * diameterM * engagementM * THREAD_INTERNAL_DEPTH_FACTOR;
-    const internalCapacityN = internalStrengthPa === null
-        ? null
-        : internalShearAreaM2 * THREAD_VON_MISES_SHEAR_FACTOR * internalStrengthPa;
-    const calculatedValues = [boltCapacityN, appliedStressPa, internalShearAreaM2, internalCapacityN]
-        .filter((value) => value !== null);
-
-    if (!calculatedValues.every(Number.isFinite) || boltCapacityN <= 0 ||
-        (internalCapacityN !== null && internalCapacityN <= 0)) {
-        threadError("The calculation produced a non-finite or non-positive capacity. Check the inputs and units.");
-        return;
-    }
-
-    const boltUtilization = forceN / boltCapacityN;
-    const internalUtilization = internalCapacityN === null ? null : forceN / internalCapacityN;
-    if (!Number.isFinite(boltUtilization) ||
-        (internalUtilization !== null && !Number.isFinite(internalUtilization))) {
-        threadError("The utilization calculation is non-finite. Check the load, stress area, and strengths.");
-        return;
-    }
-    const governingMode = internalCapacityN === null
-        ? "Fastener tensile (internal-thread stripping not assessed)"
-        : boltCapacityN <= internalCapacityN ? "Fastener tensile" : "Internal-thread stripping";
+    const {
+        boltCapacityN, appliedStressPa, internalShearAreaM2, internalCapacityN,
+        boltUtilization, internalUtilization, governingMode
+    } = calculated;
     const warnings = [];
-    const engagementRatio = engagementM / diameterM;
-    if (engagementRatio < 1 || engagementRatio > 2) {
+    if (calculated.engagementOutsideTypicalRange) {
         warnings.push("Engagement length is outside the common preliminary range of 1–2 nominal diameters; review thread engagement and joint-specific requirements.");
     }
 

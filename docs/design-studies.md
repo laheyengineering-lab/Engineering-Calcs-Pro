@@ -29,6 +29,28 @@ Categorical selections are saved as strings alongside the existing numeric-or-bl
 
 Cylinder-force is a static pressure-area calculation and does not check rod buckling, seal limits, pressure ratings, or speed. Differential Thermal Expansion reports free expansion only; restraint, contact, or mechanical loading changes movement and may introduce stress not represented by the model. Press-fit calculations use the selected centralized material's E, ν, and optional Sy; there is no custom-material-property or temperature correction in the study model. The press-fit screening factor compares interface hoop stress with yield and is not a code factor of safety. Hertz sphere and cylinder results are distinct models; line and point-contact scenarios cannot be compared directly. Approximate Hertz maximum-shear results retain the calculator's ν ≈ 0.3 coefficients. Beam deflection supports only the calculator's full-span point/uniform loads with pin/roller or fixed-free supports. Neither beam model evaluates shear deformation, buckling, plasticity, fatigue, stress concentrations, dynamic response, or non-ideal supports.
 
+## Expansion to all 18 active calculators
+Eleven further calculators were audited and integrated; none were deferred. Each had its calculation extracted into a DOM-free `js/<name>-calculation.js` engine that the calculator page and the adapter both call (page behaviour and numerical results are unchanged; parity tests compare page and adapter output).
+
+| Calculator (`id`) | Engine | Categorical / conditional inputs | Key outputs | Notes and limitations |
+| --- | --- | --- | --- | --- |
+| Bolt Torque (`bolt-torque`) | `bolt-torque-calculation.js` | none | torque | Simplified T = K·D·F. Nut factor and clamp load are assumed inputs; no prediction of preload or friction distribution. |
+| Moment (`moment`) | `moment-calculation.js` | none | signed moment | Force × perpendicular distance with the calculator's sign convention; no other load positions or geometry. |
+| Bearing Life (`bearing-life`) | `bearing-life-calculation.js` | bearing type (ball 3 / roller 10/3) | exponent, load ratio, L10 (million rev, rev), L10h (h) | Basic rating life only; not a prediction of actual service life. |
+| Column Buckling (`column-buckling`) | `column-buckling-calculation.js` | section (solid/hollow), material, end condition | I, K, effective length, Pcr | Euler elastic buckling only. E comes from the material preset (the page has no editable E). |
+| Factor of Safety (`factor-of-safety`) | `factor-of-safety-calculation.js` | mode (stress/load), strength source, material | stress FoS *or* load FoS, strength used | The two definitions use different quantities and are never compared; strength source is part of the comparison key. Material strength is resolved inside the adapter's `calculate`. |
+| Fillet Weld (`fillet-weld`) | `fillet-weld-calculation.js` | electrode, load direction (0°/90°), method (LRFD/ASD) | throat, area, F_EXX, nominal and design strength, optional required leg/utilization | Direct load only; LRFD and ASD are not comparable with each other. |
+| Helical Spring (`spring-calculations`) | `spring-calculation.js` | material | rate, index, deflection, Wahl factor, shear stress | Round-wire compression spring; no fatigue, buckling or coil-contact checks. |
+| Stress & Strain (`stress-strain`) | `stress-strain-calculation.js` | mode (stress/strain/modulus/deformation), material | the mode's own quantity only | Scenarios of different modes are not comparable. |
+| Thermal Expansion (`thermal-expansion`) | `thermal-expansion-calculation.js` | condition (free/restrained), material | expansion, final length, strain, optional restrained stress | Restrained stress assumes full restraint and uses E. Temperature is an interval (°C/K/°F). |
+| Thick-Walled Cylinder (`thick-walled-cylinder`) | `thick-walled-cylinder-calculation.js` | end condition (open/closed) | radial, hoop, axial stresses, governing hoop | Lamé model; open and closed ends are not comparable and the selection is saved with every scenario and sweep. |
+| Thread Strength (`thread-strength`) | `thread-strength-calculation.js` | bolt and internal-thread material | fastener capacity, utilization, optional stripping capacity/utilization, governing capacity | Fastener tension and stripping are distinct modes; no thread-by-thread load distribution. The governing-mode name is text and is not a numeric output; only the lower capacity is reported. |
+
+Scenarios whose models differ (mode, end condition, method, condition, strength source) carry a `comparisonKey`, and the core refuses to compare them even when units match. Categorical inputs are never sweepable.
+
+### Unsupported calculators
+None of the 18 active calculators is currently unsupported.
+
 ## Architecture
 - `js/design-study-core.js` - DOM-free data model, adapter registry, comparison, sweep, persistence/validation and report-snapshot builders (`window.FormulaFoundryStudies`).
 - `js/design-study-adapters.js` - one adapter per supported calculator. An adapter declares id/name/revision, unit groups (with conversions delegated to `engineering-units.js`), numeric or categorical input definitions, output definitions (quantity, `plottable`, `comparable`), equations, assumptions, and a `calculate(values, units)` method that **calls the calculator's own calculation engine**. No calculation equations are duplicated in the Design Studies code.
@@ -55,4 +77,4 @@ One input of a calculated baseline scenario is varied between a start and end va
 Scenarios, comparisons and sweeps are added with `FormulaFoundryReport.addSnapshot()`. Entries are frozen copies and may carry optional `study` metadata, `tables[]` (`{caption, columns[], rows[][]}`) and a `chart` (`{type:"line", title, xLabel, yLabel, points[{x, y|null}]}`). The report always prints the numeric tables; the chart is an SVG rendered from the stored points. These are optional extensions to the existing snapshot format; existing entries are unaffected.
 
 ## Tests
-`tests/core/design-studies.test.js` (model, units, comparison, sweeps, persistence, report snapshots), `tests/smoke/design-studies-page.test.js` (UI workflow), `tests/smoke/design-studies-report.test.js` (report rendering), `tests/smoke/design-studies-context.test.js` (engineering context and diagrams).
+`tests/core/design-studies-extended.test.js` (hand-calculated references, alternate units, materials, categorical/optional inputs, invalid geometry, sweeps with failed samples, comparisons, report snapshots and page-vs-adapter parity for the 11 added calculators), `tests/core/design-studies.test.js` (model, units, comparison, sweeps, persistence, report snapshots), `tests/smoke/design-studies-page.test.js` (UI workflow), `tests/smoke/design-studies-report.test.js` (report rendering), `tests/smoke/design-studies-context.test.js` (engineering context and diagrams).

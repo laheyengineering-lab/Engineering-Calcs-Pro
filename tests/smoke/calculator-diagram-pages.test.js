@@ -20,7 +20,8 @@ function memoryStorage() {
 }
 
 function open(page, script, { diagrams = true, storage = memoryStorage() } = {}) {
-    const scripts = diagrams ? [...DIAGRAM_SCRIPTS, `js/${script}.js`] : ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', `js/${script}.js`];
+    const calc = fs.existsSync(`js/${script}-calculation.js`) ? [`js/${script}-calculation.js`] : [];
+    const scripts = diagrams ? [...DIAGRAM_SCRIPTS, ...calc, `js/${script}.js`] : ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', ...calc, `js/${script}.js`];
     const loaded = loadCalculatorPage(`calculators/${page}.html`, scripts);
     loaded.window.FormulaFoundryReport.store.setStorage(storage);
     return loaded;

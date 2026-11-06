@@ -10,7 +10,7 @@ import {
 } from '../helpers/browser-test-utils.js';
 
 function setup() {
-    return loadCalculatorPage('calculators/fillet-weld.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/fillet-weld.js']);
+    return loadCalculatorPage('calculators/fillet-weld.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/fillet-weld-calculation.js', 'js/fillet-weld.js']);
 }
 
 const KIP = 1000; // lbf

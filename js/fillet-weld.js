@@ -3,17 +3,6 @@
 // AISC 360 Chapter J2 direct-load fillet weld model
 // ======================================================
 
-// Filler-metal classification strengths F_EXX (ksi), normalized via convertStress()
-const filletWeldElectrodes = {
-    E60XX: 60,
-    E70XX: 70,
-    E80XX: 80
-};
-
-const FILLET_THROAT_FACTOR = 0.707;
-const FILLET_LRFD_PHI = 0.75;
-const FILLET_ASD_OMEGA = 2.0;
-
 function weldEl(id) {
     return document.getElementById(id);
 }
@@ -35,33 +24,6 @@ function readWeldNumber(id) {
         return NaN;
     }
     return Number(raw);
-}
-
-// Pure SI engineering math (m, Pa, N)
-function computeFilletWeld({ legM, lengthM, FexxPa, angleDeg, method, loadN }) {
-    const theta = angleDeg * Math.PI / 180;
-    const throatM = FILLET_THROAT_FACTOR * legM;
-    const areaM2 = throatM * lengthM;
-
-    // F_nw = 0.60 F_EXX (1 + 0.50 sin^1.5 θ)
-    const Fnw = 0.60 * FexxPa * (1 + 0.50 * Math.pow(Math.sin(theta), 1.5));
-    const nominalN = Fnw * areaM2;
-    const lrfdN = FILLET_LRFD_PHI * nominalN;
-    const asdN = nominalN / FILLET_ASD_OMEGA;
-    const designN = method === "LRFD" ? lrfdN : asdN;
-
-    const result = { throatM, areaM2, Fnw, nominalN, lrfdN, asdN, designN };
-
-    if (loadN !== null) {
-        // w_req solved algebraically from the selected design equation
-        result.requiredLegM = method === "LRFD"
-            ? loadN / (FILLET_LRFD_PHI * Fnw * FILLET_THROAT_FACTOR * lengthM)
-            : (loadN * FILLET_ASD_OMEGA) / (Fnw * FILLET_THROAT_FACTOR * lengthM);
-        result.utilization = loadN / designN;
-        result.remainingN = designN - loadN;
-    }
-
-    return result;
 }
 
 function calculateFilletWeld() {
@@ -105,17 +67,9 @@ function calculateFilletWeld() {
     try {
         const legM = convertDistance(leg, legUnit);
         const lengthM = convertDistance(length, lengthUnit);
-        const FexxPa = convertStress(filletWeldElectrodes[electrode], "ksi");
         const loadN = hasLoad ? convertForce(load, forceUnit) : null;
 
-        const r = computeFilletWeld({ legM, lengthM, FexxPa, angleDeg, method, loadN });
-
-        if (!Number.isFinite(r.designN) || r.designN <= 0) {
-            throw new Error("Design capacity is zero or non-finite. Check the inputs.");
-        }
-        if (hasLoad && !Number.isFinite(r.requiredLegM)) {
-            throw new Error("Required weld size could not be computed.");
-        }
+        const r = computeFilletWeldChecked({ legM, lengthM, electrode, angleDeg, method, loadN });
 
         const areaUnit = { mm: "mm²", cm: "cm²", in: "in²" }[lengthUnit];
         const legOut = (m) => convertDistanceToUnit(m, legUnit);

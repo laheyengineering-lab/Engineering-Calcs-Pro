@@ -35,9 +35,8 @@ function calculateBoltTorque() {
     const diameterM = convertDistance(boltDiameter, diameterUnit);
     const loadN = convertForce(clampLoad, loadUnit);
 
-    // Calculate torque in N·m
     // T = K × D × F
-    const torqueNm = nutFactor * diameterM * loadN;
+    const { torqueNm } = computeBoltTorque({ diameterM, clampLoadN: loadN, nutFactor });
 
     // Convert to output unit
     const output = convertMomentToUnit(torqueNm, outputUnit);

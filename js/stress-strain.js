@@ -82,7 +82,7 @@ function calculateStressStrain() {
             
             const forceN = convertForce(force, forceUnit);
             const areaM2 = convertArea(area, areaUnit);
-            const stressPa = forceN / areaM2;
+            const { stressPa } = computeStressStrain({ mode, forceN, areaM2 });
             const stressOutput = convertStressToUnit(stressPa, outputUnit);
             
             resultHTML = `
@@ -113,7 +113,7 @@ function calculateStressStrain() {
             
             const deltaLM = convertDistance(deltaL, deltaLengthUnit);
             const originalLengthM = convertDistance(originalLength, lengthUnit);
-            const strain = deltaLM / originalLengthM;
+            const { strain } = computeStressStrain({ mode, deltaLengthM: deltaLM, originalLengthM });
             
             resultHTML = `
                 <h3>Result</h3>
@@ -146,8 +146,7 @@ function calculateStressStrain() {
             
             const forceN = convertForce(force, forceUnit);
             const areaM2 = convertArea(area, areaUnit);
-            const stressPa = forceN / areaM2;
-            const modulusPa = stressPa / strainValue;
+            const { modulusPa } = computeStressStrain({ mode, forceN, areaM2, strain: strainValue });
             const modulusOutput = convertStressToUnit(modulusPa, outputUnit);
             
             resultHTML = `
@@ -185,7 +184,7 @@ function calculateStressStrain() {
             const originalLengthM = convertDistance(originalLength, lengthUnit);
             const modulusPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
             
-            const deltaLM = (forceN * originalLengthM) / (areaM2 * modulusPa);
+            const { deltaLengthM: deltaLM } = computeStressStrain({ mode, forceN, areaM2, originalLengthM, modulusPa });
             const deltaLmm = deltaLM * 1000; // Convert to mm for display
             
             resultHTML = `

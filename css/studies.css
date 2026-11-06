@@ -71,6 +71,7 @@
 .sd-load { fill: #b42318; stroke: #b42318; stroke-width: 2.5; }
 .sd-motion { fill: #0b5394; stroke: #0b5394; stroke-width: 2.5; }
 .sd-curve { fill: none; }
+.sd-coil { stroke: #0b5394; stroke-width: 3; fill: none; }
 .sd-head { stroke-width: 1; }
 .study-diagram text { font-family: inherit; }
 .sd-label { fill: #26282b; font-size: 11px; }

@@ -16,13 +16,6 @@ const bucklingInertiaUnitSelect = document.getElementById("inertiaUnit");
 const bucklingModulusUnitSelect = document.getElementById("modulusUnit");
 const bucklingResultPanel = document.getElementById("result");
 
-const boundaryConditionFactors = {
-    "fixed-free": 2.0,
-    "pinned-pinned": 1.0,
-    "fixed-pinned": 0.699,
-    "fixed-fixed": 0.5
-};
-
 function updateColumnBucklingMode() {
     const isHollow = bucklingSectionTypeSelect.value === "hollow";
     document.getElementById("innerDiameterContainer").style.display = isHollow ? "block" : "none";
@@ -42,7 +35,7 @@ function calculateColumnBuckling() {
         return;
     }
 
-    if (!(boundaryCondition in boundaryConditionFactors)) {
+    if (!(boundaryCondition in COLUMN_END_CONDITION_FACTORS)) {
         bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please select a valid boundary condition.</p>";
         return;
     }
@@ -62,12 +55,9 @@ function calculateColumnBuckling() {
         const lengthM = convertDistance(length, bucklingLengthUnitSelect.value);
         const outerDiameterM = convertDistance(outerDiameter, bucklingOuterDiameterUnitSelect.value);
 
-        let inertiaM4;
         let innerDiameterM = null;
 
-        if (sectionType === "solid") {
-            inertiaM4 = (Math.PI * Math.pow(outerDiameterM, 4)) / 64;
-        } else {
+        if (sectionType !== "solid") {
             const innerDiameter = Number(bucklingInnerDiameterInput.value);
             if (!Number.isFinite(innerDiameter) || innerDiameter <= 0) {
                 bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter a positive inner diameter for hollow sections.</p>";
@@ -79,13 +69,12 @@ function calculateColumnBuckling() {
                 bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Inner diameter must be less than outer diameter.</p>";
                 return;
             }
-
-            inertiaM4 = (Math.PI * (Math.pow(outerDiameterM, 4) - Math.pow(innerDiameterM, 4))) / 64;
         }
 
-        const kFactor = boundaryConditionFactors[boundaryCondition];
-        const effectiveLengthM = kFactor * lengthM;
-        const criticalLoadN = (Math.PI * Math.PI * youngsModulusPa * inertiaM4) / Math.pow(effectiveLengthM, 2);
+        const { inertiaM4, kFactor, effectiveLengthM, criticalLoadN } = computeColumnBuckling({
+            sectionType: sectionType === "solid" ? "solid" : "hollow",
+            boundaryCondition, lengthM, outerDiameterM, innerDiameterM, youngsModulusPa
+        });
 
         const forceUnit = bucklingForceUnitSelect.value;
         const inertiaUnit = bucklingInertiaUnitSelect.value;

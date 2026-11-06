@@ -64,37 +64,29 @@ function calculateThermalExpansion() {
         const originalLengthM = convertDistance(originalLength, lengthUnit);
         const deltaTC = convertTemperatureChange(temperatureChange, temperatureUnit);
         
-        // Calculate free expansion
-        // ΔL = α·L₀·ΔT
-        const deltaLM = alpha * originalLengthM * deltaTC;
-        
-        // Final length
-        const finalLengthM = originalLengthM + deltaLM;
-        
-        // Thermal strain
-        // ε = α·ΔT
-        const thermalStrain = alpha * deltaTC;
-        
-        // Convert output lengths
-        const deltaLOutput = convertDistanceToUnit(deltaLM, outputLengthUnit);
-        const finalLengthOutput = convertDistanceToUnit(finalLengthM, outputLengthUnit);
-        
-        // Calculate restrained thermal stress (optional)
-        let thermalStressPa = null;
-        let thermalStressOutput = null;
-        
-        if (youngsModulusRaw !== "" && Number.isFinite(youngsModulus) && youngsModulus > 0) {
-            const modulusPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
-            // σ = E·α·ΔT
-            thermalStressPa = modulusPa * alpha * deltaTC;
-            thermalStressOutput = convertStressToUnit(thermalStressPa, stressUnit);
-        } else if (youngsModulusRaw !== "") {
+        // Validate the restrained-stress modulus before calculating (as before)
+        const modulusValid = youngsModulusRaw !== "" && Number.isFinite(youngsModulus) && youngsModulus > 0;
+        if (youngsModulusRaw !== "" && !modulusValid) {
             thermalResultPanel.innerHTML = `
                 <h3>Invalid Input</h3>
                 <p>Young's modulus must be positive when restrained thermal stress is evaluated.</p>
             `;
             return;
         }
+
+        // ΔL = α·L₀·ΔT, ε = α·ΔT, and (optional) σ = E·α·ΔT
+        const { deltaLM, finalLengthM, thermalStrain, thermalStressPa } = computeThermalExpansion({
+            alpha,
+            originalLengthM,
+            deltaTC,
+            modulusPa: modulusValid ? convertModulus(youngsModulus, modulusUnit) : null
+        });
+        
+        // Convert output lengths
+        const deltaLOutput = convertDistanceToUnit(deltaLM, outputLengthUnit);
+        const finalLengthOutput = convertDistanceToUnit(finalLengthM, outputLengthUnit);
+        
+        const thermalStressOutput = thermalStressPa === null ? null : convertStressToUnit(thermalStressPa, stressUnit);
         
         // Build result HTML
         let resultHTML = `

@@ -430,6 +430,233 @@
         return { svg, description: description + " with illustrative deflected shape.", items: items.filter(Boolean) };
     }
 
+    // ---------- Extended calculator library renderers ----------
+
+    function boltTorque(document, adapter, v) {
+        const description = "Bolt with a hex head and a nut clamping two plates. A tightening torque T is applied to the nut, producing an axial clamp load F in the bolt shank.";
+        const c = canvas(document, "0 0 420 240", description, "Bolt torque schematic");
+        c.rect(150, 70, 120, 28, "sd-body-alt");
+        c.rect(150, 142, 120, 28, "sd-body-alt");
+        c.rect(180, 50, 60, 20, "sd-body");
+        c.rect(180, 170, 60, 20, "sd-body");
+        c.rect(198, 70, 24, 100, "sd-extension");
+        c.arrow(120, 140, 120, 110, "sd-load");
+        c.arrow(120, 100, 120, 130, "sd-load");
+        c.text(110, 124, v.show("clampLoad", "F") || "F", "sd-dim-label", "end");
+        c.moment(210, 180, 26, true, "sd-load");
+        c.text(300, 184, v.show("nutFactor", "K") || "K (assumed)", "sd-label");
+        c.text(300, 60, v.show("nominalDiameter", "D") || "D", "sd-dim-label");
+        c.text(210, 224, "Simplified T = K D F; K and F are assumed, not predicted.", "sd-note", "middle");
+        return result(c, description, [v.show("nominalDiameter", "Nominal diameter D"), v.show("clampLoad", "Clamp load F"), v.show("nutFactor", "Nut factor K")]);
+    }
+
+    function momentDiagram(document, adapter, v) {
+        const description = "A force F acting at a perpendicular distance d from a reference point produces a moment M about that point.";
+        const c = canvas(document, "0 0 420 240", description, "Moment schematic");
+        const d = 180;
+        c.circle(90, 120, 7, "sd-wall");
+        c.line(90, 120, 90 + d, 120, "sd-body");
+        const up = v.raw("force") === null || v.raw("force") >= 0;
+        c.arrow(90 + d, up ? 170 : 70, 90 + d, up ? 126 : 114, "sd-load");
+        c.text(90 + d + 10, up ? 160 : 82, v.show("force", "F") || "F", "sd-dim-label");
+        c.line(90, 196, 90 + d, 196, "sd-dim");
+        c.text(90 + d / 2, 214, v.show("distance", "d") || "d", "sd-dim-label", "middle");
+        c.moment(90, 120, 28, up === false, "sd-load");
+        c.text(60, 60, "M = F d", "sd-label");
+        c.text(210, 234, "Sign of M follows the sign of the entered force.", "sd-note", "middle");
+        return result(c, description, [v.show("force", "Force F"), v.show("distance", "Distance d")]);
+    }
+
+    function bearingLife(document, adapter, v) {
+        const type = v.text("bearingType");
+        const description = "Rolling bearing: an outer ring, an inner ring on a shaft and " + (type === "roller" ? "cylindrical rollers" : "balls") + " between them. A radial load P acts on the bearing at rotational speed n; the rated load is C.";
+        const c = canvas(document, "0 0 420 240", description, "Rolling bearing schematic");
+        c.circle(200, 120, 80, "sd-body");
+        c.circle(200, 120, 48, "sd-body-alt");
+        c.circle(200, 120, 30, "sd-wall");
+        for (let i = 0; i < 8; i += 1) {
+            const a = i * Math.PI / 4;
+            const x = 200 + 64 * Math.cos(a);
+            const y = 120 + 64 * Math.sin(a);
+            if (type === "roller") c.rect(Number((x - 5).toFixed(1)), Number((y - 9).toFixed(1)), 10, 18, "sd-fluid");
+            else c.circle(Number(x.toFixed(1)), Number(y.toFixed(1)), 8, "sd-fluid");
+        }
+        c.arrow(200, 14, 200, 40, "sd-load");
+        c.text(212, 26, v.show("equivalentLoad", "P") || "P", "sd-dim-label");
+        c.moment(200, 120, 98, true, "sd-motion");
+        c.text(320, 130, v.show("speed", "n") || "n", "sd-dim-label");
+        c.text(320, 150, v.show("dynamicLoadRating", "C") || "C (rating)", "sd-dim-label");
+        c.text(210, 232, "Basic rating life L10, not a prediction of service life.", "sd-note", "middle");
+        return result(c, description, ["Bearing type: " + (type || "not selected"), v.show("dynamicLoadRating", "Rating C"), v.show("equivalentLoad", "Load P"), v.show("speed", "Speed n")]);
+    }
+
+    function columnBuckling(document, adapter, v) {
+        const end = v.text("boundaryCondition");
+        const hollow = v.text("sectionType") === "hollow";
+        const description = "Slender column of length L under an axial load P. The end supports follow the selected end condition (" + (end || "not selected") + ") and set the effective length KL.";
+        const c = canvas(document, "0 0 420 240", description, "Column buckling schematic");
+        c.rect(190, 50, 40, 140, "sd-body");
+        if (hollow) c.rect(200, 50, 20, 140, "sd-body-alt");
+        const fixed = (y) => { c.rect(160, y, 100, 12, "sd-wall"); };
+        const pin = (y, up) => c.poly(up ? [[210, y], [196, y + 18], [224, y + 18]] : [[210, y], [196, y - 18], [224, y - 18]], "sd-wall");
+        const bottom = end === "fixed-free" || end === "fixed-pinned" || end === "fixed-fixed" ? "fixed" : "pin";
+        const top = end === "fixed-fixed" ? "fixed" : end === "fixed-free" ? "free" : "pin";
+        if (bottom === "fixed") fixed(190); else pin(190, true);
+        if (top === "fixed") fixed(38); else if (top === "pin") pin(50, false);
+        c.arrow(210, 12, 210, top === "free" ? 48 : 30, "sd-load");
+        c.text(222, 22, "P", "sd-dim-label");
+        c.line(280, 50, 280, 190, "sd-dim");
+        c.text(290, 124, v.show("length", "L") || "L", "sd-dim-label");
+        c.text(210, 232, "End conditions are categorical; effective length KL = K·L.", "sd-note", "middle");
+        return result(c, description, ["End condition: " + (end || "not selected"), v.show("length", "Length L"), v.show("outerDiameter", "Outer diameter D"), hollow ? v.show("innerDiameter", "Inner diameter Di") : null]);
+    }
+
+    function factorOfSafety(document, adapter, v) {
+        const mode = v.text("mode");
+        const load = mode === "load";
+        const description = "Two horizontal bars compare the capacity (" + (load ? "failure load" : "strength") + ") with the demand (" + (load ? "applied load" : "applied stress") + "). The factor of safety is capacity divided by demand.";
+        let capacity = v.pos(load ? "failureLoad" : "strength");
+        let capacityLabel = load ? "Failure load (capacity)" : "Strength (capacity)";
+        let capacityValue = v.show(load ? "failureLoad" : "strength");
+        if (!load) {
+            const source = v.text("strengthSource");
+            if (source === "material-yield" || source === "material-tensile") {
+                const property = source === "material-yield" ? "yieldStrength" : "tensileStrength";
+                const materialStrength = getMaterialProperty(v.text("material"), property);
+                capacity = Number.isFinite(materialStrength) && materialStrength > 0 ? materialStrength : null;
+                capacityLabel = source === "material-yield" ? "Yield strength (capacity)" : "Tensile strength (capacity)";
+                const unit = v.unitOf("appliedStress");
+                capacityValue = capacity === null ? null : capacityLabel.replace(" (capacity)", "") + " = " + fmt(convertStressToUnit(capacity, unit)) + (unit ? " " + unit : "");
+            } else if (source !== "direct") {
+                capacity = null;
+                capacityValue = null;
+            }
+        }
+        const c = canvas(document, "0 0 420 240", description, "Factor of safety schematic");
+        const demand = v.pos(load ? "appliedLoad" : "appliedStress");
+        const w = ratio(demand, capacity, 0.05, 1.5, 0.5);
+        c.rect(60, 70, 280, 34, "sd-body");
+        c.rect(60, 130, Number((280 * Math.min(w, 1.5) / 1.5).toFixed(1)), 34, w > 1 ? "sd-extension" : "sd-fluid");
+        c.text(60, 60, capacityLabel, "sd-label");
+        c.text(60, 122, load ? "Applied load (demand)" : "Applied stress (demand)", "sd-label");
+        c.text(350, 92, capacityValue || "", "sd-dim-label");
+        c.text(350, 152, (load ? v.show("appliedLoad") : v.show("appliedStress")) || "", "sd-dim-label");
+        c.text(210, 204, load ? "FoS = failure load ÷ applied load" : "FoS = strength ÷ applied stress", "sd-label", "middle");
+        c.text(210, 232, "Bar lengths are schematic; different definitions are not interchangeable.", "sd-note", "middle");
+        return result(c, description, ["Definition: " + (mode || "not selected")]);
+    }
+
+    function filletWeld(document, adapter, v) {
+        const description = "T-joint with a triangular fillet weld of leg size w and length L between two plates. The applied load F acts at the selected angle to the weld axis.";
+        const c = canvas(document, "0 0 420 240", description, "Fillet weld schematic");
+        c.rect(60, 170, 300, 20, "sd-body-alt");
+        c.rect(200, 50, 20, 120, "sd-body");
+        c.poly([[220, 170], [260, 170], [220, 130]], "sd-fluid");
+        c.poly([[200, 170], [160, 170], [200, 130]], "sd-fluid");
+        const transverse = v.text("loadDirection") === "90";
+        if (transverse) c.arrow(130, 90, 130, 150, "sd-load");
+        else c.arrow(260, 110, 330, 110, "sd-load");
+        c.text(transverse ? 140 : 270, transverse ? 100 : 100, v.show("loadDirection") ? "F at " + v.text("loadDirection") + "°" : "F", "sd-dim-label");
+        c.text(270, 150, v.show("weldLeg", "w") || "w", "sd-dim-label");
+        c.text(210, 214, v.show("weldLength", "L") || "L (weld length)", "sd-dim-label", "middle");
+        c.text(210, 234, "Direct loading only; no eccentric or combined loading.", "sd-note", "middle");
+        return result(c, description, [v.show("weldLeg", "Leg w"), v.show("weldLength", "Length L"), "Electrode: " + (v.text("electrode") || "not selected"), "Method: " + (v.text("designMethod") || "not selected")]);
+    }
+
+    function helicalSpring(document, adapter, v) {
+        const description = "Round-wire helical compression spring of wire diameter d and mean coil diameter D between two plates, loaded by an axial force F.";
+        const c = canvas(document, "0 0 420 240", description, "Helical compression spring schematic");
+        c.rect(120, 30, 180, 10, "sd-wall");
+        c.rect(120, 200, 180, 10, "sd-wall");
+        const pts = [[210, 40]];
+        for (let i = 0; i < 8; i += 1) pts.push([i % 2 ? 150 : 270, 40 + 20 * (i + 1)]);
+        pts.push([210, 200]);
+        pts.forEach((p, i) => { if (i) c.line(pts[i - 1][0], pts[i - 1][1], p[0], p[1], "sd-coil"); });
+        c.arrow(210, 4, 210, 28, "sd-load");
+        c.text(222, 18, v.show("force", "F") || "F", "sd-dim-label");
+        c.line(150, 224, 270, 224, "sd-dim");
+        c.text(210, 238, v.show("meanDiameter", "D") || "D", "sd-dim-label", "middle");
+        c.text(300, 124, v.show("wireDiameter", "d") || "d", "sd-dim-label");
+        c.text(300, 144, v.show("activeCoils", "Na") || "Na", "sd-dim-label");
+        return result(c, description, [v.show("wireDiameter", "Wire d"), v.show("meanDiameter", "Mean diameter D"), v.show("activeCoils", "Active coils Na"), v.show("force", "Force F")]);
+    }
+
+    function stressStrain(document, adapter, v) {
+        const mode = v.text("mode");
+        const description = "Prismatic bar of area A and original length L0 loaded axially by force F at both ends. The dashed outline shows the elongation ΔL. Selected mode: " + (mode || "not selected") + ".";
+        const c = canvas(document, "0 0 420 240", description, "Axial stress and strain schematic");
+        c.rect(110, 90, 200, 50, "sd-body");
+        c.rect(310, 90, 28, 50, "sd-extension");
+        c.arrow(60, 115, 108, 115, "sd-load");
+        c.arrow(360, 115, 342, 115, "sd-load");
+        c.arrow(310, 115, 360, 115, "sd-load");
+        c.text(70, 100, v.show("force", "F") || "F", "sd-dim-label");
+        c.line(110, 170, 310, 170, "sd-dim");
+        c.text(210, 188, v.show("originalLength", "L0") || "L0", "sd-dim-label", "middle");
+        c.text(324, 80, v.show("deltaLength", "ΔL") || "ΔL", "sd-dim-label", "middle");
+        c.text(210, 80, v.show("area", "A") || "A", "sd-dim-label", "middle");
+        c.text(210, 228, "Each mode solves for one quantity; outputs of different modes are not comparable.", "sd-note", "middle");
+        return result(c, description, ["Mode: " + (mode || "not selected"), v.show("force", "Force F"), v.show("area", "Area A")]);
+    }
+
+    function thermalExpansion(document, adapter, v) {
+        const restrained = v.text("condition") === "restrained";
+        const description = restrained
+            ? "A bar between two rigid walls is heated; expansion is prevented, so a thermal stress develops."
+            : "A bar fixed at the left wall is free to expand at the right end when its temperature changes; the dashed outline is the free expansion.";
+        const c = canvas(document, "0 0 420 240", description, "Thermal expansion schematic");
+        c.rect(40, 60, 12, 120, "sd-wall");
+        c.rect(52, 100, 220, 40, "sd-body");
+        if (restrained) {
+            c.rect(272, 60, 12, 120, "sd-wall");
+            c.arrow(176, 80, 176, 96, "sd-load");
+            c.text(210, 168, "σ = −E α ΔT (tension positive)", "sd-label", "middle");
+        } else {
+            c.rect(272, 100, 50, 40, "sd-extension");
+            c.arrow(326, 120, 372, 120, "sd-motion");
+            c.text(300, 90, v.show("alpha", "α") ? "ΔL = α L0 ΔT" : "ΔL", "sd-label", "middle");
+        }
+        c.text(160, 52, v.show("originalLength", "L0") || "L0", "sd-dim-label", "middle");
+        c.text(160, 200, v.show("temperatureChange", "ΔT") || "ΔT", "sd-dim-label", "middle");
+        c.text(210, 232, "Free and restrained conditions are different physical situations.", "sd-note", "middle");
+        return result(c, description, ["Condition: " + (v.text("condition") || "not selected"), v.show("originalLength", "Length L0"), v.show("temperatureChange", "Temperature change ΔT")]);
+    }
+
+    function thickWalledCylinder(document, adapter, v) {
+        const description = "Cross-section of a thick-walled cylinder with inner radius a, outer radius b, internal pressure p_i and external pressure p_o. Closed-end cylinders also carry axial stress.";
+        const c = canvas(document, "0 0 420 240", description, "Thick-walled cylinder schematic");
+        const inner = 30 + 40 * ratio(v.pos("innerDiameter"), v.pos("outerDiameter"), 0.1, 0.9, 0.5);
+        c.circle(210, 110, 80, "sd-body");
+        c.circle(210, 110, inner, "sd-fluid");
+        for (let i = 0; i < 6; i += 1) {
+            const a = i * Math.PI / 3;
+            const r1 = inner - 6;
+            c.arrow(Number((210 + r1 * 0.4 * Math.cos(a)).toFixed(1)), Number((110 + r1 * 0.4 * Math.sin(a)).toFixed(1)), Number((210 + r1 * Math.cos(a)).toFixed(1)), Number((110 + r1 * Math.sin(a)).toFixed(1)), "sd-load");
+        }
+        c.text(210, 114, v.show("internalPressure", "p_i") || "p_i", "sd-dim-label", "middle");
+        c.text(330, 40, v.show("outerDiameter", "2b") || "2b", "sd-dim-label");
+        c.text(330, 60, v.show("innerDiameter", "2a") || "2a", "sd-dim-label");
+        c.text(330, 80, v.show("externalPressure", "p_o") || "p_o", "sd-dim-label");
+        c.text(210, 218, "End condition: " + (v.text("endCondition") === "open" ? "open (axial stress 0)" : v.text("endCondition") === "closed" ? "closed (axial stress carried)" : "not selected"), "sd-note", "middle");
+        return result(c, description, [v.show("innerDiameter", "Inner diameter 2a"), v.show("outerDiameter", "Outer diameter 2b"), v.show("internalPressure", "Internal pressure"), v.show("externalPressure", "External pressure"), "End condition: " + (v.text("endCondition") || "not selected")]);
+    }
+
+    function threadStrength(document, adapter, v) {
+        const description = "Threaded fastener engaged in an internally threaded part over an engagement length Le, loaded in tension by F. Two separate failure modes are assessed: fastener tension and internal-thread stripping.";
+        const c = canvas(document, "0 0 420 240", description, "Thread strength schematic");
+        c.rect(150, 100, 220, 36, "sd-body-alt");
+        c.rect(150, 130, 120, 12, "sd-body");
+        for (let x = 160; x < 270; x += 12) c.line(x, 118, x + 6, 130, "sd-hatch");
+        c.rect(230, 70, 80, 30, "sd-wall");
+        c.arrow(190, 112, 150, 112, "sd-load");
+        c.text(140, 106, v.show("appliedLoad", "F") || "F", "sd-dim-label", "end");
+        c.line(230, 175, 310, 175, "sd-dim");
+        c.text(270, 193, v.show("engagementLength", "Le") || "Le", "sd-dim-label", "middle");
+        c.text(230, 60, v.show("majorDiameter", "D") || "D", "sd-dim-label");
+        c.text(210, 228, "Approximate checks; no thread-by-thread load distribution.", "sd-note", "middle");
+        return result(c, description, [v.show("majorDiameter", "Major diameter D"), v.show("engagementLength", "Engagement Le"), v.show("appliedLoad", "Load F")]);
+    }
+
     const RENDERERS = {
         "cylinder-force": cylinderForce,
         "differential-thermal-expansion": differentialThermalExpansion,
@@ -437,7 +664,18 @@
         "hertzian-contact": hertzianContact,
         "shaft-torsion": shaftTorsion,
         "beam-bending-stress": beamBending,
-        "beam-deflection": beamDeflection
+        "beam-deflection": beamDeflection,
+        "bolt-torque": boltTorque,
+        "moment": momentDiagram,
+        "bearing-life": bearingLife,
+        "column-buckling": columnBuckling,
+        "factor-of-safety": factorOfSafety,
+        "fillet-weld": filletWeld,
+        "spring-calculations": helicalSpring,
+        "stress-strain": stressStrain,
+        "thermal-expansion": thermalExpansion,
+        "thick-walled-cylinder": thickWalledCylinder,
+        "thread-strength": threadStrength
     };
 
     // ---------- Public rendering ----------

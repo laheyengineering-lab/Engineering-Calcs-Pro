@@ -6,7 +6,7 @@ const scripts = [
     'js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js',
     'js/cylinder-force.js', 'js/differential-thermal-expansion.js',
     'js/press-fit-calculation.js', 'js/hertzian-contact-calculation.js',
-    'js/shaft-torsion-calculation.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js',
+    'js/shaft-torsion-calculation.js', 'js/bolt-torque-calculation.js', 'js/moment-calculation.js', 'js/bearing-life-calculation.js', 'js/column-buckling-calculation.js', 'js/factor-of-safety-calculation.js', 'js/fillet-weld-calculation.js', 'js/spring-calculation.js', 'js/stress-strain-calculation.js', 'js/thermal-expansion-calculation.js', 'js/thick-walled-cylinder-calculation.js', 'js/thread-strength-calculation.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js',
     'js/design-study-core.js', 'js/design-study-adapters.js', 'js/study-chart.js', 'js/design-studies.js'
 ];
 

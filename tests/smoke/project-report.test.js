@@ -12,7 +12,8 @@ function memoryStorage() {
 function open(page, script, storage) {
     const calculationScripts = {
         'hertzian-contact': ['js/hertzian-contact-calculation.js'],
-        'press-fit': ['js/press-fit-calculation.js']
+        'press-fit': ['js/press-fit-calculation.js'],
+        'thick-walled-cylinder': ['js/thick-walled-cylinder-calculation.js']
     };
     const loaded = loadCalculatorPage(`calculators/${page}.html`, [...base, ...(calculationScripts[script] || []), `js/${script}.js`]);
     loaded.window.FormulaFoundryReport.store.setStorage(storage);
