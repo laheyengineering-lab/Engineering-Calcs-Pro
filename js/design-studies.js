@@ -192,6 +192,7 @@
         const unitRow = el("div", "unit-row");
         Object.keys(adapter.groups).forEach((key) => {
             const group = adapter.groups[key];
+            if (group.options.length === 1) return;
             const label = el("label", null, group.label.charAt(0).toUpperCase() + group.label.slice(1) + " unit");
             const select = el("select", "output-select");
             group.options.forEach((u) => { const o = el("option", null, u); o.value = u; select.appendChild(o); });
@@ -258,20 +259,22 @@
     }
 
     function buildInputField(adapter, scenario, input, card) {
-        const label = el("label", null, input.label + (input.optional ? " (optional)" : ""));
+        const label = el("label", null, input.label + (input.optional && !input.label.endsWith("(optional)") ? " (optional)" : ""));
         const row = el("div", "input-row");
         const field = el(input.options ? "select" : "input", input.options ? "output-select" : null);
         field.dataset.inputId = input.id;
         if (input.options) {
-            const placeholder = el("option", null, "-- Select --");
-            placeholder.value = "";
-            field.appendChild(placeholder);
+            if (!adapter.activeInputs) {
+                const placeholder = el("option", null, "-- Select --");
+                placeholder.value = "";
+                field.appendChild(placeholder);
+            }
             input.options.forEach((value) => {
                 const option = el("option", null, input.optionLabels && input.optionLabels[value] || value);
                 option.value = value;
                 field.appendChild(option);
             });
-            field.value = scenario.inputs[input.id] || "";
+            field.value = scenario.inputs[input.id] || (adapter.activeInputs ? input.options[0] : "");
         } else {
             field.type = "number";
             field.step = "any";
@@ -351,6 +354,7 @@
             row.appendChild(unit);
         }
         label.appendChild(row);
+        label.dataset.studyField = input.id;
         return label;
     }
 
@@ -379,6 +383,12 @@
             const unit = card.querySelector('[data-input-unit="' + input.id + '"]');
             if (unit) unit.textContent = S.unitOfInput(adapter, input, scenario.units);
         });
+        if (adapter.activeInputs) {
+            const active = new Set(adapter.activeInputs(scenario.inputs).map((input) => input.id));
+            card.querySelectorAll("[data-study-field]").forEach((label) => {
+                label.hidden = !active.has(label.dataset.studyField);
+            });
+        }
         const results = card.querySelector('[data-role="results"]');
         results.textContent = "";
         if (scenario.status === "error") results.appendChild(el("p", "scenario-error", "Calculation failed: " + scenario.error));

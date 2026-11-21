@@ -30,8 +30,9 @@ function dispatchDomContentLoaded(window) {
     window.document.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true }));
 }
 
-export function loadCalculatorPage(htmlRelativePath, scriptRelativePaths) {
+export function loadCalculatorPage(htmlRelativePath, scriptRelativePaths, beforeScripts) {
     const dom = createDomFromHtml(htmlRelativePath);
+    beforeScripts?.(dom.window);
     evaluateScripts(dom.window, scriptRelativePaths);
     dispatchDomContentLoaded(dom.window);
 

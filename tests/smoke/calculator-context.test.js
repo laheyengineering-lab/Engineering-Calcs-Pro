@@ -18,7 +18,12 @@ describe('calculator context block', () => {
         const pages = fs.readdirSync('calculators').filter((f) => f.endsWith('.html'));
         expect(pages.length).toBeGreaterThan(0);
         pages.forEach((page) => {
-            const { document } = loadCalculatorPage('calculators/' + page, ['js/calculator-context.js']);
+            const path = 'calculators/' + page;
+            const source = fs.readFileSync(path, 'utf8');
+            const scripts = source.includes('data-expansion=')
+                ? [...source.matchAll(/<script src="\.\.\/(js\/[^"]+)"><\/script>/g)].map((match) => match[1]).filter((script) => !script.includes('katex'))
+                : ['js/calculator-context.js'];
+            const { document } = loadCalculatorPage(path, scripts);
             const context = document.querySelector('.calculator-context');
             expect(context.querySelector('.context-equation').textContent, page).toContain('\\[');
             expect(context.querySelectorAll('ul.context-inputs li').length, page).toBeGreaterThan(1);

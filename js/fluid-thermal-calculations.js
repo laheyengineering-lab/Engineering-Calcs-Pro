@@ -166,7 +166,7 @@ function computeWallHeatTransfer({ area, inside, outside, resistance, transmitta
     return { difference, heatRate, energy: heatRate * duration };
 }
 
-function computeMountingDemand({ arrangement, weight, offset = 0, count, spacing, shearCapacity, tensionCapacity }) {
+function computeMountingDemand({ arrangement, weight, offset = 0, count, spacing, horizontalSpacing, shearCapacity, tensionCapacity }) {
     requireEngineeringNumber(weight, "Vertical load");
     requireEngineeringNumber(offset, "Load offset", 0, true);
     if (!Number.isSafeInteger(count) || count < 1) throw new Error("Enter a positive whole number of fasteners.");
@@ -176,8 +176,9 @@ function computeMountingDemand({ arrangement, weight, offset = 0, count, spacing
         if (offset !== 0) throw new Error("The close-to-wall model requires zero offset. Use a bearing-contact model for eccentric loads.");
     } else if (arrangement === "Bracket with lower bearing" || arrangement === "Symmetric two-row mount") {
         requireEngineeringNumber(spacing, "Vertical reaction spacing");
-        if (arrangement === "Symmetric two-row mount" && (count < 2 || count % 2 !== 0)) {
-            throw new Error("The symmetric mount requires equal fastener counts in two rows.");
+        if (arrangement === "Symmetric two-row mount") {
+            if (count < 2 || count % 2 !== 0) throw new Error("The symmetric mount requires equal fastener counts in two rows.");
+            if (count > 2) requireEngineeringNumber(horizontalSpacing, "Horizontal fastener spacing");
         }
     } else {
         throw new Error("Unsupported mounting arrangement.");

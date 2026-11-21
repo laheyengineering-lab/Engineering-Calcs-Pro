@@ -177,8 +177,10 @@
     }
 
     function buildInputSnapshot(adapter, scenario) {
-        return adapter.inputs.map((input) => {
+        const fields = adapter.activeInputs ? adapter.activeInputs(scenario.inputs) : adapter.inputs;
+        return fields.map((input) => {
             let value = scenario.inputs[input.id];
+            if (adapter.activeInputs && input.options && value == null) value = input.options[0];
             if (value === null || value === undefined) {
                 for (const binding of adapter.materialBindings || []) {
                     if (scenario.inputs[binding.selectionId] === null || scenario.inputs[binding.selectionId] === undefined) continue;
@@ -823,7 +825,8 @@
                 inputs: inputItems(r.inputs),
                 outputs: r.outputs.map((o) => ({ label: o.label, value: o.value, unit: o.unit })),
                 equations: r.equations, assumptions: r.assumptions, method: r.method,
-                warnings: r.warnings.concat(["Design study scenario calculated " + r.calculatedAt + " (calculator revision " + r.calculatorVersion + ")."])
+                warnings: r.warnings.concat(["Design study scenario calculated " + r.calculatedAt + " (calculator revision " + r.calculatorVersion + ")."]),
+                ...(adapter.diagram ? { diagram: adapter.diagram(scenario.inputs, r.outputs) } : {})
             })
         };
     }

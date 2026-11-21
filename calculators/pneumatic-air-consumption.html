@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pneumatic Air Consumption | Formula Foundry</title>
+<meta name="description" content="Calculate theoretical cylinder air use at explicitly entered reference conditions.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pneumatic Air Consumption | Formula Foundry">
+<meta property="og:description" content="Calculate theoretical cylinder air use at explicitly entered reference conditions.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+<a href="../index.html#catalog" class="back-link">← All calculators</a>
+<header class="calculator-header">
+    <h1>Pneumatic Air Consumption</h1>
+    <p>Calculate theoretical cylinder air use at explicitly entered reference conditions.</p>
+</header>
+<section class="content-card calculator-box" data-expansion="pneumatic-air-consumption">
+    <div class="calculator-layout">
+        <div class="theory-column">
+            <h2>Engineering theory</h2>
+            <p id="calculationMethod"></p>
+            <div id="expansionEquations"></div>
+            <figure class="expansion-diagram">
+                <div data-diagram="pneumatic-air-consumption"></div>
+                <figcaption>Illustrative schematic. Dimensions and spacing are symbolic.</figcaption>
+            </figure>
+            <h3>Assumptions and limitations</h3>
+            <ul id="expansionAssumptions"></ul>
+        </div>
+        <div class="calculator-column">
+            <h2>Calculator inputs</h2>
+            <p id="transferContext" role="status" hidden></p>
+            <form id="expansionForm" novalidate>
+                <div id="expansionInputs"></div>
+                <details class="expansion-units">
+                    <summary>Units</summary>
+                    <div id="expansionUnits"></div>
+                </details>
+                <div class="button-row">
+                    <button type="submit">Calculate</button>
+                    <button type="reset">Reset</button>
+                </div>
+            </form>
+            <div id="result" class="result-panel" aria-live="polite">Ready to calculate.</div>
+            <div id="expansionTransfer"></div>
+        </div>
+    </div>
+</section>
+<section class="content-card">
+    <h2>Worked example</h2>
+    <p>A 100 mm bore, 60 mm rod and 200 mm stroke sweeps 2.576 L per cycle. At 500 kPa gauge, 100 kPa absolute ambient and equal temperatures, the use is 15.46 L per cycle or 154.6 L/min at 10 cycles/min.</p>
+    <h2>Practical application</h2>
+    <p>Compare average ideal air demand for alternative cylinders at the same reference conditions.</p>
+    <h2>Related calculators</h2>
+    <ul><li><a href="hydraulic-cylinder-speed.html">Hydraulic Cylinder Speed &amp; Cycle Time</a></li><li><a href="cylinder-force.html">Hydraulic/Pneumatic Cylinder Force</a></li></ul>
+    <h2>Reference</h2>
+    <p><a href="https://openstax.org/books/university-physics-volume-2/pages/2-1-molecular-model-of-an-ideal-gas">OpenStax University Physics, Molecular Model of an Ideal Gas</a></p>
+</section>
+</div>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/cylinder-geometry.js"></script>
+<script src="../js/fluid-thermal-calculations.js"></script>
+<script src="../js/expansion-models.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/expansion-diagrams.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/fluid-system-transfer.js"></script>
+<script src="../js/expansion-calculator.js"></script>
+<script src="../js/calculator-context.js"></script>
+</body>
+</html>

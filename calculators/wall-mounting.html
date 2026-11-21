@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wall Mounting &amp; Anchor Load Assessment | Formula Foundry</title>
+<meta name="description" content="Estimate fastener demand for centered static loads and supported bearing arrangements.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Wall Mounting &amp; Anchor Load Assessment | Formula Foundry">
+<meta property="og:description" content="Estimate fastener demand for centered static loads and supported bearing arrangements.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+<a href="../index.html#catalog" class="back-link">← All calculators</a>
+<header class="calculator-header">
+    <h1>Wall Mounting &amp; Anchor Load Assessment</h1>
+    <p>Estimate fastener demand for centered static loads and supported bearing arrangements.</p>
+</header>
+<section class="content-card calculator-box" data-expansion="wall-mounting">
+    <div class="calculator-layout">
+        <div class="theory-column">
+            <h2>Engineering theory</h2>
+            <p id="calculationMethod"></p>
+            <div id="expansionEquations"></div>
+            <figure class="expansion-diagram">
+                <div data-diagram="wall-mounting"></div>
+                <figcaption>Illustrative schematic. Dimensions and spacing are symbolic.</figcaption>
+            </figure>
+            <h3>Assumptions and limitations</h3>
+            <ul id="expansionAssumptions"></ul>
+        </div>
+        <div class="calculator-column">
+            <h2>Calculator inputs</h2>
+            <p id="transferContext" role="status" hidden></p>
+            <form id="expansionForm" novalidate>
+                <div id="expansionInputs"></div>
+                <details class="expansion-units">
+                    <summary>Units</summary>
+                    <div id="expansionUnits"></div>
+                </details>
+                <div class="button-row">
+                    <button type="submit">Calculate</button>
+                    <button type="reset">Reset</button>
+                </div>
+            </form>
+            <div id="result" class="result-panel" aria-live="polite">Ready to calculate.</div>
+            <div id="expansionTransfer"></div>
+        </div>
+    </div>
+</section>
+<section class="content-card">
+    <h2>Worked example</h2>
+    <p>A centered 200 N shelf load at 0.30 m offset with two upper fasteners and bearing 0.15 m below them produces 60 N·m. Idealized shear is 100 N and tension is 200 N per fastener, with 400 N total lower wall bearing.</p>
+    <h2>Practical application</h2>
+    <p>A flush hanger primarily sees shear in this idealization. A projecting shelf develops upper-row withdrawal demand. Use the manufacturer&#x27;s instructions and working capacities for the actual fastener and substrate.</p>
+    <h2>Related calculators</h2>
+    <ul><li><a href="moment.html">Moment Calculator</a></li><li><a href="thread-strength.html">Thread Strength Calculator</a></li></ul>
+    <h2>Reference</h2>
+    <p><a href="https://openstax.org/books/university-physics-volume-1/pages/12-1-conditions-for-static-equilibrium">OpenStax University Physics, Conditions for Static Equilibrium</a></p>
+</section>
+</div>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/cylinder-geometry.js"></script>
+<script src="../js/fluid-thermal-calculations.js"></script>
+<script src="../js/expansion-models.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/expansion-diagrams.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/fluid-system-transfer.js"></script>
+<script src="../js/expansion-calculator.js"></script>
+<script src="../js/calculator-context.js"></script>
+</body>
+</html>

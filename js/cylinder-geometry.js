@@ -2,7 +2,8 @@
 function computeCylinderAreas(bore, rod) {
     if (![bore, rod].every(Number.isFinite)) throw new Error("Bore and rod diameters must be valid numbers.");
     if (bore <= 0) throw new Error("Bore diameter must be greater than zero.");
-    if (rod < 0 || rod >= bore) throw new Error("Rod diameter must be nonnegative and smaller than the bore diameter.");
+    if (rod < 0) throw new Error("Rod diameter cannot be negative.");
+    if (rod >= bore) throw new Error("Rod diameter must be smaller than the bore diameter.");
     const pistonArea = Math.PI * bore * bore / 4;
     const rodArea = Math.PI * rod * rod / 4;
     const annularArea = Math.PI * (bore - rod) * (bore + rod) / 4;

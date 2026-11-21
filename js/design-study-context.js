@@ -690,7 +690,15 @@
     function renderDiagram(document, adapter, scenario) {
         const figure = el(document, "figure", "study-diagram");
         const adapterId = adapter && adapter.id;
-        const draw = RENDERERS[adapterId];
+        const expansion = adapter && root.FormulaFoundryExpansionDiagram
+            && root.FormulaFoundryCalculatorDiagrams?.has(adapterId) && !RENDERERS[adapterId];
+        const draw = expansion ? () => {
+            const outputs = scenario?.status === "calculated"
+                ? Object.fromEntries(scenario.result.outputs.map((output) => [output.id, output.value])) : {};
+            const diagram = root.FormulaFoundryExpansionDiagram(adapterId, scenario?.inputs || {}, outputs);
+            const svg = root.FormulaFoundryCalculatorDiagrams.render(document, adapterId, diagram.model);
+            return { svg, description: svg.getAttribute("aria-label"), items: [] };
+        } : RENDERERS[adapterId];
         if (!draw || !root.FormulaFoundryDiagram) {
             figure.appendChild(el(document, "p", "sd-fallback", "No diagram is available for this calculator."));
             return figure;
