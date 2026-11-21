@@ -1,0 +1,41 @@
+# Fluid, thermal and practical calculators
+
+The eight calculators below bring the active catalog to 26. The homepage category filter works alongside keyword search. Each calculator page includes a worked example, input units, equations, applicability, related tools and an accessible schematic. All eight can be used independently or in Design Studies and Project Reports.
+
+| Category | Calculator | Model and reference case |
+|---|---|---|
+| Fluid Mechanics | [Pipe Flow & Reynolds Number](../calculators/pipe-flow.html) | Full circular pipe with area A = πD²/4, mean speed v = Q/A and Re = vD/ν = ρvD/μ. Use given flow or velocity and either viscosity form. At D = 0.1 m, v = 0.02 m/s and ν = 10⁻⁶ m²/s, Q = 9.42478 L/min and Re = 2,000. |
+| Fluid Mechanics | [Pipe Pressure Drop & Fittings](../calculators/pipe-pressure-drop.html) | Darcy major loss f(L/D)ρv²/2, fitting loss ΣKρv²/2 and head loss Δp/(ρg). At Re = 100,000, ε/D = 0.001, L/D = 100, ρ = 1,000 kg/m³ and v = 1 m/s, major loss is 1,108.7268 Pa with f = 0.02217453594. The reference friction factor was computed independently by fixed-point iteration in f. Production bisects in 1/√f. |
+| Fluid Mechanics | [Pump Hydraulic Power](../calculators/pump-hydraulic-power.html) | Δp = ρgH, hydraulic power QΔp, shaft power QΔp/η and shaft energy over the supplied duration. 60 L/min at 200 kPa and 80% pump efficiency gives 200 W hydraulic and 250 W shaft power. Two hours requires 0.50 kWh at the shaft. |
+| Fluid Power | [Hydraulic Cylinder Speed & Cycle Time](../calculators/hydraulic-cylinder-speed.html) | Cap and annular areas determine swept volumes As, travel speed Q/A and time s/v. For a 100 mm bore, 60 mm rod and 200 mm stroke, volumes are 1.5708 L and 1.0053 L. At 6 L/min each way, full theoretical cycle time is 25.7611 s. |
+| Fluid Power | [Pneumatic Air Consumption](../calculators/pneumatic-air-consumption.html) | Multiply the sum of chamber swept volumes by (p_abs/p_ref)(T_ref/T_op), then multiply by full cycles per unit time for free-air flow. The same cylinder at 500 kPa gauge, 100 kPa absolute ambient and equal temperatures uses 15.4566 L per cycle at the stated reference. |
+| Thermal / HVAC | [Multilayer Insulation R-Value & U-Factor](../calculators/multilayer-insulation.html) | Sum layer resistances t/k or direct material R-values plus separately entered surface films. U is the inverse of total R. For 100 mm at 0.04 W/(m·K), another material at R = 0.20 and films of 0.13 and 0.04 m²·K/W, total R is 2.87 m²·K/W and U is about 0.3484 W/(m²·K). |
+| Thermal / HVAC | [Wall / Building Assembly Heat Loss](../calculators/wall-heat-loss.html) | Multiply effective U by area and indoor minus outdoor temperature. Transferred energy is the signed rate times duration. A 20 m² assembly at U = 0.30 W/(m²·K) and 20 K difference loses 120 W or 1.20 kWh over 10 hours. A reversed temperature difference gives heat gain. |
+| Practical Engineering | [Wall Mounting & Anchor Load Assessment](../calculators/wall-mounting.html) | A centered 200 N vertical load at 0.30 m offset creates 60 N·m. With 0.15 m between the upper row and wall bearing reaction, the lower compression is 400 N. Two upper fasteners take 200 N tension each. Two total shear-sharing fasteners take 100 N shear each. |
+
+## Operating limits
+
+- **Pipe friction.** The 2,300 and 4,000 Reynolds cutoffs are approximate. Laminar Darcy friction factor is 64/Re. The transition estimate linearly interpolates between the laminar value at 2,300 and the Colebrook value at 4,000 for the same relative roughness. At zero flow, loss is zero and friction factor is undefined. The turbulent range caps at Re = 10⁸ and relative roughness 0.05. Elevation, developing-flow corrections and compressibility are outside the pipe model.
+- **Pump power.** Use density at the operating condition and efficiency at the proposed duty point. Pump selection needs the full system curve and the manufacturer’s pump curve. Energy is at the shaft and excludes the motor and drive.
+- **Cylinder motion and air use.** Hydraulic motion assumes constant flow or speed and excludes dwell, acceleration, leakage and line losses. Pneumatic reference pressure is also local ambient pressure. The ideal calculation counts one charged swept volume per chamber per cycle, with exhaust and no recovery. Dead volumes, humidity, leakage and compression transients are excluded. Enter explicit temperatures and pressure before interpreting a reference-volume result.
+- **Building assemblies.** Supply either each layer’s conductivity and thickness or its material-only R-value. Enter surface films once. This is a one-dimensional series model. Framing, thermal bridges, moisture and discontinuities can materially alter whole-wall performance. Use effective assembly properties for the heat-loss model. Its steady-state estimate excludes ventilation, infiltration, solar gains, moisture, equipment loads and thermal storage.
+- **Mounting.** Use close-to-wall mode for idealized zero offset. For a bracket, specify the vertical distance from the single fastener row to a known lower wall-bearing location. For a symmetric two-row mount, use equal row counts, a centered load, and lower bearing at the lower row. With multiple columns, enter center-to-center horizontal spacing. Spacing documents the assumed layout. Equal shear sharing requires uniform engagement and a rigid attachment. The tension couple acts between the upper row and the wall bearing. Each optional ratio compares one component against a manufacturer working capacity for the actual installation. Check manufacturer limits on interaction, spacing, substrate, embedment and installation. The model gives demands and has no wall-system capacity or safety verdict.
+- **Properties and optional features.** Fluid and insulation properties are manual. The tool has no generic oil, insulation or anchor property assumptions. Parallel-path assemblies, energy-cost estimates, pump selection and compressor sizing remain outside this release.
+
+## Transfer between fluid calculators
+
+On a calculated Pipe Flow result, select **Send flow and fluid properties to Pipe Pressure Drop**. The next page fills flow, diameter, density and the selected viscosity. Pipe length, roughness and fitting K are independent entries.
+
+From a calculated Pipe Pressure Drop result, select **Use segment loss as pump pressure rise** to copy flow, density and frictional pressure loss. The button explicitly uses the loss as the proposed pressure rise. Update that input if the duty point includes elevation, additional segments or other pressure requirements. Efficiency is entered separately, and operating duration is optional.
+
+Each transfer is a one-time payload in the current browser tab’s session storage. Values travel in SI and display in the destination’s units. The destination lists the source, Reynolds number and transferred values, marking overrides. A report captures the current inputs and the provenance text. If storage is unavailable, enter values manually.
+
+## References
+
+- [DOE Fundamentals Handbook, Thermodynamics, Heat Transfer, and Fluid Flow, Volume 3](https://www.energy.gov/ehss/articles/doe-hdbk-10123-92) covers continuity, Reynolds number, Darcy head loss and minor losses.
+- [Colebrook (1939), Turbulent Flow in Pipes](https://doi.org/10.1680/ijoti.1939.13150) provides the turbulent friction relation.
+- [U.S. DOE Pumping Systems](https://www.energy.gov/eere/amo/pumping-systems) discusses pump and system performance.
+- [Anthony Esposito, Fluid Power with Applications, seventh edition](https://search.worldcat.org/isbn/9780135136904) covers cylinder geometry and flow/velocity applications.
+- [OpenStax University Physics, Molecular Model of an Ideal Gas](https://openstax.org/books/university-physics-volume-2/pages/2-1-molecular-model-of-an-ideal-gas) supports pressure and temperature scaling at fixed mass.
+- [ISO 6946:2017](https://www.iso.org/standard/65708.html) describes resistance and transmittance methods. The series model covers a subset of the assembly calculations.
+- [OpenStax University Physics, Conditions for Static Equilibrium](https://openstax.org/books/university-physics-volume-1/pages/12-1-conditions-for-static-equilibrium) supports the mounting demand equilibrium.
