@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { loadCalculatorPage, setInputValue, setSelectValue } from '../helpers/browser-test-utils.js';
+import { getResultText, loadCalculatorPage, setInputValue, setSelectValue } from '../helpers/browser-test-utils.js';
 
 const base = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js'];
 
@@ -28,6 +28,43 @@ function fillCylinder({ document, window }, bore = 100) {
     setInputValue(document, 'rodDiameter', 50);
     setInputValue(document, 'workingPressure', 100);
     window.calculateCylinderForce();
+}
+
+function openWithPageScripts(page, storage) {
+    const scripts = [...fs.readFileSync(page, 'utf8').matchAll(/<script src="(?:\.\.\/)?(js\/[^"]+)"><\/script>/g)]
+        .map((match) => match[1])
+        .filter((script) => script !== 'js/katex-loader.js');
+    const loaded = loadCalculatorPage(page, scripts);
+    loaded.window.FormulaFoundryReport.store.setStorage(storage);
+    loaded.window.FormulaFoundryReportPage?.render();
+    return loaded;
+}
+
+function setupShaft(storage = memoryStorage()) {
+    const loaded = openWithPageScripts('calculators/shaft-torsion.html', storage);
+    const { document } = loaded;
+    setInputValue(document, 'torque', 0.00001);
+    setSelectValue(document, 'torqueUnit', 'N·mm');
+    setInputValue(document, 'outerDiameter', 2);
+    setSelectValue(document, 'diameterUnit', 'mm');
+    setInputValue(document, 'length', 30);
+    setSelectValue(document, 'lengthUnit', 'mm');
+    setInputValue(document, 'shearModulus', 80);
+    return loaded;
+}
+
+function expectTorsionOutputs(outputs, stressUnit, expectedValues) {
+    expect(outputs.map(({ label, unit }) => [label, unit])).toEqual([
+        ['Polar moment of inertia (J)', 'm⁴'],
+        ['Maximum shear stress (signed)', stressUnit],
+        ['Angle of twist (signed)', 'rad'],
+        ['Angle of twist (signed)', '°'],
+        ['Torsional stiffness', 'N·m/rad']
+    ]);
+    outputs.forEach(({ value }, index) => {
+        expect(typeof value).toBe('number');
+        expect(value / expectedValues[index]).toBeCloseTo(1, 12);
+    });
 }
 
 describe('Add to Project Report integration', () => {
@@ -151,6 +188,160 @@ describe('Add to Project Report integration', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
         addButton(document).click();
         expect(window.FormulaFoundryReport.store.count()).toBe(1);
+    });
+});
+
+describe('Shaft Torsion Project Report snapshots', () => {
+    it('stores and renders tiny solid-shaft results that round to zero in the calculator display', () => {
+        const storage = memoryStorage();
+        const { document, window } = setupShaft(storage);
+        setInputValue(document, 'innerDiameter', 123); // Hidden, unused by the solid calculation.
+        window.calculateShaftTorsion();
+        expect(getResultText(document)).toContain('J = 0 m⁴');
+        expect(getResultText(document)).toContain('= 0 rad');
+        addButton(document).click();
+
+        const stored = JSON.parse(storage.getItem(window.FormulaFoundryReport.STORAGE_KEY));
+        expect(stored.schemaVersion).toBe(1);
+        expect(stored.entries).toHaveLength(1);
+        const [entry] = stored.entries;
+        expect(entry).toMatchObject({ calculatorId: 'shaft-torsion', path: 'calculators/shaft-torsion.html' });
+        expect(entry.inputs).toEqual([
+            { label: 'Shaft type', value: 'solid', unit: '' },
+            { label: 'Applied torque', value: 0.00001, unit: 'N·mm' },
+            { label: 'Outer diameter', value: 2, unit: 'mm' },
+            { label: 'Shaft length', value: 30, unit: 'mm' },
+            { label: 'Shear modulus (G)', value: 80, unit: 'GPa' }
+        ]);
+        expectTorsionOutputs(entry.outputs, 'MPa', [
+            1.5707963267948965e-12, 6.366197723675813e-6, 2.38732414637843e-9,
+            1.3678359791715598e-7, 4.188790204786391
+        ]);
+        expect(entry.equations.join(' ')).toContain(String.raw`k=\frac{GJ}{L}`);
+        expect(entry.assumptions).toContain('Small angle of twist and no warping (classical torsion theory).');
+        expect(entry.diagram).toMatchObject({ type: 'calc-diagram', id: 'shaft-torsion', model: { shaftType: 'solid' } });
+
+        const report = openWithPageScripts('report.html', storage);
+        expect(report.window.FormulaFoundryReport.store.load().entries[0]).toEqual(entry);
+        const rendered = report.document.querySelector('.report-entry');
+        expect(rendered.textContent).toContain('1.5708e-12');
+        expect(rendered.querySelector('.report-calc-diagram svg')).toBeTruthy();
+    });
+
+    it('captures mixed units, the selected material, manual modulus, and signed hollow-shaft results', () => {
+        const { document, window } = setupShaft();
+        setSelectValue(document, 'shaftType', 'hollow');
+        window.updateShaftTorsionMode();
+        setInputValue(document, 'torque', -0.3);
+        setSelectValue(document, 'torqueUnit', 'kN·m');
+        setInputValue(document, 'outerDiameter', 6);
+        setSelectValue(document, 'diameterUnit', 'cm');
+        setInputValue(document, 'innerDiameter', 40);
+        setSelectValue(document, 'innerDiameterUnit', 'mm');
+        setInputValue(document, 'length', 1500);
+        setInputValue(document, 'shearModulus', '');
+        setSelectValue(document, 'material', 'stainless-steel');
+        window.updateMaterialShearModulus();
+        setInputValue(document, 'shearModulus', 78000);
+        setSelectValue(document, 'modulusUnit', 'MPa');
+        setSelectValue(document, 'stressUnit', 'GPa');
+        window.calculateShaftTorsion();
+        addButton(document).click();
+
+        const [entry] = window.FormulaFoundryReport.store.load().entries;
+        expect(entry.inputs).toEqual([
+            { label: 'Shaft type', value: 'hollow', unit: '' },
+            { label: 'Applied torque', value: -0.3, unit: 'kN·m' },
+            { label: 'Outer diameter', value: 6, unit: 'cm' },
+            { label: 'Inner diameter', value: 40, unit: 'mm' },
+            { label: 'Shaft length', value: 1500, unit: 'mm' },
+            { label: 'Shear modulus (G)', value: 78000, unit: 'MPa' },
+            { label: 'Selected material', value: 'Stainless Steel 304', unit: '' }
+        ]);
+        expectTorsionOutputs(entry.outputs, 'GPa', [
+            1.0210176124166828e-6, -0.008814735309704972, -0.005650471352374982,
+            -0.3237481607506651, 53092.91584566751
+        ]);
+        expect(entry.diagram.model).toMatchObject({ shaftType: 'hollow', outer: 6, inner: 4, diameterUnit: 'cm' });
+    });
+
+    it('rejects stale form values and result text, including after the result observer runs', async () => {
+        const { document, window } = setupShaft();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const report = window.FormulaFoundryReport;
+        window.calculateShaftTorsion();
+        addButton(document).click();
+        const original = report.store.load().entries[0];
+        expect(original).toBeTruthy();
+
+        setSelectValue(document, 'stressUnit', 'Pa');
+        addButton(document).click();
+        expect(status(document)).toMatch(/changed since the last calculation/i);
+
+        window.calculateShaftTorsion();
+        document.querySelector('#result .result-value').textContent = 'Edited result';
+        await Promise.resolve();
+        addButton(document).click();
+        expect(status(document)).toMatch(/changed since the last calculation/i);
+        expect(report.store.load().entries).toEqual([original]);
+    });
+
+    it('clears pending results on invalid input, engine failure, mode change, and reset', () => {
+        const { document, window } = setupShaft();
+        const calculate = window.calculateShaftTorsion;
+        const expectNothingToAdd = () => {
+            addButton(document).click();
+            expect(status(document)).toMatch(/calculate a valid result first/i);
+        };
+        expectNothingToAdd();
+        calculate();
+        setInputValue(document, 'torque', 0);
+        calculate();
+        expect(getResultText(document)).toContain('Invalid Input');
+        expectNothingToAdd();
+
+        setInputValue(document, 'torque', 1);
+        calculate();
+        setInputValue(document, 'outerDiameter', '1e100');
+        calculate();
+        expect(getResultText(document)).toContain('Calculation Error');
+        expectNothingToAdd();
+
+        setInputValue(document, 'outerDiameter', 2);
+        calculate();
+        setSelectValue(document, 'shaftType', 'hollow');
+        window.updateShaftTorsionMode();
+        expectNothingToAdd();
+        setSelectValue(document, 'innerDiameterUnit', 'mm');
+        setInputValue(document, 'innerDiameter', 0);
+        calculate();
+        addButton(document).click();
+        const report = window.FormulaFoundryReport;
+        expect(report.store.load().entries[0].inputs).toContainEqual({ label: 'Inner diameter', value: 0, unit: 'mm' });
+
+        setInputValue(document, 'innerDiameter', 2);
+        calculate();
+        expect(getResultText(document)).toContain('inner diameter must be less than outer diameter');
+        expectNothingToAdd();
+
+        setInputValue(document, 'innerDiameter', 0);
+        calculate();
+        window.resetShaftTorsionCalculator();
+        expectNothingToAdd();
+        expect(report.store.count()).toBe(1);
+    });
+
+    it('requires an explicit bore diameter for a hollow-shaft report entry', async () => {
+        const { document, window } = setupShaft();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        setSelectValue(document, 'shaftType', 'hollow');
+        window.updateShaftTorsionMode();
+        window.calculateShaftTorsion();
+        expect(document.querySelector('#result .result-value')).toBeTruthy();
+        await Promise.resolve();
+        addButton(document).click();
+        expect(status(document)).toMatch(/calculate a valid result first/i);
+        expect(window.FormulaFoundryReport.store.count()).toBe(0);
     });
 });
 
