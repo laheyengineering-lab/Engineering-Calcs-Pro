@@ -2,6 +2,8 @@
 // Shaft Torsion Calculator
 // ======================================================
 
+window.FormulaFoundryReport?.declareStructured();
+
 // Cache DOM elements
 const torsionTorqueInput = document.getElementById("torque");
 const torsionOuterDiameterInput = document.getElementById("outerDiameter");
@@ -30,6 +32,7 @@ function updateShaftTorsionMode() {
     }
     
     torsionResultPanel.innerHTML = "Ready to calculate.";
+    window.FormulaFoundryReport?.clearResult();
 }
 
 // Update shear modulus when material is selected
@@ -40,6 +43,9 @@ function updateMaterialShearModulus() {
 }
 
 function calculateShaftTorsion() {
+    const report = window.FormulaFoundryReport;
+    report?.clearResult();
+
     const shaftType = torsionShaftTypeSelect.value;
     const torque = Number(torsionTorqueInput.value);
     const outerDiameter = Number(torsionOuterDiameterInput.value);
@@ -51,6 +57,10 @@ function calculateShaftTorsion() {
     const lengthUnit = torsionLengthUnitSelect.value;
     const modulusUnit = torsionModulusUnitSelect.value;
     const stressUnit = torsionStressUnitSelect.value;
+    const isHollow = shaftType === "hollow";
+    const innerDiameterText = torsionInnerDiameterInput.value;
+    const innerDiameter = isHollow ? Number(innerDiameterText) : null;
+    const innerDiameterUnit = torsionInnerDiameterUnitSelect.value;
     
     // Validate basic inputs
     if (!Number.isFinite(torque) || torque === 0 || !Number.isFinite(outerDiameter) || outerDiameter <= 0 ||
@@ -63,15 +73,12 @@ function calculateShaftTorsion() {
     }
     
     // For hollow shaft, validate inner diameter
-    if (shaftType === "hollow") {
-        const innerDiameter = Number(torsionInnerDiameterInput.value);
-        if (!Number.isFinite(innerDiameter) || innerDiameter < 0) {
-            torsionResultPanel.innerHTML = `
-                <h3>Invalid Input</h3>
-                <p>Please enter a non-negative inner diameter for hollow shafts.</p>
-            `;
-            return;
-        }
+    if (isHollow && (!Number.isFinite(innerDiameter) || innerDiameter < 0)) {
+        torsionResultPanel.innerHTML = `
+            <h3>Invalid Input</h3>
+            <p>Please enter a non-negative inner diameter for hollow shafts.</p>
+        `;
+        return;
     }
     
     try {
@@ -81,9 +88,7 @@ function calculateShaftTorsion() {
         const lengthM = convertDistance(length, lengthUnit);
         const modulusPa = convertModulus(shearModulus, modulusUnit); // FIXED: Now uses centralized conversion
         
-        const innerDiameterM = shaftType === "hollow"
-            ? convertDistance(Number(torsionInnerDiameterInput.value), torsionInnerDiameterUnitSelect.value)
-            : null;
+        const innerDiameterM = isHollow ? convertDistance(innerDiameter, innerDiameterUnit) : null;
         const result = computeShaftTorsion({ shaftType, torqueNm, outerDiameterM, innerDiameterM, lengthM, modulusPa });
         const { J, tauMaxPa, thetaRadians, thetaDegrees, stiffness } = result;
         const outerRadius = outerDiameterM / 2;
@@ -111,7 +116,50 @@ function calculateShaftTorsion() {
         `;
         
         torsionResultPanel.innerHTML = resultHTML;
-        
+
+        // The calculator still treats an empty bore as zero. Require an explicit
+        // inner diameter to document a hollow-shaft calculation in the report.
+        if (report && (!isHollow || innerDiameterText !== "")) {
+            const inputs = [
+                { label: "Shaft type", value: shaftType },
+                { label: "Applied torque", value: torque, unit: torqueUnit },
+                { label: "Outer diameter", value: outerDiameter, unit: diameterUnit }
+            ];
+            if (isHollow) {
+                inputs.push({ label: "Inner diameter", value: innerDiameter, unit: innerDiameterUnit });
+            }
+            inputs.push(
+                { label: "Shaft length", value: length, unit: lengthUnit },
+                { label: "Shear modulus (G)", value: shearModulus, unit: modulusUnit }
+            );
+            const material = getMaterial(torsionMaterialSelect.value);
+            if (material) {
+                inputs.push({ label: "Selected material", value: material.displayName });
+            }
+
+            const diagram = report.currentCalcDiagram();
+            report.recordResult({
+                calculatorId: "shaft-torsion",
+                calculatorName: "Shaft Torsion",
+                path: "calculators/shaft-torsion.html",
+                inputs,
+                outputs: [
+                    { label: "Polar moment of inertia (J)", value: J, unit: "m⁴" },
+                    { label: "Maximum shear stress (signed)", value: tauMaxOutput, unit: stressUnit },
+                    { label: "Angle of twist (signed)", value: thetaRadians, unit: "rad" },
+                    { label: "Angle of twist (signed)", value: thetaDegrees, unit: "°" },
+                    { label: "Torsional stiffness", value: stiffness, unit: "N·m/rad" }
+                ],
+                equations: SHAFT_TORSION_EQUATIONS,
+                assumptions: [
+                    "Uniform solid or concentric hollow circular shaft.",
+                    "Linear-elastic material with constant shear modulus and uniform torque along the shaft.",
+                    "Small angle of twist and no warping (classical torsion theory)."
+                ],
+                method: "Maximum shear stress is evaluated at the outer radius. Shear stress and twist follow the sign of the applied torque.",
+                ...(diagram ? { diagram } : {})
+            });
+        }
     } catch (error) {
         const heading = error.message.startsWith("For hollow shaft, inner diameter")
             ? "Invalid Input"
