@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { getResultText, loadCalculatorPage, setInputValue, setSelectValue } from '../helpers/browser-test-utils.js';
 
 const base = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js'];
@@ -349,7 +349,7 @@ describe('report workspace page', () => {
     function openReport(storage) {
         const loaded = loadCalculatorPage('report.html', [
             'js/report-builder.js', 'js/engineering-diagram.js', 'js/beam-section-properties.js',
-            'js/beam-deflection-diagram.js'
+            'js/beam-deflection-diagram.js', 'js/study-chart.js'
         ]);
         loaded.window.FormulaFoundryReport.store.setStorage(storage);
         loaded.window.confirm = () => true;
@@ -360,6 +360,158 @@ describe('report workspace page', () => {
         loaded.document.dispatchEvent(new loaded.window.Event('DOMContentLoaded', { bubbles: true }));
         return loaded;
     }
+
+    function portableProject(report) {
+        const project = report.emptyProject();
+        Object.assign(project.meta, {
+            title: 'Pump skid / QA', number: 'P-42', customer: 'Test lab', preparedBy: 'Engineer',
+            date: '2026-11-21', revision: 'B', scope: 'Check the skid.', notes: 'Review before release.'
+        });
+        const common = {
+            addedAt: '2026-11-19T12:00:00.000Z', notes: 'Entry notes',
+            inputs: [{ label: 'Force', value: 25, unit: 'lbf' }, { label: 'Length', value: 50, unit: 'mm' }],
+            outputs: [{ label: 'Deflection', value: 1.234567890123456e-23, unit: 'm' }],
+            equations: ['M = Fd'], assumptions: ['Static loading'], warnings: ['Review limits'], method: 'Use the saved model.'
+        };
+        project.entries = [
+            report.validateSnapshot({
+                ...common, id: 'study-1', calculatorId: 'moment', title: 'Sweep',
+                study: { id: 's1', name: 'Arm study', kind: 'sweep', scenarios: ['Base'], savedAt: common.addedAt },
+                tables: [{ caption: 'Sweep results', columns: ['x [mm]', 'y [m]'], rows: [[50, common.outputs[0].value], [60, 'FAILED']] }],
+                chart: { type: 'line', title: 'Deflection', xLabel: 'mm', yLabel: 'm', points: [{ x: 50, y: common.outputs[0].value }, { x: 60, y: null }] }
+            }).snapshot,
+            report.validateSnapshot({
+                ...common, id: 'beam-1', calculatorId: 'beam-bending-stress', title: 'Beam sizing',
+                diagram: { type: 'beam-section', profile: 'rectangular', dimensions: { width: 0.05, height: 0.1 }, axis: 'x', unit: 'mm' }
+            }).snapshot
+        ];
+        return project;
+    }
+
+    async function chooseProject(loaded, file) {
+        const { document, window } = loaded;
+        const picker = document.getElementById('projectFile');
+        const importButton = document.getElementById('importProject');
+        const openPicker = vi.spyOn(picker, 'click');
+        importButton.click();
+        expect(openPicker).toHaveBeenCalledOnce();
+        openPicker.mockRestore();
+        Object.defineProperty(picker, 'files', { configurable: true, value: [file] });
+        picker.dispatchEvent(new window.Event('change'));
+        await vi.waitFor(() => expect(importButton.disabled).toBe(false));
+    }
+
+    function readBlob(window, blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new window.FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsText(blob);
+        });
+    }
+
+    it('downloads readable JSON and restores the complete project in another browser store', async () => {
+        const source = openReport(memoryStorage());
+        const report = source.window.FormulaFoundryReport;
+        const project = portableProject(report);
+        report.store.save(project);
+        source.window.URL.createObjectURL = vi.fn(() => 'blob:project');
+        source.window.URL.revokeObjectURL = vi.fn();
+        let filename;
+        vi.spyOn(source.window.HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
+            filename = this.download;
+            expect(this.getAttribute('href')).toBe('blob:project');
+        });
+        source.document.getElementById('exportProject').click();
+        expect(filename).toBe('project-pump-skid-qa.json');
+        const [blob] = source.window.URL.createObjectURL.mock.calls[0];
+        expect(blob.type).toBe('application/json');
+        const json = await readBlob(source.window, blob);
+        expect(json).toContain('\n  "schemaVersion": 1');
+        expect(JSON.parse(json)).toEqual(project);
+
+        const target = openReport(memoryStorage());
+        const confirm = vi.spyOn(target.window, 'confirm');
+        await chooseProject(target, new target.window.File([json], filename));
+        expect(confirm).toHaveBeenCalledOnce();
+        expect(target.window.FormulaFoundryReport.store.load()).toEqual(project);
+        const { document } = target;
+        expect(document.getElementById('meta-title').value).toBe(project.meta.title);
+        expect(document.querySelector('.report-title').textContent).toBe(project.meta.title);
+        expect([...document.querySelectorAll('.report-toc a')].map((link) => link.textContent)).toEqual(['Sweep', 'Beam sizing']);
+        expect(document.querySelector('.report-count').textContent).toBe('2');
+        expect(document.querySelector('.report-entry').textContent).toContain('Design study: Arm study');
+        expect(document.querySelector('.report-data-table tbody tr').textContent).toContain('1.23457e-23');
+        expect(document.querySelector('.report-chart svg')).toBeTruthy();
+        expect(document.querySelector('.report-profile-diagram svg')).toBeTruthy();
+        expect(document.getElementById('exportProject').closest('.report-screen')).toBeTruthy();
+        expect(document.getElementById('importProject').closest('.report-screen')).toBeTruthy();
+        document.getElementById('printReport').click();
+        expect(target.printed).toBe(true);
+    });
+
+    it.each([
+        ['malformed JSON', () => '{', /valid JSON/i],
+        ['unsupported version', (p) => { p.schemaVersion = 2; }, /schema version/i],
+        ['invalid result', (p) => { p.entries[1].outputs[0].value = null; }, /Calculation 2.*results/i],
+        ['duplicate ID', (p) => { p.entries[1].id = p.entries[0].id; }, /duplicate entry ID/i],
+        ['unsupported structure', (p) => { p.entries[1].study = { kind: 'unsupported' }; }, /Calculation 2.*unsupported/i],
+        ['oversized file', () => ' '.repeat(32 * 1024 * 1024 + 1), /32 MiB/],
+        ['hostile source link', (p) => { p.entries[1].path = '//example.com/malicious.html'; }, /Calculation 2.*unsupported/i],
+        ['unknown executable payload', (p) => { p.entries[1].script = '<script>window.executed = true</script>'; }, /Calculation 2.*unsupported/i],
+        ['prototype key', (p) => { Object.defineProperty(p.entries[1], '__proto__', { value: {}, enumerable: true }); }, /Calculation 2.*unsupported/i]
+    ])('rejects %s before confirmation or mutation', async (_label, change, message) => {
+        const storage = memoryStorage();
+        seed(storage);
+        const loaded = openReport(storage);
+        const before = { ...storage.data };
+        const confirm = vi.spyOn(loaded.window, 'confirm');
+        const project = portableProject(loaded.window.FormulaFoundryReport);
+        const json = change(project) ?? JSON.stringify(project);
+        await chooseProject(loaded, new loaded.window.File([json], 'project.json'));
+        expect(status(loaded.document)).toMatch(message);
+        expect(confirm).not.toHaveBeenCalled();
+        expect(storage.data).toEqual(before);
+        expect(loaded.document.querySelector('.report-count').textContent).toBe('2');
+    });
+
+    it('keeps the original project when the user declines replacement', async () => {
+        const storage = memoryStorage();
+        seed(storage);
+        const loaded = openReport(storage);
+        const before = { ...storage.data };
+        const confirm = vi.spyOn(loaded.window, 'confirm').mockReturnValue(false);
+        const project = portableProject(loaded.window.FormulaFoundryReport);
+        await chooseProject(loaded, new loaded.window.File([JSON.stringify(project)], 'project.json'));
+        expect(confirm).toHaveBeenCalledOnce();
+        expect(status(loaded.document)).toMatch(/import canceled/i);
+        expect(storage.data).toEqual(before);
+        expect(loaded.document.querySelector('.report-title').textContent).toBe('Engineering Calculation Report');
+    });
+
+    it('renders imported text literally and keeps the project visible when storage writes fail', async () => {
+        const storage = memoryStorage();
+        seed(storage);
+        const loaded = openReport(storage);
+        const before = { ...storage.data };
+        const write = vi.spyOn(storage, 'setItem').mockImplementation(() => { throw new Error('quota'); });
+        const report = loaded.window.FormulaFoundryReport;
+        const project = portableProject(report);
+        project.entries.pop();
+        project.meta.title = '<img src=x onerror="window.executed=true">';
+        await chooseProject(loaded, new loaded.window.File([JSON.stringify(project)], 'project.json'));
+        expect(status(loaded.document)).toMatch(/session only/i);
+        expect(storage.data).toEqual(before);
+        expect(report.store.load()).toEqual(project);
+        expect(loaded.document.querySelector('.report-count').textContent).toBe('1');
+        expect(loaded.document.querySelector('.report-title').textContent).toBe(project.meta.title);
+        expect(loaded.document.querySelector('img[src="x"]')).toBeNull();
+        expect(loaded.window.executed).toBeUndefined();
+
+        write.mockRestore();
+        expect(report.store.save(project)).toBe(true);
+        expect(report.createProjectStore(storage).load()).toEqual(project);
+    });
 
     function seed(storage) {
         const a = open('cylinder-force', 'cylinder-force', storage);

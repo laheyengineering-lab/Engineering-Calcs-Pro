@@ -40,8 +40,11 @@
         <div class="report-meta-grid" id="metaFields"></div>
         <div class="button-row">
             <button type="button" id="printReport">Print / Save as PDF</button>
+            <button type="button" class="secondary-button" id="exportProject">Export Project JSON</button>
+            <button type="button" class="secondary-button" id="importProject">Import Project JSON</button>
             <button type="button" class="secondary-button" id="clearReport">Clear Project</button>
         </div>
+        <input type="file" id="projectFile" accept=".json,application/json" hidden>
         <p><small>Printing opens the browser's print dialog; choose "Save as PDF" as the destination to create a PDF file.</small></p>
         <p class="report-status" id="reportStatus" role="status"></p>
     </section>
