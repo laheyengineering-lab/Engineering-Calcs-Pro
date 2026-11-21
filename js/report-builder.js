@@ -152,7 +152,7 @@
             "i-beam": ["height", "flangeWidth", "flangeThickness", "webThickness"],
             "t-section": ["height", "flangeWidth", "flangeThickness", "webThickness"]
         };
-        if (!raw || raw.type !== "beam-section" || !profiles[raw.profile]
+        if (!raw || raw.type !== "beam-section" || !Object.prototype.hasOwnProperty.call(profiles, raw.profile)
             || !["x", "y"].includes(raw.axis)
             || !["µm", "mm", "cm", "m", "in", "ft"].includes(raw.unit)
             || !raw.dimensions || typeof raw.dimensions !== "object") return null;
@@ -245,13 +245,14 @@
         const study = cleanStudy(raw.study);
         const calculatorName = text(raw.calculatorName) || calculatorId;
         const added = Date.parse(raw.addedAt);
+        const path = text(raw.path);
         return {
             ok: true,
             snapshot: {
                 id: typeof raw.id === "string" && /^[\w-]{1,60}$/.test(raw.id) ? raw.id : newId(),
                 calculatorId,
                 calculatorName,
-                path: /^[\w\-./]+\.html$/.test(text(raw.path, 200)) && !text(raw.path, 200).includes("..") ? raw.path : "calculators/" + calculatorId + ".html",
+                path: /^[\w\-./]+\.html$/.test(path) && !path.includes("..") && !path.startsWith("//") ? path : "calculators/" + calculatorId + ".html",
                 title: text(raw.title) || calculatorName,
                 addedAt: Number.isFinite(added) ? new Date(added).toISOString() : new Date().toISOString(),
                 notes: text(raw.notes, LIMITS.long),
@@ -301,6 +302,70 @@
         return project;
     }
 
+    // Compare with the validated shape without depending on JSON property order.
+    // A portable file must survive validation without any fields being repaired or dropped.
+    function matchesValidated(raw, validated) {
+        if (validated === null || typeof validated !== "object") return raw === validated;
+        if (!raw || typeof raw !== "object" || Array.isArray(raw) !== Array.isArray(validated)) return false;
+        const keys = Object.keys(validated);
+        return Object.keys(raw).length === keys.length && keys.every((key) =>
+            Object.prototype.hasOwnProperty.call(raw, key) && matchesValidated(raw[key], validated[key]));
+    }
+
+    function parseProjectJSON(source) {
+        let raw;
+        try {
+            raw = JSON.parse(source);
+        } catch (error) {
+            return { ok: false, error: "The file is not valid JSON." };
+        }
+        if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+            return { ok: false, error: "The file must contain a Formula Foundry project." };
+        }
+        if (raw.schemaVersion !== SCHEMA_VERSION) {
+            return { ok: false, error: "Unsupported project schema version. Expected version " + SCHEMA_VERSION + "." };
+        }
+        if (Object.keys(raw).length !== 3 || !Array.isArray(raw.entries)) {
+            return { ok: false, error: "The project structure is invalid." };
+        }
+        if (raw.entries.length > MAX_ENTRIES) {
+            return { ok: false, error: "The project exceeds the limit of " + MAX_ENTRIES + " calculations." };
+        }
+        const project = emptyProject();
+        if (!raw.meta || !META_FIELDS.every((field) => typeof raw.meta[field] === "string")) {
+            return { ok: false, error: "The project metadata is invalid." };
+        }
+        project.meta = sanitizeProject({ schemaVersion: SCHEMA_VERSION, meta: raw.meta }).meta;
+        if (!matchesValidated(raw.meta, project.meta)) {
+            return { ok: false, error: "The project metadata contains unsupported fields or exceeds a length limit." };
+        }
+        const seen = new Set();
+        for (const [index, entry] of raw.entries.entries()) {
+            const prefix = "Calculation " + (index + 1) + ": ";
+            let result;
+            try {
+                result = validateSnapshot(entry);
+            } catch (error) {
+                return { ok: false, error: prefix + "Invalid entry structure." };
+            }
+            if (!result.ok) return { ok: false, error: prefix + result.error };
+            const snapshot = result.snapshot;
+            if (!matchesValidated(entry, snapshot)) {
+                return { ok: false, error: prefix + "Unsupported or incomplete entry data." };
+            }
+            const diagrams = root.FormulaFoundryCalculatorDiagrams;
+            if (diagrams && snapshot.diagram?.type === "calc-diagram"
+                && (!diagrams.normalize(snapshot.diagram.id, snapshot.diagram.model, true)
+                    || (snapshot.diagram.companion && !diagrams.normalize(snapshot.diagram.companion.id, snapshot.diagram.companion.model, true)))) {
+                return { ok: false, error: prefix + "The calculator diagram model is invalid." };
+            }
+            if (seen.has(snapshot.id)) return { ok: false, error: prefix + "Duplicate entry ID." };
+            seen.add(snapshot.id);
+            project.entries.push(snapshot);
+        }
+        return { ok: true, project };
+    }
+
     // ---------- Project store ----------
 
     function defaultStorage() {
@@ -316,16 +381,17 @@
         let memory = null;
 
         function load() {
+            if (memory) return sanitizeProject(memory);
             if (storage) {
                 try {
                     const raw = storage.getItem(STORAGE_KEY);
                     if (raw === null || raw === undefined) return emptyProject();
                     return sanitizeProject(JSON.parse(raw));
                 } catch (error) {
-                    return memory ? sanitizeProject(memory) : emptyProject();
+                    // Access error.
                 }
             }
-            return memory ? sanitizeProject(memory) : emptyProject();
+            return emptyProject();
         }
 
         function save(project) {
@@ -333,6 +399,7 @@
             if (storage) {
                 try {
                     storage.setItem(STORAGE_KEY, serialised);
+                    memory = null;
                     return true;
                 } catch (error) {
                     // Quota or access error: keep a session-only copy.
@@ -681,6 +748,7 @@
         createProjectStore,
         validateSnapshot,
         sanitizeProject,
+        parseProjectJSON,
         emptyProject,
         formatValue,
         recordResult,

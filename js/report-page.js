@@ -10,6 +10,7 @@
     const report = window.FormulaFoundryReport;
     const store = report.store;
     const doc = document;
+    const MAX_PROJECT_FILE_BYTES = 32 * 1024 * 1024;
 
     const META_LABELS = [
         ["title", "Project title", "text"],
@@ -388,9 +389,81 @@
         });
     }
 
+    function exportProject() {
+        const project = store.load();
+        const name = project.meta.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+            .slice(0, 80).replace(/^-|-$/g, "");
+        const link = el("a");
+        let url;
+        try {
+            const file = new Blob([JSON.stringify(project, null, 2) + "\n"], { type: "application/json" });
+            url = URL.createObjectURL(file);
+            link.href = url;
+            link.download = name ? "project-" + name + ".json" : "formula-foundry-project.json";
+            link.hidden = true;
+            doc.body.appendChild(link);
+            link.click();
+            setStatus(file.size <= MAX_PROJECT_FILE_BYTES ? "Project JSON download started."
+                : "Project JSON download started. This file exceeds the 32 MiB import limit.");
+        } catch (error) {
+            setStatus("The browser could not start the project download.");
+        } finally {
+            link.remove();
+            if (url) window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+    }
+
+    async function importProject(file) {
+        if (file.size > MAX_PROJECT_FILE_BYTES) {
+            setStatus("The project file is too large. The import limit is 32 MiB.");
+            return;
+        }
+        let source;
+        try {
+            source = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reader.onabort = reject;
+                reader.readAsText(file);
+            });
+        } catch (error) {
+            setStatus("The project file could not be read.");
+            return;
+        }
+        const result = report.parseProjectJSON(source);
+        if (!result.ok) {
+            setStatus(result.error);
+            return;
+        }
+        if (!window.confirm("Replace the current project with the imported project? This overwrites all current project information and calculations.")) {
+            setStatus("Import canceled. The current project was kept.");
+            return;
+        }
+        const persisted = store.save(result.project);
+        META_LABELS.forEach(([key]) => { doc.getElementById("meta-" + key).value = result.project.meta[key]; });
+        render();
+        setStatus(persisted ? "Project imported and saved in this browser."
+            : "Project imported for this page session only. Browser storage failed. Export a copy before leaving or reloading.");
+    }
+
     function init() {
         buildMetaForm();
         render();
+        doc.getElementById("exportProject").addEventListener("click", exportProject);
+        const importButton = doc.getElementById("importProject");
+        const picker = doc.getElementById("projectFile");
+        importButton.addEventListener("click", () => picker.click());
+        picker.addEventListener("change", async () => {
+            const file = picker.files[0];
+            picker.value = "";
+            if (!file || importButton.disabled) return;
+            importButton.disabled = true;
+            try {
+                await importProject(file);
+            } finally {
+                importButton.disabled = false;
+            }
+        });
         doc.getElementById("printReport").addEventListener("click", () => {
             if (store.count() === 0) {
                 setStatus("Add at least one calculation before printing.");

@@ -9,8 +9,16 @@ Everything is browser-local (`localStorage`, key `formulaFoundry.projectReport`)
 3. Open `report.html`: edit project metadata and general notes, rename, reorder, annotate or remove entries, or clear the project (with confirmation).
 4. Press **Print / Save as PDF** and use the browser's print dialog. The app does not generate PDF files itself.
 
+## Move a project to another browser
+
+1. On the Project Report page, choose **Export Project JSON**. Keep the downloaded JSON file as a backup or copy it to the other device. It contains all saved project information and notes, calculations in report order, equations, assumptions, units, full saved numeric values, and any saved diagram, table, chart, and Design Study snapshot data.
+2. Open the Project Report page in the destination browser and choose **Import Project JSON**. Select the downloaded file. Imports accept Formula Foundry schema version 1 and files up to 32 MiB. A validation error leaves the current project intact.
+3. Confirm replacement to load the file. Import replaces the entire current project, so export the current project first if you want to keep it. Canceling the confirmation keeps the current project.
+
+If the browser cannot save to local storage, the imported project is available in the current page session. Keep the JSON file and export any changes before leaving or reloading. Exports over 32 MiB can still be downloaded for reference. The JSON file contains the project data in plain text. Export and import run in the browser.
+
 ## Snapshot model
-Each entry is a frozen copy: `{ id, calculatorId, calculatorName, title, notes, addedAt, inputs[{label,value,unit}], outputs[{label,value,unit}], equations[], assumptions[], method, warnings[], sourceUrl }`. Beam bending stress and beam deflection entries additionally store a validated `beam-section` diagram model (profile, SI dimensions, display unit, and selected axis), which is rendered into the report.
+Each entry is a frozen copy: `{ id, calculatorId, calculatorName, title, notes, addedAt, inputs[{label,value,unit}], outputs[{label,value,unit}], equations[], assumptions[], method, warnings[], path }`. Entries may store a validated diagram model, which is rendered into the report.
 Design Studies entries (see `docs/design-studies.md`) may also carry `study` metadata, `tables[]` and a line `chart`; the report prints the numeric tables and an SVG chart rendered from stored points.
 Entries are never recomputed. Re-adding a calculation creates a new entry (there is no in-place "update" yet).
 
