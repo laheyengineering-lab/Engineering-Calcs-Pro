@@ -84,7 +84,23 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>Set the left source to 12 V, the right source to 6 V and all three resistors to 2 kΩ. A 6 V center node satisfies current balance. The left source supplies 3 mA, the middle resistor carries 3 mA to ground, and the right branch carries 0 A.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>Set the left source to 8 V and the right source to 1 V relative to common ground. Enter left, center and right resistances of 2 Ω, 4 Ω and 3 Ω, respectively.</p>
+            <h3>Find</h3>
+            <p>Find the center node voltage \(V_c\), signed branch currents and total resistor power. Check node current balance.</p>
+            <h3>Solution</h3>
+            <p>Reference \(I_L\) and \(I_R\) from each source toward the center and \(I_C\) from the center to ground.</p>
+            <div>\[ \begin{aligned}I_L&=\frac{V_L-V_c}{R_L}\\ I_R&=\frac{V_R-V_c}{R_R}\\ I_C&=\frac{V_c}{R_C}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}I_L+I_R &= I_C\\ \frac{8-V_c}{2}+\frac{1-V_c}{3}&=\frac{V_c}{4}\\ 6(8-V_c)+4(1-V_c)&=3V_c\\ 52&=13V_c\\ V_c&=4\ \mathrm{V}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}I_L&=(8-4)/2=2\ \mathrm{A}\\ I_R&=(1-4)/3=-1\ \mathrm{A}\\ I_C&=4/4=1\ \mathrm{A}\end{aligned} \]</div>
+            <div>\[ I_L+I_R-I_C=2+(-1)-1=0\ \mathrm{A} \]</div>
+            <div>\[ \begin{aligned}P_{\rm resistors}&=I_L^2R_L+I_C^2R_C+I_R^2R_R\\ &=(2)^2(2)+(1)^2(4)+(-1)^2(3)\\ &=15\ \mathrm{W}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}P_{L,\rm abs}&=-(8)(2)=-16\ \mathrm{W}\\ P_{R,\rm abs}&=-(1)(-1)=1\ \mathrm{W}\end{aligned} \]</div>
+            <div>\[ P_{\rm delivered}=(8)(2)+(1)(-1)=15\ \mathrm{W} \]</div>
+            <h3>Result</h3>
+            <p>The center node is <strong>4 V</strong>. The left, center and right reference currents are <strong>2 A, 1 A and −1 A</strong>. Current in the right branch flows toward its source, which absorbs <strong>1 W</strong>. The left source delivers <strong>16 W</strong>, leaving <strong>15 W</strong> dissipated by the resistors.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

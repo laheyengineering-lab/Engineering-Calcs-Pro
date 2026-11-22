@@ -73,7 +73,23 @@
 </section>
 <section class="content-card">
     <h2>Worked example</h2>
-    <p>A 100 mm bore, 60 mm rod and 200 mm stroke sweeps 2.576 L per cycle. At 500 kPa gauge, 100 kPa absolute ambient and equal temperatures, the use is 15.46 L per cycle or 154.6 L/min at 10 cycles/min.</p>
+    <div class="example-box">
+        <h3>Given</h3>
+        <p>A double-acting cylinder with a 100 mm bore \(D\), 60 mm rod \(d\) and 200 mm stroke \(s\) runs at \(n=10\) complete cycles/min. Supply pressure is 500 kPa gauge. Ambient and reference pressure are 100 kPa absolute. Both air temperatures are 20 °C.</p>
+        <h3>Find</h3>
+        <p>Find each swept volume, total swept volume, supply absolute pressure, reference air per cycle and average reference flow.</p>
+        <h3>Solution</h3>
+        <p>Convert the bore, rod diameter and stroke to 0.100 m, 0.060 m and 0.200 m. Multiply swept volumes in cubic meters by 1000 for liters.</p>
+        <div>\[ \begin{aligned}V_c&=\frac{\pi D^2s}{4}=\frac{\pi(0.100)^2(0.200)}{4}\\ &\approx1.5708\ \mathrm{L}\\ V_a&=\frac{\pi(D^2-d^2)s}{4}\\ &=\frac{\pi(0.100^2-0.060^2)(0.200)}{4}\\ &\approx1.0053\ \mathrm{L}\end{aligned} \]</div>
+        <div>\[ \begin{aligned}V_s&=V_c+V_a\approx1.5708+1.0053\\ &\approx2.5761\ \mathrm{L}\end{aligned} \]</div>
+        <div>\[ \begin{aligned}p_{\rm abs}&=p_g+p_{\rm amb}=500+100\\ &=600\ \mathrm{kPa}\end{aligned} \]</div>
+        <div>\[ T_{\rm op}=T_{\rm ref}=20+273.15=293.15\ \mathrm{K} \]</div>
+        <p>Use the ideal-gas pressure and temperature ratios for both chambers charged once per cycle.</p>
+        <div>\[ \begin{aligned}V_{\rm ref}&=V_s\frac{p_{\rm abs}}{p_{\rm ref}}\frac{T_{\rm ref}}{T_{\rm op}}\\ &\approx(2.5761)\frac{600}{100}\frac{293.15}{293.15}\\ &\approx15.4566\ \mathrm{L/cycle}\end{aligned} \]</div>
+        <div>\[ \begin{aligned}Q_{\rm ref}&=nV_{\rm ref}\approx(10)(15.4566)\\ &\approx154.57\ \mathrm{L/min}\end{aligned} \]</div>
+        <h3>Result</h3>
+        <p>Ideal consumption is <strong>15.46 L per cycle</strong> or <strong>154.57 L/min</strong>, both referenced to <strong>100 kPa absolute and 20 °C</strong>. Dead volumes and leakage are excluded.</p>
+    </div>
     <h2>Practical application</h2>
     <p>Compare average ideal air demand for alternative cylinders at the same reference conditions.</p>
     <h2>Related calculators</h2>

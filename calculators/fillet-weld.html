@@ -233,15 +233,19 @@
 
 <div class="example-box">
 
-<p><strong>Given:</strong> w = 1/4 in, L = 12 in, E70XX (F<sub>EXX</sub> = 70 ksi), longitudinal load (0°).</p>
+<p><strong>Given:</strong> w = 1/4 in, L = 12 in, E70XX (F<sub>EXX</sub> = 70 ksi), longitudinal load (0°), and a 20 kip ASD design load for sizing.</p>
+<p><strong>Find:</strong> nominal, LRFD and ASD weld capacities and required ASD leg size.</p>
+<p><strong>Solution:</strong> Use the calculator’s throat factor of 0.707 and keep the unrounded throat for the area calculation.</p>
 
-<p>\[ t_e = 0.707(0.25) = 0.1768\ \mathrm{in} \qquad A_{we} = 0.1768(12) = 2.1213\ \mathrm{in}^2 \]</p>
+<p>\[ \begin{aligned}t_e&=0.707w=0.707(0.25)\\ &=0.17675\ \mathrm{in}\\ A_{we}&=t_eL=0.17675(12)\\ &=2.121\ \mathrm{in^2}\end{aligned} \]</p>
 
-<p>\[ R_n = 0.60(70)(2.1213) = 89.10\ \mathrm{kip} \]</p>
+<p>\[ \begin{aligned}R_n&=0.60F_{EXX}A_{we}\\ &=0.60(70)(2.121)=89.082\ \mathrm{kip}\end{aligned} \]</p>
 
-<p>\[ \phi R_n = 0.75(89.10) = 66.82\ \mathrm{kip} \qquad \frac{R_n}{\Omega} = \frac{89.10}{2.00} = 44.55\ \mathrm{kip} \]</p>
+<p>\[ \begin{aligned}\phi R_n&=0.75(89.082)\approx66.81\ \mathrm{kip}\\ \frac{R_n}{\Omega}&=\frac{89.082}{2.00}\approx44.54\ \mathrm{kip}\end{aligned} \]</p>
 
-<p>For an ASD design load of 20 kip: \( w_{req} = \dfrac{20(2.00)}{0.60(70)(0.707)(12)} = 0.1122\ \mathrm{in} \).</p>
+<p>For the 20 kip ASD load, rearrange the ASD capacity equation to solve for the leg size.</p>
+<div>\[ \begin{aligned}w_{\rm req}&=\frac{P\Omega}{0.60 F_{EXX}(0.707)L}\\ &=\frac{20(2.00)}{0.60(70)(0.707)(12)}\\ &\approx0.1123\ \mathrm{in}\end{aligned} \]</div>
+<p><strong>Result:</strong> The nominal weld capacity is 89.08 kip. The LRFD and ASD capacities are 66.81 kip and 44.54 kip. The 20 kip ASD load requires a calculated leg of 0.1123 in before other detailing requirements.</p>
 
 </div>
 

@@ -73,7 +73,27 @@
 </section>
 <section class="content-card">
     <h2>Worked example</h2>
-    <p>For 10 m of 100 mm ID pipe at 9.42478 L/min, density 1,000 kg/m³, viscosity 1 mPa·s and total K = 2, major loss is 0.64 Pa and fitting loss is 0.40 Pa. Total loss is 1.04 Pa.</p>
+    <div class="example-box">
+        <h3>Given</h3>
+        <p>Water flows at \(Q=471.239\ \mathrm{L/min}\) through a full 100 mm ID pipe. Enter length \(L=10\ \mathrm{m}\), roughness \(\epsilon=0.10\ \mathrm{mm}\), fitting sum \(K=2\), density \(\rho=1000\ \mathrm{kg/m^3}\) and dynamic viscosity \(\mu=1\ \mathrm{mPa\cdot s}\).</p>
+        <h3>Find</h3>
+        <p>Find speed, Reynolds number, Darcy friction factor, pipe and fitting losses, total pressure loss and head loss.</p>
+        <h3>Solution</h3>
+        <div>\[ \begin{aligned}D&=0.100\ \mathrm{m}\\ Q&=\frac{471.239}{60{,}000}\approx0.007854\ \mathrm{m^3/s}\\ A&=\frac{\pi(0.100)^2}{4}\approx0.007854\ \mathrm{m^2}\\ v&=\frac{Q}{A}\approx1.000\ \mathrm{m/s}\end{aligned} \]</div>
+        <div>\[ \nu=\frac{\mu}{\rho}=\frac{0.001}{1000}=10^{-6}\ \mathrm{m^2/s} \]</div>
+        <div>\[ \mathrm{Re}=\frac{vD}{\nu}\approx\frac{(1)(0.100)}{10^{-6}}=100{,}000 \]</div>
+        <div>\[ \frac{\epsilon}{D}=\frac{0.00010}{0.100}=0.001 \]</div>
+        <p>The flow is turbulent. The calculator solves the Colebrook equation by bisection in \(x=1/\sqrt{f_D}\). At this Reynolds number and roughness, the right-hand side can also be evaluated repeatedly starting at \(x_0=7\). The first update gives \(x_1\approx6.7014\), and successive updates converge to the root below.</p>
+        <div>\[ \begin{aligned}x&=-2\log_{10}\!\left(\frac{\epsilon/D}{3.7}+\frac{2.51x}{\mathrm{Re}}\right)\\ &\approx-2\log_{10}\!\left(\frac{0.001}{3.7}+\frac{2.51x}{100{,}000}\right)\end{aligned} \]</div>
+        <div>\[ \begin{aligned}x&\approx6.715413\\ f_D&=x^{-2}\approx0.0221745\end{aligned} \]</div>
+        <div>\[ q=\frac{\rho v^2}{2}\approx\frac{1000(1)^2}{2}=500\ \mathrm{Pa} \]</div>
+        <div>\[ \begin{aligned}\Delta p_{\rm pipe}&=f_D(L/D)q\\ &\approx(0.0221745)(10/0.100)(500)\\ &\approx1108.73\ \mathrm{Pa}\end{aligned} \]</div>
+        <div>\[ \Delta p_{\rm fit}=Kq\approx2(500)=1000.00\ \mathrm{Pa} \]</div>
+        <div>\[ \Delta p=\Delta p_{\rm pipe}+\Delta p_{\rm fit}\approx2108.73\ \mathrm{Pa} \]</div>
+        <div>\[ \begin{aligned}h_f&=\frac{\Delta p}{\rho g}\approx\frac{2108.73}{1000(9.80665)}\\ &\approx0.2150\ \mathrm{m}\end{aligned} \]</div>
+        <h3>Result</h3>
+        <p>The turbulent segment loses <strong>2.109 kPa</strong> or <strong>0.2150 m of fluid head</strong>. Fittings account for <strong>1.000 kPa</strong> of the total.</p>
+    </div>
     <h2>Practical application</h2>
     <p>Estimate frictional pressure loss for one constant-diameter segment. Use a fitting K specified for the segment velocity.</p>
     <h2>Related calculators</h2>

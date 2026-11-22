@@ -1,0 +1,95 @@
+// Inputs are in the page's default units unless overridden. Expected values
+// were derived from the displayed substitutions, independently of the engines.
+// Each expected string preserves the precision used for comparison.
+export const fluidThermalCases = [
+    ['pipe-flow', { flowMode: 'Average velocity', diameter: 100, velocity: 0.020, density: 1000,
+        viscosityMode: 'Kinematic', kinematicViscosity: 1 },
+    { area: '0.007854', flow: '9.425', reynolds: '2000' }],
+    // Colebrook x = 1/sqrt(f) by fixed-point iteration in x, independent of production bisection.
+    ['pipe-pressure-drop', { diameter: 100, flow: 471.239, length: 10, roughness: 0.10,
+        viscosityMode: 'Dynamic', dynamicViscosity: 1, density: 1000, minorCoefficient: 2 },
+    { velocity: '1.000', reynolds: '100000', relativeRoughness: '0.001', darcyFactor: '0.0221745',
+        major: '1108.73', minor: '1000.00', total: '2108.73', headLoss: '0.2150' },
+    { pressure: 'Pa' }],
+    ['pump-hydraulic-power', { riseMode: 'Pressure rise', flow: 60, pressure: 200, density: 1000,
+        efficiency: 80, duration: 2 },
+    { hydraulicPower: '200', shaftPower: '250', energy: '0.50', head: '20.39' }, { power: 'W' }],
+    ['hydraulic-cylinder-speed', { motionMode: 'Flow', bore: 100, rod: 60, stroke: 200,
+        extensionFlow: 6, retractionFlow: 6 },
+    { pistonArea: '0.007854', annularArea: '0.005027', capVolume: '1.571', rodVolume: '1.005',
+        extensionSpeed: '0.01273', retractionSpeed: '0.01989', extensionTime: '15.71',
+        retractionTime: '10.05', cycleTime: '25.76' }],
+    ['pneumatic-air-consumption', { bore: 100, rod: 60, stroke: 200, gaugePressure: 500,
+        referencePressure: 100, operatingTemperature: 20, referenceTemperature: 20, frequency: 10 },
+    { capVolume: '1.5708', rodVolume: '1.0053', sweptVolume: '2.5761', absolutePressure: '600',
+        freeAir: '15.4566', consumptionRate: '154.57' }],
+    ['multilayer-insulation', { thickness1: 100, conductivity1: 0.04, layerMode2: 'Direct R-value',
+        resistance2: 0.20, insideFilm: 0.13, outsideFilm: 0.04 },
+    { layerResistance1: '2.50', layerResistance2: '0.20', materialResistance: '2.70',
+        resistance: '2.87', transmittance: '0.3484' }],
+    ['wall-heat-loss', { thermalMode: 'Effective U-factor', area: 20, transmittance: 0.30,
+        inside: 20, outside: 0, duration: 10 }, { difference: '20', heatRate: '120', energyKwh: '1.20' }],
+    ['wall-mounting', { arrangement: 'Bracket with lower bearing', weight: 200, count: 2, offset: 0.30,
+        spacing: 0.15, shearCapacity: 150, tensionCapacity: 400 },
+    { moment: '60', compression: '400', shear: '100', tension: '200',
+        shearRatio: ['66.7', 100], tensionRatio: ['50', 100] }]
+];
+
+export const electricalCases = [
+    ['ohms-law', { known: 'VR', voltage: 12, resistance: 6 }, { current: '2', power: '24' }],
+    ['circuit-studio', { mode: 'series', sourceVoltage: 12, count: '2', r1: 100, r2: 300 },
+        { equivalentResistance: '400', totalCurrent: '0.030', totalPower: '0.36',
+            'raw.components.0.voltage': '3', 'raw.components.1.voltage': '9',
+            'raw.components.0.current': '0.030', 'raw.components.1.current': '0.030',
+            'raw.components.0.power': '0.09', 'raw.components.1.power': '0.27' }],
+    ['circuit-studio', { mode: 'parallel', sourceVoltage: 12, count: '2', r1: 100, r2: 300 },
+        { equivalentResistance: '75', totalCurrent: '0.160', totalPower: '1.92',
+            'raw.components.0.voltage': '12', 'raw.components.1.voltage': '12',
+            'raw.components.0.current': '0.120', 'raw.components.1.current': '0.040',
+            'raw.components.0.power': '1.44', 'raw.components.1.power': '0.48' }],
+    // KCL with one unknown node voltage gives 52 = 13 Vc, independent of production mesh solving.
+    ['kirchhoff-circuit', { leftVoltage: 8, rightVoltage: 1, leftResistance: 2, centerResistance: 4,
+        rightResistance: 3 }, { center: '4', 'raw.branches.0.current': '2', 'raw.branches.1.current': '1',
+        'raw.branches.2.current': '-1', kclResidual: '0', totalPower: '15',
+        leftSourcePower: '-16', rightSourcePower: '1' }],
+    ['electrical-divider', { mode: 'voltage', sourceVoltage: 12, r1: 1, r2: 1 },
+        { outputVoltage: '6' }, { r1divider: 'kΩ', r2divider: 'kΩ' }],
+    ['electrical-divider', { mode: 'loaded', sourceVoltage: 12, r1: 1, r2: 1, loadResistance: 1 },
+        { unloadedVoltage: '6', outputVoltage: '4', loadingError: '-2', loadingErrorPercent: '-33.3',
+            loadCurrent: '4', totalCurrent: '8', 'raw.components.1.current': ['4', 1000] },
+        { r1divider: 'kΩ', r2divider: 'kΩ', resistance: 'kΩ', current: 'mA' }],
+    ['dc-wire-voltage-drop', { supplyVoltage: 12, loadCurrent: 5, oneWayLength: 10, material: 'copper',
+        temperature: 20, sizeMode: 'area', area: 2 },
+        { oneWayResistance: '0.086205', loopResistance: '0.172410', voltageDrop: '0.86205',
+            loadVoltage: '11.13795', percentDrop: '7.184', powerLoss: '4.310' }],
+    ['rc-transients', { resistance: 10, capacitance: 100, initialVoltage: 2, sourceVoltage: 12, time: 1 },
+        { timeConstant: '1.00', capacitorVoltage: '8.321', resistorVoltage: '3.679', current: '0.3679',
+            charge: '0.8321', energy: ['3.462', 1000] }, { resistance: 'kΩ', time: 's', current: 'mA', charge: 'mC' }],
+    ['rl-transients', { resistance: 10, inductance: 100, initialCurrent: 0, sourceVoltage: 5, time: 10 },
+        { timeConstant: '10', finalCurrent: '0.500', current: '0.3161', resistorVoltage: '3.161',
+            inductorVoltage: '1.839', energy: ['4.995', 1000] }],
+    ['rlc-impedance', { resistance: 10, inductance: 100, capacitance: 100, frequency: 100, voltage: 10 },
+        { inductiveReactance: '62.832', capacitiveReactance: '15.915', imaginary: '46.916',
+            impedanceMagnitude: '47.970', phase: '77.97', current: '0.2085', realPower: '0.4346',
+            resonantFrequency: '50.33' }],
+    ['ac-power-factor', { voltage: 120, current: 5, mode: 'power-factor', powerFactor: 0.8, direction: 'lagging' },
+        { apparentPower: '600', realPower: '480', reactivePower: '360', phase: '36.87' }],
+    ['speaker-impedance', { mode: 'parallel', count: '2', r1: 8, r2: 16, sourceMode: 'voltage', rmsVoltage: 12 },
+        { equivalentImpedance: '5.333', totalCurrent: '2.25', totalPower: '27',
+            'raw.components.0.current': '1.50', 'raw.components.1.current': '0.75',
+            'raw.components.0.power': '18', 'raw.components.1.power': '9' }]
+];
+
+// Representative final results as printed in the Result section (which may
+// use different units or precision than the detailed substitution).
+export const resultValues = {
+    'pipe-flow': [9.425, 0.007854, 2000], 'pipe-pressure-drop': [2.109, 0.2150, 1],
+    'pump-hydraulic-power': [200, 250, 0.50, 20.39], 'hydraulic-cylinder-speed': [15.71, 10.05, 25.76],
+    'pneumatic-air-consumption': [15.46, 154.57], 'multilayer-insulation': [2.87, 0.3484],
+    'wall-heat-loss': [120, 1.20], 'wall-mounting': [60, 400, 100, 200, 66.7, 50],
+    'ohms-law': [2, 24], 'circuit-studio': [30, 400, 0.36, 160, 75, 1.92],
+    'kirchhoff-circuit': [4, 2, 1, -1, 15], 'electrical-divider': [6, 4, 33.3],
+    'dc-wire-voltage-drop': [0.862, 7.184, 11.138, 4.310], 'rc-transients': [8.321, 3.462, 0.8321, 0.3679, 3.679],
+    'rl-transients': [0.3161, 0.500, 3.161, 1.839, 4.995], 'rlc-impedance': [47.970, 77.97, 0.4346, 0.2085, 50.33, 1],
+    'ac-power-factor': [480, 360, 600, 36.87], 'speaker-impedance': [5.333, 2.25, 27, 18, 9]
+};

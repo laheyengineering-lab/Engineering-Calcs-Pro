@@ -84,7 +84,20 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>A 10 Ω resistor and 100 mH inductor have a time constant of 10 ms. A 5 V step starting from zero current approaches 0.5 A. At 10 ms the current reaches about 0.3161 A and the inductor voltage is about 1.839 V.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>A series circuit has \(R=10\ \Omega\), \(L=100\ \mathrm{mH}\) and initial current \(I_0=0\ \mathrm{A}\). The source steps to \(V_s=5\ \mathrm{V}\). Evaluate at \(t=10\ \mathrm{ms}\).</p>
+            <h3>Find</h3>
+            <p>Find time constant, final current, current and voltages at 10 ms, and energy stored in the inductor.</p>
+            <h3>Solution</h3>
+            <div>\[ \tau=\frac{L}{R}=\frac{0.100}{10}=0.010\ \mathrm{s}=10\ \mathrm{ms} \]</div>
+            <div>\[ I_\infty=\frac{V_s}{R}=\frac{5}{10}=0.500\ \mathrm{A} \]</div>
+            <div>\[ \begin{aligned}i(t)&=I_\infty+(I_0-I_\infty)e^{-t/\tau}\\ i(0.010)&=0.500-0.500e^{-1}\\ &\approx0.3161\ \mathrm{A}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}v_R&=iR\approx(0.3161)(10)=3.161\ \mathrm{V}\\ v_L&=V_s-v_R\approx5-3.161=1.839\ \mathrm{V}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}E&=\tfrac12 Li^2\approx\tfrac12(0.100)(0.316060)^2\\ &\approx4.995\ \mathrm{mJ}\end{aligned} \]</div>
+            <h3>Result</h3>
+            <p>After <strong>10 ms</strong>, current is <strong>0.3161 A</strong> and is approaching a steady <strong>0.500 A</strong>. The drops are <strong>3.161 V</strong> across the resistor and <strong>1.839 V</strong> across the inductor, which stores <strong>4.995 mJ</strong>.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

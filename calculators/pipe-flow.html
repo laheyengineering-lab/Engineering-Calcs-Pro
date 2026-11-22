@@ -73,7 +73,25 @@
 </section>
 <section class="content-card">
     <h2>Worked example</h2>
-    <p>A 100 mm internal diameter at 0.02 m/s gives 9.425 L/min. At 1 cSt, Reynolds number is 2,000, in the approximate laminar regime.</p>
+    <div class="example-box">
+        <h3>Given</h3>
+        <p>In Average velocity mode, water fills a circular pipe of internal diameter \(D=100\ \mathrm{mm}\). Enter mean speed \(v=0.020\ \mathrm{m/s}\), density \(\rho=1000\ \mathrm{kg/m^3}\) and kinematic viscosity \(\nu=1\ \mathrm{cSt}\).</p>
+        <h3>Find</h3>
+        <p>Find cross-sectional area \(A\), volume flow \(Q\), Reynolds number and flow regime.</p>
+        <h3>Solution</h3>
+        <div>\[ D=100\ \mathrm{mm}=0.100\ \mathrm{m} \]</div>
+        <div>\[ \nu=1\ \mathrm{cSt}=10^{-6}\ \mathrm{m^2/s} \]</div>
+        <div>\[ A=\frac{\pi D^2}{4}=\frac{\pi(0.100)^2}{4} \]</div>
+        <div>\[ A\approx0.007854\ \mathrm{m^2} \]</div>
+        <div>\[ Q=Av\approx(0.007854)(0.020) \]</div>
+        <div>\[ Q\approx1.5708\times10^{-4}\ \mathrm{m^3/s} \]</div>
+        <p>Multiply by \(1000\ \mathrm{L/m^3}\) and \(60\ \mathrm{s/min}\).</p>
+        <div>\[ Q\approx(1.5708\times10^{-4})(60{,}000) \]</div>
+        <div>\[ Q\approx9.425\ \mathrm{L/min} \]</div>
+        <div>\[ \mathrm{Re}=\frac{vD}{\nu}=\frac{(0.020)(0.100)}{10^{-6}}=2000 \]</div>
+        <h3>Result</h3>
+        <p>Flow is <strong>9.425 L/min</strong> through <strong>0.007854 m²</strong>. The dimensionless Reynolds number of <strong>2000</strong> is below the calculator’s approximate laminar cutoff of 2300.</p>
+    </div>
     <h2>Practical application</h2>
     <p>Compare proposed pipe diameters before estimating friction or fitting losses.</p>
     <h2>Related calculators</h2>

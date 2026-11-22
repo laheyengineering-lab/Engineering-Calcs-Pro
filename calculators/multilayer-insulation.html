@@ -73,7 +73,20 @@
 </section>
 <section class="content-card">
     <h2>Worked example</h2>
-    <p>100 mm of insulation at 0.04 W/(m·K) plus material R = 0.20 m²·K/W gives 2.70 m²·K/W. With surface films of 0.13 and 0.04, total R is 2.87 m²·K/W and U is 0.3484 W/(m²·K).</p>
+    <div class="example-box">
+        <h3>Given</h3>
+        <p>A wall path includes a 100 mm insulation layer with \(k=0.04\ \mathrm{W/(m\cdot K)}\) and a second layer with direct material resistance \(R_2=0.20\ \mathrm{m^2 K/W}\). Interior and exterior surface resistances are \(R_{si}=0.13\) and \(R_{se}=0.04\ \mathrm{m^2 K/W}\), respectively.</p>
+        <h3>Find</h3>
+        <p>Find each layer’s resistance, total series resistance including both surface films, and U-factor.</p>
+        <h3>Solution</h3>
+        <div>\[ t_1=100\ \mathrm{mm}=0.100\ \mathrm{m} \]</div>
+        <div>\[ R_1=\frac{t_1}{k}=\frac{0.100}{0.04}=2.50\ \mathrm{m^2 K/W} \]</div>
+        <div>\[ \begin{aligned}R_{\rm mat}&=R_1+R_2=2.50+0.20\\ &=2.70\ \mathrm{m^2 K/W}\end{aligned} \]</div>
+        <div>\[ \begin{aligned}R_{\rm total}&=R_{si}+R_{\rm mat}+R_{se}\\ &=0.13+2.70+0.04\\ &=2.87\ \mathrm{m^2 K/W}\end{aligned} \]</div>
+        <div>\[ U=\frac{1}{R_{\rm total}}=\frac{1}{2.87}\approx0.3484\ \mathrm{W/(m^2 K)} \]</div>
+        <h3>Result</h3>
+        <p>This series path has <strong>R = 2.87 m²·K/W</strong> and <strong>U = 0.3484 W/(m²·K)</strong>. Framing and other parallel heat paths can change whole-wall performance.</p>
+    </div>
     <h2>Practical application</h2>
     <p>Compare insulation paths through continuous assemblies. Use product-specific thermal properties at the relevant conditions.</p>
     <h2>Related calculators</h2>

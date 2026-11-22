@@ -54,7 +54,10 @@
     <h2>Engineering Theory</h2>
 
     <h3>Governing Equations</h3>
-    <div class="formula-box" id="profileEquation">\[ \sigma = \frac{M c}{I} \]</div>
+    <div class="formula-box" id="profileEquation">\[ M=5{,}000\ \mathrm{N\cdot m}=5{,}000{,}000\ \mathrm{N\cdot mm} \]
+</p>
+<p>
+\[ \sigma = \frac{M c}{I} \]</div>
 
     <p>This calculator derives the cross-section properties and evaluates elastic bending stress for a supplied moment. It does <strong>not</strong> solve beam loads, reactions or deflection.</p>
 
@@ -214,7 +217,7 @@ Maximum bending stress
 </p>
 
 <p>
-\[ I = \frac{b h^3}{12} = \frac{50 \times 100^3}{12} = 4{,}166{,}667\ \mathrm{mm}^4 \]
+\[ \begin{aligned}I&=\frac{bh^3}{12}=\frac{50(100)^3}{12}\\ &\approx4{,}166{,}667\ \mathrm{mm^4}\end{aligned} \]
 </p>
 
 <p>
@@ -222,7 +225,7 @@ Maximum bending stress
 </p>
 
 <p>
-\[ \sigma = \frac{M c}{I} = \frac{5{,}000{,}000\ \mathrm{N}\cdot\mathrm{mm} \times 50\ \mathrm{mm}}{4{,}166{,}667\ \mathrm{mm}^4} = 60\ \mathrm{MPa} \]
+\[ \begin{aligned}\sigma &= \frac{Mc}{I}\approx\frac{5{,}000{,}000(50)}{4{,}166{,}667}\\ &=60\ \mathrm{MPa}\end{aligned} \]
 </p>
 
 <p>
@@ -234,7 +237,17 @@ Maximum bending stress
 </p>
 
 <h3>Non-symmetric T-section example</h3>
-<p>A T-section with \(H=120\ \mathrm{mm}\), \(B=80\ \mathrm{mm}\), \(t_f=10\ \mathrm{mm}\), and \(t_w=8\ \mathrm{mm}\) has area \(1{,}680\ \mathrm{mm}^2\). Summing flange and web rectangles gives \(\bar y=83.5714\ \mathrm{mm}\) above the bottom, \(I_x=2{,}402{,}571.43\ \mathrm{mm}^4\), and \(I_y=431{,}360\ \mathrm{mm}^4\). For \(M_x=5{,}000\ \mathrm{N\,m}\), \(c_x=83.5714\ \mathrm{mm}\) and \(\sigma_x=173.921\ \mathrm{MPa}\). The centroid and both inertias can be checked independently from the two non-overlapping rectangles using the parallel-axis theorem.</p>
+<p><strong>Given:</strong> A T-section has \(H=120\ \mathrm{mm}\), \(B=80\ \mathrm{mm}\), \(t_f=10\ \mathrm{mm}\), and \(t_w=8\ \mathrm{mm}\). Apply \(M_x=5000\ \mathrm{N\,m}\) about the horizontal centroidal axis.</p>
+<p><strong>Find:</strong> section properties and the maximum bending stress magnitude.</p>
+<p><strong>Solution:</strong> Split the shape into an 80 × 10 mm flange and an 8 × 110 mm web. Their centroids are 115 mm and 55 mm above the bottom.</p>
+<div>\[ A=80(10)+8(110)=1680\ \mathrm{mm^2} \]</div>
+<div>\[ \begin{aligned}\bar y&=\frac{\sum A_i y_i}{A}=\frac{800(115)+880(55)}{1680}\\ &\approx83.5714\ \mathrm{mm}\end{aligned} \]</div>
+<p>Apply the parallel-axis theorem about the horizontal axis. Both rectangles are centered on the vertical axis.</p>
+<div>\[ \begin{aligned} I_x&=\sum(I_{x,i}+A_i(y_i-\bar y)^2)\\ &\approx \frac{80(10)^3+8(110)^3}{12}\\ &\quad +800(31.4286)^2+880(28.5714)^2\\ &\approx2{,}402{,}571\ \mathrm{mm^4}\end{aligned} \]</div>
+<div>\[ \begin{aligned}I_y&=\frac{10(80)^3+110(8)^3}{12}\\ &=431{,}360\ \mathrm{mm^4}\end{aligned} \]</div>
+<div>\[ \begin{aligned}c_x&=\max(\bar y,H-\bar y)\\ &\approx\max(83.5714,36.4286)\ \mathrm{mm}\end{aligned} \]</div>
+<div>\[ \begin{aligned}|\sigma_x|&=\frac{|M_x|c_x}{I_x}\\ &\approx\frac{5{,}000{,}000(83.5714)}{2{,}402{,}571}\\ &\approx173.921\ \mathrm{MPa}\end{aligned} \]</div>
+<p><strong>Result:</strong> The bottom fiber is farther from the neutral axis and carries the maximum stress magnitude, <strong>173.921 MPa</strong>.</p>
 
 </div>
 

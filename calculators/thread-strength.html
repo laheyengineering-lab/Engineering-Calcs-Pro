@@ -147,10 +147,12 @@
         <h2>Worked Example</h2>
         <div class="example-box">
             <p><strong>Given:</strong> nominal diameter 10 mm, pitch 1.5 mm, entered stress area \(A_r=61.2\ \mathrm{mm^2}\), engagement 15 mm, tensile load 10 kN, and both entered nominal strengths 400 MPa.</p>
-            <p>\[ P_{bolt}=61.2(400)=24{,}480\ \mathrm{N}=24.48\ \mathrm{kN}, \qquad \sigma_{applied}=\frac{10{,}000}{61.2}=163.4\ \mathrm{MPa} \]</p>
-            <p>\[ U_{bolt}=\frac{10}{24.48}=40.85\%, \quad A_{s,int}\approx \pi(10)(15)(0.5413)=255.1\ \mathrm{mm^2} \]</p>
+            <p><strong>Find:</strong> applied tensile stress, nominal capacities and governing utilization.</p>
+            <p><strong>Solution:</strong> Use the entered stress area and convert the tensile load to 10,000 N.</p>
+            <p>\[ \begin{aligned}P_{\rm bolt}&=A_rS_u=61.2(400)=24{,}480\ \mathrm{N}\\ &=24.48\ \mathrm{kN}\\ \sigma_{\rm applied}&=F/A_r=10{,}000/61.2\\ &\approx163.4\ \mathrm{MPa}\end{aligned} \]</p>
+            <p>\[ \begin{aligned}U_{\rm bolt}&=F/P_{\rm bolt}=10/24.48\approx40.85\%\\ A_{\rm s,int}&=0.5413\pi D L_e\\ &=0.5413\pi(10)(15)\approx255.1\ \mathrm{mm^2}\end{aligned} \]</p>
             <p>\[ P_{strip,int}\approx 255.1(0.577)(400)=58.9\ \mathrm{kN} \]</p>
-            <p>The fastener tensile capacity governs this simplified comparison. The 61.2 mm² area is treated strictly as the entered example value; common M10×1.5 tensile-stress-area tables give about 58.0 mm², so verify the area against the actual thread standard rather than attributing 61.2 mm² to M10×1.5.</p>
+            <p><strong>Result:</strong> The applied stress is 163.4 MPa. The 24.48 kN fastener tensile capacity governs at 40.85% utilization in this simplified comparison. This case uses the entered area of 61.2 mm². Common M10×1.5 tensile-stress-area tables give about 58.0 mm². Use the area for the actual thread specification in practice.</p>
         </div>
     </section>
     <section class="content-card">

@@ -3,6 +3,7 @@
 - **Architecture.** Formula Foundry is a static HTML, CSS, and JavaScript application with no production build or backend. Node.js and Vitest are development and test tooling.
 - **Repository guidance.** Consult [calculator architecture](docs/calculator-architecture.md), [calculator development](docs/calculator-development-guide.md), and [testing](docs/testing.md) as relevant. For trivial changes, read only the files needed for the task.
 - **Engineering correctness.** Preserve dimensional consistency, unit conversions, sign conventions, engineering assumptions, numerical precision, and input validation. Use independently derived known-answer tests for changes to engineering mathematics.
+- **Worked examples.** Require Given → Find → Solution → Result. Show rendered numerical substitutions and verify the published case independently against the production calculator. Prose-only result summaries fail review.
 - **Shared systems.** Reuse the existing unit and material libraries, calculator registry, DOM-free calculation engines, Design Study adapters, diagram infrastructure, and reporting systems where applicable.
 - **Documentation accuracy.** When documentation and code disagree, follow implemented behavior and flag the discrepancy.
 - **Scope.** Make the smallest change that meets the requirements. Avoid unrelated refactors, dependency upgrades, unnecessary abstractions, and wholesale rewrites.

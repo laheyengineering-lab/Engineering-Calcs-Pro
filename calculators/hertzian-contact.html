@@ -176,14 +176,20 @@
 <section class="content-card">
 <h2>Worked Example</h2>
 <div class="example-box">
-<p><strong>Two spheres:</strong> D<sub>1</sub> = D<sub>2</sub> = 50 mm (equivalent R = 12.5 mm), F = 1000 N, both steel with E = 200 GPa and ν = 0.30.</p>
+<p><strong>Given:</strong> For two spheres, D<sub>1</sub> = D<sub>2</sub> = 50 mm (equivalent R = 12.5 mm), F = 1000 N, both steel with E = 200 GPa and ν = 0.30. For parallel cylinders, both diameters are 100 mm, contact length is 40 mm and normal force is 20 kN. Enter the stated elastic properties manually for both cases.</p>
+<p><strong>Find:</strong> contact radius, peak pressure and approach for spheres, and line-contact half-width and peak pressure for cylinders.</p>
+<p><strong>Solution:</strong> Both cases use the same reduced modulus. The equivalent radius is half the individual radius for identical convex bodies. For the spheres, \(R=12.5\ \mathrm{mm}=0.0125\ \mathrm{m}\).</p>
 <p>
-\[ E^* = \frac{1}{2(1-0.3^2)/200\ \mathrm{GPa}} = 109.89\ \mathrm{GPa} \qquad a = \left(\frac{3(1000)(0.0125)}{4(109.89\times10^9)}\right)^{1/3} = 0.4402\ \mathrm{mm} \]
+\[ \begin{aligned}E^*&=\frac{1}{2(1-0.3^2)/(200\ \mathrm{GPa})}\\ &\approx109.89\ \mathrm{GPa}\\ a&=\left(\frac{3FR}{4E^*}\right)^{1/3}\\ &\approx\left(\frac{3(1000)(0.0125)}{4(109.89\times10^9)}\right)^{1/3}\\ &\approx0.4402\ \mathrm{mm}\end{aligned} \]
 </p>
 <p>
-\[ p_{max} = \frac{3(1000)}{2\pi (0.4402\times10^{-3})^2} = 2464\ \mathrm{MPa} \qquad \delta = \frac{a^2}{R} = 0.0155\ \mathrm{mm} \]
+\[ \begin{aligned}p_{\max}&=\frac{3F}{2\pi a^2}\approx\frac{3(1000)}{2\pi(0.4402\times10^{-3})^2}\\ &\approx2464\ \mathrm{MPa}\\ \delta&=\frac{a^2}{R}\approx\frac{0.4402^2}{12.5}\\ &\approx0.0155\ \mathrm{mm}\end{aligned} \]
 </p>
-<p><strong>Two cylinders:</strong> D<sub>1</sub> = D<sub>2</sub> = 100 mm (equivalent R = 25 mm), L = 40 mm, F = 20 kN, steel/steel (E = 200 GPa, ν = 0.30): w = 500 N/mm, b = 0.3806 mm, p<sub>max</sub> = 836.4 MPa.</p>
+<p>For the cylinders, \(R=25\ \mathrm{mm}\). Divide by contact length to obtain the load per unit length, then use the line-contact equations.</p>
+<div>\[ w=F/L=20{,}000/40=500\ \mathrm{N/mm} \]</div>
+<div>\[ \begin{aligned}b&=\sqrt{\frac{4wR}{\pi E^*}}\approx\sqrt{\frac{4(500)(25)}{\pi(109{,}890)}}\\ &\approx0.3806\ \mathrm{mm}\end{aligned} \]</div>
+<div>\[ p_{\max}=\frac{2w}{\pi b}\approx\frac{2(500)}{\pi(0.38057)}=836.4\ \mathrm{MPa} \]</div>
+<p><strong>Result:</strong> The spheres give a 0.4402 mm contact radius, 2464 MPa peak pressure and 0.0155 mm approach. The cylinders give a 0.3806 mm half-width and 836.4 MPa peak pressure. These are elastic contact estimates.</p>
 </div>
 </section>
 <section class="content-card">

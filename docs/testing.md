@@ -50,6 +50,12 @@ When a material value is corrected on purpose, update the affected expectation w
 npm test
 ```
 
+## Worked-example checks
+
+The suite checks the example structure for every active calculator and compares published cases with independently calculated reference values. CI downloads the two KaTeX scripts at the version pinned by the production loader and checks the rendered math and any remaining raw delimiters.
+
+To include the rendering check locally, set `FORMULA_FOUNDRY_KATEX_DIR` to a directory containing `katex.min.js` and `contrib/auto-render.min.js` from the version in `js/katex-loader.js`. Run `npm test` with that environment variable set. Without it, the rendering check is skipped and the structural and numerical checks still run.
+
 ## Run one test file
 
 ```bash
