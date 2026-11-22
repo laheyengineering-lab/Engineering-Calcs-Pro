@@ -257,7 +257,7 @@ describe('beam deflection calculator', () => {
         expect(svg).toBeTruthy();
         expect(svg.getAttribute('aria-label')).toContain('pin and roller supports');
         expect(svg.textContent).toContain('Simply supported beam with center point load');
-        expect(svg.textContent).toContain('Deflected shape illustrative — not to scale');
+        expect(svg.textContent).toContain('Deflected shape · exaggerated');
 
         setInputValue(document, 'beamLength', 3.125);
         document.getElementById('beamLength').dispatchEvent(new window.Event('input', { bubbles: true }));
@@ -286,7 +286,7 @@ describe('beam deflection calculator', () => {
         slider.dispatchEvent(new window.Event('input', { bubbles: true }));
         expect(document.getElementById('beamLength').value).toBe('3');
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(0.3375, 4);
-        expect(document.querySelector('#beamDiagram svg .beam-diagram-dimension-label').textContent).toContain('L = 3 m');
+        expect(document.querySelector('#beamDiagram svg .ff-label-dim').textContent).toContain('L = 3 m');
         expect(document.querySelector('#beamDiagram svg [role="slider"]')).toBeNull();
     });
 
@@ -316,7 +316,8 @@ describe('beam deflection calculator', () => {
         slider.value = '750';
         slider.dispatchEvent(new window.Event('input', { bubbles: true }));
         expect(document.getElementById('pointLoad').value).toBe('-750');
-        expect(document.querySelector('#beamDiagram .beam-diagram-load').getAttribute('y1')).toBe('184');
+        const shaft = document.querySelector('#beamDiagram .ff-arrow-force .ff-arrow-shaft');
+        expect(Number(shaft.getAttribute('y1'))).toBeGreaterThan(Number(shaft.getAttribute('y2')));
         expect(extractLeadingNumber(getResultValueText(document))).toBeCloseTo(-0.075, 6);
 
         setSelectValue(document, 'loadingCase', 'ss-udl');
@@ -384,22 +385,25 @@ describe('beam deflection calculator', () => {
         window.calculateBeamDeflection();
 
         const svg = document.querySelector('#beamDiagram svg');
-        expect(svg.querySelector('.beam-diagram-dimension')).toBeTruthy();
+        expect(svg.querySelector('.ff-dimension')).toBeTruthy();
         expect(svg.querySelector('[role="slider"]')).toBeNull();
         expect(Number(document.getElementById('beamLength').value)).toBe(2);
     });
 
-    it('draws negative uniform loads below the beam with upward-pointing arrows', () => {
+    it('draws upward applied arrows and downward reactions for a negative uniform load', () => {
         const { document, window } = setup();
         setSelectValue(document, 'loadingCase', 'ss-udl');
         window.updateBeamDeflectionMode();
         setInputValue(document, 'distributedLoad', -1000);
         document.getElementById('distributedLoad').dispatchEvent(new window.Event('input', { bubbles: true }));
-        const loadElements = [...document.querySelectorAll('#beamDiagram .beam-diagram-load')];
-        expect(loadElements[0].getAttribute('y1')).toBe('193');
-        expect(loadElements[1].getAttribute('y1')).toBe('186');
-        expect(loadElements[1].getAttribute('y2')).toBe('133');
-        expect(document.querySelector('#beamDiagram .beam-diagram-deflection').getAttribute('d')).toContain('58');
+        const applied = [...document.querySelectorAll('#beamDiagram .ff-arrow-force .ff-arrow-shaft')];
+        const reactions = [...document.querySelectorAll('#beamDiagram .ff-arrow-reaction .ff-arrow-shaft')];
+        expect(applied).toHaveLength(9);
+        expect(applied.every((arrow) => Number(arrow.getAttribute('y1')) > Number(arrow.getAttribute('y2')))).toBe(true);
+        expect(reactions).toHaveLength(2);
+        expect(reactions.every((arrow) => Number(arrow.getAttribute('y1')) < Number(arrow.getAttribute('y2')))).toBe(true);
+        expect(document.querySelector('#beamDiagram .ff-mode-shape').getAttribute('d')).toContain('310 246');
+        expect(document.querySelector('#beamDiagram').textContent).toContain('w = -1000 N/m');
     });
 
     it('keeps invalid span geometry non-interactive and free of non-finite SVG coordinates', () => {
@@ -418,7 +422,7 @@ describe('beam deflection calculator', () => {
         window.updateBeamDeflectionMode();
         const unsupported = document.querySelector('#beamDiagram svg');
         expect(unsupported.getAttribute('aria-label')).toBe('Unsupported beam model');
-        expect(unsupported.querySelector('.beam-diagram-member')).toBeNull();
+        expect(unsupported.querySelector('rect')).toBeNull();
     });
 
     it('keeps SVG and slider range coordinates finite for extreme span values', () => {

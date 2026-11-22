@@ -2,101 +2,94 @@
     "use strict";
 
     const cases = {
-        "ss-point": { support: "simply-supported", load: "point", pointFraction: 0.5, name: "Simply supported beam with center point load" },
-        "ss-udl": { support: "simply-supported", load: "distributed", name: "Simply supported beam with full-span uniform load" },
-        "cant-point": { support: "cantilever", load: "point", pointFraction: 1, name: "Cantilever with free-end point load" },
-        "cant-udl": { support: "cantilever", load: "distributed", name: "Cantilever with full-span uniform load" }
+        "ss-point": { fixed: false, point: true, name: "Simply supported beam with center point load" },
+        "ss-udl": { fixed: false, point: false, name: "Simply supported beam with full-span uniform load" },
+        "cant-point": { fixed: true, point: true, name: "Cantilever with free-end point load" },
+        "cant-udl": { fixed: true, point: false, name: "Cantilever with full-span uniform load" }
     };
 
     function render(document, state) {
         const definition = cases[state.caseId];
         const diagram = root.FormulaFoundryDiagram;
         const label = definition
-            ? definition.name + "; " + (definition.support === "cantilever" ? "fixed-free support" : "pin and roller supports")
+            ? definition.name + "; " + (definition.fixed ? "fixed-free support" : "pin and roller supports")
             : "Unsupported beam model";
-        const svg = diagram.createSvg(
-            document,
-            "0 0 600 300",
+        const S = diagram.scene(document, {
+            size: [600, 383],
             label,
-            "Beam model and illustrative deflected shape"
-        );
-        const add = (tag, attrs, text) => diagram.add(document, svg, tag, attrs, text);
+            description: "The upper sketch shows the applied load and support reactions. The lower sketch illustrates the deflected shape."
+        });
+        const centered = { cls: "ff-label ff-label-small", anchor: "middle" };
         if (!definition) {
-            add("text", { x: 300, y: 150, class: "beam-diagram-note", "text-anchor": "middle" }, "Select a supported beam loading and support case");
-            return svg;
+            S.text(300, 174, "Select a supported beam loading and support case", centered);
+            return S.svg;
         }
-        const left = 60;
-        const right = 540;
-        const beamY = 126;
+
+        const left = 107, right = 513, middle = (left + right) / 2, y = 110;
         const span = Number.isFinite(state.span) && state.span > 0 ? state.span : null;
         const load = Number.isFinite(state.load) ? state.load : null;
-        const validLoad = load !== null && load !== 0;
-        const sign = validLoad && load < 0 ? -1 : 1;
-
-        add("text", { x: 300, y: 24, class: "beam-diagram-heading", "text-anchor": "middle" }, definition.name);
-        add("line", { x1: left, y1: beamY, x2: right, y2: beamY, class: "beam-diagram-member" });
-
-        if (definition.support === "cantilever") {
-            add("rect", { x: 39, y: 91, width: 18, height: 70, class: "beam-diagram-fixed-support" });
-            for (let y = 94; y <= 151; y += 10) add("line", { x1: 39, y1: y, x2: 29, y2: y + 10, class: "beam-diagram-hatch" });
-            add("text", { x: 48, y: 178, class: "beam-diagram-label", "text-anchor": "middle" }, "fixed");
+        const sign = Math.sign(load || 0);
+        S.text(300, 26, definition.name, { cls: "ff-label ff-label-strong", anchor: "middle" });
+        S.rect(left, y - 5, right - left, 10, "ff-body");
+        if (definition.fixed) {
+            S.fixedSupport(left, y - 25, y + 28, "left");
+            S.text(left, y + 58, "Fixed", centered);
+            S.text(right, y + 58, "Free", centered);
         } else {
-            add("polygon", { points: `${left},${beamY} ${left - 16},${beamY + 23} ${left + 16},${beamY + 23}`, class: "beam-diagram-support" });
-            add("polygon", { points: `${right},${beamY} ${right - 16},${beamY + 23} ${right + 16},${beamY + 23}`, class: "beam-diagram-support" });
-            add("circle", { cx: right, cy: beamY + 29, r: 5, class: "beam-diagram-roller" });
-            add("text", { x: left, y: 178, class: "beam-diagram-label", "text-anchor": "middle" }, "pin");
-            add("text", { x: right, y: 178, class: "beam-diagram-label", "text-anchor": "middle" }, "roller");
+            S.pinSupport(left, y + 5, 13);
+            S.rollerSupport(right, y + 5, 13);
+            S.text(left, y + 58, "Pin", centered);
+            S.text(right, y + 58, "Roller", centered);
         }
-
-        if (definition.load === "point") {
-            const loadX = left + (right - left) * definition.pointFraction;
-            const direction = sign > 0 ? 1 : -1;
-            const startY = beamY - direction * 58;
-            const endY = beamY - direction * 7;
-            add("line", { x1: loadX, y1: startY, x2: loadX, y2: endY, class: "beam-diagram-load" });
-            const headY = endY - direction * 2;
-            add("polygon", {
-                points: `${loadX},${endY} ${loadX - 7},${headY - direction * 10} ${loadX + 7},${headY - direction * 10}`,
-                class: "beam-diagram-load"
-            });
-            add("text", { x: loadX + 12, y: startY + 5, class: "beam-diagram-load-label" }, state.loadLabel || "P");
-        } else {
-            const loadLineY = sign > 0 ? 59 : 193;
-            const arrowStartY = sign > 0 ? 66 : 186;
-            add("line", { x1: left + 12, y1: loadLineY, x2: right - 12, y2: loadLineY, class: "beam-diagram-load" });
-            for (let x = left + 24; x <= right - 24; x += 64) {
-                const direction = sign > 0 ? 1 : -1;
-                const endY = beamY - direction * 7;
-                add("line", { x1: x, y1: arrowStartY, x2: x, y2: endY, class: "beam-diagram-load" });
-                add("polygon", {
-                    points: `${x},${endY} ${x - 5},${endY - direction * 8} ${x + 5},${endY - direction * 8}`,
-                    class: "beam-diagram-load"
-                });
+        const applied = (x) => {
+            const far = definition.point ? 52 : 66;
+            S.arrow(x, sign > 0 ? far : y - 8, x, sign > 0 ? y - 8 : far, { kind: "force" });
+        };
+        if (sign) {
+            if (definition.point) {
+                applied(definition.fixed ? right : middle);
+            } else {
+                S.line(left, 63, right, 63, "ff-accent-line");
+                for (let i = 0; i <= 8; i += 1) applied(left + i * (right - left) / 8);
             }
-            add("text", { x: right - 8, y: sign > 0 ? 52 : 210, class: "beam-diagram-load-label", "text-anchor": "end" }, state.loadLabel || "w");
+            const reaction = (x, name) => {
+                const top = 105, bottom = 151;
+                S.arrow(x, sign > 0 ? bottom : top, x, sign > 0 ? top : bottom, {
+                    kind: "reaction", label: name, labelX: x < left ? x - 9 : x + 11, labelY: 150, anchor: x < left ? "end" : "start"
+                });
+            };
+            reaction(left - 36, "R_A");
+            if (definition.fixed) {
+                S.momentArrow(left - 55, 88, 19, sign > 0 ? 109 : 252, sign > 0 ? 252 : 109,
+                    { label: "M_A", labelX: left - 67, labelY: 57 });
+            } else {
+                reaction(right + 29, "R_B");
+            }
         }
 
-        if (validLoad) {
-            const curveOffset = sign * 34;
-            const curve = definition.support === "cantilever"
-                ? `M ${left} ${beamY} C ${left + 170} ${beamY} ${right - 170} ${beamY + curveOffset * 0.45} ${right} ${beamY + curveOffset}`
-                : `M ${left} ${beamY} Q 300 ${beamY + curveOffset * 2} ${right} ${beamY}`;
-            add("path", { d: curve, class: "beam-diagram-deflection" });
-        }
-        add("text", { x: 300, y: 194, class: "beam-diagram-note", "text-anchor": "middle" }, "Deflected shape illustrative — not to scale");
-        add("line", { x1: left, y1: 230, x2: right, y2: 230, class: "beam-diagram-dimension" });
-        add("line", { x1: left, y1: 224, x2: left, y2: 236, class: "beam-diagram-dimension" });
-        add("line", { x1: right, y1: 224, x2: right, y2: 236, class: "beam-diagram-dimension" });
-        add("text", { x: 300, y: 220, class: "beam-diagram-dimension-label", "text-anchor": "middle" },
-            "L = " + (state.spanDisplay || (span === null ? "enter span" : String(span))) + (state.lengthUnit ? " " + state.lengthUnit : ""));
-        if (state.maxDeflection !== undefined && Number.isFinite(state.maxDeflection)) {
-            add("text", { x: 300, y: 276, class: "beam-diagram-result", "text-anchor": "middle" },
-                "Calculated |δmax| = " + state.maxDeflection + " " + (state.deflectionUnit || ""));
-        } else {
-            add("text", { x: 300, y: 276, class: "beam-diagram-note", "text-anchor": "middle" }, "Calculate to show the actual maximum deflection");
-        }
+        const symbol = definition.point ? "P" : "w";
+        const loadText = load === null ? "Enter " + symbol : (state.loadLabel && state.loadLabel !== symbol
+            ? state.loadLabel : symbol + " = " + diagram.formatNumber(load) + (state.loadUnit ? " " + state.loadUnit : ""));
+        S.text(300, 147, loadText, { cls: "ff-label ff-label-force", anchor: "middle" });
+        const spanText = span === null ? "enter span" : diagram.formatNumber(span) + (state.lengthUnit ? " " + state.lengthUnit : "");
+        S.dimension(left, y + 63, right, y + 63, "L = " + spanText, { offset: 21 });
 
-        return svg;
+        const reference = 281, deflected = reference + sign * 35;
+        S.text(24, 240, "Deflected shape · exaggerated", { cls: "ff-label ff-label-strong" });
+        S.centerline(left - 9, reference, right + 9, reference);
+        if (sign) {
+            const curve = definition.fixed
+                ? `M ${left} ${reference} C ${left + 110} ${reference} ${right - 122} ${reference + sign * (definition.point ? 19 : 23)} ${right} ${deflected}`
+                : `M ${left} ${reference} C ${left + 68} ${reference + sign * (definition.point ? 20 : 22)} ${middle - 66} ${deflected} ${middle} ${deflected}
+                    C ${middle + 66} ${deflected} ${right - 68} ${reference + sign * (definition.point ? 20 : 22)} ${right} ${reference}`;
+            S.path(curve, "ff-mode-shape ff-mode-selected");
+            const peak = definition.fixed ? right : middle;
+            S.dimension(peak, Math.min(reference, deflected), peak, Math.max(reference, deflected), "|δ_{max}|", { offset: -20 });
+        }
+        S.text(300, 363, Number.isFinite(state.maxDeflection)
+            ? "Calculated |δ_{max}| = " + diagram.formatNumber(state.maxDeflection) + (state.deflectionUnit ? " " + state.deflectionUnit : "")
+            : "Calculate to show the actual maximum deflection", centered);
+        return S.svg;
     }
 
     root.FormulaFoundryBeamDeflectionDiagram = { render };

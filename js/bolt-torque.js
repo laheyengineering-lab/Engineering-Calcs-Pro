@@ -21,6 +21,7 @@ function calculateBoltTorque() {
             <h3>Invalid Input</h3>
             <p>Please select a bolt size, enter clamp load, and verify nut factor.</p>
         `;
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         return;
     }
 
@@ -60,6 +61,7 @@ function calculateBoltTorque() {
         <p>= <strong>${formattedTorqueNm} N·m</strong></p>
         <p>= <strong>${formattedOutput} ${outputUnit}</strong></p>
     `;
+    window.FormulaFoundryCalculatorDiagramPage?.publish({ torque: output, torqueUnit: outputUnit });
 }
 
 function updateDiameterDisplay() {

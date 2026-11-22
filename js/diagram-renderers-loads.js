@@ -1,316 +1,362 @@
 (function (root) {
     "use strict";
 
-    // Renderers for load-and-motion calculators: Moment, Bearing Life, Cylinder Force,
-    // Helical Spring and Shaft Torsion. Each renderer draws from a small model of
-    // existing calculator inputs; none of them solves an engineering equation.
-
     const registry = root.FormulaFoundryCalculatorDiagrams;
     const diagram = root.FormulaFoundryDiagram;
     const { T } = registry;
-    const unitless = (text) => text;
 
-    function q(h, value, unit) {
-        return h.quantity(value, unit);
-    }
+    const quantity = (h, value, unit) => h.quantity(value, unit);
+    const small = { cls: "ff-label ff-label-small" };
+    const heading = { cls: "ff-label ff-label-strong" };
+    const centered = { anchor: "middle" };
 
-    // ---------------------------------------------------------------- Moment
     registry.register("moment", {
         title: "Moment of a force about a pivot",
-        caption: "Schematic of M = F·d. The calculator takes d as the perpendicular distance from the pivot to the line of action of F; the force direction is illustrative.",
+        caption: "Schematic of M = F·d. The input distance is the perpendicular moment arm. In this view, positive force acts upward on the right of the pivot and gives a counter-clockwise moment.",
         schema: { force: T.num(), forceUnit: T.unit(), distance: T.pos(), distanceUnit: T.unit(), moment: T.num(), momentUnit: T.unit() },
         build(document, m, h) {
             const S = diagram.scene(document, {
                 size: [520, 300],
                 label: "Moment of a force about a pivot with perpendicular distance",
-                description: "A lever pivots at O. A force F acts perpendicular to the lever at distance d, producing moment M."
+                description: "The lever extends to the right of the pivot. The sign of force sets the direction of the force arrow and the corresponding sense of rotation."
             });
-            const sense = m.force < 0 ? -1 : 1;
-            const O = [100, 145], A = [360, 145];
-            S.rect(O[0], O[1] - 7, A[0] - O[0], 14, "ff-body-muted");
-            S.polygon([[O[0], O[1] - 7], [O[0] - 16, O[1] + 24], [O[0] + 16, O[1] + 24]], "ff-support-body");
-            S.groundHatch(O[0] - 26, O[0] + 26, O[1] + 24);
-            S.pivot(O[0], O[1], 6);
-            S.text(O[0] - 6, O[1] - 48, "O (pivot)", { anchor: "start" });
-            S.arrow(A[0], 62, A[0], A[1] - 8, { kind: "force" });
-            S.text(A[0] + 14, 78, "F = " + q(h, m.force, m.forceUnit), { cls: "ff-label ff-label-force" });
-            S.momentArrow(O[0], O[1], 36, sense > 0 ? 25 : 255, sense > 0 ? 255 : 25, { label: "M", labelX: O[0] - 44, labelY: O[1] + 52 });
-            S.dimension(O[0], O[1] + 12, A[0], A[1] + 12, "d = " + q(h, m.distance, m.distanceUnit), { offset: 56, extensions: true });
-            S.note(20, 270, "M = F·d; d is measured perpendicular to the force line.", "start");
+            const x = 116, y = 123, arm = 355;
+            S.construction(x, y - 21, x, y + 70);
+            S.construction(arm, 48, arm, y + 70);
+            S.rect(x, y - 7, arm - x, 14, "ff-body-muted");
+            S.pinSupport(x, y + 6, 14);
+            S.pivot(x, y, 6);
+            S.circle(arm, y, 4, "ff-body");
+            S.text(x + 25, y + 34, "O (pivot)", small);
+            if (m.force > 0 || m.force < 0) {
+                const positive = m.force > 0;
+                S.arrow(arm, y + (positive ? -5 : -64), arm, y + (positive ? -64 : -5), { kind: "force", label: "F", labelX: arm + 17, labelY: 64 });
+                S.momentArrow(x, y, 48, positive ? 17 : 176, positive ? 176 : 17, { label: "M", labelX: x, labelY: 61 });
+            }
+            S.dimension(x, y + 47, arm, y + 47, "d = " + quantity(h, m.distance, m.distanceUnit), { offset: 30 });
+            S.text(22, 247, "F = " + quantity(h, m.force, m.forceUnit), heading);
+            if (h.has(m.moment)) S.text(260, 247, "M = " + quantity(h, m.moment, m.momentUnit), heading);
+            S.note(22, 278, "Positive M is counter-clockwise. The arm d is perpendicular to F.", "start");
             return S.svg;
         }
     });
 
-    // --------------------------------------------------------- Bearing life
+    // The raceways are mirrored about the shaft axis in this axial section.
+    function bearingRace(S, yc, side, roller, outer) {
+        const face = (height) => yc + height * side;
+        const outside = outer ? 101 : 29;
+        const edge = roller ? (outer ? 82 : 48) : (outer ? 79 : 51);
+        const raceway = roller ? "H 190"
+            : "H 270 Q 242 " + face(outer ? 89 : 41) + " 214 " + face(edge) + " H 190";
+        S.hatchPath("M 190 " + face(outside) + " H 308 V " + face(edge) + " " + raceway + " Z");
+    }
+
     registry.register("bearing-life", {
         title: "Rolling-element bearing rating life",
-        caption: "Axial section through a rolling-element bearing (schematic). The calculator evaluates only the basic rating-life relation L10 = (C/P)^p, with C the catalogue dynamic load rating and P the equivalent dynamic load you supply; contact stress, lubrication, fatigue modification and combined radial/axial loading are not analysed.",
+        caption: "Axial section of a representative radial bearing. C is the catalog dynamic load rating. P is the equivalent dynamic load used in the rating-life equation. The arrow shows its radial reference direction and does not describe a load distribution across the rolling elements.",
         schema: {
             bearingType: T.pick(["ball", "roller"]),
             rating: T.pos(), ratingUnit: T.unit(), load: T.pos(), loadUnit: T.unit(),
-            speed: T.pos(), speedUnit: T.unit()
+            speed: T.pos(), speedUnit: T.unit(), lifeMillions: T.nonneg(), lifeHours: T.nonneg()
         },
         build(document, m, h) {
             const S = diagram.scene(document, {
-                size: [520, 400],
-                label: "Rolling-element bearing section with equivalent dynamic load P and dynamic load rating C",
-                description: "Axial section of a bearing showing the outer race, rolling elements, inner race and shaft. The equivalent dynamic load P acts through the bearing and is compared with the dynamic load rating C in the life equation."
+                size: [560, 397],
+                label: "Rolling-element bearing axial section and basic rating life quantities",
+                description: "A sectional shaft and paired raceways surround the rolling elements. The load arrow denotes the equivalent radial load used for the basic rating life calculation."
             });
             const roller = m.bearingType === "roller";
-            const cx = 280;
-            const ax = 170;
-            S.centerline(24, ax, 496, ax);
-            S.hatchRect(64, ax - 30, 392, 60);
-            [[0, -1], [1, 1]].forEach(([, side]) => {
-                const outerY = side < 0 ? ax - 108 : ax + 80;
-                const innerY = side < 0 ? ax - 58 : ax + 30;
-                const elementY = side < 0 ? ax - 70 : ax + 70;
-                S.hatchRect(cx - 62, outerY, 124, 28);
-                S.hatchRect(cx - 62, innerY, 124, 28);
-                if (roller) S.rect(cx - 22, elementY - 12, 44, 24, "ff-accent-body", { rx: 4 });
-                else S.circle(cx, elementY, 12, "ff-accent-body");
+            const y = 165;
+            S.text(22, 28, roller ? "Roller bearing · axial section" : "Ball bearing · axial section", heading);
+            S.hatchRect(79, y - 29, 372, 58);
+            [-1, 1].forEach((side) => {
+                bearingRace(S, y, side, roller, true);
+                bearingRace(S, y, side, roller, false);
+                const centerY = y + side * 65;
+                S.rect(207, centerY - 8, 81, 16, "ff-body-muted");
+                if (roller) S.rect(222, centerY - 17, 42, 34, "ff-accent-body", { rx: 2 });
+                else S.circle(242, centerY, 19, "ff-accent-body");
             });
-            S.arrow(cx, 20, cx, ax - 108, { kind: "force" });
-            S.text(cx + 12, 40, "P", { cls: "ff-label ff-label-force" });
-            S.construction(cx, ax - 108, cx, ax + 108);
-            S.arrow(cx, 354 - 40, cx, ax + 108 + 2, { kind: "reaction" });
-            S.text(cx + 12, 334 - 20, "reaction", { cls: "ff-label ff-label-reaction ff-label-small" });
-            S.momentArrow(466, ax, 14, 60, 300, { ry: 44, label: "n", labelX: 496, labelY: ax + 4 });
-
-            S.leader(cx - 40, ax - 94, 130, ax - 118, "outer race");
-            S.leader(cx - (roller ? 22 : 12), ax - 70, 130, ax - 92, roller ? "cylindrical roller" : "ball");
-            S.leader(cx - 40, ax - 44, 130, ax - 66, "inner race");
-            S.leader(100, ax + 12, 56, ax + 46, "shaft", { anchor: "start" });
-
-            S.lines(20, 360, [
-                "C = " + q(h, m.rating, m.ratingUnit) + "  basic dynamic load rating (catalogue capacity)",
-                "P = " + q(h, m.load, m.loadUnit) + "  equivalent dynamic load (your duty)"
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 396, "n = " + q(h, m.speed, m.speedUnit) + ".  Basic rating life only; schematic.", "start");
+            S.centerline(59, y, 476, y);
+            const spin = S.momentArrow(452, y, 20, -70, 160, { ry: 43 });
+            spin.setAttribute("class", "ff-arrow ff-arrow-motion");
+            S.text(477, y - 43, "n", small);
+            if (h.has(m.load)) {
+                S.arrow(285, 33, 285, y - 104, { kind: "force", label: "P", labelX: 302, labelY: 47 });
+            }
+            S.leader(195, y - 90, 158, 72, "Outer race");
+            S.leader(roller ? 225 : 229, y - 70, 151, 101, roller ? "Roller" : "Ball");
+            S.leader(195, y - 38, 151, 126, "Inner race");
+            S.leader(132, y + 20, 100, 212, "Shaft");
+            S.lines(22, 299, [
+                "C = " + quantity(h, m.rating, m.ratingUnit) + " · Basic dynamic load rating",
+                "P = " + quantity(h, m.load, m.loadUnit) + " · Equivalent dynamic load",
+                "n = " + quantity(h, m.speed, m.speedUnit) + " · Shaft speed"
+            ], small);
+            if (h.has(m.lifeMillions) || h.has(m.lifeHours)) {
+                S.text(22, 374, "L_{10} = " + quantity(h, m.lifeMillions, "million rev") + "   /   " + quantity(h, m.lifeHours, "h"), heading);
+            }
             return S.svg;
         }
     });
 
-    // -------------------------------------------------------- Cylinder force
     registry.register("cylinder-force", {
         title: "Double-acting single-rod cylinder",
-        caption: "Sectional schematic. The bore-to-rod diameter ratio d/D is drawn to scale (limited to a 0.92 maximum for legibility); lengths are not. Extension pressurises the full piston area Aₚ; retraction pressurises only the rod-side annular area Aₐ = Aₚ − Aᵣ. Zero back pressure is assumed. Any efficiency scales the calculated force, never the geometry.",
+        caption: "The cap-end chamber acts on the full piston face during extension. The rod-end chamber acts on the annulus during retraction. The opposite chamber is at zero gauge pressure in each case. The drawing limits extreme diameter ratios and uses schematic stroke and port lengths.",
         schema: {
             bore: T.pos(), rod: T.nonneg(), distanceUnit: T.unit(), pressure: T.pos(), pressureUnit: T.unit(),
-            efficiency: { t: "num", gt: 0, max: 100 }
+            efficiency: { t: "num", gt: 0, max: 100 },
+            pistonArea: T.nonneg(), annularArea: T.nonneg(), areaUnit: T.unit(),
+            extensionForce: T.nonneg(), retractionForce: T.nonneg(), forceUnit: T.unit()
         },
         build(document, m, h) {
-            const flag = {};
-            const ratio = h.ratio(m.rod, m.bore, 0, 0.92, 0.4, flag);
             const S = diagram.scene(document, {
-                size: [520, 400],
-                label: "Hydraulic cylinder sections showing full piston area for extension and annular area for retraction",
-                description: "Two sectional views of a single-rod cylinder. In extension, pressure acts on the full piston face. In retraction, pressure acts on the rod-side annulus only. End views show the full piston area and the annular area."
+                size: [560, 474],
+                label: "Cylinder force sections and effective piston faces in extension and retraction",
+                description: "A single-rod piston is shown with the cap-end chamber active for extension and the rod-end chamber active for retraction. Separate end views show the full and annular loaded faces."
             });
-            const hb = 38;
-            const hr = hb * ratio;
-            const draw = (yc, mode) => {
-                const ext = mode === "extension";
-                const x0 = 62, x1 = 74, g0 = 306, g1 = 318, p0 = 168, p1 = 184, rodEnd = 352;
-                if (ext) S.rect(x1, yc - hb, p0 - x1, 2 * hb, "ff-fill-pressure");
-                else {
-                    S.rect(p1, yc - hb, g0 - p1, hb - hr, "ff-fill-pressure");
-                    S.rect(p1, yc + hr, g0 - p1, hb - hr, "ff-fill-pressure");
+            const validDimensions = h.has(m.bore) && h.has(m.rod) && m.rod < m.bore;
+            const impossibleGeometry = h.has(m.bore) && h.has(m.rod) && !validDimensions;
+            const flag = {};
+            const ratio = validDimensions ? h.ratio(m.rod, m.bore, m.rod > 0 ? 0.035 : 0, 0.92, 0.45, flag) : 0.45;
+            const halfBore = 35, halfRod = halfBore * ratio;
+            const left = 64, right = 318, end = 368, wall = 10, ring = 42, faceX = 473;
+            const draw = (yc, extension) => {
+                const piston = 185, capPort = 104, rodPort = 276, pistonWidth = 19;
+                const top = yc - halfBore, bottom = yc + halfBore;
+                const activePort = extension ? capPort : rodPort;
+                const capFace = piston, rodFace = piston + pistonWidth;
+                const bubble = extension ? "Extension · cap end" : "Retraction · rod end";
+                S.text(22, yc - 81, bubble, heading);
+
+                const lowX = extension ? left + wall : rodFace;
+                const highX = extension ? capFace : right - wall;
+                S.rect(lowX, top, highX - lowX, 2 * halfBore, "ff-fill-pressure");
+                // Wall segments leave open gaps at the two ports.
+                S.hatchRect(left, top - wall, capPort - 6 - left, wall);
+                S.hatchRect(capPort + 6, top - wall, rodPort - capPort - 12, wall);
+                S.hatchRect(rodPort + 6, top - wall, right - rodPort - 6, wall);
+                S.hatchRect(left, bottom, right - left, wall);
+                S.hatchRect(left, top, wall, 2 * halfBore);
+                S.hatchRect(right - wall, top, wall, halfBore - halfRod);
+                S.hatchRect(right - wall, yc + halfRod, wall, halfBore - halfRod);
+                [capPort, rodPort].forEach((port) => {
+                    if (activePort === port) S.rect(port - 6, top - 25, 12, 25, "ff-fill-pressure");
+                    S.line(port - 6, top - 23, port - 6, top - wall);
+                    S.line(port + 6, top - 23, port + 6, top - wall);
+                });
+                if (ratio > 0) S.rect(rodFace, yc - halfRod, end - rodFace, 2 * halfRod, "ff-body");
+                S.hatchRect(piston, top + 1, pistonWidth, 2 * halfBore - 2);
+                S.line(piston + 6, top + 2, piston + 6, top + 10, "ff-outline");
+                S.line(piston + 6, bottom - 10, piston + 6, bottom - 2, "ff-outline");
+                S.centerline(left - 9, yc, end + 40, yc);
+                S.dimension(left, top, left, bottom, "D", { offset: 25 });
+                if (ratio > 0) S.leader(end - 18, yc + halfRod, end - 4, yc + 46, "d");
+                if (!impossibleGeometry) {
+                    const tip = ratio > 0 ? end : right;
+                    if (extension) {
+                        [-21, -10, 10, 21].forEach((dy) => S.arrow(capFace - 51, yc + dy, capFace - 2, yc + dy, { kind: "pressure" }));
+                        S.arrow(tip + 3, yc, tip + 43, yc, { kind: "force" });
+                    } else {
+                        const gap = (halfRod + halfBore) / 2;
+                        [-gap, gap].forEach((dy) => S.arrow(rodFace + 51, yc + dy, rodFace + 2, yc + dy, { kind: "pressure" }));
+                        S.arrow(tip + 43, yc, tip + 3, yc, { kind: "force" });
+                    }
                 }
-                S.hatchRect(x0, yc - hb - 11, g1 - x0, 11);
-                S.hatchRect(x0, yc + hb, g1 - x0, 11);
-                S.hatchRect(x0, yc - hb, x1 - x0, 2 * hb);
-                S.hatchRect(g0, yc - hb, g1 - g0, hb - hr);
-                S.hatchRect(g0, yc + hr, g1 - g0, hb - hr);
-                S.rect(p1, yc - hr, rodEnd - p1, 2 * hr || 0.01, "ff-body");
-                S.hatchRect(p0, yc - hb, p1 - p0, 2 * hb);
-                S.centerline(x0 - 8, yc, rodEnd + 10, yc);
-                if (ext) {
-                    [-26, -13, 0, 13, 26].forEach((dy) => S.arrow(110, yc + dy, p0 - 2, yc + dy, { kind: "pressure" }));
-                    S.text(112, yc - hb + 12, "p on A_p", { cls: "ff-label ff-label-pressure ff-label-small" });
-                    S.arrow(rodEnd, yc, rodEnd + 44, yc, { kind: "force" });
-                    S.text(rodEnd + 8, yc - 14, "F_ext", { cls: "ff-label ff-label-force" });
-                } else {
-                    [0.25, 0.75].forEach((k) => [-1, 1].forEach((side) => {
-                        const y = yc + side * (hr + (hb - hr) * k);
-                        S.arrow(236, y, p1 + 2, y, { kind: "pressure" });
-                    }));
-                    S.text(194, yc + hb + 28, "p on A_a only", { cls: "ff-label ff-label-pressure ff-label-small" });
-                    S.arrow(rodEnd + 44, yc, rodEnd + 2, yc, { kind: "force" });
-                    S.text(rodEnd + 12, yc - 14, "F_ret", { cls: "ff-label ff-label-force" });
-                }
-                S.dimension(x0, yc - hb, x0, yc + hb, "D", { offset: 16, extensions: false });
-                S.text(x0, yc - hb - 22, ext ? "Extension: cap side pressurised" : "Retraction: rod side pressurised", { cls: "ff-label ff-label-strong", anchor: "start" });
+                S.text(end + 6, yc - 14, extension ? "F_{ext}" : "F_{ret}", { cls: "ff-label ff-label-force" });
+
+                S.circle(faceX, yc, ring, "ff-fill-pressure");
+                S.circle(faceX, yc, ring, "ff-outline");
+                if (!extension && ratio > 0) S.circle(faceX, yc, ring * ratio, "ff-body");
+                S.centerline(faceX - 49, yc, faceX + 49, yc);
+                S.centerline(faceX, yc - 49, faceX, yc + 49);
+                S.text(faceX, yc + 66, extension ? "A_p · full face" : "A_a · annulus", { ...heading, ...centered });
+                const area = extension ? m.pistonArea : m.annularArea;
+                const force = extension ? m.extensionForce : m.retractionForce;
+                if (h.has(area)) S.text(faceX, yc + 90, quantity(h, area, m.areaUnit), { ...small, ...centered });
+                if (h.has(force)) S.text(left, yc + 71, (extension ? "F_{ext}" : "F_{ret}") + " = " + quantity(h, force, m.forceUnit) + " theoretical", heading);
             };
-            draw(100, "extension");
-            draw(272, "retraction");
-            // End views aligned with each mode
-            const endView = (cy, annular) => {
-                const R = 42, cx = 462;
-                S.circle(cx, cy, R, annular ? "ff-fill-annulus" : "ff-fill-pressure");
-                S.circle(cx, cy, R, "ff-outline");
-                if (ratio > 0.001) {
-                    S.circle(cx, cy, R * ratio, annular ? "ff-section" : "ff-ghost");
-                    if (annular) S.circle(cx, cy, R * ratio, "ff-outline");
-                }
-                S.text(cx, cy + R + 20, annular ? "A_a = A_p − A_r" : "A_p (full bore)", { anchor: "middle", cls: "ff-label ff-label-strong" });
-            };
-            endView(100, false);
-            endView(272, true);
-            S.lines(20, 370, [
-                "D = " + q(h, m.bore, m.distanceUnit) + ",  d = " + q(h, m.rod, m.distanceUnit) + ",  p = " + q(h, m.pressure, m.pressureUnit) + " (gauge)",
-                m.efficiency !== undefined ? "Efficiency η = " + q(h, m.efficiency, "%") + " (user estimate; scales force only, geometry unchanged)" : "Theoretical force: no efficiency applied."
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 392, flag.clamped ? "Rod diameter capped at 0.92 D in the drawing. Lengths not to scale." : "d/D drawn to scale; lengths not to scale.", "start");
+            draw(106, true);
+            draw(288, false);
+            S.lines(22, 403, [
+                "D = " + quantity(h, m.bore, m.distanceUnit) + "   d = " + quantity(h, m.rod, m.distanceUnit),
+                "p = " + quantity(h, m.pressure, m.pressureUnit) + " gauge"
+                    + (h.has(m.efficiency) ? "   ·   Assumed efficiency η = " + quantity(h, m.efficiency, "%") : "")
+            ], small);
+            const geometryNote = impossibleGeometry ? "Enter a rod diameter smaller than the bore."
+                : flag.clamped ? "Rod diameter exaggerated or capped for legibility."
+                : validDimensions ? "Diameters proportional. Axial lengths schematic." : "Enter bore and rod diameters to scale the section.";
+            S.note(22, 455, geometryNote, "start");
             return S.svg;
         }
     });
 
-    // ------------------------------------------------------------- Spring
-    function helixPoints(cx, R, y0, pitch, turns, steps) {
-        const points = [];
-        const total = Math.round(turns * steps);
-        for (let i = 0; i <= total; i += 1) {
-            const t = i / steps;
-            points.push([cx + R * Math.sin(2 * Math.PI * t), y0 + pitch * t]);
+    // An orthographic projection keeps the front and back half-turns distinct without perspective.
+    function drawSpring(S, cx, top, travel, turns, wire, radius) {
+        const projection = (t) => {
+            const angle = t * 2 * Math.PI;
+            return [cx - radius * Math.cos(angle), top + t * travel / turns];
+        };
+        const paths = [];
+        for (let start = 0; start < turns; start += 0.5) {
+            const span = Math.min(0.5, turns - start);
+            const points = [];
+            for (let i = 0; i <= 20; i += 1) {
+                points.push(projection(start + i * span / 20));
+            }
+            paths.push("M " + points.map(([x, y]) => x.toFixed(1) + " " + y.toFixed(1)).join(" L "));
         }
-        return points;
+        [1, 0].forEach((side) => {
+            const group = S.group(side === 1 ? "ff-helix-rear" : "ff-helix-front", side === 1 ? { opacity: 0.62 } : {});
+            paths.forEach((path, index) => {
+                if (index % 2 === side) {
+                    group.path(path, "ff-wire-outline").setAttribute("stroke-width", String(wire + 2));
+                    group.path(path, "ff-wire-core").setAttribute("stroke-width", String(Math.max(1, wire - 1)));
+                }
+            });
+        });
     }
 
     registry.register("spring-calculations", {
         title: "Helical compression spring",
-        caption: "Schematic of a round-wire helical compression spring. d/D is drawn to scale (within drawing limits); the number of coils drawn is limited for legibility, and the loaded compression is exaggerated and not to scale. Free length is not a calculator input. Coil bind, nonlinear behaviour and buckling are not modelled.",
+        caption: "Round-wire compression spring with symbolic end seats and active coil turns. Wire and turn count have drawing limits. The change in seat position illustrates calculated axial deflection at an exaggerated scale. The calculator models a static elastic spring.",
         schema: {
             wire: T.pos(), coil: T.pos(), coils: T.pos(), force: T.nonneg(), distanceUnit: T.unit(),
             forceUnit: T.unit(), deflection: T.nonneg()
         },
         build(document, m, h) {
-            const flag = {};
-            const ratio = h.ratio(m.wire, m.coil, 0.04, 0.45, 0.12, flag);
             const S = diagram.scene(document, {
-                size: [520, 420],
-                label: "Helical compression spring in free and loaded states with wire diameter, mean coil diameter, active coils, force and deflection",
-                description: "Two views of a helical compression spring. The free spring shows wire diameter d, mean coil diameter D, outside diameter and free length. The loaded spring shows axial force F compressing the spring by an exaggerated deflection."
+                size: [560, 399],
+                label: "Compression spring with mean coil diameter, wire diameter and axial deflection",
+                description: "The unloaded and loaded spring share a lower seat. The upper seat moves down when a positive deflection is available. A ghost line marks its unloaded position."
             });
-            const R = 46;
-            const wire = h.clamp(2 * R * ratio, 4, 22);
-            const turns = h.has(m.coils) ? h.clamp(Math.round(m.coils), 3, 8) : 5;
-            const pitch = wire + 9;
-            const free = turns * pitch;
-            const compress = h.has(m.force) && m.force > 0 ? 0.3 : 0;
-            const loadedPitch = Math.max(wire + 1.5, pitch * (1 - compress));
-            const top = 100;
-            const platesAt = (cx, height, ghostTop) => {
-                S.rect(cx - R - 26, top - 12, 2 * R + 52, 10, "ff-body-muted");
-                S.rect(cx - R - 26, top + height + 2, 2 * R + 52, 10, "ff-body-muted");
-                S.groundHatch(cx - R - 26, cx + R + 26, top + height + 12);
-                if (ghostTop !== undefined) S.line(cx - R - 26, ghostTop, cx + R + 26, ghostTop, "ff-ghost");
-            };
-            const spring = (cx, pitchPx) => {
-                const points = helixPoints(cx, R, top + wire / 2 + 1, pitchPx, turns, 28);
-                const height = turns * pitchPx + wire / 2;
-                const d = "M " + points.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" L ");
-                S.path(d, "ff-wire-outline").setAttribute("stroke-width", String(wire + 3));
-                S.path(d, "ff-wire-core").setAttribute("stroke-width", String(Math.max(1.5, wire - 1.5)));
-                return height;
-            };
-            const freeCx = 150;
-            const freeH = spring(freeCx, pitch);
-            platesAt(freeCx, freeH);
-            S.centerline(freeCx, top - 24, freeCx, top + freeH + 28);
-            S.dimension(freeCx - R, top - 12, freeCx + R, top - 12, "D", { offset: -22, extensions: true });
-            S.dimension(freeCx - R - wire / 2, top + freeH + 12, freeCx + R + wire / 2, top + freeH + 12, "OD = D + d", { offset: 46, extensions: true });
-            S.dimension(freeCx - R - 40, top - 2, freeCx - R - 40, top + freeH + 2, "L_f", { offset: 10, extensions: false });
-            S.leader(freeCx - R, top + wire / 2 + 1 + pitch * 0.75, freeCx - R - 36, top + freeH / 2 - 14, "d");
-            S.text(freeCx, top - 56, "Free", { cls: "ff-label ff-label-strong", anchor: "middle" });
-
-            const loadedCx = 390;
-            const loadedH = spring(loadedCx, loadedPitch);
-            platesAt(loadedCx, loadedH, top + free + 2);
-            S.centerline(loadedCx, top - 24, loadedCx, top + free + 28);
-            S.arrow(loadedCx, top - 60, loadedCx, top - 14, { kind: "force" });
-            S.text(loadedCx + 12, top - 36, "F = " + q(h, m.force, m.forceUnit), { cls: "ff-label ff-label-force" });
-            S.text(loadedCx, top - 74, "Loaded (compression exaggerated)", { cls: "ff-label ff-label-strong", anchor: "middle" });
-            if (compress > 0) {
-                S.dimension(loadedCx + R + 30, top - 2, loadedCx + R + 30, top + (free - loadedH) - 2, h.has(m.deflection) ? "δ = " + q(h, m.deflection, m.distanceUnit) : "δ", { offset: -8, extensions: false });
+            const radius = 50, first = 144, second = 407, seat = 279, freeTop = 100;
+            const validDiameters = h.has(m.wire) && h.has(m.coil) && m.coil > m.wire;
+            const turns = h.has(m.coils) ? h.clamp(m.coils, 2, 8) : 5;
+            const displacement = m.deflection > 0 && m.force !== 0 ? 32 : 0;
+            const loadedTop = freeTop + displacement;
+            // Leave visible space between turns at all drawing sizes. This is no coil-bind check.
+            const wireLimit = Math.min(20, (seat - loadedTop - 4 * turns) / (turns + 1));
+            const wire = validDiameters ? h.ratio(m.wire, m.coil, 0.038, wireLimit / (2 * radius), 0.09) * 2 * radius : 9;
+            function elevation(cx, top, fixed) {
+                S.centerline(cx, freeTop - 17, cx, seat + 21);
+                drawSpring(S, cx, top + wire / 2, seat - top - wire, turns, wire, radius);
+                S.rect(cx - 67, top - 8, 134, 8, "ff-body-muted");
+                S.rect(cx - 67, seat, 134, 8, "ff-body-muted");
+                if (fixed) S.groundHatch(cx - 67, cx + 67, seat + 8);
             }
-            const annotationY = Math.max(300, top + freeH + 108, top + loadedH + 108);
-            S.lines(20, annotationY, [
-                "d = " + q(h, m.wire, m.distanceUnit) + ",  D = " + q(h, m.coil, m.distanceUnit),
-                "Active coils N_a = " + q(h, m.coils) + " (" + turns + " drawn)"
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, annotationY + 54, "Free length L_f is not an input. Deflection drawn is illustrative.", "start");
-            S.note(20, annotationY + 74, "Elastic, static round-wire spring only; no coil-bind or buckling check.", "start");
+
+            S.text(first, 29, "Unloaded reference", { ...heading, ...centered });
+            S.text(second, 29, "Under axial load", { ...heading, ...centered });
+            elevation(first, freeTop, false);
+            elevation(second, loadedTop, true);
+
+            S.dimension(first - radius, freeTop - 9, first + radius, freeTop - 9, "D", { offset: -26 });
+            S.leader(first - radius, freeTop + wire / 2 + (seat - freeTop - wire) / turns, 57, 186, "d");
+            if (m.force > 0) {
+                S.arrow(second, 48, second, loadedTop - 10, { kind: "force", label: "F", labelX: second + 16, labelY: 67 });
+            }
+            if (displacement) {
+                S.line(second - 68, freeTop - 8, second + 67, freeTop - 8, "ff-ghost");
+                S.dimension(second + 67, freeTop - 8, second + 67, loadedTop - 8, "δ", { offset: -20 });
+            }
+            S.lines(22, 325, [
+                "Wire d = " + quantity(h, m.wire, m.distanceUnit),
+                "Mean diameter D = " + quantity(h, m.coil, m.distanceUnit),
+                "Active coils N_a = " + quantity(h, m.coils)
+            ], small);
+            S.lines(290, 325, [
+                "F = " + quantity(h, m.force, m.forceUnit),
+                "Axial deflection δ = " + quantity(h, m.deflection, m.distanceUnit)
+            ], small);
+            let note = displacement ? "Seat displacement exaggerated; free length is unspecified."
+                : m.deflection === 0 ? "Zero axial deflection; free length is unspecified."
+                    : "Free length is unspecified. Seat displacement requires a calculated result.";
+            if (h.has(m.wire) && h.has(m.coil) && !validDiameters) note = "Mean coil diameter must exceed wire diameter.";
+            if (validDiameters && h.has(m.coils) && turns !== m.coils) note += " The drawing limits the visible number of turns.";
+            S.note(22, 375, note, "start");
             return S.svg;
         }
     });
 
-    // ------------------------------------------------------- Shaft torsion
     registry.register("shaft-torsion", {
         title: "Circular shaft in torsion",
-        caption: "Schematic of a solid or hollow circular shaft carrying a constant torque T, with an equal and opposite reaction torque at the other end. The twist drawn is exaggerated. Shear stress varies linearly with radius: from zero at the centre of a solid shaft, or from nonzero τ_inner at the inner wall of a hollow shaft, to τ_max at the outer surface, per τ = Tr/J.",
+        caption: "Uniform circular shaft with opposed applied and reaction torques. Positive torque is counter-clockwise as viewed from the loaded end. Surface twist is exaggerated. In the end view shear is tangential, rising from the centre of a solid shaft, or from nonzero τ_inner at the wall of a hollow shaft, to its peak at the outer surface.",
         schema: {
             shaftType: T.pick(["solid", "hollow"]), torque: T.num(), torqueUnit: T.unit(),
             outer: T.pos(), inner: T.nonneg(), diameterUnit: T.unit(), length: T.pos(), lengthUnit: T.unit(),
             twist: T.num(), twistUnit: T.unit(), tauMax: T.num(), stressUnit: T.unit()
         },
         build(document, m, h) {
+            const S = diagram.scene(document, {
+                size: [560, 377],
+                label: "Circular shaft with opposing torques and tangential shear at the loaded end",
+                description: "The side elevation shows applied and reaction torques and the shape of an illustrative surface trace. The end section distinguishes solid and hollow geometry. The longest shear arrow is at the outer surface."
+            });
             const flag = {};
             const hollow = m.shaftType === "hollow";
-            const ratio = hollow ? h.ratio(m.inner, m.outer, 0.1, 0.9, 0.5, flag) : 0;
-            const S = diagram.scene(document, {
-                size: [560, 372],
-                label: "Circular shaft with equal and opposite end torques, angle of twist and linear shear stress distribution",
-                description: "A side view shows a shaft of length L with torque T at one end and an equal and opposite reaction torque at the other, plus an exaggerated twist of a surface line. An end view shows shear stress rising linearly with radius to the maximum at the outer surface."
-            });
-            const sense = m.torque < 0 ? -1 : 1;
-            const x0 = 56, x1 = 316, cy = 130, hh = 44;
-            S.centerline(x0 - 16, cy, x1 + 70, cy);
-            S.path("M " + x0 + " " + (cy - hh) + " L " + x1 + " " + (cy - hh) + " A 12 " + hh + " 0 0 1 " + x1 + " " + (cy + hh) + " L " + x0 + " " + (cy + hh) + " A 12 " + hh + " 0 0 1 " + x0 + " " + (cy - hh) + " Z", "ff-body");
-            S.path("M " + x0 + " " + (cy - hh) + " A 12 " + hh + " 0 0 0 " + x0 + " " + (cy + hh), "ff-outline");
-            if (hollow) {
-                const hi = hh * ratio;
-                S.line(x0, cy - hi, x1, cy - hi, "ff-construction");
-                S.line(x0, cy + hi, x1, cy + hi, "ff-construction");
+            const boreValid = hollow && h.has(m.outer) && h.has(m.inner) && m.inner < m.outer;
+            const invalidBore = hollow && h.has(m.outer) && h.has(m.inner) && m.inner >= m.outer;
+            const ratio = boreValid ? h.ratio(m.inner, m.outer, m.inner > 0 ? 0.04 : 0, 0.93, 0.5, flag) : hollow ? 0.5 : 0;
+            const sense = Math.sign(m.torque || 0);
+            const x0 = 79, x1 = 315, y = 135, r = 37, ex = 456, endRadius = 54;
+            S.text(23, 28, hollow ? "Hollow shaft · elevation" : "Solid shaft · elevation", heading);
+            S.text(ex, 28, "Loaded-end section", { ...heading, ...centered });
+            S.path("M " + x0 + " " + (y - r) + " H " + x1 + " A 10 37 0 0 1 " + x1 + " " + (y + r) + " H " + x0
+                + " A 10 37 0 0 1 " + x0 + " " + (y - r) + " Z", "ff-body");
+            S.path("M " + x1 + " " + (y - r) + " A 10 37 0 0 0 " + x1 + " " + (y + r), "ff-outline");
+            if (ratio > 0) {
+                S.construction(x0, y - r * ratio, x1, y - r * ratio);
+                S.construction(x0, y + r * ratio, x1, y + r * ratio);
             }
-            const twistShift = sense * 20;
-            S.line(x0, cy - hh * 0.55, x1, cy - hh * 0.55, "ff-ghost");
-            S.path("M " + x0 + " " + (cy - hh * 0.55) + " C " + (x0 + 90) + " " + (cy - hh * 0.55) + " " + (x1 - 90) + " " + (cy - hh * 0.55 - twistShift) + " " + x1 + " " + (cy - hh * 0.55 - twistShift), "ff-accent-line");
-            S.text((x0 + x1) / 2, cy - hh - 16, "surface line twists by θ (exaggerated)", { cls: "ff-label ff-label-small", anchor: "middle" });
-            S.momentArrow(x1 + 14, cy, 24, sense > 0 ? -75 : 75, sense > 0 ? 75 : -75, { ry: 66, label: "T", labelX: x1 + 58, labelY: cy - 70 });
-            S.momentArrow(x0 - 14, cy, 24, sense > 0 ? 105 : 255, sense > 0 ? 255 : 105, { ry: 66, label: "T", labelX: x0 - 38, labelY: cy - 70 });
-            S.text(x0 - 26, cy + 82, "reaction torque", { cls: "ff-label ff-label-reaction ff-label-small", anchor: "start" });
-            S.text(x1 + 14, cy + 82, "applied torque", { cls: "ff-label ff-label-force ff-label-small", anchor: "start" });
-            S.dimension(x0, cy + hh, x1, cy + hh, "L = " + q(h, m.length, m.lengthUnit), { offset: 62, extensions: true });
+            S.centerline(x0 - 24, y, x1 + 34, y);
+            S.dimension(x0, y + r, x1, y + r, "L = " + quantity(h, m.length, m.lengthUnit), { offset: 54 });
+            const trace = y - 9;
+            S.line(x0 + 5, trace, x1 - 5, trace, "ff-ghost");
+            if (sense && !invalidBore) {
+                const twistSense = h.has(m.twist) ? Math.sign(m.twist) : sense;
+                if (twistSense) S.path("M " + (x0 + 5) + " " + trace + " Q 205 " + trace + " " + (x1 - 5) + " " + (trace - 16 * twistSense), "ff-accent-line");
+                const reaction = S.momentArrow(x0 - 18, y, 15, sense > 0 ? 245 : 115, sense > 0 ? 115 : 245, { ry: 52 });
+                reaction.setAttribute("class", "ff-arrow ff-arrow-reaction");
+                S.momentArrow(x1 + 13, y, 14, sense > 0 ? -63 : 63, sense > 0 ? 63 : -63, { ry: 52 });
+                S.text(33, 63, "Reaction −T", { cls: "ff-label ff-label-reaction" });
+                S.text(286, 63, "Applied T", { cls: "ff-label ff-label-force" });
+            }
+            S.text(197, 196, "Surface trace", { ...small, ...centered });
 
-            // End view
-            const ex = 456, ey = 150, R = 58;
-            S.circle(ex, ey, R, "ff-body");
-            if (hollow) S.circle(ex, ey, R * ratio, "ff-section");
-            if (hollow) S.circle(ex, ey, R * ratio, "ff-outline");
-            S.centerline(ex - R - 12, ey, ex + R + 12, ey);
-            S.centerline(ex, ey - R - 12, ex, ey + R + 12);
-            const r0 = hollow ? R * ratio : 0;
-            S.line(ex + r0, ey - 38 * (r0 / R) * sense, ex + R, ey - 38 * sense, "ff-construction");
-            if (hollow) {
-                const innerStress = 38 * r0 / R;
-                S.arrow(ex + r0, ey, ex + r0, ey - innerStress * sense, { kind: "stress" });
-                S.text(ex + r0 - 8, ey - innerStress * sense - 8, "τ_inner", { cls: "ff-label ff-label-small", anchor: "end" });
+            S.hatchPath("M " + (ex - endRadius) + " " + y + " a 54 54 0 1 0 108 0 a 54 54 0 1 0 -108 0 Z");
+            if (ratio > 0) S.circle(ex, y, endRadius * ratio, "ff-section");
+            S.centerline(ex - endRadius - 11, y, ex + endRadius + 26, y);
+            S.centerline(ex, y - endRadius - 12, ex, y + endRadius + 12);
+            if (sense && !invalidBore) {
+                const innerRadius = endRadius * ratio;
+                const fanHeight = 39;
+                S.construction(ex + innerRadius, y - fanHeight * ratio * sense, ex + endRadius, y - fanHeight * sense);
+                // Keep tangential shear arrows within the material stations shown on the horizontal radius.
+                const stations = ratio ? [innerRadius, (innerRadius + endRadius) / 2, endRadius] : [18, 36, endRadius];
+                stations.forEach((station) => {
+                    S.arrow(ex + station, y, ex + station, y - fanHeight * station / endRadius * sense, { kind: "stress" });
+                });
+                S.text(531, y - fanHeight * sense + 5, "τ_{max}", { ...small, ...centered });
+                if (ratio > 0) S.text(ex + 17, sense > 0 ? y + 70 : y - 73, "τ_{inner}", { ...small, ...centered });
             }
-            for (let k = 1; k <= 3; k += 1) {
-                const r = hollow ? r0 + (R - r0) * k / 3 : R * k / 3;
-                const len = 38 * (r / R) * sense;
-                if (Math.abs(len) > 4) S.arrow(ex + r, ey, ex + r, ey - len, { kind: "stress" });
-            }
-            S.text(ex + R + 10, ey - 38 * sense - (sense > 0 ? 2 : -14), "τ_max", { cls: "ff-label ff-label-accent", anchor: "start" });
-            S.momentArrow(ex, ey, R + 14, 40 * sense + 90, -40 * sense + 90, { label: "T", labelX: ex, labelY: ey - R - 26 });
-            S.dimension(ex - R, ey + R, ex + R, ey + R, "D = " + q(h, m.outer, m.diameterUnit), { offset: 22, extensions: true });
-            if (hollow) S.leader(ex - R * ratio * 0.7, ey - R * ratio * 0.7, ex - R - 24, ey - R * 0.9, "D_i = " + q(h, m.inner, m.diameterUnit), { anchor: "end" });
-            S.lines(20, 296, [
-                "T = " + q(h, m.torque, m.torqueUnit) + (h.has(m.twist) ? ",  θ = " + q(h, m.twist, m.twistUnit) : ""),
-                h.has(m.tauMax) ? "Calculated τ_max = " + q(h, m.tauMax, m.stressUnit) + " at the outer surface" : "τ_max = T·c / J at the outer surface (c = D/2)"
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 346, "Elastic torsion of a uniform circular shaft; sign gives torque sense only. Twist exaggerated.", "start");
+            S.dimension(ex - endRadius, y + endRadius, ex + endRadius, y + endRadius, "D_o", { offset: 35 });
+            if (ratio > 0) S.leader(ex - ratio * endRadius * 0.7, y - ratio * endRadius * 0.7, 417, 69, "D_i", { anchor: "end" });
+
+            S.lines(22, 275, [
+                "T = " + quantity(h, m.torque, m.torqueUnit),
+                "θ = " + quantity(h, m.twist, m.twistUnit),
+                "Outer-surface τ_{max} = " + quantity(h, m.tauMax, m.stressUnit)
+            ], small);
+            S.lines(367, 275, [
+                "D_o = " + quantity(h, m.outer, m.diameterUnit),
+                ...(hollow ? ["D_i = " + quantity(h, m.inner, m.diameterUnit)] : [])
+            ], small);
+            const note = invalidBore ? "Inner diameter must be smaller than outer diameter."
+                : flag.clamped ? "Twist exaggerated. Bore ratio adjusted for legibility."
+                : boreValid && !ratio ? "Zero inner diameter gives a solid section. Twist exaggerated."
+                : "Twist exaggerated. Positive torque is counter-clockwise viewed from the loaded end.";
+            S.note(22, 349, note, "start");
             return S.svg;
         }
     });

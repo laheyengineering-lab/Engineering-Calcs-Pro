@@ -16,6 +16,7 @@ function weldError(message) {
         <h3>Invalid Input</h3>
         <p>${escapeHtml(message)}</p>
     `;
+    window.FormulaFoundryCalculatorDiagramPage?.publish();
 }
 
 function readWeldNumber(id) {
@@ -107,11 +108,13 @@ function calculateFilletWeld() {
             <hr>
             <p><em>This is a simplified weld-metal calculation, not a code-compliant connection approval. A weld that passes may still fail another applicable connection or base-metal check.</em></p>
         `;
+        window.FormulaFoundryCalculatorDiagramPage?.publish({ throat: legOut(r.throatM) });
     } catch (error) {
         weldEl("result").innerHTML = `
             <h3>Calculation Error</h3>
             <p>${escapeHtml(error.message)}</p>
         `;
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
     }
 }
 

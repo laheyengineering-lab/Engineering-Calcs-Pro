@@ -44,6 +44,7 @@ function updateMaterialShearModulus() {
 
 function calculateShaftTorsion() {
     const report = window.FormulaFoundryReport;
+    const drawing = window.FormulaFoundryCalculatorDiagramPage;
     report?.clearResult();
 
     const shaftType = torsionShaftTypeSelect.value;
@@ -69,6 +70,7 @@ function calculateShaftTorsion() {
             <h3>Invalid Input</h3>
             <p>Please enter torque, diameter, shaft length, and shear modulus.</p>
         `;
+        drawing?.publish();
         return;
     }
     
@@ -78,6 +80,7 @@ function calculateShaftTorsion() {
             <h3>Invalid Input</h3>
             <p>Please enter a non-negative inner diameter for hollow shafts.</p>
         `;
+        drawing?.publish();
         return;
     }
     
@@ -116,6 +119,10 @@ function calculateShaftTorsion() {
         `;
         
         torsionResultPanel.innerHTML = resultHTML;
+        drawing?.publish({
+            twist: thetaDegrees, twistUnit: "°", tauMax: tauMaxOutput, stressUnit,
+            ...(isHollow && innerDiameterText === "" ? { inner: innerDiameter } : {})
+        });
 
         // The calculator still treats an empty bore as zero. Require an explicit
         // inner diameter to document a hollow-shaft calculation in the report.
@@ -168,6 +175,7 @@ function calculateShaftTorsion() {
             <h3>${heading}</h3>
             <p>${error.message}</p>
         `;
+        drawing?.publish();
     }
 }
 
@@ -189,6 +197,7 @@ function resetShaftTorsionCalculator() {
     
     updateShaftTorsionMode();
     torsionResultPanel.innerHTML = "Ready to calculate.";
+    window.FormulaFoundryCalculatorDiagramPage?.reset?.();
 }
 
 // Initialize on page load

@@ -16,6 +16,7 @@ function hertzFmt(value) {
 }
 
 function hertzError(message) {
+    window.FormulaFoundryCalculatorDiagramPage?.publish();
     hertzEl("result").innerHTML = `
         <h3>Invalid Input</h3>
         <p>${escapeHtml(message)}</p>
@@ -98,6 +99,11 @@ function calculateHertzContact() {
     outputs.push({ label: "Mean contact pressure", value: s(r.meanPressure), unit: stressUnit });
     outputs.push({ label: "Approx. maximum shear stress (ν ≈ 0.3)", value: s(r.maxShear), unit: stressUnit });
     outputs.push({ label: "Depth of maximum shear", value: len(r.maxShearDepth), unit: contactUnit });
+
+    window.FormulaFoundryCalculatorDiagramPage?.publish({
+        contact: len(cyl ? r.halfWidth : r.contactRadius), contactUnit,
+        pressure: s(r.maxPressure), pressureUnit: stressUnit
+    });
 
     const lines = outputs.map((o) => `<p>${escapeHtml(o.label)}: ${hertzFmt(o.value)} ${escapeHtml(o.unit)}</p>`).join("");
     hertzEl("result").innerHTML = `

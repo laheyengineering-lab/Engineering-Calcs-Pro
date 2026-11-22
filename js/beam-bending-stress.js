@@ -150,8 +150,10 @@ function calculateBeamBendingStress() {
                 warnings: ["Verify the section properties and elastic-beam assumptions for the actual design."]
             });
         }
+        window.FormulaFoundryCalculatorDiagramPage?.publish({ stress: stressOutput, stressUnit });
         drawBeamSection();
     } catch (error) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         bendingResultPanel.innerHTML = `<h3>Invalid Input</h3><p>${bendingEscape(error.message)}</p>`;
         if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
     }

@@ -21,6 +21,7 @@ function pressFitError(message) {
         <h3>Invalid Input</h3>
         <p>${escapeHtml(message)}</p>
     `;
+    window.FormulaFoundryCalculatorDiagramPage?.publish();
 }
 
 // Reads a required positive/non-negative number from an input; returns null if invalid
@@ -145,11 +146,17 @@ function calculatePressFit() {
             <p><strong>Interpretation:</strong> ${escapeHtml(interpretPressFit(results.fosControlling, results.unscreenedMembers))}</p>
             <p><em>Friction results are idealized and use the assumed friction coefficient μ = ${escapeHtml(values.frictionCoefficient)}.</em></p>
         `;
+        window.FormulaFoundryCalculatorDiagramPage?.publish({
+            pressure: pOut, pressureUnit: stressUnit,
+            assemblyForce: forceOut, assemblyForceUnit: forceUnit,
+            torqueCapacity: torqueOut, torqueCapacityUnit: torqueUnit
+        });
     } catch (error) {
         pressFitEl("result").innerHTML = `
             <h3>Calculation Error</h3>
             <p>${escapeHtml(error.message)}</p>
         `;
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
     }
 }
 

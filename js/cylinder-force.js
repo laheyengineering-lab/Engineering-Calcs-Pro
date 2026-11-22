@@ -34,6 +34,7 @@ function cylinderForceError(message) {
         <p>${escapeHtml(message)}</p>
     `;
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
+    window.FormulaFoundryCalculatorDiagramPage?.publish();
 }
 
 // Pure SI math: bore, rod in m, pressure in Pa, efficiency as fraction (or null).
@@ -110,6 +111,14 @@ function calculateCylinderForce() {
         html += `<p><small>Theoretical force only; no efficiency factor was applied. Delivered force will be lower.</small></p>`;
     }
     cylinderForceEl("result").innerHTML = html;
+    window.FormulaFoundryCalculatorDiagramPage?.publish({
+        pistonArea: out.pistonArea,
+        annularArea: out.annularArea,
+        areaUnit,
+        extensionForce: out.extension,
+        retractionForce: out.retraction,
+        forceUnit
+    });
 
     if (window.FormulaFoundryReport) {
         const inputs = [
@@ -152,5 +161,6 @@ function resetCylinderForceCalculator() {
     cylinderForceEl("forceUnit").value = "kN";
     cylinderForceEl("areaUnit").value = "cm²";
     cylinderForceEl("result").innerHTML = "Ready to calculate.";
+    window.FormulaFoundryCalculatorDiagramPage?.reset?.();
     if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
 }

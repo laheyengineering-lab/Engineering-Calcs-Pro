@@ -119,7 +119,9 @@
     function formatNumber(value, significant = 4) {
         if (typeof value !== "number" || !Number.isFinite(value)) return "—";
         if (value === 0) return "0";
-        return String(Number(value.toPrecision(significant)));
+        const formatted = value.toPrecision(significant);
+        const rounded = Number(formatted);
+        return Number.isFinite(rounded) ? String(rounded) : value.toExponential();
     }
 
     // Plain-text label with optional subscripts/superscripts: "F_{ext}", "A_p", "d^2".
@@ -133,12 +135,8 @@
             const span = document.createElementNS(SVG_NS, "tspan");
             span.setAttribute("baseline-shift", match[1] === "_" ? "sub" : "super");
             span.setAttribute("class", "ff-script");
-            span.setAttribute("dy", match[1] === "_" ? "3" : "-5");
             span.textContent = match[2] !== undefined ? match[2] : match[3];
             element.appendChild(span);
-            const reset = document.createElementNS(SVG_NS, "tspan");
-            reset.setAttribute("dy", match[1] === "_" ? "-3" : "5");
-            element.appendChild(reset);
             last = pattern.lastIndex;
         }
         if (last < source.length) element.appendChild(document.createTextNode(source.slice(last)));

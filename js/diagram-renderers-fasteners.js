@@ -1,257 +1,287 @@
 (function (root) {
     "use strict";
 
-    // Renderers for joint calculators: Bolt Torque, Thread Strength, Fillet Weld Strength and Press Fit.
-    // They draw from small models of existing calculator inputs and never solve equations.
-
     const registry = root.FormulaFoundryCalculatorDiagrams;
     const diagram = root.FormulaFoundryDiagram;
     const { T } = registry;
-    const q = (h, value, unit) => h.quantity(value, unit);
+    const small = "ff-label ff-label-small";
 
-    // ----------------------------------------------------------- Bolt torque
+    function viewHeading(S, x, right, y, title) {
+        S.text(x, y, title, { cls: "ff-title", anchor: "start" });
+        S.line(x, y + 10, right, y + 10, "ff-extension");
+    }
+
     registry.register("bolt-torque", {
         title: "Bolted joint: tightening torque, preload and clamp load",
-        caption: "Conceptual section of a bolted joint for the lumped nut-factor model T = K·D·F. Torque T is a moment applied to the nut or head; it is not an axial force. The bolt carries tension F (preload) and the clamped members carry an equal compressive clamp force. The nut factor K lumps thread and bearing-surface friction together; the calculator does not compute their split, joint stiffness or grip length.",
+        caption: "Section through a bolt, two clamped members, and a nut. Torque T acts about the bolt axis. Bolt tension and member compression have the same magnitude F. The highlighted thread and bearing interfaces contribute to the lumped nut factor K. Joint proportions are schematic.",
         schema: {
             diameter: T.pos(), diameterUnit: T.unit(), clamp: T.pos(), clampUnit: T.unit(),
             nutFactor: T.pos(), torque: T.num(), torqueUnit: T.unit()
         },
         build(document, m, h) {
             const S = diagram.scene(document, {
-                size: [600, 420],
-                label: "Bolted joint section with tightening torque, bolt tension, clamp force, thread friction and bearing friction",
-                description: "A bolt passes through two clamped plates and is tightened with a nut. Torque acts as a moment about the bolt axis. The bolt shank is in tension while the plates between the head and nut are in compression. Friction acts at the threads and under the nut face."
+                size: [540, 367],
+                label: "Bolted joint section with torque, bolt tension, member compression and friction interfaces",
+                description: "A clearance hole passes through two hatched plates. Copper arrows pull the shank ends apart, while graphite arrows compress the plates. Tightening torque acts about the nut axis. Accents locate the nut bearing face and engaged threads."
             });
-            const cx = 270, shank = 22;
-            const top = 118, mid = 190, bot = 262;
-            S.hatchRect(cx - 120, top, 240, mid - top);
-            S.hatchRect(cx - 120, mid, 240, bot - mid);
-            S.line(cx - 120, mid, cx + 120, mid, "ff-outline-thin");
-            // Bolt: head (above), shank through holes, nut below.
-            S.rect(cx - shank / 2, top - 28, shank, bot - top + 28 + 44, "ff-body");
-            S.polygon([[cx - 40, top], [cx - 34, top - 28], [cx + 34, top - 28], [cx + 40, top]], "ff-body");
-            S.rect(cx - 36, bot, 72, 30, "ff-accent-body");
-            for (let y = bot + 4; y < bot + 48; y += 7) {
-                S.line(cx - shank / 2, y, cx + shank / 2, y + 3, "ff-thread-line");
+            viewHeading(S, 20, 520, 25, "Joint section");
+            const axis = 181, left = axis - 19, right = axis + 19;
+            const top = 110, split = 149, bottom = 188;
+            for (const [from, to] of [[top, split], [split, bottom]]) {
+                S.hatchRect(81, from, left - 5 - 81, to - from);
+                S.hatchRect(right + 5, from, 289 - right - 5, to - from);
             }
-            S.centerline(cx, top - 54, cx, bot + 70);
-            S.text(cx + 48, top - 10, "bolt head", { anchor: "start", cls: "ff-label ff-label-small" });
+            S.polygon([[left, top], [142, top], [142, 95], [151, 84], [211, 84], [220, 95], [220, top], [right, top],
+                [right, 233], [right - 6, 240], [left + 6, 240], [left, 233]], "ff-body-muted");
+            S.line(143, 96, 219, 96, "ff-outline-thin");
+            S.hatchPath(`M ${left} ${bottom} H 145 L 139 194 V 215 L 145 222 H ${left} Z`);
+            S.hatchPath(`M ${right} ${bottom} H 217 L 223 194 V 215 L 217 222 H ${right} Z`);
+            for (let y = 181; y < 229; y += 8) S.line(left, y + 4, right, y, "ff-thread-line");
+            S.centerline(axis, 67, axis, 269);
+            S.line(145, bottom, left - 6, bottom, "ff-contact-line");
+            S.line(right + 6, bottom, 217, bottom, "ff-contact-line");
+            S.line(right, 190, right, 221, "ff-failure-line");
 
-            // Torque on the nut: arc about the axis
-            S.momentArrow(cx, bot + 15, 62, 200, -20, { ry: 16, label: "T", labelX: cx + 78, labelY: bot + 30 });
-            S.text(cx - 40, bot + 78, "applied torque", { anchor: "end", cls: "ff-label ff-label-moment ff-label-small" });
+            S.leader(216, 91, 318, 70, "Bolt head");
+            S.leader(280, 131, 318, 122, "Clamped members");
+            S.leader(214, bottom, 318, 174, "Bearing friction at nut face");
+            S.leader(right, 209, 318, 215, "Friction at engaged threads");
+            S.momentArrow(axis, 249, 50, 195, 8, { ry: 15, label: "T", labelX: 246, labelY: 253 });
+            S.text(322, 255, "Tightening torque about axis", { cls: small, anchor: "start" });
 
-            // Bolt tension (in shank) vs clamp force (on plates)
-            S.arrow(cx + 5, top - 28, cx + 5, top - 60, { kind: "force" });
-            S.text(cx + 14, top - 48, "F (bolt tension = preload)", { cls: "ff-label ff-label-force ff-label-small", anchor: "start" });
-            S.arrow(cx - 134, top - 34, cx - 134, top - 2, { kind: "reaction" });
-            S.arrow(cx - 134, bot + 30, cx - 134, bot + 2, { kind: "reaction" });
-            S.text(cx - 144, mid - 6, "clamp force", { anchor: "end", cls: "ff-label ff-label-reaction ff-label-small" });
-            S.text(cx - 144, mid + 12, "(compression)", { anchor: "end", cls: "ff-label ff-label-reaction ff-label-small" });
+            if (m.clamp > 0) {
+                S.arrow(axis, split - 4, axis, top + 8, { kind: "force" });
+                S.arrow(axis, split + 4, axis, bottom - 9, { kind: "force" });
+                S.arrow(53, top - 16, 53, top + 8, { kind: "reaction" });
+                S.arrow(53, bottom + 17, 53, bottom - 8, { kind: "reaction" });
+            }
+            S.text(20, 146, "Clamp F", { cls: small, anchor: "start" });
+            S.text(322, 144, "Bolt preload F in shank", { cls: small, anchor: "start" });
+            S.dimension(left, 242, right, 242, "ØD", { offset: 42 });
 
-            // Friction interfaces
-            S.leader(cx + 36, bot + 2, 400, bot - 34, "bearing friction (nut face)", { anchor: "start" });
-            S.leader(cx + shank / 2, bot + 38, 400, bot + 50, "thread friction", { anchor: "start" });
-            S.leader(cx + 110, top + 30, 400, top + 20, "clamped members", { anchor: "start" });
-            S.dimension(cx - shank / 2, bot + 62, cx + shank / 2, bot + 62, "D = " + q(h, m.diameter, m.diameterUnit), { offset: 12, extensions: false });
-
-            S.lines(20, 352, [
-                "F = " + q(h, m.clamp, m.clampUnit) + ",  K = " + q(h, m.nutFactor),
-                h.has(m.torque) ? "Calculated T = K·D·F = " + q(h, m.torque, m.torqueUnit) : "T = K·D·F"
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 400, "Conceptual only: K lumps all friction. Grip length is not an input.", "start");
+            S.line(20, 316, 520, 316, "ff-extension");
+            S.lines(20, 336, [
+                "ØD = " + h.quantity(m.diameter, m.diameterUnit),
+                "F = " + h.quantity(m.clamp, m.clampUnit)
+            ], { cls: small, lineHeight: 18 });
+            S.lines(270, 336, [
+                "Nut factor K = " + h.quantity(m.nutFactor),
+                "Torque T = " + h.quantity(m.torque, m.torqueUnit)
+            ], { cls: small, lineHeight: 18 });
             return S.svg;
         }
     });
 
-    // --------------------------------------------------------- Thread strength
     registry.register("thread-strength", {
         title: "Threaded engagement: stripping versus tensile failure",
-        caption: "Section through an external thread (bolt) engaged in an internal thread (nut or tapped hole). Two different failure checks are made: fastener tensile failure across the tensile stress area, and internal-thread stripping across an approximate cylindrical shear area over the engagement length. Thread-by-thread load distribution is not modelled. Thread form is drawn schematically.",
+        caption: "The transverse dashed line locates a fastener tensile failure plane across the threaded section. The axial dashed lines trace the approximate internal-thread stripping surface at the major diameter. The number and shape of the interlocking teeth are schematic. The tensile check uses the entered stress area, and the stripping check requires an internal-thread material strength.",
         schema: {
             diameter: T.pos(), diameterUnit: T.unit(), engagement: T.pos(), engagementUnit: T.unit(),
-            pitch: T.nonneg(), load: T.nonneg(), loadUnit: T.unit()
+            pitch: T.nonneg(), load: T.nonneg(), loadUnit: T.unit(),
+            tensileCapacity: T.pos(), strippingCapacity: T.pos()
         },
         build(document, m, h) {
             const S = diagram.scene(document, {
-                size: [600, 420],
-                label: "Threaded engagement with axial tensile load, tensile failure plane and internal thread stripping surface",
-                description: "A bolt is threaded into an internal thread of length Le. Axial load F pulls the bolt out. The fastener can fail in tension across its stress area, or the internal threads can strip along a shear surface at about the nominal diameter over the engagement length."
+                size: [540, 419],
+                label: "Engaged threads, axial load, tensile failure plane and internal-thread stripping surface",
+                description: "A threaded fastener is shown in axial section engaged with a hatched internal member. Tension pulls the fastener upward; the supporting member is held downward. Dashed lines identify the transverse failure plane and the approximate cylindrical stripping surface."
             });
-            const cx = 210, R = 34;
-            const x0 = cx - R - 54, x1 = cx + R + 54;
-            const engTop = 170, engBot = 290;
-            // Internal member
-            S.hatchRect(x0, engTop, x1 - x0, engBot - engTop);
-            // bolt shank
-            S.rect(cx - R, 62, 2 * R, engBot + 26 - 62, "ff-body");
-            const tooth = 6;
-            for (let y = engTop; y < engBot - 2; y += 12) {
-                S.polygon([[cx - R, y], [cx - R - tooth, y + 6], [cx - R, y + 12]], "ff-body");
-                S.polygon([[cx + R, y], [cx + R + tooth, y + 6], [cx + R, y + 12]], "ff-body");
+            viewHeading(S, 20, 520, 25, "Thread engagement");
+            const cx = 170, minor = 24, major = 35, top = 151, bottom = 271;
+            const count = Math.round(h.ratio(m.engagement, m.pitch, 3, 10, 6));
+            const step = (bottom - top) / count;
+            const profile = [[minor, top]];
+            for (let i = 0; i < count; i++) {
+                const y = top + step * i;
+                profile.push([minor, y + step * 0.20], [major, y + step * 0.39], [major, y + step * 0.62],
+                    [minor, y + step * 0.81], [minor, y + step]);
             }
-            S.centerline(cx, 40, cx, engBot + 40);
-            S.line(cx - R, 62, cx + R, 62, "ff-outline");
-            // Applied load
-            S.arrow(cx, 100, cx, 44, { kind: "force" });
-            S.text(cx + 12, 60, "F = " + q(h, m.load, m.loadUnit), { cls: "ff-label ff-label-force", anchor: "start" });
-            S.arrow(x0 + 20, engBot + 30, x0 + 20, engBot + 2, { kind: "reaction" });
-            S.arrow(x1 - 20, engBot + 30, x1 - 20, engBot + 2, { kind: "reaction" });
-            S.text(x0 + 26, engBot + 44, "support reaction (schematic)", { cls: "ff-label ff-label-reaction ff-label-small", anchor: "start" });
+            const left = profile.map(([x, y]) => [cx - x, y]);
+            const right = profile.map(([x, y]) => [cx + x, y]);
+            const blockLeft = 84, blockRight = 256;
+            S.hatchPath(`M ${blockLeft} ${top} L ${left.map((p) => p.join(" ")).join(" ")} H ${blockLeft} Z`);
+            S.hatchPath(`M ${blockRight} ${top} L ${right.map((p) => p.join(" ")).join(" ")} H ${blockRight} Z`);
+            S.polygon([[cx - minor, 96], [cx + minor, 96], ...right, [cx + minor, 281], [cx - minor, 281], ...left.reverse()], "ff-body-muted");
+            S.centerline(cx, 51, cx, 297);
 
-            // Failure concepts
-            S.line(cx - R - 8, 130, cx + R + 8, 130, "ff-failure-line");
-            S.leader(cx + R + 8, 130, 330, 120, "fastener tensile failure plane (A_t)", { anchor: "start" });
-            S.line(cx + R + tooth + 1, engTop, cx + R + tooth + 1, engBot, "ff-failure-line");
-            S.line(cx - R - tooth - 1, engTop, cx - R - tooth - 1, engBot, "ff-failure-line");
-            S.leader(cx + R + tooth + 1, (engTop + engBot) / 2, 330, (engTop + engBot) / 2, "thread stripping shear surface", { anchor: "start" });
-            S.dimension(x0, engTop, x0, engBot, "L_e = " + q(h, m.engagement, m.engagementUnit), { offset: 22, extensions: true });
-            S.dimension(cx - R, 56, cx + R, 56, "D = " + q(h, m.diameter, m.diameterUnit), { offset: -10, extensions: false });
-            if (h.has(m.pitch) && m.pitch > 0) {
-                S.text(x1 + 6, engTop - 8, "pitch p = " + q(h, m.pitch, m.diameterUnit), { cls: "ff-label ff-label-small", anchor: "start" });
+            if (m.load > 0) {
+                S.arrow(cx, 92, cx, 54, { kind: "force" });
+                S.arrow(102, bottom + 3, 102, bottom + 27, { kind: "reaction" });
+                S.arrow(238, bottom + 3, 238, bottom + 27, { kind: "reaction" });
+                S.text(275, 294, "Support reactions", { cls: small, anchor: "start" });
             }
-            S.lines(20, 366, [
-                "Tensile check uses the entered tensile stress area A_t.",
-                "Stripping check uses an approximate shear area π·D·L_e·0.5413."
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 408, "Distinct failure modes; no thread-by-thread load distribution. Thread form schematic.", "start");
+            S.text(188, 72, "Axial load F = " + h.quantity(m.load, m.loadUnit), { cls: "ff-label ff-label-force", anchor: "start" });
+
+            const tensileY = top + step * 0.17;
+            S.line(cx - minor, tensileY, cx + minor, tensileY, "ff-failure-line");
+            S.line(cx - major, top, cx - major, bottom, "ff-failure-line");
+            S.line(cx + major, top, cx + major, bottom, "ff-failure-line");
+            S.leader(cx + minor, tensileY, 286, 125, "Fastener tensile plane (A_t)");
+            S.leader(cx + major, 225, 286, 220, "Internal-thread stripping surface");
+            S.dimension(blockLeft, top, blockLeft, bottom, "L_e", { offset: 26 });
+            S.dimension(cx - major, bottom + 5, cx + major, bottom + 5, "ØD", { offset: 36 });
+
+            S.line(20, 339, 520, 339, "ff-extension");
+            S.lines(20, 359, [
+                "Major ØD = " + h.quantity(m.diameter, m.diameterUnit),
+                "Engagement L_e = " + h.quantity(m.engagement, m.engagementUnit),
+                "Pitch p = " + h.quantity(m.pitch, m.diameterUnit)
+            ], { cls: small, lineHeight: 23 });
+            S.lines(272, 359, [
+                "Tensile capacity = " + h.quantity(m.tensileCapacity, m.loadUnit),
+                "Stripping capacity = " + h.quantity(m.strippingCapacity, m.loadUnit, h.has(m.tensileCapacity) ? "not assessed" : "—")
+            ], { cls: small, lineHeight: 23 });
             return S.svg;
         }
     });
 
-    // ------------------------------------------------------------ Fillet weld
     registry.register("fillet-weld", {
         title: "Fillet weld: leg size, effective throat and load direction",
-        caption: "Left: cross-section of an equal-leg fillet weld, showing the weld leg w and the effective throat tₑ = 0.707·w measured perpendicular to the hypotenuse (the throat is not the leg). Right: plan view of a weld of length L with the applied load at angle θ to the weld axis (0° longitudinal, 90° transverse), as in the AISC J2.4 directional-strength relation used by the calculator. Weld length is not to scale.",
+        caption: "The equal-leg section shows the effective throat measured perpendicular to the theoretical weld face. The plan view measures θ from the weld axis for the weld-metal strength check. The drawing represents one idealized weld, with schematic proportions.",
         schema: {
             leg: T.pos(), legUnit: T.unit(), length: T.pos(), lengthUnit: T.unit(),
             angle: T.num({ min: 0, max: 90 }), load: T.nonneg(), loadUnit: T.unit(), throat: T.pos()
         },
         build(document, m, h) {
             const S = diagram.scene(document, {
-                size: [520, 400],
-                label: "Fillet weld cross-section with legs and effective throat, and plan view with load direction",
-                description: "A cross-section shows two plates at right angles joined by an equal-leg triangular fillet weld, with leg size w and effective throat measured perpendicular to the hypotenuse. A plan view shows weld length L and the load direction angle."
+                size: [540, 333],
+                label: "Weld section showing equal legs and effective throat, and plan view showing load angle",
+                description: "The section shows the shortest line from the weld root to the theoretical face. In plan, the selected force direction is measured from the longitudinal weld axis. Zero degrees is longitudinal and ninety degrees is transverse."
             });
-            // Cross-section
-            const ox = 90, oy = 190, w = 80;
-            S.hatchRect(ox - 80, oy, 220, 30);        // base plate
-            S.hatchRect(ox, oy - 110, 30, 110);        // stem plate
-            // weld triangle: corner at (ox+30, oy), legs along plate faces
-            const c = [ox + 30, oy];
-            S.polygon([c, [c[0] + w, oy], [c[0], oy - w]], "ff-weld");
-            S.line(c[0], c[1], c[0] + w, c[1], "ff-outline-thin");
-            S.line(c[0] + w, oy, c[0], oy - w, "ff-outline");
-            // Throat: perpendicular from corner to hypotenuse
-            const mid = [c[0] + w / 2, oy - w / 2];
-            S.line(c[0], c[1], mid[0], mid[1], "ff-accent-line");
-            S.dimension(c[0], c[1], c[0] + w, c[1], "w", { offset: 20, extensions: true });
-            S.dimension(c[0], c[1], c[0], c[1] - w, "w", { offset: -22, extensions: true });
-            S.leader(mid[0] - 10, mid[1] + 10, 200, 126, "effective throat t_e ≈ 0.707 w", { anchor: "start" });
-            S.text(20, 62, "Section: leg w vs throat t_e", { cls: "ff-label ff-label-strong", anchor: "start" });
-            S.text(ox - 70, oy + 22, "plate", { cls: "ff-label ff-label-small", anchor: "start" });
+            viewHeading(S, 20, 246, 25, "Weld cross-section");
+            viewHeading(S, 272, 520, 25, "Weld in plan");
+            const x = 108, y = 190, leg = 70;
+            S.hatchRect(33, y, 192, 23);
+            S.hatchRect(x - 28, 80, 28, y - 80);
+            S.polygon([[x, y], [x + leg, y], [x, y - leg]], "ff-weld");
+            S.dimension(x - 28, y, x - 28, y - leg, "w", { offset: -32 });
+            S.dimension(x, y + 23, x + leg, y + 23, "w = " + h.quantity(m.leg, m.legUnit), { offset: 21 });
 
-            // Plan view
-            const px = 276, py = 210, len = 200;
-            S.text(px, 62, "Plan view", { cls: "ff-label ff-label-strong", anchor: "start" });
-            S.rect(px, py - 70, len, 70, "ff-body-muted");
-            S.rect(px, py, len, 70, "ff-body-muted");
-            S.rect(px, py - 7, len, 14, "ff-weld");
-            S.centerline(px - 14, py, px + len + 14, py);
-            S.dimension(px, py + 70, px + len, py + 70, "L = " + q(h, m.length, m.lengthUnit), { offset: 20, extensions: true });
-            const theta = h.has(m.angle) ? m.angle : 90;
-            const a = theta * Math.PI / 180;
-            const fx = px + len / 2, fy = py - 36;
-            const L = 66;
-            S.arrow(fx - Math.cos(a) * L, fy + Math.sin(a) * L, fx, fy, { kind: "force" });
-            S.arrow(fx, fy, fx + Math.cos(a) * L, fy - Math.sin(a) * L, { kind: "force" });
-            S.text(fx + Math.cos(a) * L + 6, fy - Math.sin(a) * L - 4, "P", { cls: "ff-label ff-label-force", anchor: "start" });
-            S.construction(fx, fy, fx + 52, fy);
-            S.momentArrow(fx, fy, 38, 0, Math.max(6, theta), { label: "θ = " + q(h, theta, "°", "—"), labelX: fx + 46, labelY: fy + 24, anchor: "start" });
-            S.lines(20, 346, [
-                "w = " + q(h, m.leg, m.legUnit) + (h.has(m.throat) ? ",  throat t_e = " + q(h, m.throat, m.legUnit) : ""),
-                "θ measured from the weld axis (0° longitudinal, 90° transverse)",
-                h.has(m.load) && m.load > 0 ? "Applied load = " + q(h, m.load, m.loadUnit) + " (resultant; throat area = t_e · L)" : "Resistance acts on the effective throat area t_e · L."
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 386, "Equal-leg fillet, weld metal strength only. Base-metal checks are not performed.", "start");
+            const fx = x + leg / 2, fy = y - leg / 2;
+            S.line(x, y, fx, fy, "ff-accent-line");
+            S.polyline([[fx - 6, fy + 6], [fx - 12, fy], [fx - 6, fy - 6]], "ff-outline-thin");
+            S.leader(fx - 21, fy + 21, 176, 109, "", { anchor: "start" });
+            S.text(182, 113, "t_e", { cls: "ff-label ff-label-accent" });
+            S.lines(20, 276, [
+                "effective throat t_e ≈ 0.707 w",
+                "Calculated t_e = " + h.quantity(m.throat, m.legUnit)
+            ], { cls: small, lineHeight: 20 });
+
+            const start = 296, end = 496, weldY = 181;
+            S.rect(279, 116, 233, 97, "ff-body-muted");
+            S.rect(start, weldY - 21, end - start, 16, "ff-body");
+            S.rect(start, weldY - 5, end - start, 10, "ff-weld");
+            S.centerline(start - 11, weldY, end + 11, weldY);
+            S.dimension(start, 213, end, 213, "L = " + h.quantity(m.length, m.lengthUnit), { offset: 21 });
+
+            if (h.has(m.angle)) {
+                const a = m.angle * Math.PI / 180;
+                const dx = Math.cos(a), dy = -Math.sin(a);
+                const originX = 385, originY = weldY - 13;
+                const tipX = originX + 64 * dx, tipY = originY + 64 * dy;
+                if (m.angle > 0) {
+                    S.construction(originX, originY, originX + 70, originY);
+                    S.path(`M ${originX + 26} ${originY} A 26 26 0 0 0 ${originX + 26 * dx} ${originY + 26 * dy}`, "ff-outline-thin");
+                    S.text(originX + 36 * Math.cos(a / 2), originY + 36 * -Math.sin(a / 2) + 4, "θ", { cls: small, anchor: "middle" });
+                }
+                if (m.load > 0) {
+                    S.arrow(originX, originY, tipX, tipY, { kind: "force", label: "P", labelX: tipX + 10, labelY: tipY - 12, anchor: "start" });
+                } else {
+                    S.construction(originX, originY, tipX, tipY);
+                }
+            }
+            S.lines(272, 276, [
+                "Load angle θ = " + (h.has(m.angle) ? diagram.formatNumber(m.angle) + "°" : "—"),
+                "Applied force P = " + h.quantity(m.load, m.loadUnit),
+                "0° longitudinal  ·  90° transverse"
+            ], { cls: small, lineHeight: 20 });
             return S.svg;
         }
     });
 
-    // --------------------------------------------------------------- Press fit
     registry.register("press-fit", {
         title: "Interference fit: shaft in hub",
-        caption: "Shaft pressed into a hub with diametral interference δ. The interference is drawn greatly magnified in the inset and is never to scale. Contact pressure p acts at the interface diameter d (Lamé thick-cylinder model for both parts; the solid shaft case has no bore). Axial retention and torque capacity use friction μ·p over the contact area; plastic yielding is not modelled.",
+        caption: "End and longitudinal sections show the shaft and hub meeting at diameter d over length L. In the magnified pre-assembly detail, the shaft radius exceeds the hub bore radius by half the diametral interference. Pressure arrows indicate equal and opposite interface tractions. Friction over the contact area gives the idealized assembly force and torque capacity; all geometry is schematic.",
         schema: {
             interface: T.pos(), hubOuter: T.pos(), bore: T.nonneg(), length: T.pos(), distanceUnit: T.unit(),
-            interference: T.nonneg(), interferenceUnit: T.unit(), friction: T.nonneg(),
-            pressure: T.nonneg(), pressureUnit: T.unit()
+            interference: T.nonneg(), interferenceUnit: T.unit(), relativeInterference: T.nonneg(), friction: T.nonneg(),
+            pressure: T.nonneg(), pressureUnit: T.unit(), assemblyForce: T.nonneg(), assemblyForceUnit: T.unit(),
+            torqueCapacity: T.nonneg(), torqueCapacityUnit: T.unit()
         },
         build(document, m, h) {
-            const flag = {};
-            const hubRatio = h.ratio(m.interface, m.hubOuter, 0.2, 0.9, 0.5, flag);
-            const boreRatio = h.has(m.bore) && m.bore > 0 ? h.ratio(m.bore, m.interface, 0.05, 0.9, 0.5, flag) : 0;
             const S = diagram.scene(document, {
-                size: [520, 420],
-                label: "Press fit end view and section showing shaft, hub, interface pressure and magnified interference",
-                description: "An end view shows a shaft inside a hub with pressure acting radially at the interface. A section shows the shaft pressed axially into the hub. A magnified inset shows the diametral interference between the mating diameters."
+                size: [540, 438],
+                label: "Press-fit end and longitudinal sections with interface traction and an exaggerated pre-assembly overlap",
+                description: "The shaft inside the hatched hub shares its contact surface. Pressure pushes radially into each part away from the interface. The detail shows the free shaft surface and hub bore before assembly and the radial overlap between them."
             });
-            const cx = 120, cy = 130, Ro = 78;
-            const Ri = Ro * hubRatio;
-            S.circle(cx, cy, Ro, "ff-section");
-            S.circle(cx, cy, Ro, "ff-outline");
-            S.circle(cx, cy, Ri, "ff-body");
-            S.circle(cx, cy, Ri, "ff-outline");
-            if (boreRatio > 0) {
-                S.circle(cx, cy, Ri * boreRatio, "ff-ghost-fill");
-                S.circle(cx, cy, Ri * boreRatio, "ff-outline-thin");
+            viewHeading(S, 20, 246, 25, "End view");
+            viewHeading(S, 264, 520, 25, "Longitudinal section");
+
+            const cx = 125, cy = 128, outer = 64;
+            const validOuter = h.has(m.hubOuter) && m.interface < m.hubOuter && h.has(m.interface);
+            const hollow = m.bore > 0 && (!h.has(m.interface) || m.bore < m.interface);
+            const shaft = outer * (validOuter ? h.ratio(m.interface, m.hubOuter, 0.3, 0.84, 0.55) : 0.55);
+            const bore = hollow ? shaft * h.ratio(m.bore, m.interface, 0.06, 0.80, 0.48) : 0;
+            S.hatchPath(`M ${cx - outer} ${cy} a ${outer} ${outer} 0 1 1 ${2 * outer} 0 a ${outer} ${outer} 0 1 1 ${-2 * outer} 0 Z`);
+            S.circle(cx, cy, shaft, "ff-body-muted");
+            if (bore) S.circle(cx, cy, bore, "ff-body");
+            S.centerline(cx - outer - 10, cy, cx + outer + 10, cy);
+            S.centerline(cx, cy - outer - 10, cx, cy + outer + 5);
+            S.dimension(cx - outer, cy, cx + outer, cy, "Hub ØD = " + h.quantity(m.hubOuter, m.distanceUnit), { offset: 90 });
+
+            const hubHalfLength = 40 + 18 * h.ratio(m.length, m.interface, 0.35, 2, 0.8);
+            const hubLeft = 405 - hubHalfLength, hubRight = 405 + hubHalfLength;
+            const shaftLeft = 316, shaftRight = 510;
+            S.hatchRect(hubLeft, cy - outer, hubRight - hubLeft, outer - shaft);
+            S.hatchRect(hubLeft, cy + shaft, hubRight - hubLeft, outer - shaft);
+            if (bore) {
+                S.rect(shaftLeft, cy - shaft, shaftRight - shaftLeft, shaft - bore, "ff-body-muted");
+                S.rect(shaftLeft, cy + bore, shaftRight - shaftLeft, shaft - bore, "ff-body-muted");
+            } else {
+                S.rect(shaftLeft, cy - shaft, shaftRight - shaftLeft, 2 * shaft, "ff-body-muted");
             }
-            S.centerline(cx - Ro - 12, cy, cx + Ro + 12, cy);
-            S.centerline(cx, cy - Ro - 12, cx, cy + Ro + 12);
-            [30, 150, 270].forEach((deg) => {
-                const r = deg * Math.PI / 180;
-                S.arrow(cx + (Ri - 26) * Math.cos(r), cy - (Ri - 26) * Math.sin(r), cx + (Ri - 1) * Math.cos(r), cy - (Ri - 1) * Math.sin(r), { kind: "pressure" });
-                S.arrow(cx + (Ri + 26) * Math.cos(r + 0.5), cy - (Ri + 26) * Math.sin(r + 0.5), cx + (Ri + 1) * Math.cos(r + 0.5), cy - (Ri + 1) * Math.sin(r + 0.5), { kind: "pressure" });
-            });
-            S.text(cx + Ri * 0.55, cy - Ri * 0.55 - 30, "p", { cls: "ff-label ff-label-pressure" });
-            S.leader(cx - Ro * 0.72, cy - Ro * 0.72, 22, 40, "hub", { anchor: "start" });
-            S.leader(cx - Ri * 0.5, cy + Ri * 0.2, 22, cy + Ro + 26, "shaft", { anchor: "start" });
-            S.dimension(cx - Ro, cy + Ro, cx + Ro, cy + Ro, "D_o = " + q(h, m.hubOuter, m.distanceUnit), { offset: 28, extensions: true });
+            S.centerline(267, cy, 523, cy);
+            S.leader(hubLeft + 8, cy - outer + 6, 335, 60, "Hub", { anchor: "end" });
+            S.leader(500, cy - shaft, 478, 58, "Shaft", { anchor: "end" });
+            S.arrow(277, cy + 24, shaftLeft - 8, cy + 24, { kind: "motion" });
+            S.text(290, cy + 44, "Press-in", { cls: small, anchor: "middle" });
 
-            // Section
-            const sx = 280, sy = 130, hubL = 90, hh = 62, sh = 38;
-            S.hatchRect(sx + 20, sy - hh, hubL, hh - sh);
-            S.hatchRect(sx + 20, sy + sh, hubL, hh - sh);
-            S.rect(sx - 40, sy - sh, 220, 2 * sh, "ff-body");
-            S.line(sx + 20, sy - sh, sx + 20 + hubL, sy - sh, "ff-accent-line");
-            S.line(sx + 20, sy + sh, sx + 20 + hubL, sy + sh, "ff-accent-line");
-            S.centerline(sx - 52, sy, sx + 192, sy);
-            S.arrow(sx - 38, sy - 14, sx + 2, sy - 14, { kind: "motion" });
-            S.text(sx - 40, sy - 24, "press-in direction", { cls: "ff-label ff-label-small", anchor: "start" });
-            S.dimension(sx + 20, sy - hh, sx + 20 + hubL, sy - hh, "L = " + q(h, m.length, m.distanceUnit), { offset: -16, extensions: true });
-            S.text(sx + 20 + hubL / 2, sy + hh + 20, "contact interface (d = " + q(h, m.interface, m.distanceUnit) + ")", { cls: "ff-label ff-label-small", anchor: "middle" });
+            if (validOuter && h.has(m.bore) && (m.bore === 0 || hollow) && m.interference > 0) {
+                for (const direction of [-1, 1]) {
+                    const contactY = cy + direction * shaft;
+                    S.line(hubLeft, contactY, hubRight, contactY, "ff-contact-line");
+                    for (const x of [386, 426]) {
+                        S.arrow(x, contactY, x, contactY + direction * Math.min(16, outer - shaft - 1), { kind: "pressure" });
+                        S.arrow(x + 10, contactY, x + 10, contactY - direction * Math.min(16, shaft - bore - 1), { kind: "pressure" });
+                    }
+                }
+            }
+            S.dimension(hubLeft, cy + outer, hubRight, cy + outer, "L = " + h.quantity(m.length, m.distanceUnit), { offset: 26 });
 
-            // Magnified interference inset
-            const ix = 300, iy = 300;
-            S.rect(ix - 40, iy - 34, 160, 68, "ff-ghost-fill");
-            S.rect(ix - 40, iy - 34, 160, 68, "ff-outline-thin");
-            S.rect(ix - 40, iy - 34, 160, 34, "ff-body");
-            S.hatchRect(ix - 40, iy + 8, 160, 26);
-            S.path("M " + (ix - 40) + " " + iy + " L " + (ix + 120) + " " + iy, "ff-ghost");
-            S.rect(ix - 40, iy - 8, 160, 8, "ff-accent-body");
-            S.text(ix - 36, iy - 40, "Magnified interference (not to scale)", { cls: "ff-label ff-label-small", anchor: "start" });
-            S.text(ix + 128, iy - 12, "shaft surface", { cls: "ff-label ff-label-small", anchor: "start" });
-            S.text(ix + 128, iy + 24, "hub bore", { cls: "ff-label ff-label-small", anchor: "start" });
-            S.text(ix + 40, iy + 5, "δ/2 per side", { cls: "ff-label ff-label-small", anchor: "middle" });
+            S.text(20, 269, "Interface Ød = " + h.quantity(m.interface, m.distanceUnit), { cls: small });
+            S.text(264, 269, m.bore === 0 ? "Solid shaft" : "Shaft bore Ød_i = " + h.quantity(m.bore, m.distanceUnit), { cls: small });
 
-            S.lines(20, 322, [
-                "d = " + q(h, m.interface, m.distanceUnit) + ",  δ = " + q(h, m.interference, m.interferenceUnit),
-                h.has(m.bore) && m.bore > 0 ? "Hollow shaft bore = " + q(h, m.bore, m.distanceUnit) : "Solid shaft (no bore).",
-                h.has(m.pressure) ? "Interface pressure p = " + q(h, m.pressure, m.pressureUnit) : "Interface pressure p (Lamé thick-cylinder)",
-                "Friction μ = " + q(h, m.friction) + " → axial force F = μ·p·π·d·L"
-            ], { cls: "ff-label ff-label-small", anchor: "start" });
-            S.note(20, 410, "Proportions of hub and bore are schematic; interference shown magnified.", "start");
+            viewHeading(S, 20, 520, 300, "Radial overlap before assembly");
+            const left = 22, right = 170, contact = 363;
+            let overlap = 0;
+            if (m.interference > 0) {
+                const sameUnits = m.interferenceUnit === m.distanceUnit;
+                const relative = m.relativeInterference ?? (sameUnits && m.interface > 0 ? m.interference / m.interface : 0.001);
+                overlap = h.clamp(6 + 6 * Math.log10(1 + relative * 1000), 6, 21);
+            }
+            S.hatchRect(left, 327, right - left, contact - 327);
+            S.rect(left, contact, right - left, 34, "ff-body-muted");
+            if (overlap) S.rect(left, contact - overlap, right - left, overlap, "ff-accent-body", { "data-radial-overlap": "" });
+            S.leader(right, contact - overlap, 185, 337, "Free shaft OD");
+            S.leader(right, contact, 185, 382, "Hub bore");
+            S.text(20, 418, "δ = " + h.quantity(m.interference, m.interferenceUnit) + "  ·  δ/2 radial (magnified)", { cls: small });
+
+            S.lines(310, 335, [
+                "Friction μ = " + h.quantity(m.friction),
+                "Contact pressure p = " + h.quantity(m.pressure, m.pressureUnit),
+                "Assembly force = " + h.quantity(m.assemblyForce, m.assemblyForceUnit),
+                "Torque capacity = " + h.quantity(m.torqueCapacity, m.torqueCapacityUnit)
+            ], { cls: small, lineHeight: 21 });
             return S.svg;
         }
     });

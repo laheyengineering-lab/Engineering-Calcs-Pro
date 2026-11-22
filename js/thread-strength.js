@@ -19,6 +19,7 @@ function updateThreadMaterial(selectId, strengthId) {
 
 function threadError(message) {
     threadElement("result").innerHTML = `<h3>Invalid Input</h3><p>${escapeHtml(message)}</p>`;
+    window.FormulaFoundryCalculatorDiagramPage?.publish();
 }
 
 function calculateThreadStrength() {
@@ -105,6 +106,10 @@ function calculateThreadStrength() {
         <hr>
         <p><em>Preliminary nominal-capacity comparison only. No design factor is applied. Thread geometry, tolerances, incomplete threads, preload, fatigue, bending, joint separation, and load distribution are not fully modeled.</em></p>
     `;
+    window.FormulaFoundryCalculatorDiagramPage?.publish({
+        tensileCapacity: convertForceToUnit(boltCapacityN, forceUnit),
+        strippingCapacity: internalCapacityN === null ? undefined : convertForceToUnit(internalCapacityN, forceUnit)
+    });
 }
 
 function resetThreadStrengthCalculator() {
