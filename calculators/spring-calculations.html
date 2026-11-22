@@ -139,11 +139,13 @@
     <section class="content-card">
         <h2>Worked Example</h2>
         <div class="example-box">
-            <p><strong>Given:</strong> \(d=5\ \mathrm{mm}\), \(D=40\ \mathrm{mm}\), \(N_a=10\), \(F=500\ \mathrm{N}\), \(G=80{,}000\ \mathrm{N/mm^2}\) (80 GPa).</p>
-            <p>\[ C = 40/5 = 8, \qquad k = \frac{80{,}000(5^4)}{8(40^3)(10)} = 9.7656\ \mathrm{N/mm} \]</p>
-            <p>\[ \delta = 500/9.7656 = 51.20\ \mathrm{mm}, \qquad K_w = \frac{31}{28}+\frac{0.615}{8}=1.1840 \]</p>
+            <p><strong>Given:</strong> \(d=5\ \mathrm{mm}\), \(D=40\ \mathrm{mm}\), \(N_a=10\), \(F=500\ \mathrm{N}\), \(G=80{,}000\ \mathrm{N/mm^2}\) (80 GPa, entered manually).</p>
+            <p><strong>Find:</strong> spring index, rate, deflection and maximum corrected shear stress.</p>
+            <p><strong>Solution:</strong> Use the mean coil diameter and active coil count.</p>
+            <p>\[ \begin{aligned}C&=D/d=40/5=8\\ k&=\frac{Gd^4}{8D^3N_a}=\frac{80{,}000(5^4)}{8(40^3)(10)}\\ &\approx9.7656\ \mathrm{N/mm}\end{aligned} \]</p>
+            <p>\[ \begin{aligned}\delta&=F/k\approx500/9.7656\\ &\approx51.20\ \mathrm{mm}\\ K_w&=\frac{4C-1}{4C-4}+\frac{0.615}{C}\\ &=\frac{31}{28}+\frac{0.615}{8}\approx1.1840\end{aligned} \]</p>
             <p>\[ \tau_{\max}=1.1840\frac{8(500)(40)}{\pi(5^3)} \approx 482.4\ \mathrm{MPa} \]</p>
-            <p>The arithmetic follows the stated equations. For these inputs the equations yield 9.77 N/mm, 1.184, and 482.4 MPa; rough approximate benchmarks can differ materially when a coefficient or arithmetic is rounded incorrectly.</p>
+            <p><strong>Result:</strong> The spring has index 8, rate 9.77 N/mm, deflection 51.20 mm and maximum corrected shear stress 482.4 MPa. The Wahl factor is 1.1840.</p>
         </div>
     </section>
 

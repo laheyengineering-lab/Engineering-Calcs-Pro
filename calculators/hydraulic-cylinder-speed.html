@@ -73,7 +73,22 @@
 </section>
 <section class="content-card">
     <h2>Worked example</h2>
-    <p>For a 100 mm bore, 60 mm rod and 200 mm stroke, the swept volumes are 1.571 L and 1.005 L. At 6 L/min each way, travel times are 15.71 s and 10.05 s.</p>
+    <div class="example-box">
+        <h3>Given</h3>
+        <p>A double-acting cylinder has bore \(D=100\ \mathrm{mm}\), rod diameter \(d=60\ \mathrm{mm}\) and stroke \(s=200\ \mathrm{mm}\). The cap and rod ends each receive \(6\ \mathrm{L/min}\) in their respective strokes.</p>
+        <h3>Find</h3>
+        <p>Find piston and annular areas, swept volumes, travel speeds, stroke times and full cycle time.</p>
+        <h3>Solution</h3>
+        <p>Use \(D=0.100\ \mathrm{m}\), \(d=0.060\ \mathrm{m}\) and \(s=0.200\ \mathrm{m}\).</p>
+        <div>\[ A_c=\frac{\pi D^2}{4}=\frac{\pi(0.100)^2}{4}\approx0.007854\ \mathrm{m^2} \]</div>
+        <div>\[ \begin{aligned}A_a&=\frac{\pi(D^2-d^2)}{4}\\ &=\frac{\pi(0.100^2-0.060^2)}{4}\\ &\approx0.005027\ \mathrm{m^2}\end{aligned} \]</div>
+        <div>\[ \begin{aligned}V_c&=A_cs\approx(0.007854)(0.200)\ \mathrm{m^3}\\ &\approx1.571\ \mathrm{L}\\ V_a&=A_as\approx(0.005027)(0.200)\ \mathrm{m^3}\\ &\approx1.005\ \mathrm{L}\end{aligned} \]</div>
+        <div>\[ Q=\frac{6}{60{,}000}=0.000100\ \mathrm{m^3/s} \]</div>
+        <div>\[ \begin{aligned}v_{\rm ext}&=Q/A_c\approx0.000100/0.007854\\ &\approx0.01273\ \mathrm{m/s}\\ v_{\rm ret}&=Q/A_a\approx0.000100/0.005027\\ &\approx0.01989\ \mathrm{m/s}\end{aligned} \]</div>
+        <div>\[ \begin{aligned}t_{\rm ext}&=s/v_{\rm ext}\approx0.200/0.01273\\ &\approx15.71\ \mathrm{s}\\ t_{\rm ret}&=s/v_{\rm ret}\approx0.200/0.019894\\ &\approx10.05\ \mathrm{s}\\ t_{\rm cycle}&=t_{\rm ext}+t_{\rm ret}\approx25.76\ \mathrm{s}\end{aligned} \]</div>
+        <h3>Result</h3>
+        <p>Extension takes <strong>15.71 s</strong> and retraction takes <strong>10.05 s</strong>, for a <strong>25.76 s</strong> cycle. Retraction is faster because the same flow fills a smaller area. The model assumes constant flow with zero dwell and leakage.</p>
+    </div>
     <h2>Practical application</h2>
     <p>Estimate actuator travel from independently specified extension and retraction flows.</p>
     <h2>Related calculators</h2>

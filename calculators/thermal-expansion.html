@@ -371,7 +371,7 @@
 </p>
 
 <p>
-Material: Steel rod
+Material: Steel rod with manually entered properties
 </p>
 
 <p>
@@ -407,15 +407,15 @@ Free expansion and restrained thermal stress
 </p>
 
 <p>
-\[ \Delta L = \alpha L_0 \Delta T = 12.0 \times 10^{-6} \times 2 \times 50 = 0.0012\ \mathrm{m} = 1.2\ \mathrm{mm} \]
+\[ \begin{aligned}\Delta L&=\alpha L_0\Delta T=12.0\times10^{-6}(2)(50)\\ &=0.0012\ \mathrm{m}=1.2\ \mathrm{mm}\end{aligned} \]
 </p>
 
 <p>
-\[ L_f = L_0 + \Delta L = 2 + 0.0012 = 2.0012\ \mathrm{m} \]
+\[ \begin{aligned}L_f&=L_0+\Delta L=2+0.0012\\ &=2.0012\ \mathrm{m}\end{aligned} \]
 </p>
 
 <p>
-\[ \varepsilon_{\text{thermal}} = \alpha \Delta T = 12.0 \times 10^{-6} \times 50 = 0.0006 \]
+\[ \begin{aligned}\varepsilon_{\rm th}&=\alpha\Delta T=12.0\times10^{-6}(50)\\ &=0.0006\end{aligned} \]
 </p>
 
 <p>
@@ -423,7 +423,7 @@ Free expansion and restrained thermal stress
 </p>
 
 <p>
-\[ \sigma_{\text{thermal}} = E\alpha\Delta T = 200 \times 10^9\ \mathrm{Pa} \times 12.0 \times 10^{-6} \times 50 = 120\ \mathrm{MPa} \]
+\[ \begin{aligned}\sigma_{\rm th}&=E\alpha\Delta T\\ &=(200\times10^9)(12.0\times10^{-6})(50)\\ &=120\ \mathrm{MPa}\end{aligned} \]
 </p>
 
 <p>
@@ -435,7 +435,7 @@ Free expansion and restrained thermal stress
 </p>
 
 <p>
-<strong>Fully Restrained:</strong> \(\sigma_{\text{thermal}} = 120\ \mathrm{MPa}\)
+<strong>Fully Restrained:</strong> \(\sigma_{\text{thermal}} = +120\ \mathrm{MPa}\) in the calculator’s compression-positive convention.
 </p>
 
 </div>
@@ -469,7 +469,7 @@ Thermal expansion coefficient α varies with temperature; reference values shown
 </li>
 
 <li>
-Cooling (negative ΔT) causes contraction and compressive thermal stresses in restrained members.
+Cooling (negative ΔT) causes free contraction. With full restraint it produces tension, which the calculator reports as negative under its compression-positive convention.
 </li>
 
 <li>

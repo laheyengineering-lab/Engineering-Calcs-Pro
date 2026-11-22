@@ -269,23 +269,24 @@
 
 <div class="example-box">
 
-<p><strong>Given:</strong> d = 50 mm, Δd = 0.05 mm, D = 100 mm, solid shaft (d<sub>i</sub> = 0), L = 50 mm, μ = 0.12, hub and shaft Carbon Steel.</p>
+<p><strong>Given:</strong> A solid 50 mm shaft fits into a hub of outer diameter 100 mm with diametral interference \( \Delta d=0.05\ \mathrm{mm} \), engagement length \( L=50\ \mathrm{mm} \) and friction coefficient \( \mu=0.12 \). Select Carbon Steel (ASTM A36) for both members in this example. The preset represents as-rolled A36 plate up to 203 mm thick.</p>
 
 <p>
-Using the database values for Carbon Steel (E = 200 GPa, ν = 0.26). For identical hub and shaft materials with a solid shaft, Poisson's ratio cancels, so:
+<strong>Find:</strong> contact pressure, hoop stresses, frictional press force and torque capacity, and yield-to-hoop-stress ratios.
 </p>
+<p><strong>Solution:</strong> The preset gives \(E=200\ \mathrm{GPa}\), \(\nu=0.26\) and minimum yield \(S_y=250\ \mathrm{MPa}\). The interface radius is \(c=0.025\ \mathrm{m}\), the hub outer radius is \(b=0.050\ \mathrm{m}\), and radial interference is \(\delta_r=0.05/2=0.025\ \mathrm{mm}\). The hub geometry determines its hoop-stress multiplier. Poisson’s ratio cancels for identical materials and a solid shaft.
+</p>
+<div>\[ \frac{b^2+c^2}{b^2-c^2}=\frac{50^2+25^2}{50^2-25^2}=\frac{5}{3} \]</div>
 
 <p>
-\[ p = \frac{25\times10^{-6}}{0.025\left[\frac{1}{E}\left(\frac{5}{3}+\nu\right)+\frac{1-\nu}{E}\right]} = \frac{E\,\delta_r}{c\,(8/3)} = 75.0\ \mathrm{MPa} \]
+\[ \begin{aligned}p&=\frac{\delta_r}{c\left[\frac{5/3+\nu}{E}+\frac{1-\nu}{E}\right]}\\ &=\frac{E\,\delta_r}{c\,(8/3)}\\ &=\frac{(200\times10^9)(25\times10^{-6})}{0.025(8/3)}\\ &=75.0\ \mathrm{MPa}\end{aligned} \]
 </p>
-
-<p>
-\[ \sigma_{\theta,h} = p\,\frac{5}{3} = 125.0\ \mathrm{MPa}, \quad F_{press} = 70.686\ \mathrm{kN}, \quad T_{capacity} = 1767.15\ \mathrm{N\cdot m} \]
-</p>
-
-<p>
-Hub-material stress ratio against the database yield strength (170 MPa) gives FoS<sub>h</sub> = 170 / 125 = 1.36. Results differ when the materials differ or the shaft is hollow.
-</p>
+<div>\[ \sigma_{\theta,h}=75.0(5/3)=125.0\ \mathrm{MPa} \]</div>
+<div>\[ \sigma_{\theta,s}=-p=-75.0\ \mathrm{MPa} \]</div>
+<div>\[ F=\mu p\pi dL=0.12(75\times10^6)\pi(0.050)^2 \]</div>
+<div>\[ \begin{aligned}F&\approx70.686\ \mathrm{kN}\\ T&=Fc\approx70{,}686(0.025)\\ &\approx1767.15\ \mathrm{N\cdot m}\end{aligned} \]</div>
+<div>\[ \begin{aligned}\frac{S_y}{\sigma_{\theta,h}}&=\frac{250}{125}=2.00\\ \frac{S_y}{|\sigma_{\theta,s}|}&=\frac{250}{75}\approx3.33\end{aligned} \]</div>
+<p><strong>Result:</strong> Contact pressure is 75.0 MPa, with a press force of 70.686 kN and torque capacity of 1767.15 N·m. The hub’s 125.0 MPa tensile hoop stress governs the simplified yield screen at <strong>2.00</strong>. The shaft’s 75.0 MPa compressive hoop stress gives 3.33.</p>
 
 </div>
 

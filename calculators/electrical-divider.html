@@ -84,7 +84,20 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>A 12 V supply and two 1 kΩ resistors give a 6 V unloaded tap. Adding a 1 kΩ load across the lower resistor reduces its effective resistance to 500 Ω, yielding 4 V. The output changes by −2 V, or −33.3% of the unloaded value.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>An ideal 12 V source drives an upper \(R_1=1\ \mathrm{k\Omega}\) and lower \(R_2=1\ \mathrm{k\Omega}\) resistor. Compare the Two-resistor voltage mode to Loaded voltage mode with \(R_L=1\ \mathrm{k\Omega}\) from the tap to ground.</p>
+            <h3>Find</h3>
+            <p>Find the unloaded and loaded tap voltages, loaded branch currents and percent change due to loading.</p>
+            <h3>Solution</h3>
+            <div>\[ \begin{aligned}V_{\rm open}&=V_s\frac{R_2}{R_1+R_2}\\ &=12\frac{1000}{1000+1000}=6\ \mathrm{V}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}R_{\rm low}&=R_2\mathbin{\|}R_L=\frac{R_2R_L}{R_2+R_L}\\ &=\frac{1000(1000)}{1000+1000}=500\ \Omega\end{aligned} \]</div>
+            <div>\[ \begin{aligned}V_{\rm loaded}&=V_s\frac{R_{\rm low}}{R_1+R_{\rm low}}\\ &=12\frac{500}{1000+500}=4\ \mathrm{V}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}I_2=I_L&=4/1000=4\ \mathrm{mA}\\ I_s&=12/1500=8\ \mathrm{mA}=I_2+I_L\end{aligned} \]</div>
+            <div>\[ \begin{aligned}\Delta V&=V_{\rm loaded}-V_{\rm open}\\ &=4-6=-2\ \mathrm{V}\\ \frac{\Delta V}{V_{\rm open}}&=\frac{-2}{6}\approx-33.3\%\end{aligned} \]</div>
+            <h3>Result</h3>
+            <p>The load pulls the tap from <strong>6 V</strong> down to <strong>4 V</strong>, a <strong>33.3% decrease</strong>. Each downstream resistor draws <strong>4 mA</strong>.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

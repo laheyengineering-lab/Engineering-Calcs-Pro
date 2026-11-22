@@ -22,4 +22,17 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - run: npm ci --no-audit --no-fund
+      - name: Download the site's pinned KaTeX scripts
+        run: |
+          version=$(sed -n 's/.*const KATEX_VERSION = "\([^"]*\)";.*/\1/p' js/katex-loader.js)
+          test -n "$version"
+          mkdir -p "$RUNNER_TEMP/katex/contrib"
+          for file in katex.min.js contrib/auto-render.min.js; do
+            curl --fail --silent --show-error --location --retry 3 \
+              "https://cdn.jsdelivr.net/npm/katex@$version/dist/$file" -o "$RUNNER_TEMP/katex/$file" ||
+            curl --fail --silent --show-error --location --retry 3 \
+              "https://unpkg.com/katex@$version/dist/$file" -o "$RUNNER_TEMP/katex/$file"
+          done
       - run: npm test
+        env:
+          FORMULA_FOUNDRY_KATEX_DIR: ${{ runner.temp }}/katex

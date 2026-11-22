@@ -246,13 +246,14 @@ Do not duplicate every assumption again in lower sections unless a practical eng
 
 ### Worked Example
 
-Use a deterministic example that can also support an automated test.
+Every new calculator must publish a Worked Example in an `.example-box` with **Given**, **Find**, **Solution**, and **Result** in that order.
 
-A good worked example:
+- **Given** identifies the calculation mode, all required inputs with units, and any reference conditions or material preset.
+- **Find** identifies the requested quantities.
+- **Solution** shows the governing relation, any rearrangement, unit conversion, numerical substitution, and intermediate values needed to reproduce the answer. Use display KaTeX for calculation steps and inline KaTeX for short supporting expressions. Keep multi-line calculations readable at mobile widths.
+- **Result** identifies final values with units and states the engineering interpretation or model limit where relevant.
 
-- states all inputs and units
-- shows the equation path
-- gives a reproducible final value
+Prose-only numerical summaries and examples with a decorative formula but no worked substitutions fail review. Independently calculate the expected values and verify the published input case, conversions, intermediate results and final results against the production engine. Add the case to the worked-example tests and verify first-load rendering and readability in Chromium at desktop and mobile widths.
 
 ### Applications
 
@@ -446,7 +447,7 @@ Calculator and shared-site styling primarily lives in `css/style.css`; the Desig
 - [ ] Units verified
 - [ ] Material properties verified
 - [ ] Assumptions documented
-- [ ] Expected results independently calculated
+- [ ] Worked example has all four sections, rendered numerical substitutions and independently verified results
 - [ ] Edge cases considered
 
 ### Code

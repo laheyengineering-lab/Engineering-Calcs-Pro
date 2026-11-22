@@ -139,14 +139,18 @@
 <section class="content-card">
 <h2>Worked Example</h2>
 <div class="example-box">
-<p><strong>Given:</strong> bore D = 100 mm, rod d = 50 mm, p = 10 MPa (100 bar).</p>
+<p><strong>Given:</strong> bore D = 100 mm, rod d = 50 mm, pressure difference p = 10 MPa (100 bar), and optional efficiency 90%.</p>
+<p><strong>Find:</strong> theoretical and efficiency-adjusted extension and retraction forces.</p>
+<p><strong>Solution:</strong> Use 10 MPa = 10 N/mm². Subtract rod area for retraction.</p>
 <p>
-\[ A_p = \frac{\pi (100)^2}{4} = 7853.98\ \mathrm{mm^2} \quad A_r = \frac{\pi (50)^2}{4} = 1963.50\ \mathrm{mm^2} \quad A_a = 5890.49\ \mathrm{mm^2} \]
+\[ \begin{aligned}A_p&=\frac{\pi(100)^2}{4}\approx7853.98\ \mathrm{mm^2}\\ A_r&=\frac{\pi(50)^2}{4}\approx1963.50\ \mathrm{mm^2}\\ A_a&=A_p-A_r\approx5890.49\ \mathrm{mm^2}\end{aligned} \]
 </p>
 <p>
-\[ F_{ext} = 10\ \mathrm{N/mm^2} \times 7853.98\ \mathrm{mm^2} = 78.54\ \mathrm{kN} \qquad F_{ret} = 10 \times 5890.49 = 58.90\ \mathrm{kN} \]
+\[ \begin{aligned}F_{\rm ext}&=pA_p\approx10(7853.98)\\ &\approx78.54\ \mathrm{kN}\\ F_{\rm ret}&=pA_a\approx10(5890.49)\\ &\approx58.90\ \mathrm{kN}\end{aligned} \]
 </p>
-<p>With an assumed efficiency of 90 %, the estimated usable forces would be 70.69 kN (extension) and 53.01 kN (retraction).</p>
+<div>\[ \begin{aligned}F_{\rm usable,ext}&=\eta F_{\rm ext}\\ &\approx0.90(78.54)=70.69\ \mathrm{kN}\end{aligned} \]</div>
+<div>\[ \begin{aligned}F_{\rm usable,ret}&=\eta F_{\rm ret}\\ &\approx0.90(58.90)=53.01\ \mathrm{kN}\end{aligned} \]</div>
+<p><strong>Result:</strong> Theoretical forces are 78.54 kN in extension and 58.90 kN in retraction. At 90% efficiency the estimates are 70.69 kN and 53.01 kN, respectively.</p>
 </div>
 </section>
 <section class="content-card">

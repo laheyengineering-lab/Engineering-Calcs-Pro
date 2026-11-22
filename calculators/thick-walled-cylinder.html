@@ -131,15 +131,21 @@
 <section class="content-card">
 <h2>Worked Example</h2>
 <div class="example-box">
-<p><strong>Given:</strong> inner diameter 100 mm (a = 50 mm), outer diameter 200 mm (b = 100 mm), p<sub>i</sub> = 100 MPa, p<sub>o</sub> = 0, closed ends.</p>
+<p><strong>Given:</strong> inner diameter 100 mm (a = 50 mm), outer diameter 200 mm (b = 100 mm), p<sub>i</sub> = 100 MPa, p<sub>o</sub> = 0, closed ends. Also compare the same geometry under external pressure only at 100 MPa.</p>
+<p><strong>Find:</strong> radial and hoop stresses at both surfaces and axial stress for the internal-pressure case.</p>
+<p><strong>Solution:</strong> In the Lamé equations, use radial stress \(A-B/r^2\), hoop stress \(A+B/r^2\) and closed-end axial stress \(A\).</p>
 <p>
-\[ \frac{a^2 p_i}{b^2 - a^2} = \frac{2500 \times 100}{7500} = 33.33\ \mathrm{MPa} \qquad \frac{a^2 b^2 p_i}{(b^2-a^2)\,a^2} = 133.33\ \mathrm{MPa} \]
+\[ \begin{aligned}A&=\frac{a^2p_i}{b^2-a^2}=\frac{2500(100)}{7500}\\ &\approx33.33\ \mathrm{MPa}\\ B/a^2&=\frac{b^2p_i}{b^2-a^2}=\frac{10{,}000(100)}{7500}\\ &\approx133.33\ \mathrm{MPa}\end{aligned} \]
 </p>
 <p>
 At the bore (r = a): σ<sub>r</sub> = 33.33 − 133.33 = −100 MPa; σ<sub>θ</sub> = 33.33 + 133.33 = 166.67 MPa; σ<sub>z</sub> = 33.33 MPa.<br>
 At the outer surface (r = b): σ<sub>r</sub> = 33.33 − 33.33 = 0; σ<sub>θ</sub> = 33.33 + 33.33 = 66.67 MPa.
 </p>
-<p>With external pressure only (p<sub>o</sub> = 100 MPa, p<sub>i</sub> = 0), σ<sub>θ</sub> = −266.67 MPa at the bore, −166.67 MPa at the outer surface, and σ<sub>r</sub> = 0 at the bore and −100 MPa at the outer surface.</p>
+<p>For the external-pressure case, swap the pressure boundary conditions. The Lamé terms become:</p>
+<div>\[ A=-\frac{100^2(100)}{100^2-50^2}\approx-133.33\ \mathrm{MPa} \]</div>
+<div>\[ \frac{B}{r^2}=-\frac{50^2\,100^2(100)}{(100^2-50^2)r^2} \]</div>
+<div>\[ \begin{aligned}B/a^2&\approx-133.33\ \mathrm{MPa}\\ B/b^2&\approx-33.33\ \mathrm{MPa}\end{aligned} \]</div>
+<p><strong>Result:</strong> Internal pressure produces tensile hoop stress, greatest at the bore (166.67 MPa), and uniform axial stress of 33.33 MPa for closed ends. External pressure produces compressive hoop stress of −266.67 MPa at the bore and −166.67 MPa at the outside. Radial stress is 0 MPa at the bore and −100 MPa at the outside in the external-pressure case.</p>
 </div>
 </section>
 <section class="content-card">

@@ -84,7 +84,20 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>A load at 120 V RMS and 5 A RMS with a lagging power factor of 0.8 draws 600 VA, consumes 480 W and has +360 var of reactive power. Its current lags voltage by about 36.87°.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>A single-phase sinusoidal load draws \(I_{\rm rms}=5\ \mathrm{A}\) from \(V_{\rm rms}=120\ \mathrm{V}\). Enter power factor 0.8 and Lagging.</p>
+            <h3>Find</h3>
+            <p>Find apparent, real and reactive power and the voltage phase relative to current.</p>
+            <h3>Solution</h3>
+            <div>\[ S=V_{\rm rms}I_{\rm rms}=(120)(5)=600\ \mathrm{VA} \]</div>
+            <div>\[ \phi=\cos^{-1}(0.8)\approx+36.87^\circ \]</div>
+            <div>\[ P=S\cos\phi=(600)(0.8)=480\ \mathrm{W} \]</div>
+            <div>\[ \begin{aligned}Q&=S\sin\phi=(600)\sqrt{1-0.8^2}\\ &=+360\ \mathrm{var}\end{aligned} \]</div>
+            <div>\[ \sqrt{P^2+Q^2}=\sqrt{480^2+360^2}=600\ \mathrm{VA} \]</div>
+            <h3>Result</h3>
+            <p>The load uses <strong>480 W</strong> of real power, with <strong>+360 var</strong> reactive and <strong>600 VA</strong> apparent power. The positive phase means current lags voltage by <strong>36.87°</strong>. The ratio \(480/600=0.8\) recovers the specified power factor.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

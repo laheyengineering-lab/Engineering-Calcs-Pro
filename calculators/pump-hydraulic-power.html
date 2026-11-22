@@ -73,7 +73,21 @@
 </section>
 <section class="content-card">
     <h2>Worked example</h2>
-    <p>At 60 L/min and 200 kPa rise, hydraulic output is 200 W. For 80% pump efficiency, shaft power is 250 W and two hours require 0.50 kWh of shaft energy.</p>
+    <div class="example-box">
+        <h3>Given</h3>
+        <p>In Pressure rise mode, a pump moves water of density \(\rho=1000\ \mathrm{kg/m^3}\) at \(Q=60\ \mathrm{L/min}\) against \(\Delta p=200\ \mathrm{kPa}\). Pump efficiency is \(\eta=80\%\) and operating time \(t=2\ \mathrm{h}\).</p>
+        <h3>Find</h3>
+        <p>Find hydraulic output, shaft input power, shaft energy and equivalent head rise.</p>
+        <h3>Solution</h3>
+        <div>\[ Q=\frac{60}{60{,}000}=0.001\ \mathrm{m^3/s} \]</div>
+        <div>\[ \Delta p=200{,}000\ \mathrm{Pa},\quad \eta=0.80 \]</div>
+        <div>\[ \begin{aligned}P_h&=Q\Delta p=(0.001)(200{,}000)\\ &=200\ \mathrm{W}\end{aligned} \]</div>
+        <div>\[ P_s=\frac{P_h}{\eta}=\frac{200}{0.80}=250\ \mathrm{W} \]</div>
+        <div>\[ \begin{aligned}E_s&=P_st=(0.250\ \mathrm{kW})(2\ \mathrm{h})\\ &=0.50\ \mathrm{kWh}\end{aligned} \]</div>
+        <div>\[ H=\frac{\Delta p}{\rho g}=\frac{200{,}000}{1000(9.80665)}\approx20.39\ \mathrm{m} \]</div>
+        <h3>Result</h3>
+        <p>The pump delivers <strong>200 W</strong> hydraulically at <strong>20.39 m</strong> of head. It requires <strong>250 W</strong> at the shaft and <strong>0.50 kWh</strong> of shaft energy over two hours. Motor and drive losses are outside this estimate.</p>
+    </div>
     <h2>Practical application</h2>
     <p>Estimate the shaft requirement after establishing the proposed duty point.</p>
     <h2>Related calculators</h2>

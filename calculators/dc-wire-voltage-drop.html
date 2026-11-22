@@ -84,7 +84,21 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>For 10 m one way, 2 mm² of copper at 20 °C gives about 0.1724 Ω across the outgoing and return conductors. At 5 A the voltage drop is about 0.862 V, leaving 11.138 V at the load for a 12 V supply.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>A 12 V DC supply drives a prescribed \(I=5\ \mathrm{A}\) through matching outgoing and return copper conductors, each \(L=10\ \mathrm{m}\) long. In conductor area mode enter \(A=2\ \mathrm{mm^2}\) and \(T=20^\circ\mathrm{C}\). Use the annealed copper preset.</p>
+            <h3>Find</h3>
+            <p>Find one-way and loop resistance, voltage drop, load voltage, percent drop and wire loss.</p>
+            <h3>Solution</h3>
+            <p>At the 20 °C reference, the preset resistivity is \(\rho=1.7241\times10^{-8}\ \mathrm{\Omega\cdot m}\) with no temperature correction.</p>
+            <div>\[ A=2(10^{-3})^2=2\times10^{-6}\ \mathrm{m^2} \]</div>
+            <div>\[ \begin{aligned}R_{\rm one}&=\frac{\rho L}{A}=\frac{(1.7241\times10^{-8})(10)}{2\times10^{-6}}\\ &=0.086205\ \Omega\\ R_{\rm loop}&=2R_{\rm one}=0.172410\ \Omega\end{aligned} \]</div>
+            <div>\[ \begin{aligned}\Delta V&=IR_{\rm loop}=(5)(0.172410)\\ &=0.86205\ \mathrm{V}\\ V_{\rm load}&=12-0.86205=11.13795\ \mathrm{V}\end{aligned} \]</div>
+            <div>\[ \frac{\Delta V}{V_s}=\frac{0.86205}{12}\approx7.184\% \]</div>
+            <div>\[ \begin{aligned}P_{\rm wire}&=I\Delta V=(5)(0.86205)\\ &\approx4.310\ \mathrm{W}\end{aligned} \]</div>
+            <h3>Result</h3>
+            <p>The loop drops <strong>0.862 V (7.184%)</strong> and leaves <strong>11.138 V</strong> at the load. It dissipates <strong>4.310 W</strong> at the prescribed current. Cable contacts and self-heating are outside the model.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

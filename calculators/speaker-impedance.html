@@ -84,7 +84,19 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>Two nominal 8 Ω speakers in parallel present a nominal 4 Ω load. With a modeled output of 10 V RMS, the channel delivers an estimated 2.5 A RMS and 25 W total, or 12.5 W per speaker.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>One amplifier channel drives nominal \(Z_1=8\ \Omega\) and \(Z_2=16\ \Omega\) speakers in parallel. In RMS output voltage mode, assume the channel maintains \(V_{\rm rms}=12\ \mathrm{V}\).</p>
+            <h3>Find</h3>
+            <p>Find equivalent nominal load, RMS channel current, estimated total power and power per speaker.</p>
+            <h3>Solution</h3>
+            <div>\[ Z_{\rm eq}=\frac{Z_1Z_2}{Z_1+Z_2}=\frac{8(16)}{8+16}\approx5.333\ \Omega \]</div>
+            <div>\[ \begin{aligned}I_1&=12/8=1.50\ \mathrm{A}\\ I_2&=12/16=0.75\ \mathrm{A}\\ I_{\rm rms}&=I_1+I_2=1.50+0.75=2.25\ \mathrm{A}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}P_1&=V_{\rm rms}^2/Z_1=12^2/8=18\ \mathrm{W}\\ P_2&=V_{\rm rms}^2/Z_2=12^2/16=9\ \mathrm{W}\\ P_{\rm total}&=18+9=27\ \mathrm{W}\end{aligned} \]</div>
+            <div>\[ V_{\rm rms} I_{\rm rms}=(12)(2.25)=27\ \mathrm{W} \]</div>
+            <h3>Result</h3>
+            <p>The nominal load is <strong>5.333 Ω</strong> and draws an estimated <strong>2.25 A RMS</strong>. The <strong>27 W</strong> total divides into <strong>18 W</strong> and <strong>9 W</strong>. Actual impedances vary with frequency and the amplifier may deliver a different voltage under load.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

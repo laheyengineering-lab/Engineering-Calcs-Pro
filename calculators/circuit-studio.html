@@ -84,7 +84,27 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>With 100 Ω and 300 Ω in series, a 12 V source drives 30 mA through both resistors. The drops of 3 V and 9 V sum to 12 V. In parallel, both branches see 12 V. Their currents of 120 mA and 40 mA add to 160 mA, with an equivalent resistance of 75 Ω.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>Connect \(R_1=100\ \Omega\) and \(R_2=300\ \Omega\) to a 12 V ideal source. Evaluate both Series and Parallel modes.</p>
+            <h3>Find</h3>
+            <p>Find equivalent resistance, source and individual currents, resistor voltage drops and power. Check conservation in both layouts.</p>
+            <h3>Solution</h3>
+            <p><strong>Series.</strong> Current is common to the two resistors.</p>
+            <div>\[ R_s=R_1+R_2=100+300=400\ \Omega \]</div>
+            <div>\[ I_1=I_2=I_s=\frac{12}{400}=0.030\ \mathrm{A} \]</div>
+            <div>\[ \begin{aligned}V_1&=I_sR_1=(0.030)(100)=3\ \mathrm{V}\\ V_2&=I_sR_2=(0.030)(300)=9\ \mathrm{V}\\ V_1+V_2&=3+9=12\ \mathrm{V}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}P_1&=V_1 I_s=(3)(0.030)=0.09\ \mathrm{W}\\ P_2&=V_2 I_s=(9)(0.030)=0.27\ \mathrm{W}\\ P_s&=0.09+0.27=0.36\ \mathrm{W}\end{aligned} \]</div>
+            <p>The drops sum to the source voltage, and \(P_s=12(0.030)=0.36\ \mathrm{W}\) matches the source power delivered.</p>
+            <p><strong>Parallel.</strong> Each branch has \(V_1=V_2=12\ \mathrm{V}\).</p>
+            <div>\[ \begin{aligned}R_p&=\left(\frac{1}{R_1}+\frac{1}{R_2}\right)^{-1}\\ &=\left(\frac{1}{100}+\frac{1}{300}\right)^{-1}=75\ \Omega\end{aligned} \]</div>
+            <div>\[ \begin{aligned}I_1&=V_1/R_1=12/100=0.120\ \mathrm{A}\\ I_2&=V_2/R_2=12/300=0.040\ \mathrm{A}\\ I_p&=0.120+0.040=0.160\ \mathrm{A}\end{aligned} \]</div>
+            <div>\[ \begin{aligned}P_1&=V_1I_1=(12)(0.120)=1.44\ \mathrm{W}\\ P_2&=V_2I_2=(12)(0.040)=0.48\ \mathrm{W}\\ P_p&=1.44+0.48=1.92\ \mathrm{W}\end{aligned} \]</div>
+            <p>The summed branch current matches \(12/75=0.160\ \mathrm{A}\), and \(12(0.160)=1.92\ \mathrm{W}\) matches the summed dissipation.</p>
+            <h3>Result</h3>
+            <p><strong>Series.</strong> At <strong>400 Ω</strong>, both resistors carry <strong>30 mA</strong>. Their drops are <strong>3 V and 9 V</strong> and their losses are <strong>0.09 W and 0.27 W</strong>, totaling <strong>0.36 W</strong>.</p>
+            <p><strong>Parallel.</strong> At <strong>75 Ω</strong>, the source supplies <strong>160 mA</strong>. Both branches see <strong>12 V</strong>. They draw <strong>120 mA and 40 mA</strong> and dissipate <strong>1.44 W and 0.48 W</strong>, totaling <strong>1.92 W</strong>.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

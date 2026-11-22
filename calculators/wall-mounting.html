@@ -73,7 +73,21 @@
 </section>
 <section class="content-card">
     <h2>Worked example</h2>
-    <p>A centered 200 N shelf load at 0.30 m offset with two upper fasteners and bearing 0.15 m below them produces 60 N·m. Idealized shear is 100 N and tension is 200 N per fastener, with 400 N total lower wall bearing.</p>
+    <div class="example-box">
+        <h3>Given</h3>
+        <p>In Bracket with lower bearing mode, a centered vertical force \(W=200\ \mathrm{N}\) acts \(e=0.30\ \mathrm{m}\) from the wall. Two upper fasteners (\(n=2\)) share demand equally. Lower wall bearing acts \(s=0.15\ \mathrm{m}\) below them. For illustration, enter working capacities of 150 N shear and 400 N tension per fastener.</p>
+        <h3>Find</h3>
+        <p>Find eccentric moment, wall-bearing and upper-row reactions, fastener demands and individual demand-to-capacity ratios.</p>
+        <h3>Solution</h3>
+        <div>\[ M=We=(200)(0.30)=60\ \mathrm{N\cdot m} \]</div>
+        <p>Moment balance about the upper row gives \(Bs=M\), where \(B\) is the lower wall-bearing reaction. Horizontal equilibrium balances that reaction with upper-row tension \(T_{\rm row}\). Vertical equilibrium gives total fastener shear \(V_{\rm row}=W\).</p>
+        <div>\[ B=\frac{M}{s}=\frac{60}{0.15}=400\ \mathrm{N} \]</div>
+        <div>\[ T_{\rm row}=B=400\ \mathrm{N},\quad V_{\rm row}=200\ \mathrm{N} \]</div>
+        <div>\[ T=\frac{400}{2}=200\ \mathrm{N},\quad V=\frac{200}{2}=100\ \mathrm{N} \]</div>
+        <div>\[ \begin{aligned}\frac{V}{V_{\rm cap}}&=\frac{100}{150}\approx66.7\%\\ \frac{T}{T_{\rm cap}}&=\frac{200}{400}=50\%\end{aligned} \]</div>
+        <h3>Result</h3>
+        <p>The bracket creates <strong>60 N·m</strong> of moment and <strong>400 N</strong> of lower bearing. Each fastener takes <strong>100 N shear</strong> and <strong>200 N tension</strong>, or <strong>66.7%</strong> and <strong>50%</strong> of the illustrative capacities. These ratios screen individual components. Combined loading, substrate, spacing and installation require separate checks.</p>
+    </div>
     <h2>Practical application</h2>
     <p>A flush hanger primarily sees shear in this idealization. A projecting shelf develops upper-row withdrawal demand. Use the manufacturer&#x27;s instructions and working capacities for the actual fastener and substrate.</p>
     <h2>Related calculators</h2>

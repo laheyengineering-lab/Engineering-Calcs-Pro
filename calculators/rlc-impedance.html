@@ -84,7 +84,23 @@
     </section>
     <section class="content-card">
         <h2>Worked example</h2>
-        <p>With 10 Ω, 100 mH and 100 µF, resonance occurs at about 50.33 Hz. The inductive and capacitive reactances each have magnitude 31.62 Ω and cancel in series. A 10 V RMS source then drives 1 A RMS and dissipates 10 W in the resistor.</p>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>An ideal series RLC circuit has \(R=10\ \Omega\), \(L=100\ \mathrm{mH}\) and \(C=100\ \mathrm{\mu F}\). Apply a sinusoidal \(10\ \mathrm{V}\) RMS at 100 Hz.</p>
+            <h3>Find</h3>
+            <p>Find reactances, complex impedance, magnitude, phase, RMS current and real power at 100 Hz. Compare with resonance.</p>
+            <h3>Solution</h3>
+            <div>\[ \omega=2\pi f=2\pi(100)\approx628.32\ \mathrm{rad/s} \]</div>
+            <div>\[ \begin{aligned}X_L&=\omega L\approx628.3185(0.100)\\ &\approx62.832\ \Omega\\ X_C&=\frac{1}{\omega C}\approx\frac{1}{628.3185(100\times10^{-6})}\\ &\approx15.915\ \Omega\end{aligned} \]</div>
+            <div>\[ \begin{aligned}Z&=R+j(X_L-X_C)\\ &\approx10+j(62.83185-15.91549)\\ &\approx(10+j46.916)\ \Omega\end{aligned} \]</div>
+            <div>\[ \begin{aligned}|Z|&=\sqrt{R^2+(X_L-X_C)^2}\\ &\approx\sqrt{10^2+46.916^2}\\ &\approx47.970\ \Omega\end{aligned} \]</div>
+            <div>\[ \begin{aligned}\phi&=\arg Z\approx\tan^{-1}\!(46.916/10)\\ &\approx+77.97^\circ\end{aligned} \]</div>
+            <div>\[ \begin{aligned}I_{\rm rms}&=V_{\rm rms}/|Z|\approx10/47.970\\ &\approx0.2085\ \mathrm{A}\\ P&=I_{\rm rms}^2R\approx(0.20846)^2(10)\\ &\approx0.4346\ \mathrm{W}\end{aligned} \]</div>
+            <p>At resonance \(X_L=X_C\), so \(\omega_0^2 LC=1\) and the impedance is purely resistive.</p>
+            <div>\[ \begin{aligned}f_0&=\frac{1}{2\pi\sqrt{LC}}\\ &=\frac{1}{2\pi\sqrt{(0.100)(100\times10^{-6})}}\\ &\approx50.33\ \mathrm{Hz}\\ I_{\rm rms,0}&=10/10=1.00\ \mathrm{A}\\ P_0&=(1.00)^2(10)=10.0\ \mathrm{W}\end{aligned} \]</div>
+            <h3>Result</h3>
+            <p>At 100 Hz the load is inductive with <strong>|Z| = 47.970 Ω</strong>. Current lags voltage by <strong>77.97°</strong> and the resistor dissipates <strong>0.4346 W</strong> at <strong>0.2085 A RMS</strong>. At <strong>50.33 Hz</strong> the ideal circuit draws <strong>1.00 A RMS</strong> in phase with the source and dissipates <strong>10.0 W</strong>.</p>
+        </div>
     </section>
     <section class="content-card">
         <h2>Related calculators</h2>

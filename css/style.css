@@ -816,6 +816,16 @@ button:disabled {
     max-width: 100%;
 }
 
+.example-box .katex-display > .katex {
+    min-width: max-content;
+}
+
+@media (max-width: 700px) {
+    .example-box .katex-display > .katex {
+        font-size: 1em;
+    }
+}
+
 .content-card li {
     margin-bottom: var(--space-2);
 }
