@@ -902,6 +902,8 @@ const thermalProperties = [
 
 // Fluid and thermal quantities use SI base units. Gallons are US liquid
 // gallons, horsepower is mechanical, and BTU uses the International Table.
+const powerUnits = { W: 1, mW: 1e-3, kW: 1000 };
+const energyUnits = { J: 1, Wh: 3600, kWh: 3600000 };
 const fluidThermalUnits = {
     flow: { "m³/s": 1, "L/min": 1 / 60000, GPM: 0.003785411784 / 60, CFM: 0.3048 ** 3 / 60 },
     velocity: { "m/s": 1, "ft/s": 0.3048 },
@@ -909,9 +911,9 @@ const fluidThermalUnits = {
     dynamicViscosity: { "Pa·s": 1, "mPa·s": 0.001, cP: 0.001, "lbf·s/ft²": forceUnits.lbf / 0.3048 ** 2 },
     kinematicViscosity: { "m²/s": 1, cSt: 1e-6, "ft²/s": 0.3048 ** 2 },
     volume: { "m³": 1, L: 0.001, "ft³": 0.3048 ** 3, "US gal": 0.003785411784 },
-    power: { W: 1, kW: 1000, hp: 550 * forceUnits.lbf * 0.3048 },
+    power: { W: powerUnits.W, kW: powerUnits.kW, hp: 550 * forceUnits.lbf * 0.3048 },
     heatRate: { W: 1, kW: 1000, "BTU/h": 1055.05585262 / 3600 },
-    energy: { J: 1, kJ: 1000, kWh: 3600000, BTU: 1055.05585262 },
+    energy: { J: energyUnits.J, kJ: 1000, kWh: energyUnits.kWh, BTU: 1055.05585262 },
     conductivity: { "W/(m·K)": 1, "BTU/(h·ft·°F)": 1055.05585262 * 1.8 / (3600 * 0.3048) },
     resistance: { "m²·K/W": 1, "h·ft²·°F/BTU": 3600 * 0.3048 ** 2 / (1.8 * 1055.05585262) },
     transmittance: { "W/(m²·K)": 1, "BTU/(h·ft²·°F)": 1055.05585262 * 1.8 / (3600 * 0.3048 ** 2) },
@@ -934,3 +936,19 @@ function convertAbsoluteTemperatureToUnit(kelvin, toUnit) {
     if (toUnit === "°F") return (kelvin - 273.15) * 1.8 + 32;
     return NaN;
 }
+
+// Electrical quantities are converted to SI before calculation. Reactance and
+// both rectangular impedance components use the same scale as resistance.
+const electricalUnits = Object.freeze({
+    voltage: { V: 1, mV: 1e-3, kV: 1e3 },
+    current: { A: 1, mA: 1e-3, "µA": 1e-6 },
+    resistance: { "Ω": 1, "kΩ": 1e3, "MΩ": 1e6 },
+    capacitance: { F: 1, mF: 1e-3, "µF": 1e-6, nF: 1e-9, pF: 1e-12 },
+    inductance: { H: 1, mH: 1e-3, "µH": 1e-6 },
+    frequency: { Hz: 1, kHz: 1e3, MHz: 1e6 },
+    time: { s: fluidThermalUnits.duration.s, ms: 1e-3, "µs": 1e-6 },
+    power: powerUnits,
+    energy: energyUnits,
+    phase: { "°": Math.PI / 180, rad: 1 },
+    charge: { C: 1, mC: 1e-3, "µC": 1e-6 }
+});
