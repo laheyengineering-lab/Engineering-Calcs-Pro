@@ -15,12 +15,14 @@ const IDS = ['cylinder-force', 'differential-thermal-expansion', 'press-fit', 'h
     'bolt-torque', 'moment', 'bearing-life', 'column-buckling', 'factor-of-safety', 'fillet-weld', 'spring-calculations', 'stress-strain',
     'thermal-expansion', 'thick-walled-cylinder', 'thread-strength'];
 
-function load(storageState) {
+function load(storageState, shared = false) {
     const dom = new JSDOM(fs.readFileSync('design-studies.html', 'utf8'), { runScripts: 'dangerously', url: 'http://localhost/design-studies.html' });
     const { window } = dom;
     window.confirm = () => true;
     Object.entries(storageState || {}).forEach(([k, v]) => window.localStorage.setItem(k, v));
-    scripts.forEach((file) => {
+    const graphics = shared ? ['js/calculator-diagrams.js', 'js/diagram-renderers-loads.js',
+        'js/diagram-renderers-fasteners.js', 'js/diagram-renderers-structural.js', 'js/design-study-graphics.js'] : [];
+    [...scripts.slice(0, -3), ...graphics, ...scripts.slice(-3)].forEach((file) => {
         const el = window.document.createElement('script');
         el.textContent = fs.readFileSync(file, 'utf8');
         window.document.body.appendChild(el);
@@ -42,6 +44,44 @@ function expectSafe(markup) {
 }
 
 describe('Design Studies engineering context', () => {
+    it('reuses the current calculator graphics across the original catalog', () => {
+        const { window, document } = load(undefined, true);
+        IDS.forEach((id) => {
+            createStudy(window, id, id);
+            const svg = document.querySelector('#contextDiagram svg');
+            expect(svg).not.toBeNull();
+            if (id !== 'beam-deflection') expect(svg.getAttribute('data-diagram-id')).toBe(id);
+            expectSafe(svg.outerHTML);
+        });
+    });
+
+    it('uses saved moment outputs only while current, including when the scenario is exported to a report', () => {
+        const { window, document } = load(undefined, true);
+        createStudy(window, 'Moments', 'moment');
+        document.getElementById('addScenario').click();
+        const set = (name, value) => {
+            const field = document.querySelector('[data-input-id="' + name + '"]');
+            field.value = value;
+            field.dispatchEvent(new window.Event('change', { bubbles: true }));
+        };
+        const click = (label) => Array.from(document.querySelectorAll('.scenario-card button'))
+            .find((button) => button.textContent === label).click();
+        const figure = () => document.querySelector('#contextDiagram svg');
+        set('force', '25');
+        set('distance', '40');
+        click('Recalculate');
+        const stored = JSON.parse(window.localStorage.getItem('formulaFoundry.designStudies')).studies[0];
+        const output = stored.scenarios[0].result.outputs.find((row) => row.id === 'moment');
+        expect(figure().textContent).toContain(output.value + ' ' + output.unit);
+        click('Add to project report');
+        const diagram = window.FormulaFoundryReport.store.load().entries[0].diagram;
+        expect(diagram).toMatchObject({ type: 'calc-diagram', id: 'moment', model: { moment: output.value, momentUnit: output.unit } });
+        set('force', '-25');
+        expect(figure().textContent).not.toContain(output.value + ' ' + output.unit);
+        expect(JSON.parse(window.localStorage.getItem('formulaFoundry.designStudies')).studies[0]
+            .scenarios[0].result.outputs[0].value).toBe(output.value);
+    });
+
     it('shows adapter-sourced context and the matching diagram for every adapter, before any calculation', () => {
         const { window, document } = load();
         const S = window.FormulaFoundryStudies;

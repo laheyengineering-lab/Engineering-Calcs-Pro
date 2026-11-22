@@ -408,24 +408,28 @@
         return result(c, description, ["Cross-section: " + type, "Bending axis: " + axis].concat(items, [v.show("moment", "Bending moment M")]));
     }
 
-    function beamDeflection(document, adapter, v) {
+    function beamDeflection(document, adapter, v, scenario) {
         const caseId = v.text("loadingCase") || "";
         const point = caseId.endsWith("point");
         const loadRaw = v.raw(point ? "pointLoad" : "uniformLoad");
         const spanRaw = v.raw("span");
         const span = spanRaw !== null && spanRaw > 0 ? spanRaw : null;
         const label = point ? "P" : "w";
+        const maximum = scenario?.status === "calculated"
+            ? scenario.result?.outputs.find((output) => output.id === "deflectionMagnitude") : undefined;
         const svg = root.FormulaFoundryBeamDeflectionDiagram.render(document, {
             caseId,
             span,
             spanDisplay: span === null ? undefined : fmt(span),
             lengthUnit: v.unitOf("span"),
             load: loadRaw,
-            loadLabel: loadRaw === null ? label : v.show(point ? "pointLoad" : "uniformLoad", label)
+            loadLabel: loadRaw === null ? label : v.show(point ? "pointLoad" : "uniformLoad", label),
+            maxDeflection: maximum?.value,
+            deflectionUnit: maximum?.unit
         });
         const description = svg.getAttribute("aria-label") || "Beam deflection schematic";
         svg.setAttribute("role", "img");
-        svg.setAttribute("class", "study-diagram-svg");
+        if (!svg.classList.contains("ff-diagram")) svg.classList.add("study-diagram-svg");
         const items = [description, v.show("span", "Span L"), v.show(point ? "pointLoad" : "uniformLoad", point ? "Point load P" : "Uniform load w")];
         return { svg, description: description + " with illustrative deflected shape.", items: items.filter(Boolean) };
     }
@@ -690,34 +694,43 @@
     function renderDiagram(document, adapter, scenario) {
         const figure = el(document, "figure", "study-diagram");
         const adapterId = adapter && adapter.id;
-        const expansion = adapter && root.FormulaFoundryExpansionDiagram
-            && root.FormulaFoundryCalculatorDiagrams?.has(adapterId) && !RENDERERS[adapterId];
-        const draw = adapter?.scenarioDiagram ? () => {
-            const diagram = adapter.scenarioDiagram(scenario);
-            const svg = root.FormulaFoundryCalculatorDiagrams.render(document, diagram.id, diagram.model);
-            return { svg, description: svg.getAttribute("aria-label"), items: [] };
-        } : expansion ? () => {
-            const outputs = scenario?.status === "calculated"
-                ? Object.fromEntries(scenario.result.outputs.map((output) => [output.id, output.value])) : {};
-            const diagram = root.FormulaFoundryExpansionDiagram(adapterId, scenario?.inputs || {}, outputs);
-            const svg = root.FormulaFoundryCalculatorDiagrams.render(document, adapterId, diagram.model);
-            return { svg, description: svg.getAttribute("aria-label"), items: [] };
-        } : RENDERERS[adapterId];
-        if (!draw || !root.FormulaFoundryDiagram) {
+        if (!adapter || !root.FormulaFoundryDiagram) {
             figure.appendChild(el(document, "p", "sd-fallback", "No diagram is available for this calculator."));
             return figure;
         }
         figure.dataset.diagram = adapterId;
         let drawn;
         try {
-            drawn = draw(document, adapter, reader(adapter, scenario));
+            const values = reader(adapter, scenario);
+            const registry = root.FormulaFoundryCalculatorDiagrams;
+            const current = scenario?.status === "calculated" ? scenario.result?.outputs : [];
+            const model = adapter.scenarioDiagram?.(scenario)
+                || root.FormulaFoundryStudyGraphics?.diagram(adapterId, scenario, values)
+                || adapter.diagram?.(scenario?.inputs || {}, current || []);
+            if (model && registry?.has(model.id)) {
+                const svg = registry.render(document, model.id, model.model);
+                drawn = { svg, description: svg.querySelector("desc")?.textContent || svg.getAttribute("aria-label"),
+                    caption: registry.caption(model.id), items: [] };
+            } else {
+                drawn = RENDERERS[adapterId]?.(document, adapter, values, scenario);
+            }
         } catch (error) {
             figure.appendChild(el(document, "p", "sd-fallback", "The diagram could not be drawn for the current inputs."));
             return figure;
         }
-        figure.appendChild(drawn.svg);
+        if (!drawn) {
+            figure.appendChild(el(document, "p", "sd-fallback", "No diagram is available for this calculator."));
+            return figure;
+        }
+        if (drawn.svg.classList.contains("ff-diagram")) {
+            const drawing = el(document, "div", "study-diagram-drawing ff-diagram-host");
+            drawing.appendChild(drawn.svg);
+            figure.appendChild(drawing);
+        } else {
+            figure.appendChild(drawn.svg);
+        }
         const caption = el(document, "figcaption");
-        caption.appendChild(el(document, "p", "sd-caption", SCHEMATIC_NOTE));
+        caption.appendChild(el(document, "p", "sd-caption", drawn.caption || SCHEMATIC_NOTE));
         const details = el(document, "details", "sd-text-alt");
         details.appendChild(el(document, "summary", null, "Diagram description"));
         details.appendChild(el(document, "p", null, drawn.description));
@@ -729,6 +742,14 @@
         caption.appendChild(details);
         figure.appendChild(caption);
         return figure;
+    }
+
+    function diagramSnapshot(adapter, scenario) {
+        const graphics = root.FormulaFoundryStudyGraphics;
+        if (!graphics || !adapter || scenario?.status !== "calculated") return null;
+        const values = reader(adapter, scenario);
+        return adapter.id === "beam-deflection"
+            ? graphics.beamSnapshot(scenario, values) : graphics.diagram(adapter.id, scenario, values);
     }
 
     function section(document, title, open) {
@@ -779,5 +800,5 @@
         return wrap;
     }
 
-    root.FormulaFoundryStudyContext = { contextFor, renderDiagram, renderTheory, diagramIds: Object.keys(RENDERERS) };
+    root.FormulaFoundryStudyContext = { contextFor, renderDiagram, renderTheory, diagramSnapshot, diagramIds: Object.keys(RENDERERS) };
 })(window);

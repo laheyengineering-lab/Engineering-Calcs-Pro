@@ -1,0 +1,461 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "title": "",
+    "number": "",
+    "customer": "",
+    "preparedBy": "",
+    "date": "",
+    "revision": "",
+    "scope": "",
+    "notes": ""
+  },
+  "entries": [
+    {
+      "id": "emwrfrne4iw5o6u",
+      "calculatorId": "beam-deflection",
+      "calculatorName": "Beam Deflection",
+      "path": "calculators/beam-deflection.html",
+      "title": "Cantilever, point load at free end — Solid rectangle / square",
+      "addedAt": "2026-11-22T06:08:35.884Z",
+      "notes": "",
+      "inputs": [
+        {"label": "Loading / support case", "value": "Cantilever, point load at free end", "unit": ""},
+        {"label": "Support configuration", "value": "Cantilever (fixed root, free end)", "unit": ""},
+        {"label": "Beam span (L)", "value": 2, "unit": "m"},
+        {"label": "Point load (P)", "value": -1000, "unit": "N"},
+        {"label": "Young's modulus (E)", "value": 200, "unit": "GPa"},
+        {"label": "Cross-section profile", "value": "Solid rectangle / square", "unit": ""},
+        {"label": "Width (b)", "value": 100, "unit": "mm"},
+        {"label": "Height (h)", "value": 100, "unit": "mm"},
+        {"label": "Bending axis", "value": "horizontal x-axis (Iₓ)", "unit": ""}
+      ],
+      "outputs": [
+        {"label": "Cross-sectional area (A)", "value": 10000.000000000002, "unit": "mm²"},
+        {"label": "Centroid x̄", "value": 50, "unit": "mm"},
+        {"label": "Centroid ȳ", "value": 50, "unit": "mm"},
+        {"label": "Second moment of area (Iₓ)", "value": 8.333333333333335e-06, "unit": "m⁴"},
+        {"label": "Second moment of area (Iᵧ)", "value": 8.333333333333335e-06, "unit": "m⁴"},
+        {"label": "Selected second moment of area (I)", "value": 8.333333333333335e-06, "unit": "m⁴"},
+        {"label": "Section modulus (Sₓ)", "value": 166666.6666666667, "unit": "mm³"},
+        {"label": "Section modulus (Sᵧ)", "value": 166666.6666666667, "unit": "mm³"},
+        {"label": "Maximum deflection (signed)", "value": -0.0015999999999999996, "unit": "m"},
+        {"label": "Maximum deflection magnitude", "value": 0.0015999999999999996, "unit": "m"},
+        {"label": "Maximum deflection location", "value": 2, "unit": "m"},
+        {"label": "Maximum bending moment", "value": -2000, "unit": "N·m"},
+        {"label": "Flexural rigidity (EI)", "value": 1666666.666666667, "unit": "N·m²"}
+      ],
+      "equations": [
+        "A=bh,\\quad \\bar{x}=b/2,\\quad \\bar{y}=h/2,\\quad I_x=bh^3/12,\\quad I_y=hb^3/12",
+        "\\delta_{\\max}=\\frac{PL^3}{3EI}"
+      ],
+      "assumptions": [
+        "Linear-elastic homogeneous material, small deflection, prismatic beam and constant E and I.",
+        "Euler–Bernoulli beam theory; shear deformation is neglected.",
+        "Static full-span loading with ideal pin/roller or fixed-free supports, as specified by the selected case.",
+        "The closed-form solution does not represent plasticity, buckling, connection flexibility, support settlement, or dynamic effects."
+      ],
+      "method": "The selected cross-section determines its centroidal inertia about the chosen bending axis. The corresponding closed-form Euler–Bernoulli beam solution is then evaluated using span, elastic modulus, and the selected point or uniform load.",
+      "diagram": {
+        "type": "beam-deflection",
+        "caseId": "cant-point",
+        "span": 2,
+        "spanUnit": "m",
+        "load": -1000,
+        "loadUnit": "N",
+        "profile": "rectangular",
+        "dimensions": {
+          "width": 0.1,
+          "height": 0.1
+        },
+        "axis": "x",
+        "sectionUnit": "m",
+        "maxDeflection": 0.0015999999999999996,
+        "deflectionUnit": "m"
+      },
+      "warnings": [
+        "Use only for the listed load and support cases; partial or varying loads and non-ideal supports require a different model."
+      ]
+    },
+    {
+      "id": "emwrfrni43cmhr5",
+      "calculatorId": "thick-walled-cylinder",
+      "calculatorName": "Thick-Walled Cylinder Stress Analysis",
+      "path": "calculators/thick-walled-cylinder.html",
+      "title": "Thick-walled cylinder, 4/8 in",
+      "addedAt": "2026-11-22T06:08:36.028Z",
+      "notes": "",
+      "inputs": [
+        {"label": "Inner diameter (2a)", "value": 4, "unit": "in"},
+        {"label": "Outer diameter (2b)", "value": 8, "unit": "in"},
+        {"label": "Internal pressure (p_i)", "value": 1500, "unit": "psi"},
+        {"label": "External pressure (p_o)", "value": 100, "unit": "psi"},
+        {"label": "Axial end condition", "value": "Open / free ends (σz = 0)", "unit": ""}
+      ],
+      "outputs": [
+        {"label": "Inner surface radial stress (σr)", "value": -1500, "unit": "psi"},
+        {"label": "Inner surface hoop stress (σθ)", "value": 2233.333333333334, "unit": "psi"},
+        {"label": "Inner surface axial stress (σz)", "value": 0, "unit": "psi"},
+        {"label": "Mid-wall radial stress (σr)", "value": -462.9629629629631, "unit": "psi"},
+        {"label": "Mid-wall hoop stress (σθ)", "value": 1196.2962962962968, "unit": "psi"},
+        {"label": "Mid-wall axial stress (σz)", "value": 0, "unit": "psi"},
+        {"label": "Outer surface radial stress (σr)", "value": -99.99999999999997, "unit": "psi"},
+        {"label": "Outer surface hoop stress (σθ)", "value": 833.3333333333335, "unit": "psi"},
+        {"label": "Outer surface axial stress (σz)", "value": 0, "unit": "psi"},
+        {"label": "Largest-magnitude hoop stress location", "value": "inner surface", "unit": ""}
+      ],
+      "equations": [
+        "\\sigma_r(r) = \\frac{a^2 p_i - b^2 p_o}{b^2 - a^2} - \\frac{a^2 b^2\\,(p_i - p_o)}{\\left(b^2 - a^2\\right) r^2}",
+        "\\sigma_\\theta(r) = \\frac{a^2 p_i - b^2 p_o}{b^2 - a^2} + \\frac{a^2 b^2\\,(p_i - p_o)}{\\left(b^2 - a^2\\right) r^2}",
+        "\\sigma_z = \\frac{a^2 p_i - b^2 p_o}{b^2 - a^2} \\;\\text{(closed ends)} \\qquad \\sigma_z = 0 \\;\\text{(open / free ends)}"
+      ],
+      "assumptions": [
+        "Linear elastic, isotropic, homogeneous material; small strains",
+        "Long cylinder of uniform circular cross-section, concentric bore and outer surface",
+        "Uniform internal pressure p_i and external pressure p_o (gauge); no thermal or body-force loading",
+        "Sign convention: tension positive, compression negative; the radial stress equals -p at a pressurized surface",
+        "Axial stress is uniform and follows the selected end condition (closed-ended or open/free-ended); constrained ends (plane strain) are not modeled",
+        "Away from end closures, flanges, holes and other discontinuities; stress concentrations are not included"
+      ],
+      "method": "Lamé solution for a long, linear-elastic thick-walled cylinder under uniform internal and external pressure. Tension is positive; the radial stress at a pressurized surface equals minus the pressure.",
+      "diagram": {
+        "type": "calc-diagram",
+        "id": "thick-walled-cylinder",
+        "model": {
+          "inner": 4,
+          "outer": 8,
+          "distanceUnit": "in",
+          "pi": 1500,
+          "po": 100,
+          "pressureUnit": "psi",
+          "end": "open"
+        },
+        "companion": {
+          "id": "thick-walled-cylinder-plot",
+          "model": {
+            "samples": [
+              [2, -1500, 2233.333333333334],
+              [2.05, -1410.053539559786, 2143.3868728931197],
+              [2.1, -1326.4550264550267, 2059.7883597883606],
+              [2.15, -1248.6208761492699, 1981.9542094826038],
+              [2.2, -1176.0330578512398, 1909.3663911845733],
+              [2.25, -1108.2304526748974, 1841.5637860082306],
+              [2.3000000000000003, -1044.8015122873346, 1778.134845620668],
+              [2.3499999999999996, -985.3779990946133, 1718.7113324279467],
+              [2.4, -929.6296296296298, 1662.9629629629635],
+              [2.4499999999999997, -877.2594752186593, 1610.5928085519927],
+              [2.5, -827.9999999999999, 1561.3333333333333],
+              [2.55, -781.60963731898, 1514.9429706523138],
+              [2.6, -737.8698224852071, 1471.2031558185406],
+              [2.65, -696.5824136703457, 1429.9157470036794],
+              [2.7, -657.567443987197, 1390.9007773205306],
+              [2.75, -620.6611570247936, 1353.9944903581272],
+              [2.8, -585.714285714286, 1319.0476190476197],
+              [2.85, -552.5905406791835, 1285.923874012517],
+              [2.9000000000000004, -521.1652794292507, 1254.4986127625843],
+              [2.95, -491.3243320884804, 1224.657665421814],
+              [2.9999999999999996, -462.9629629629631, 1196.2962962962968],
+              [3.05, -435.98495028218235, 1169.3182836155158],
+              [3.1, -410.3017689906347, 1143.6351023239683],
+              [3.15, -385.83186360964135, 1119.165196942975],
+              [3.1999999999999997, -362.5000000000001, 1095.8333333333337],
+              [3.25, -340.23668639053255, 1073.5700197238662],
+              [3.3000000000000003, -318.9776553412916, 1052.3109886746252],
+              [3.35, -298.66339942080646, 1031.99673275414],
+              [3.4, -279.2387543252596, 1012.5720876585932],
+              [3.4499999999999997, -260.6525239795563, 993.9858573128898],
+              [3.5000000000000004, -242.85714285714272, 976.1904761904763],
+              [3.5500000000000003, -225.80837135488983, 959.1417046882235],
+              [3.6, -209.46502057613182, 942.7983539094654],
+              [3.6499999999999995, -193.78870332144885, 927.1220366547824],
+              [3.6999999999999997, -178.7436084733383, 912.0769418066719],
+              [3.75, -164.2962962962962, 897.6296296296298],
+              [3.8, -150.41551246537395, 883.7488457987076],
+              [3.8499999999999996, -137.07201889020078, 870.4053522235342],
+              [3.9, -124.23843962305502, 857.5717729563886],
+              [3.95, -111.88912033327985, 845.2224536666135],
+              [4, -99.99999999999997, 833.3333333333335]
+            ],
+            "axial": 0,
+            "distanceUnit": "in",
+            "stressUnit": "psi"
+          }
+        }
+      },
+      "warnings": [
+        "Elastic stresses only; not a pressure-vessel code check and not an allowable-pressure, fatigue or fracture assessment."
+      ]
+    },
+    {
+      "id": "emwrfrnk4a6893e",
+      "calculatorId": "shaft-torsion",
+      "calculatorName": "Shaft Torsion",
+      "path": "calculators/shaft-torsion.html",
+      "title": "Shaft Torsion",
+      "addedAt": "2026-11-22T06:08:36.100Z",
+      "notes": "",
+      "inputs": [
+        {"label": "Shaft type", "value": "hollow", "unit": ""},
+        {"label": "Applied torque", "value": -300, "unit": "N·m"},
+        {"label": "Outer diameter", "value": 60, "unit": "mm"},
+        {"label": "Inner diameter", "value": 40, "unit": "mm"},
+        {"label": "Shaft length", "value": 1.5, "unit": "m"},
+        {"label": "Shear modulus (G)", "value": 77, "unit": "GPa"}
+      ],
+      "outputs": [
+        {"label": "Polar moment of inertia (J)", "value": 1.0210176124166826e-06, "unit": "m⁴"},
+        {"label": "Maximum shear stress (signed)", "value": -8.814735309704973, "unit": "MPa"},
+        {"label": "Angle of twist (signed)", "value": -0.005723854097211023, "unit": "rad"},
+        {"label": "Angle of twist (signed)", "value": -0.3279526823188556, "unit": "°"},
+        {"label": "Torsional stiffness", "value": 52412.237437389704, "unit": "N·m/rad"}
+      ],
+      "equations": [
+        "J_{\\mathrm{solid}}=\\frac{\\pi D^4}{32},\\quad J_{\\mathrm{hollow}}=\\frac{\\pi(D_o^4-D_i^4)}{32}",
+        "\\tau_{\\max}=\\frac{Tc}{J},\\quad \\theta=\\frac{TL}{GJ},\\quad k=\\frac{GJ}{L}"
+      ],
+      "assumptions": [
+        "Uniform solid or concentric hollow circular shaft.",
+        "Linear-elastic material with constant shear modulus and uniform torque along the shaft.",
+        "Small angle of twist and no warping (classical torsion theory)."
+      ],
+      "method": "Maximum shear stress is evaluated at the outer radius. Shear stress and twist follow the sign of the applied torque.",
+      "diagram": {
+        "type": "calc-diagram",
+        "id": "shaft-torsion",
+        "model": {
+          "shaftType": "hollow",
+          "torque": -300,
+          "torqueUnit": "N·m",
+          "outer": 60,
+          "inner": 40,
+          "diameterUnit": "mm",
+          "length": 1.5,
+          "lengthUnit": "m"
+        }
+      },
+      "warnings": []
+    },
+    {
+      "id": "emwrfrnlxapbz9e",
+      "calculatorId": "hertzian-contact",
+      "calculatorName": "Hertzian Contact Stress",
+      "path": "calculators/hertzian-contact.html",
+      "title": "Hertzian point contact (spheres)",
+      "addedAt": "2026-11-22T06:08:36.165Z",
+      "notes": "",
+      "inputs": [
+        {"label": "Configuration", "value": "Two spheres (point contact)", "unit": ""},
+        {"label": "Body 1 diameter", "value": 50, "unit": "mm"},
+        {"label": "Body 2 shape", "value": "Convex body", "unit": ""},
+        {"label": "Body 2 diameter", "value": 50, "unit": "mm"},
+        {"label": "Contact force (F)", "value": 1000, "unit": "N"},
+        {"label": "Body 1 Young's modulus (E₁)", "value": 200, "unit": "GPa"},
+        {"label": "Body 1 Poisson's ratio (ν₁)", "value": 0.3, "unit": ""},
+        {"label": "Body 2 Young's modulus (E₂)", "value": 200, "unit": "GPa"},
+        {"label": "Body 2 Poisson's ratio (ν₂)", "value": 0.3, "unit": ""}
+      ],
+      "outputs": [
+        {"label": "Effective elastic modulus (E*)", "value": 109890.10989010989, "unit": "MPa"},
+        {"label": "Equivalent radius (R)", "value": 12.5, "unit": "mm"},
+        {"label": "Contact radius (a)", "value": 0.4402211353995258, "unit": "mm"},
+        {"label": "Approach of centres (δ)", "value": 0.01550357184419581, "unit": "mm"},
+        {"label": "Maximum contact pressure (p_max)", "value": 2463.766848434675, "unit": "MPa"},
+        {"label": "Mean contact pressure", "value": 1642.5112322897835, "unit": "MPa"},
+        {"label": "Approx. maximum shear stress (ν ≈ 0.3)", "value": 763.7677230147493, "unit": "MPa"},
+        {"label": "Depth of maximum shear", "value": 0.2113061449917724, "unit": "mm"}
+      ],
+      "equations": [
+        "\\frac{1}{E^*} = \\frac{1-\\nu_1^2}{E_1} + \\frac{1-\\nu_2^2}{E_2} \\qquad \\frac{1}{R} = \\frac{1}{R_1} \\pm \\frac{1}{R_2}",
+        "a = \\left(\\frac{3 F R}{4 E^*}\\right)^{1/3} \\qquad p_{max} = \\frac{3F}{2\\pi a^2} \\qquad \\delta = \\frac{a^2}{R}"
+      ],
+      "assumptions": [
+        "Linear elastic, isotropic, homogeneous bodies; contact dimensions small compared with the body radii",
+        "Frictionless contact surfaces; normal load only (no tangential or rolling traction)",
+        "Smooth surfaces; no roughness, coating, residual stress or lubricant film effects",
+        "Static load; no dynamic, impact or thermal effects",
+        "Cylinders: parallel axes, plane-strain line contact, length L much larger than the contact width and uniform load along L (no edge or crowning effects)",
+        "Spheres: point contact between spheres of uniform radius (a flat plate is a sphere of infinite radius)",
+        "Maximum contact pressure is not a fatigue, wear, yield or service-life assessment"
+      ],
+      "method": "Hertz point contact of two spheres: contact radius from the equivalent radius and effective modulus, with a semi-ellipsoidal pressure distribution.",
+      "diagram": {
+        "type": "calc-diagram",
+        "id": "hertzian-contact",
+        "model": {
+          "config": "spheres",
+          "shape2": "convex",
+          "d1": 50,
+          "d2": 50,
+          "distanceUnit": "mm",
+          "force": 1000,
+          "forceUnit": "N"
+        }
+      },
+      "warnings": [
+        "Maximum contact pressure is not a fatigue, wear, yielding or service-life assessment.",
+        "Shear-stress values use ν ≈ 0.3 coefficients and are approximate."
+      ]
+    },
+    {
+      "id": "emwrfrnnug52yis",
+      "calculatorId": "fillet-weld",
+      "calculatorName": "Fillet Weld Strength Calculator",
+      "path": "calculators/fillet-weld.html",
+      "title": "Fillet Weld Strength Calculator",
+      "addedAt": "2026-11-22T06:08:36.234Z",
+      "notes": "",
+      "inputs": [
+        {"label": "Weld Leg Size (w)", "value": "0.25", "unit": "in"},
+        {"label": "Total Effective Weld Length (L)", "value": "12", "unit": "in"},
+        {"label": "Electrode (FEXX)", "value": "E70XX (70 ksi ≈ 483 MPa)", "unit": ""},
+        {"label": "Load Direction", "value": "90° — Transverse", "unit": ""},
+        {"label": "Design Method", "value": "LRFD (φ = 0.75)", "unit": ""},
+        {"label": "Applied Load (optional)", "value": "12000", "unit": "lbf"}
+      ],
+      "outputs": [
+        {"label": "Primary result", "value": "Design Capacity: 100,217.246 lbf", "unit": ""},
+        {"label": "Effective Throat", "value": "0.17675 in", "unit": ""},
+        {"label": "Effective Weld Area", "value": "2.121 in²", "unit": ""},
+        {"label": "Nominal Weld Capacity (Rn)", "value": "133,622.994 lbf", "unit": ""},
+        {"label": "LRFD φRn (φ = 0.75)", "value": "100,217.246 lbf", "unit": ""},
+        {"label": "ASD Rn/Ω (Ω = 2.00)", "value": "66,811.497 lbf", "unit": ""},
+        {"label": "Nominal Weld Stress (Fnw)", "value": "434.4 MPa", "unit": ""},
+        {"label": "Applied Load", "value": "12,000 lbf", "unit": ""},
+        {"label": "Required Weld Leg Size", "value": "0.02993 in", "unit": ""},
+        {"label": "Utilization", "value": "0.12", "unit": ""},
+        {"label": "Remaining Capacity", "value": "88,217.246 lbf", "unit": ""},
+        {"label": "Status", "value": "PASS (weld-metal check only)", "unit": ""}
+      ],
+      "equations": [
+        "t_e = 0.707\\,w \\qquad A_{we} = t_e L",
+        "F_{nw} = 0.60\\,F_{EXX} \\quad (\\theta = 0^\\circ)",
+        "F_{nw} = 0.60\\,F_{EXX}\\left(1 + 0.50\\sin^{1.5}\\theta\\right)",
+        "R_n = F_{nw}A_{we} \\qquad \\phi R_n,\\ \\phi = 0.75 \\qquad \\frac{R_n}{\\Omega},\\ \\Omega = 2.00",
+        "w_{req,LRFD} = \\frac{P}{\\phi F_{nw}(0.707)L} \\qquad w_{req,ASD} = \\frac{P\\,\\Omega}{F_{nw}(0.707)L}"
+      ],
+      "assumptions": [
+        "Equal-leg 45° fillet geometry",
+        "Direct loading through the weld-group centroid; no eccentric loading or weld-group moment",
+        "Uniform effective throat; effective weld length supplied by the user",
+        "Weld-metal strength calculation only; no base-metal failure check",
+        "No minimum/maximum weld-size code check",
+        "No fatigue check, residual-stress/distortion analysis, or fracture mechanics",
+        "No block shear, local plate bending, groove-weld design, or AWS procedure qualification",
+        "The applicable welding/design standard must be verified for the actual application"
+      ],
+      "method": "A fillet weld has an approximately triangular cross-section. Failure is governed by the effective throat, the shortest distance through the weld, which for an equal-leg 45° fillet is 0.707 times the leg size. Direct-load capacity is the weld-metal strength times the effective area (throat × length). The filler-metal classification strength \\(F_{EXX}\\) (e.g. E70XX = 70 ksi minimum tensile strength) is used rather than a base-material strength.",
+      "diagram": {
+        "type": "calc-diagram",
+        "id": "fillet-weld",
+        "model": {
+          "leg": 0.25,
+          "legUnit": "in",
+          "length": 12,
+          "lengthUnit": "in",
+          "angle": 90,
+          "load": 12000,
+          "loadUnit": "lbf"
+        }
+      },
+      "warnings": [
+        "Captured from the calculator page display; values are shown as formatted on screen."
+      ]
+    },
+    {
+      "id": "emwrfrnpdyy80js",
+      "calculatorId": "pipe-pressure-drop",
+      "calculatorName": "Pipe Pressure Drop & Fittings",
+      "path": "calculators/pipe-pressure-drop.html",
+      "title": "Pipe Pressure Drop & Fittings",
+      "addedAt": "2026-11-22T06:08:36.289Z",
+      "notes": "",
+      "inputs": [
+        {"label": "Internal diameter", "value": 100, "unit": "mm"},
+        {"label": "Fluid density at operating conditions", "value": 1000, "unit": "kg/m³"},
+        {"label": "Viscosity supplied", "value": "Dynamic", "unit": ""},
+        {"label": "Dynamic viscosity", "value": 1, "unit": "mPa·s"},
+        {"label": "Volumetric flow", "value": 9.42477796076938, "unit": "L/min"},
+        {"label": "Pipe length", "value": 10, "unit": "m"},
+        {"label": "Absolute roughness (zero for smooth)", "value": 0, "unit": "mm"},
+        {"label": "Sum of fitting K values (optional)", "value": 2, "unit": ""}
+      ],
+      "outputs": [
+        {"label": "Average velocity", "value": 0.019999999999999997, "unit": "m/s"},
+        {"label": "Reynolds number", "value": 1999.9999999999998, "unit": ""},
+        {"label": "Relative roughness", "value": 0, "unit": ""},
+        {"label": "Darcy friction factor", "value": 0.032, "unit": ""},
+        {"label": "Major loss", "value": 0.0006399999999999998, "unit": "kPa"},
+        {"label": "Fitting loss", "value": 0.00039999999999999986, "unit": "kPa"},
+        {"label": "Total frictional pressure loss", "value": 0.0010399999999999997, "unit": "kPa"},
+        {"label": "Equivalent head loss", "value": 0.0001060504861497045, "unit": "m"}
+      ],
+      "equations": [
+        "A=\\pi D^2/4,\\quad Q=A\\bar v",
+        "\\mathrm{Re}=\\bar vD/\\nu,\\quad \\nu=\\mu/\\rho",
+        "f_D=64/\\mathrm{Re}\\quad\\text{(laminar)}",
+        "\\Delta p_m=f_D\\frac{L}{D}\\frac{\\rho\\bar v^2}{2}",
+        "\\Delta p_K=\\sum K\\frac{\\rho\\bar v^2}{2},\\quad h_L=\\frac{\\Delta p_{total}}{\\rho g}",
+        "\\frac{1}{\\sqrt{f_D}}=-2\\log_{10}\\left(\\frac{\\epsilon}{3.7D}+\\frac{2.51}{\\mathrm{Re}\\sqrt{f_D}}\\right)"
+      ],
+      "assumptions": [
+        "Steady incompressible flow in a full circular pipe using the internal diameter.",
+        "Enter density and viscosity at operating conditions. Viscosity can vary substantially with temperature.",
+        "Reynolds thresholds near 2,300 and 4,000 are approximate. Inlet disturbances and geometry can shift transition.",
+        "Straight-pipe friction assumes fully developed flow. Fitting K values refer to the entered pipe velocity.",
+        "Elevation, developing flow and compressibility are excluded. Relative roughness is limited to 0.05 and turbulent Reynolds number to 100 million."
+      ],
+      "method": "Use Darcy 64/Re for laminar flow and bisect Colebrook–White for turbulent flow. Interpolate Darcy factors between the regime endpoints in transition.",
+      "diagram": {
+        "type": "calc-diagram",
+        "id": "pipe-pressure-drop",
+        "model": {}
+      },
+      "warnings": [
+        "Approximate flow regime: Laminar."
+      ]
+    },
+    {
+      "id": "emwrfrnqeipznhv",
+      "calculatorId": "wall-heat-loss",
+      "calculatorName": "Wall / Building Assembly Heat Loss",
+      "path": "calculators/wall-heat-loss.html",
+      "title": "Wall / Building Assembly Heat Loss",
+      "addedAt": "2026-11-22T06:08:36.326Z",
+      "notes": "",
+      "inputs": [
+        {"label": "Thermal property supplied", "value": "Effective R-value", "unit": ""},
+        {"label": "Effective assembly R-value", "value": 2, "unit": "m²·K/W"},
+        {"label": "Assembly area", "value": 20, "unit": "m²"},
+        {"label": "Indoor temperature", "value": 0, "unit": "°C"},
+        {"label": "Outdoor temperature", "value": 20, "unit": "°C"},
+        {"label": "Operating duration", "value": 1, "unit": "h"}
+      ],
+      "outputs": [
+        {"label": "Indoor minus outdoor temperature", "value": -20, "unit": "K"},
+        {"label": "Heat-transfer rate (+ loss, − gain)", "value": -200, "unit": "W"},
+        {"label": "Transferred energy", "value": -0.2, "unit": "kWh"},
+        {"label": "Transferred energy", "value": -682.4283266255884, "unit": "BTU"}
+      ],
+      "equations": [
+        "\\Delta T=T_i-T_o,\\quad \\dot Q=UA\\Delta T",
+        "U=1/R,\\quad E=\\dot Qt"
+      ],
+      "assumptions": [
+        "Positive results are heat loss from indoors. Negative results are heat gain indoors.",
+        "Area, effective thermal properties and indoor/outdoor temperatures are constant over the duration.",
+        "Excludes infiltration, ventilation, solar gain, moisture, equipment loads and thermal storage."
+      ],
+      "method": "Multiply effective assembly U-factor, area and signed temperature difference. Multiply the rate by duration for energy.",
+      "diagram": {
+        "type": "calc-diagram",
+        "id": "wall-heat-loss",
+        "model": {
+          "direction": "Gain"
+        }
+      },
+      "warnings": [
+        "This steady-state transmission estimate covers the stated period. Complete HVAC loads and seasonal energy require additional models and inputs."
+      ]
+    }
+  ]
+}
