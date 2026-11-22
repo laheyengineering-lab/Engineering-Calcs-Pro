@@ -27,7 +27,7 @@ Calculator  →  Diagram  →  Design Study  →  Project report
 
 Established patterns: centralized units and materials, a calculator catalog in `js/calculator-data.js`, DOM-free engines for the calculators supported by Design Studies, a shared SVG diagram helper, and snapshot-based reports.
 
-Still developing: **not every calculator has a fully separated calculation engine.** Many keep their math alongside page-specific DOM code, and calculation, validation, unit, and result-formatting conventions are not yet uniform. Design Studies support all 26 active calculators. Calculator and study schematics reuse shared SVG primitives. Extracting engines and unifying conventions is done incrementally, only where it improves clarity or enables reuse, so simple calculators can stay simple.
+Design Studies supports all 36 active calculators. Calculator and study schematics reuse shared SVG primitives. Standalone calculators vary in how much calculation, validation, and display logic they share with the other workflows.
 
 ## 1. Architecture Overview
 
@@ -51,6 +51,7 @@ tests/{core,calculators,smoke,helpers}/    Vitest + jsdom tests
 ### Application systems
 
 - **Fluid, thermal and practical calculators:** DOM-free SI calculations in `fluid-thermal-calculations.js` and `cylinder-geometry.js` feed shared field and unit definitions in `expansion-models.js`. Standalone forms and Design Studies call the same adapters. Diagram rendering uses the calculator diagram registry and report snapshots. The fluid chain uses a dedicated tab-local handoff with two fixed routes. See [the calculator catalog and references](fluid-thermal-practical-calculators.md).
+- **Electrical Engineering** uses DOM-free SI engines in `electrical-dc-calculations.js`, `electrical-transient-ac-calculations.js`, and `electrical-practical-calculations.js`. The standalone UI and Design Studies share the field and output definitions in `electrical-models.js`. The UI renders editable components, result tables, and solution steps. The SVG renderer consumes solved quantities from the engines and serializes bounded models for reporting. [Electrical models and references](electrical-calculators.md)
 - **Homepage and catalog:** `js/calculator-data.js` owns calculator metadata and `js/homepage.js` renders and searches the catalog. `js/report-builder.js` also adds navigation links and report actions.
 - **Calculator pages:** Each `calculators/*.html` page loads shared styles, `js/katex-loader.js`, `js/engineering-units.js`, any required support scripts, and its calculator script. Most page-specific UI and calculations remain in a calculator-specific script; selected calculations also have DOM-free engines for reuse.
 - **Shared engineering utilities:** `js/engineering-units.js` contains unit conversions and material data. `js/calculator-utils.js` provides shared material dropdown and HTML-escaping helpers. Other focused helpers include `js/calculator-context.js`, `js/bolt-database.js`, and `js/beam-section-properties.js`.
@@ -529,7 +530,7 @@ Examples:
 
 ### Current state
 
-`js/calculator-data.js` is the canonical homepage catalog, not a full content-management system.
+`js/calculator-data.js` is the canonical homepage catalog.
 
 It centralizes:
 
@@ -539,6 +540,8 @@ It centralizes:
 - related calculator IDs and search keywords
 
 It is used by `js/homepage.js` to render and filter homepage cards. It includes active calculators and “Coming Soon” placeholders, and the homepage validates catalog metadata at startup.
+
+The Electrical Engineering category uses the same search and category filter. Its ten entries link related DC, transient, AC, and practical tools. [Electrical Engineering catalog](electrical-calculators.md)
 
 ### What is still embedded directly in pages
 
@@ -555,7 +558,7 @@ Calculator-specific pages still own:
 
 ### Boundaries
 
-The catalog does not own full theory, equations, worked examples, references, assumptions, or input/output definitions; those remain in each calculator page. No richer metadata layer or automated catalog generation is implemented.
+The registry stores metadata for discovery. Full theory and worked examples are on calculator pages. Calculator groups that share a model descriptor, including the fluid and electrical calculators, define input and output fields, equations, and assumptions in that descriptor for reuse across pages and Design Studies.
 
 ## 8. Mathematical Rendering / KaTeX
 
@@ -981,8 +984,8 @@ Skip irrelevant steps for simple calculators. The workflow is intended to keep t
 ### Implemented boundaries and limitations
 
 - Most calculator logic remains coupled to page DOM. Only selected calculators expose DOM-free calculation engines that can be reused by Design Studies.
-- Design Studies has adapters for all 26 active calculators. New adapters require compatible, tested calculation entry points; see [`design-studies.md`](design-studies.md).
-- Interactive calculator diagrams are currently limited to the beam deflection model and beam section profiles. The deflected curve is illustrative; arbitrary support, load, or geometry models are not implied. See [`interactive-diagrams.md`](interactive-diagrams.md).
+- Design Studies has adapters for all 36 active calculators. New adapters require compatible, tested calculation entry points. [Design Studies](design-studies.md)
+- Interactive schematics follow the calculator's inputs and defined topology. Circuit Studio changes its component count and series/parallel arrangement through form controls. RC, RL, and series RLC plots use calculated response samples. [Interactive diagrams](interactive-diagrams.md)
 - Design Studies and project reports are stored in browser `localStorage`, with a page-local memory fallback when storage is unavailable. The fallback is lost on reload or navigation, so report entries cannot reach the separate report page without working storage. Data is not synchronized to a server or another browser.
 - Reports contain snapshots and are not recomputed when calculators change. PDF output is provided by browser printing, not generated by the application. See [`reporting.md`](reporting.md).
 - Result precision and some unit/UI patterns vary by calculator; dynamic result math generally uses HTML/Unicode rather than KaTeX re-rendering.

@@ -33,7 +33,7 @@ Tests live under `tests/`.
 ## What is tested
 
 The suite currently covers:
-- calculator mathematics for all 26 active calculators
+- calculator mathematics for all 36 active calculators
 - shared unit conversions in `js/engineering-units.js`
 - centralized material data lookups and representative engineering constants
 - important invalid-input and divide-by-zero paths
@@ -103,3 +103,9 @@ window.calculateMoment();
 ## Engineering test philosophy
 
 Prefer known analytical solutions and deterministic examples over UI-only checks. The goal is to verify engineering behavior: given specific inputs, the calculator should produce the expected result in the selected units.
+
+## Electrical Engineering
+
+The electrical solver tests use independent hand-calculated results, conservation checks, engineering-prefix conversions, and explicit cases with undefined ideal-circuit quantities. The smoke tests exercise the actual forms and registry, including dynamic component editing, schematic labels, Design Study scenarios and sweeps, and Project Report JSON portability. [Electrical worked cases](electrical-calculators.md)
+
+For a Chromium review, start a local HTTP server. Check the Electrical Engineering search and filter, switch Circuit Studio between series and parallel, add a resistor by keyboard, and confirm that the branch results and SVG update. At mobile width, make sure controls and labels remain legible and that any scrolling is confined to the figure or table. Change the selected time and frequency in the response calculators and check that the marker follows. Save a result, export the report, and re-import the JSON to verify the saved schematic.

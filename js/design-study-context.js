@@ -692,7 +692,11 @@
         const adapterId = adapter && adapter.id;
         const expansion = adapter && root.FormulaFoundryExpansionDiagram
             && root.FormulaFoundryCalculatorDiagrams?.has(adapterId) && !RENDERERS[adapterId];
-        const draw = expansion ? () => {
+        const draw = adapter?.scenarioDiagram ? () => {
+            const diagram = adapter.scenarioDiagram(scenario);
+            const svg = root.FormulaFoundryCalculatorDiagrams.render(document, diagram.id, diagram.model);
+            return { svg, description: svg.getAttribute("aria-label"), items: [] };
+        } : expansion ? () => {
             const outputs = scenario?.status === "calculated"
                 ? Object.fromEntries(scenario.result.outputs.map((output) => [output.id, output.value])) : {};
             const diagram = root.FormulaFoundryExpansionDiagram(adapterId, scenario?.inputs || {}, outputs);

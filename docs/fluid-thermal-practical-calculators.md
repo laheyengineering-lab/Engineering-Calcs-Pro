@@ -1,6 +1,6 @@
 # Fluid, thermal and practical calculators
 
-The eight calculators below bring the active catalog to 26. The homepage category filter works alongside keyword search. Each calculator page includes a worked example, input units, equations, applicability, related tools and an accessible schematic. All eight can be used independently or in Design Studies and Project Reports.
+The homepage category filter works alongside keyword search. Each calculator page includes a worked example, input units, equations, applicability, related tools and an accessible schematic. All eight calculators can be used independently or in Design Studies and Project Reports.
 
 | Category | Calculator | Model and reference case |
 |---|---|---|

@@ -64,7 +64,10 @@
         "press-fit", "shaft-torsion", "spring-calculations", "stress-strain", "thermal-expansion",
         "thick-walled-cylinder", "thick-walled-cylinder-plot", "thread-strength",
         "pipe-flow", "pipe-pressure-drop", "pump-hydraulic-power", "hydraulic-cylinder-speed",
-        "pneumatic-air-consumption", "multilayer-insulation", "wall-heat-loss", "wall-mounting"
+        "pneumatic-air-consumption", "multilayer-insulation", "wall-heat-loss", "wall-mounting",
+        "ohms-law", "circuit-studio", "kirchhoff-circuit", "electrical-divider", "dc-wire-voltage-drop",
+        "rc-transients", "rl-transients", "rlc-impedance", "ac-power-factor", "speaker-impedance",
+        "rc-transients-response", "rl-transients-response", "rlc-impedance-response"
     ];
 
     // Model data for calculator diagrams: plain keys with finite numbers, short strings, or small numeric arrays.

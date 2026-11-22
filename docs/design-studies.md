@@ -52,14 +52,19 @@ Scenarios whose models differ (mode, end condition, method, condition, strength 
 
 The eight [expansion calculators](fluid-thermal-practical-calculators.md) use the standalone calculators’ unit-aware adapters and SI engines. Choice fields select the physical model and remain fixed during a sweep. Inputs from inactive modes are excluded from saved numerical results and cannot be swept. Horizontal mounting layout spacing and integer fastener counts stay fixed. Nonphysical sample inputs yield gaps with the solver’s validation message. Scenario reports capture the active inputs, equations, assumptions, warnings, numeric results and a reusable schematic.
 
-### Unsupported calculators
-All 26 active calculators have adapters.
+## Electrical Engineering
+
+All ten [electrical calculators](electrical-calculators.md) use the standalone field and unit definitions in `js/electrical-models.js` and the same SI calculation engines. Compare saved scenarios or sweep a continuous input such as supply voltage, resistance, selected time, or source frequency. Count, arrangement, divider tap, wire gauge, and open/resistive component state are categorical selections. During a sweep, the baseline scenario supplies these selections and the other component values. An invalid sample leaves a gap and reports the solver's explanation.
+
+Electrical scenario report entries include active configuration and values, calculated results, equations, assumptions, warnings, and a reconstructible schematic. RC, RL, and series RLC entries can also include the calculated response plot at the saved operating point. [Project Report snapshots](reporting.md)
+
+All 36 active calculators have adapters.
 
 ## Architecture
 - `js/design-study-core.js` - DOM-free data model, adapter registry, comparison, sweep, persistence/validation and report-snapshot builders (`window.FormulaFoundryStudies`).
-- `js/design-study-adapters.js` - one adapter per supported calculator. An adapter declares id/name/revision, unit groups (with conversions delegated to `engineering-units.js`), numeric or categorical input definitions, output definitions (quantity, `plottable`, `comparable`), equations, assumptions, and a `calculate(values, units)` method that **calls the calculator's own calculation engine**. No calculation equations are duplicated in the Design Studies code.
+- The calculator adapters declare an ID, name, revision, unit groups, numeric or categorical inputs, outputs, equations, assumptions, and a `calculate(values, units)` method that calls the calculator's own engine. The fluid and electrical calculators share their model descriptors with the standalone UI.
 - `js/press-fit-calculation.js`, `js/hertzian-contact-calculation.js`, `js/shaft-torsion-calculation.js`, and `js/beam-study-calculations.js` expose DOM-independent calculation entry points also used by the calculator pages. The beam entry points use `js/beam-section-properties.js`; displayed calculator equations and numerical results remain the same.
-- `js/design-study-context.js` - presentation-only engineering context: the panel above the scenarios shows the selected adapter's existing `method`, `equations` (via `equationsFor()` when defined), `assumptions`, `warnings` and `path` link (KaTeX via `FormulaFoundryRenderMath`), plus a conceptual SVG per calculator built with `FormulaFoundryDiagram` (the beam-deflection diagram reuses `FormulaFoundryBeamDeflectionDiagram`). Adapter metadata remains the single source; malformed or missing metadata is skipped. Diagrams use the baseline (or first) scenario's inputs only to set clamped proportions and labels, are labelled illustrative, never calculate or validate results, and need no calculated scenario. A text description and list of drawn values accompany each SVG.
+- `js/design-study-context.js` renders the selected adapter's method, equations, assumptions, warnings, calculator link, and schematic. Diagrams use the baseline or first scenario. Geometry may be illustrative, and numerical labels come from the corresponding model inputs or calculator results.
 - `js/design-studies.js` + `design-studies.html` + `css/studies.css` - the workspace UI (text is always set via `textContent`).
 - `js/study-chart.js` + `css/study-chart.css` - dependency-free SVG line chart shared with the report.
 

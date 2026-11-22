@@ -129,6 +129,7 @@
             result: null,
             updatedAt: new Date().toISOString()
         };
+        inputs ??= adapter.defaultInputs;
         Object.keys(inputs || {}).forEach((id) => {
             const def = inputDef(adapter, id);
             if (def && validInputValue(def, inputs[id])) scenario.inputs[id] = inputs[id];
@@ -180,7 +181,7 @@
         const fields = adapter.activeInputs ? adapter.activeInputs(scenario.inputs) : adapter.inputs;
         return fields.map((input) => {
             let value = scenario.inputs[input.id];
-            if (adapter.activeInputs && input.options && value == null) value = input.options[0];
+            if (adapter.activeInputs && input.options && value == null) value = input.default ?? input.options[0];
             if (value === null || value === undefined) {
                 for (const binding of adapter.materialBindings || []) {
                     if (scenario.inputs[binding.selectionId] === null || scenario.inputs[binding.selectionId] === undefined) continue;
@@ -818,6 +819,12 @@
         if (!adapter) return { ok: false, error: "Unsupported calculator." };
         if (scenario.status !== "calculated" || !scenario.result) return { ok: false, error: "Scenario \"" + scenario.name + "\" has no current calculated result. Recalculate it first." };
         const r = scenario.result;
+        let reportDetails;
+        try {
+            reportDetails = adapter.reportDetails?.(scenario);
+        } catch (error) {
+            return { ok: false, error: "Could not reconstruct the saved circuit. Recalculate the scenario before adding it to the report." };
+        }
         return {
             ok: true,
             snapshot: Object.assign(reportSnapshotBase(adapter, study, "scenario", [scenario.name]), {
@@ -826,7 +833,7 @@
                 outputs: r.outputs.map((o) => ({ label: o.label, value: o.value, unit: o.unit })),
                 equations: r.equations, assumptions: r.assumptions, method: r.method,
                 warnings: r.warnings.concat(["Design study scenario calculated " + r.calculatedAt + " (calculator revision " + r.calculatorVersion + ")."]),
-                ...(adapter.diagram ? { diagram: adapter.diagram(scenario.inputs, r.outputs) } : {})
+                ...(reportDetails ?? (adapter.diagram ? { diagram: adapter.diagram(scenario.inputs, r.outputs) } : {}))
             })
         };
     }

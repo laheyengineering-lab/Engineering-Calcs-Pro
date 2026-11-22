@@ -308,6 +308,28 @@ The existing suite covers the shared core in `tests/core/engineering-units.test.
 
 `convertAbsoluteTemperature(value, unit)` converts °C, °F or K to absolute kelvin. `convertAbsoluteTemperatureToUnit(kelvin, unit)` converts back. For a temperature difference, use the interval factors or `convertTemperatureChange`. The legacy conversion APIs remain available.
 
+### Electrical conversions
+
+Electrical model inputs are normalized to SI before solving. Convert a displayed value to SI by multiplying by its unit factor. Divide by the target factor when displaying the result.
+
+| Quantity | Base unit | Electrical units |
+| --- | --- | --- |
+| Voltage | V | V, mV, kV |
+| Current | A | A, mA, µA |
+| Resistance, reactance, impedance | Ω | Ω, kΩ, MΩ |
+| Capacitance | F | F, mF, µF, nF, pF |
+| Inductance | H | H, mH, µH |
+| Frequency | Hz | Hz, kHz, MHz |
+| Time | s | s, ms, µs |
+| Real power | W | W, mW, kW |
+| Energy | J | J, Wh, kWh |
+| Phase angle | rad | degrees and radians |
+| Charge | C | C, mC, µC |
+
+`electricalUnits.power` and `electricalUnits.energy` use the shared `powerUnits` and `energyUnits` factors. One watt-hour is 3,600 J, and one degree is π/180 rad. For AC, apparent power is expressed in VA and reactive power in var. The unit label preserves which power quantity is being reported. Impedance uses a real part and an imaginary part, each in ohms. The usual passive sign convention is positive inductive reactance and negative capacitive reactance in the imaginary part.
+
+The DC wire calculator reuses area, length, and absolute-temperature conversions. Custom resistivity is in Ω·m at the operating temperature. [Electrical models and references](electrical-calculators.md)
+
 ### Expand the Material Database
 
 The `materialDatabase` object can grow to include additional material classes:

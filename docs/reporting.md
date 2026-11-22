@@ -36,5 +36,11 @@ Structured calculators call `FormulaFoundryReport.declareStructured()` and `Form
 
 All eight [expansion calculators](fluid-thermal-practical-calculators.md) capture structured active inputs, numerical outputs with units, equations, methodology and warning text plus a static schematic. Fluid transfers add the source and overrides to the warning text. Design Studies scenario reports include the same schematic. The diagram registry adds identifiers while retaining PR #39’s schema 1 and its existing import and export behavior.
 
+## Electrical snapshots
+
+All ten [electrical calculators](electrical-calculators.md) capture the active circuit configuration, component values and units, calculated results, equations, assumptions, and warnings. For tools with component-level results, a table records values such as resistor drops, currents, and power. The diagram snapshot stores validated values needed to reconstruct the circuit SVG. RC, RL, and series RLC snapshots also capture bounded chart samples and the selected time or frequency.
+
+Electrical snapshots use Project Report schema 1. The report renderer reads the saved diagram values when a report is opened, printed, or imported. A later circuit edit updates the live calculator and leaves the saved entry frozen.
+
 ## Tests
 `tests/core/report-builder.test.js`, `tests/smoke/project-report.test.js`, `tests/smoke/new-calculators-registry.test.js`.
