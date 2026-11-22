@@ -177,7 +177,8 @@
     }
 
     function buildEntry(entry, index, total) {
-        const section = el("section", "report-entry");
+        const workflow = entry.path.startsWith("workflows/");
+        const section = el("section", workflow ? "report-entry report-workflow" : "report-entry");
         section.id = "entry-" + entry.id;
 
         const controls = el("div", "entry-controls no-print");
@@ -219,7 +220,7 @@
         buttons.appendChild(makeButton("Move up", () => { store.moveEntry(entry.id, -1); render(); }, index === 0));
         buttons.appendChild(makeButton("Move down", () => { store.moveEntry(entry.id, 1); render(); }, index === total - 1));
         buttons.appendChild(makeButton("Remove", () => { store.removeEntry(entry.id); render(); setStatus("Entry removed."); }));
-        const source = el("a", "report-source-link", "Open source calculator");
+        const source = el("a", "report-source-link", workflow ? "Open source workflow" : "Open source calculator");
         source.href = entry.path;
         buttons.appendChild(source);
         controls.appendChild(buttons);
@@ -232,7 +233,7 @@
         heading.appendChild(title);
         section.appendChild(heading);
         const added = new Date(entry.addedAt);
-        section.appendChild(el("p", "entry-meta", "Calculator: " + entry.calculatorName + " \u00b7 Added " + (Number.isNaN(added.getTime()) ? "" : added.toLocaleString())));
+        section.appendChild(el("p", "entry-meta", (workflow ? "Workflow · " : "Calculator: ") + entry.calculatorName + " \u00b7 Added " + (Number.isNaN(added.getTime()) ? "" : added.toLocaleString())));
 
         if (entry.study) {
             const kinds = { scenario: "scenario", comparison: "scenario comparison", sweep: "parametric sweep" };

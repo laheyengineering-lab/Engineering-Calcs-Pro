@@ -23,7 +23,8 @@ Calculator  →  Diagram  →  Design Study  →  Project report
 - **Reusable calculation engines** (DOM-free functions) are what let the same model be tested, explored in a study, and reproduced in a report without duplicating equations.
 - **Diagrams** display calculator state; they are views, not solvers.
 - **Design Studies** call those engines to compare scenarios and sweep inputs.
-- **Reports** store snapshots of calculator and study results so decisions can be documented and printed.
+- **Engineering Workflows** compose existing engines into a linked analysis spanning several engineering relationships.
+- **Reports** store snapshots of calculator, study and workflow results so decisions can be documented and printed.
 
 Established patterns: centralized units and materials, a calculator catalog in `js/calculator-data.js`, DOM-free engines for the calculators supported by Design Studies, a shared SVG diagram helper, and snapshot-based reports.
 
@@ -38,6 +39,7 @@ Formula Foundry is a static browser application built from plain HTML, CSS, and 
 ```text
 index.html, about.html, references.html, methodology.html
 calculators/*.html                         Standalone calculator pages
+workflows/fluid-system.html                Engineering workflow workspace
 design-studies.html, report.html           Study and report workspaces
 css/style.css                              Shared site and calculator styles
 css/studies.css, css/study-chart.css,
@@ -57,6 +59,7 @@ tests/{core,calculators,smoke,helpers}/    Vitest + jsdom tests
 - **Shared engineering utilities:** `js/engineering-units.js` contains unit conversions and material data. `js/calculator-utils.js` provides shared material dropdown and HTML-escaping helpers. Other focused helpers include `js/calculator-context.js`, `js/bolt-database.js`, and `js/beam-section-properties.js`.
 - **Interactive diagrams:** `js/engineering-diagram.js` provides shared SVG creation and accessible pointer/keyboard control helpers. Calculator-specific rendering lives in `js/beam-deflection-diagram.js` and `js/beam-section-properties.js`; diagrams display calculator state and do not act as separate solvers.
 - **Design Studies:** `js/design-study-core.js` owns the DOM-free scenario model, comparison/sweep logic, validation, and local persistence. `js/design-study-adapters.js` integrates supported calculator engines. `js/design-studies.js` and `design-studies.html` provide the workspace UI; `js/study-chart.js` and `css/study-chart.css` render sweep charts.
+- **Engineering Workflows:** Fluid System Designer combines the existing Pipe Flow, Pipe Pressure Drop and Pump Hydraulic Power engines, applies a closed-loop or open-transfer head balance, and supports local projects, alternative comparison, sensitivity, and report snapshots. [Fluid System Designer](fluid-system-workflow.md)
 - **Project reports:** `js/report-builder.js` captures and stores snapshots; `js/report-page.js` renders the editable report and its diagrams/charts. `report.html` and `css/report.css` provide the report page and print layout. PDF output uses the browser's print dialog.
 
 The site is static HTML, CSS, and JavaScript with no application backend, framework, or production build step. The test suite uses npm/Vitest; npm is not required to serve the site.

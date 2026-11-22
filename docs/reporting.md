@@ -1,6 +1,6 @@
 # Project Report
 
-Formula Foundry can collect results from several calculators into one print-ready report.
+Formula Foundry can collect results from calculators, Design Studies, and Engineering Workflows into one print-ready report.
 Everything is browser-local (`localStorage`, key `formulaFoundry.projectReport`); there is no backend.
 
 ## Using it
@@ -41,6 +41,10 @@ All eight [expansion calculators](fluid-thermal-practical-calculators.md) captur
 All ten [electrical calculators](electrical-calculators.md) capture the active circuit configuration, component values and units, calculated results, equations, assumptions, and warnings. For tools with component-level results, a table records values such as resistor drops, currents, and power. The diagram snapshot stores validated values needed to reconstruct the circuit SVG. RC, RL, and series RLC snapshots also capture bounded chart samples and the selected time or frequency.
 
 Electrical snapshots use Project Report schema 1. The report renderer reads the saved diagram values when a report is opened, printed, or imported. A later circuit edit updates the live calculator and leaves the saved entry frozen.
+
+## Fluid System Designer snapshots
+
+Fluid System Designer appends the active calculated configuration with the design conditions, ordered geometry, segment flow and loss tables, head balance, pump duty, equations, limitations and a reconstructible schematic. Include saved alternatives with the comparison checkbox. A current flow sweep adds its sample data and selected plot. The entry survives schema-v1 export, import and printing. [Fluid System Designer](fluid-system-workflow.md)
 
 ## Tests
 `tests/core/report-builder.test.js`, `tests/smoke/project-report.test.js`, `tests/smoke/new-calculators-registry.test.js`.

@@ -74,6 +74,7 @@
                 return null;
             }
         }
+        if (strict && registry[id].validate && !registry[id].validate(model)) return null;
         return model;
     }
 

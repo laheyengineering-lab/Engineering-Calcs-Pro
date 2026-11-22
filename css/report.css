@@ -110,6 +110,10 @@
     text-align: left;
 }
 
+.report-calc-diagram:has([data-diagram-id="fluid-system"]) {
+    max-width: 796px;
+}
+
 .report-calc-diagram-group {
     display: grid;
     gap: var(--space-3);
@@ -340,6 +344,20 @@
     .report-table th,
     .report-table td {
         padding: 2px 5px;
+    }
+
+    .report-workflow .report-chart svg { max-width: 500px; margin-inline: auto; }
+
+    .report-workflow .report-data-table {
+        font-size: 9pt;
+    }
+
+    .report-workflow .report-data-table th {
+        overflow-wrap: normal;
+    }
+
+    .report-workflow .report-table td.num {
+        white-space: nowrap;
     }
 
     .report-block h4 {

@@ -14,7 +14,8 @@ Formula Foundry is a browser-based engineering workspace for engineers, designer
 - **Electrical Engineering** includes ten introductory tools for DC circuits, voltage drop, RC and RL transients, AC impedance and power, and nominal speaker loads. Edit 2–12 resistors in Circuit Studio and explore a live schematic with branch measurements, conservation checks, and optional solution steps. [Electrical models and references](docs/electrical-calculators.md)
 - **Engineering diagrams** show calculator systems and Design Study scenarios. Interactive graphics include keyboard-accessible geometry, load, and circuit controls.
 - **Design Studies** supports all 36 active calculators. Save scenarios, compare results against a baseline, and sample continuous inputs within a chosen configuration.
-- **Project reports:** Collect calculator and study snapshots, annotate and reorder entries, export and import portable Project Report JSON, and print or save through the browser's print dialog. Formula Foundry does not generate PDF files itself.
+- **Engineering Workflows** connect multiple calculations. Fluid System Designer solves series-pipe losses and pump duty, compares configurations, and sweeps flow rate. [Fluid System Designer guide](docs/fluid-system-workflow.md)
+- **Project reports:** Collect calculator, study and workflow snapshots, annotate and reorder entries, export and import portable Project Report JSON, and print or save through the browser's print dialog. Formula Foundry does not generate PDF files itself.
 - **Connected fluid calculations:** Explicitly send validated values from Pipe Flow to Pipe Pressure Drop and then Pump Hydraulic Power. Downstream values remain editable and reports retain transfer context.
 - **Shared engineering utilities:** Centralized unit conversions and material data, common calculator helpers, shared SVG diagram utilities, and KaTeX equation rendering.
 - **Static site:** Plain HTML, CSS, and JavaScript with no application framework or production build step.
@@ -33,7 +34,7 @@ Anything not listed under "What you can do today" should be treated as planned o
 
 ## Data and privacy
 
-Calculations run in the browser; the project has no application backend or account-based storage. Design Studies and project reports are saved in this browser's `localStorage` (`formulaFoundry.designStudies` and `formulaFoundry.projectReport`). If browser storage is unavailable, they fall back to page-local memory, which is lost on reload or navigation; without working storage, report entries cannot be carried to the separate report page. Calculator form values are not persisted on their own. Design Study input edits are saved when changed, while study and calculator results are copied into project reports only when explicitly added. Data is not synchronized between browsers.
+Calculations run in the browser; the project has no application backend or account-based storage. Design Studies and project reports are saved in this browser's `localStorage` (`formulaFoundry.designStudies` and `formulaFoundry.projectReport`). If browser storage is unavailable, they fall back to page-local memory, which is lost on reload or navigation; without working storage, report entries cannot be carried to the separate report page. Calculator form values are not persisted on their own. Design Study input edits are saved when changed, while study and calculator results are copied into project reports only when explicitly added. Fluid System Designer saves one workflow project with its named configurations under its own local storage key and supports portable workflow project JSON. Data is not synchronized between browsers.
 
 The site loads KaTeX from a CDN to render equations. Hosting is static; no server-side calculation service is required.
 
@@ -63,6 +64,7 @@ For watch mode, run `npm run test:watch`. There is no build command. See [`docs/
 ```text
 index.html, about.html, references.html, methodology.html  Static site pages
 calculators/                                               Calculator pages
+workflows/fluid-system.html                                Fluid System Designer workspace
 css/style.css                                              Shared site and calculator styles
 css/studies.css, css/study-chart.css, css/report.css       Study, chart, and report styles
 css/electrical.css                                         Electrical calculator layouts
@@ -78,6 +80,7 @@ tests/                                                     Vitest + jsdom tests
 - [Calculator development guide](docs/calculator-development-guide.md) — adding calculators.
 - [Interactive diagrams](docs/interactive-diagrams.md) — shared SVG framework and diagram patterns.
 - [Design Studies](docs/design-studies.md) — adapters, scenario comparison, sweeps, persistence, and report integration.
+- [Fluid System Designer](docs/fluid-system-workflow.md) — linked series piping analysis, sensitivity and report snapshots.
 - [Project reporting](docs/reporting.md) — report snapshots and print workflow.
 - [Fluid, thermal and practical calculators](docs/fluid-thermal-practical-calculators.md) — catalog, models, worked cases and transfer workflow.
 - [Electrical engineering calculators](docs/electrical-calculators.md) — circuit topologies, worked cases, applicability, and sources.

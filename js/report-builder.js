@@ -67,7 +67,7 @@
         "pneumatic-air-consumption", "multilayer-insulation", "wall-heat-loss", "wall-mounting",
         "ohms-law", "circuit-studio", "kirchhoff-circuit", "electrical-divider", "dc-wire-voltage-drop",
         "rc-transients", "rl-transients", "rlc-impedance", "ac-power-factor", "speaker-impedance",
-        "rc-transients-response", "rl-transients-response", "rlc-impedance-response"
+        "rc-transients-response", "rl-transients-response", "rlc-impedance-response", "fluid-system"
     ];
 
     // Model data for calculator diagrams: plain keys with finite numbers, short strings, or small numeric arrays.
@@ -422,8 +422,8 @@
                 return { ok: false, error: "The project report is full (" + MAX_ENTRIES + " calculations)." };
             }
             project.entries.push(result.snapshot);
-            save(project);
-            return { ok: true, entry: result.snapshot, count: project.entries.length };
+            const persisted = save(project);
+            return { ok: true, persisted, entry: result.snapshot, count: project.entries.length };
         }
 
         function mutateEntries(fn) {
@@ -570,10 +570,19 @@
     function installNavLink() {
         const nav = root.document.querySelector(".site-nav");
         if (!nav || nav.querySelector(".report-nav-link")) return;
-        const inCalculators = /\/calculators\/[^/]*$/.test(String(root.location && root.location.pathname));
+        const prefix = /\/(calculators|workflows)\/[^/]*$/.test(root.location.pathname) ? "../" : "";
+        if (!nav.querySelector(".workflows-nav-link")) {
+            const workflows = root.document.createElement("a");
+            workflows.className = "workflows-nav-link";
+            workflows.href = prefix + "workflows/fluid-system.html";
+            workflows.textContent = "Workflows";
+            const catalog = nav.querySelector('a[href$="#catalog"]');
+            if (catalog) catalog.after(workflows);
+            else nav.appendChild(workflows);
+        }
         const link = root.document.createElement("a");
         link.className = "report-nav-link";
-        link.href = (inCalculators ? "../" : "") + "report.html";
+        link.href = prefix + "report.html";
         link.appendChild(root.document.createTextNode("Project Report "));
         const badge = root.document.createElement("span");
         badge.className = "report-count";
@@ -584,7 +593,7 @@
         if (!nav.querySelector(".studies-nav-link")) {
             const studies = root.document.createElement("a");
             studies.className = "studies-nav-link";
-            studies.href = (inCalculators ? "../" : "") + "design-studies.html";
+            studies.href = prefix + "design-studies.html";
             studies.textContent = "Design Studies";
             if (/\/design-studies\.html$/.test(String(root.location && root.location.pathname))) studies.setAttribute("aria-current", "page");
             nav.insertBefore(studies, link);

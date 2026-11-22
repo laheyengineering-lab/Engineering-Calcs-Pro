@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid System Designer | Formula Foundry</title>
+    <meta name="description" content="Analyze series pipe losses and pump duty, compare configurations, and document a fluid system in Formula Foundry.">
+    <meta property="og:title" content="Fluid System Designer | Formula Foundry">
+    <meta property="og:description" content="A design workspace for incompressible series piping and pump duty.">
+    <meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+    <meta name="theme-color" content="#26282B">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/study-chart.css">
+    <link rel="stylesheet" href="../css/fluid-system.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to Fluid System Designer</a>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html#catalog">Calculators</a>
+            <a class="workflows-nav-link" href="fluid-system.html" aria-current="page">Workflows</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container fluid-workspace" id="main">
+    <header class="calculator-header fluid-intro">
+        <p class="fluid-eyebrow">Engineering Workflows</p>
+        <h1>Fluid System Designer</h1>
+        <p>Size the duty for a steady liquid flow through a series pipe system. Build a circuit, calculate its losses, and compare design options before documenting the analysis.</p>
+        <p class="fluid-help">Calculators solve individual engineering relationships. Design Studies compare scenarios for one calculator. Engineering Workflows link several calculations into a complete analysis.</p>
+    </header>
+    <nav class="fluid-jump" aria-label="Workspace sections">
+        <a href="#project">Project</a>
+        <a href="#pipes">Pipe segments</a>
+        <a href="#results">Results</a>
+        <a href="#comparison">Comparison</a>
+        <a href="#report">Report &amp; export</a>
+    </nav>
+    <noscript><p class="error">Enable JavaScript to edit and calculate a fluid system.</p></noscript>
+    <p id="projectLoadStatus" role="status"></p>
+
+    <form id="analysisForm" novalidate>
+        <section class="content-card fluid-section" id="project" aria-labelledby="projectHeading">
+            <div class="fluid-section-heading">
+                <h2 id="projectHeading">Project definition</h2>
+                <button id="loadExample" type="button" class="secondary-button">Load worked example</button>
+            </div>
+            <div class="fluid-fields fluid-project-meta">
+                <div>
+                    <label for="projectTitle">Project title</label>
+                    <input id="projectTitle" data-meta="title" type="text" maxlength="100" placeholder="e.g. Wash-water transfer">
+                </div>
+                <div>
+                    <label for="projectDescription">Description or application <span>(optional)</span></label>
+                    <textarea id="projectDescription" data-meta="description" rows="2" maxlength="400"></textarea>
+                </div>
+                <div>
+                    <label for="projectNotes">Operating notes <span>(optional)</span></label>
+                    <textarea id="projectNotes" data-meta="notes" rows="2" maxlength="800"></textarea>
+                </div>
+            </div>
+            <div class="fluid-fields fluid-editor">
+                <div>
+                    <label for="configSelect">Configuration in editor</label>
+                    <select id="configSelect"></select>
+                </div>
+                <div>
+                    <label for="configName">Configuration name</label>
+                    <input id="configName" type="text" maxlength="70">
+                </div>
+                <div class="fluid-span-all">
+                    <label for="systemType">System type</label>
+                    <select id="systemType" data-system="systemType" aria-describedby="systemBasis"></select>
+                    <p id="systemBasis" class="fluid-help"></p>
+                </div>
+                <div>
+                    <label for="flow">Design flow rate</label>
+                    <div class="fluid-quantity">
+                        <input id="flow" data-system="flow" type="number" min="0" step="any" inputmode="decimal" required>
+                        <select id="unit-flow" data-unit="flow" aria-label="Design flow rate unit"></select>
+                    </div>
+                </div>
+                <div>
+                    <label for="density">Fluid density</label>
+                    <div class="fluid-quantity">
+                        <input id="density" data-system="density" type="number" step="any" inputmode="decimal" required>
+                        <select id="unit-density" data-unit="density" aria-label="Density unit"></select>
+                    </div>
+                </div>
+                <div>
+                    <label for="efficiency">Pump efficiency (%)</label>
+                    <input id="efficiency" data-system="efficiency" type="number" max="100" step="any" inputmode="decimal" required>
+                </div>
+                <div>
+                    <label for="viscosityMode">Viscosity supplied</label>
+                    <select id="viscosityMode" data-system="viscosityMode">
+                        <option value="dynamicViscosity">Dynamic viscosity</option>
+                        <option value="kinematicViscosity">Kinematic viscosity</option>
+                    </select>
+                </div>
+                <div id="dynamicViscosityField">
+                    <label for="dynamicViscosity">Dynamic viscosity</label>
+                    <div class="fluid-quantity">
+                        <input id="dynamicViscosity" data-system="dynamicViscosity" type="number" step="any" inputmode="decimal" required>
+                        <select id="unit-dynamicViscosity" data-unit="dynamicViscosity" aria-label="Dynamic viscosity unit"></select>
+                    </div>
+                </div>
+                <div id="kinematicViscosityField" hidden>
+                    <label for="kinematicViscosity">Kinematic viscosity</label>
+                    <div class="fluid-quantity">
+                        <input id="kinematicViscosity" data-system="kinematicViscosity" type="number" step="any" inputmode="decimal" required>
+                        <select id="unit-kinematicViscosity" data-unit="kinematicViscosity" aria-label="Kinematic viscosity unit"></select>
+                    </div>
+                </div>
+                <div id="elevationField" hidden>
+                    <label for="elevation">Reservoir elevation change (<span data-unit-label="distance">m</span>)</label>
+                    <input id="elevation" data-system="elevation" type="number" step="any" required aria-describedby="elevationHelp">
+                    <small id="elevationHelp">Outlet surface minus inlet surface.</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-card fluid-section" id="pipes" aria-labelledby="pipesHeading">
+            <h2 id="pipesHeading">Pipe segments</h2>
+            <p class="fluid-help">Enter 1–8 segments in flow order. Every segment carries the same flow. Use the measured or specified <strong>internal diameter</strong> of each pipe.</p>
+            <details class="fluid-disclosure" id="engineeringUnits">
+                <summary>Pipe and result units</summary>
+                <div class="fluid-fields" id="pipeUnits"></div>
+                <p class="fluid-help">Changing units converts entered values within this configuration.</p>
+            </details>
+            <p class="fluid-help" id="pipeHelp">Use zero roughness for a hydraulically smooth assumption. Enter a sum of fitting K values referenced to the local segment velocity, including any assigned entrance, exit or diameter-change losses. Enter zero when no minor loss is assigned.</p>
+            <div id="segmentList"></div>
+            <template id="segmentTemplate">
+                <fieldset class="fluid-segment">
+                    <legend></legend>
+                    <div class="fluid-segment-description">
+                        <div><label data-label="name">Segment name</label><input data-segment="name" type="text" maxlength="50"></div>
+                        <div><label data-label="notes">Segment notes <span>(optional)</span></label><input data-segment="notes" type="text" maxlength="160"></div>
+                    </div>
+                    <div class="fluid-segment-dimensions">
+                        <div>
+                            <label data-label="diameter">Internal diameter (<span data-unit-label="diameter"></span>)</label>
+                            <input data-segment="diameter" type="number" step="any" inputmode="decimal" required>
+                        </div>
+                        <div>
+                            <label data-label="length">Straight length (<span data-unit-label="distance"></span>)</label>
+                            <input data-segment="length" type="number" min="0" step="any" inputmode="decimal" required>
+                        </div>
+                        <div>
+                            <label data-label="roughness">Absolute roughness (<span data-unit-label="diameter"></span>)</label>
+                            <input data-segment="roughness" type="number" min="0" step="any" inputmode="decimal" required>
+                        </div>
+                        <div>
+                            <label data-label="minorCoefficient">Sum of fitting K</label>
+                            <input data-segment="minorCoefficient" type="number" min="0" step="any" inputmode="decimal" required>
+                        </div>
+                    </div>
+                    <div class="fluid-segment-actions">
+                        <button type="button" class="secondary-button" data-segment-action="duplicate">Duplicate</button>
+                        <button type="button" class="secondary-button" data-segment-action="up">Move up</button>
+                        <button type="button" class="secondary-button" data-segment-action="down">Move down</button>
+                        <button type="button" class="secondary-button" data-segment-action="remove">Remove</button>
+                    </div>
+                </fieldset>
+            </template>
+            <div class="fluid-calculate">
+                <button type="button" class="secondary-button" id="addSegment">Add segment</button>
+                <button type="submit" id="calculate">Calculate system</button>
+            </div>
+            <div id="analysisErrors" role="alert" tabindex="-1"></div>
+        </section>
+    </form>
+
+    <section class="content-card fluid-section" id="results" aria-labelledby="resultsHeading">
+        <h2 id="resultsHeading" tabindex="-1">Calculated results</h2>
+        <p id="resultStatus" class="fluid-status" role="status"></p>
+        <div id="resultSummary" hidden>
+            <p class="fluid-help" id="resultBasis"></p>
+            <dl id="resultHighlights" class="fluid-highlights"></dl>
+            <p class="fluid-help">Duty is evaluated at the design flow. An operating-point and suction check requires pump data.</p>
+            <ul id="resultWarnings" class="warning" hidden></ul>
+        </div>
+
+        <figure class="ff-figure fluid-figure">
+            <div class="ff-diagram-host fluid-diagram-scroll" id="systemDiagram" role="region" aria-label="Piping schematic" tabindex="0"></div>
+            <figcaption>Schematic geometry drawn at an illustrative scale. Double ticks mark segments with fitting losses. Select a segment in the drawing to edit it.<span class="fluid-scroll-hint">Scroll the drawing to follow the full flow path.</span></figcaption>
+        </figure>
+        <div id="resultBreakdown" hidden>
+            <h3>System head balance</h3>
+            <dl id="headBalance" class="fluid-balance"></dl>
+            <div id="segmentResults"></div>
+        </div>
+        <details class="fluid-disclosure">
+            <summary>Engineering assumptions and limits</summary>
+            <ul id="modelLimits"></ul>
+        </details>
+    </section>
+
+    <section class="content-card fluid-section" id="comparison" aria-labelledby="comparisonHeading">
+        <h2 id="comparisonHeading">Design comparison</h2>
+        <p class="fluid-help">Duplicate the active configuration to try different pipe sizes, fitting losses or flow. Each configuration has its own inputs and calculated results.</p>
+        <div class="fluid-actions">
+            <button type="button" id="duplicateConfig">Duplicate configuration</button>
+            <button type="button" class="secondary-button" id="setBaseline">Set active as baseline</button>
+            <button type="button" class="secondary-button" id="removeConfig">Remove active alternative</button>
+            <a class="fluid-action-link" href="#configSelect">Choose configuration to edit</a>
+        </div>
+        <p class="fluid-status" id="configurationStatus" role="status"></p>
+        <div id="comparisonTables"></div>
+        <p class="fluid-help" id="comparisonBasis">Percentage changes use the baseline as reference. A dash marks a zero or unavailable reference. Segment matches follow the original segment when it is copied or moved.</p>
+
+        <div class="fluid-sensitivity">
+            <h3>Flow sensitivity</h3>
+            <p class="fluid-help">Sweep design flow using the active geometry, fluid properties and pump efficiency. The graph shows sampled system requirements. A manufacturer pump curve is needed to estimate an operating point.</p>
+            <form id="sweepForm" class="fluid-fields" novalidate>
+                <div>
+                    <label for="sweepStart">Start flow (<span data-unit-label="flow">L/min</span>)</label>
+                    <input id="sweepStart" type="number" min="0" step="any" inputmode="decimal" required>
+                </div>
+                <div>
+                    <label for="sweepEnd">End flow (<span data-unit-label="flow">L/min</span>)</label>
+                    <input id="sweepEnd" type="number" min="0" step="any" inputmode="decimal" required>
+                </div>
+                <div>
+                    <label for="sweepCount">Samples (2–100)</label>
+                    <input id="sweepCount" type="number" min="2" max="100" step="1" value="11" required>
+                </div>
+                <div class="fluid-span-all fluid-actions">
+                    <button type="submit" id="runSweep" disabled>Run flow sweep</button>
+                </div>
+            </form>
+            <p id="sweepStatus" role="status" class="fluid-status">Calculate the active configuration before running a sweep.</p>
+            <div id="sweepOutput" hidden>
+                <label for="sweepMetric">Plot quantity</label>
+                <select id="sweepMetric">
+                    <option value="pumpHead">Required pump head</option>
+                    <option value="frictionHead">Total friction head</option>
+                    <option value="shaftPower">Estimated shaft power</option>
+                </select>
+                <figure class="fluid-chart" id="sweepFigure" aria-label="Sensitivity plot"></figure>
+                <div id="sweepTable"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card fluid-section" id="report" aria-labelledby="reportHeading">
+        <h2 id="reportHeading">Report and export</h2>
+        <h3>Project Report</h3>
+        <p class="fluid-help">Add the current calculated configuration to the existing Project Report with its numerical basis, schematic and any current sweep.</p>
+        <label class="fluid-check"><input type="checkbox" id="includeComparison"> Include saved configuration comparison</label>
+        <div class="fluid-actions fluid-report-actions">
+            <button type="button" id="addToReport" disabled>Add analysis to Project Report</button>
+            <a class="fluid-action-link" href="../report.html">Open Project Report</a>
+        </div>
+        <p id="reportStatus" class="fluid-status" role="status">Calculate the active configuration before adding it to a report.</p>
+
+        <h3>Workflow project file</h3>
+        <p class="fluid-help">Save one project in this browser. Export a JSON file to keep another copy, move it to another browser, or archive a separate project. The file includes configurations and calculation status.</p>
+        <div class="fluid-actions">
+            <button type="button" class="secondary-button" id="saveWorkflow">Save locally</button>
+            <button type="button" class="secondary-button" id="exportWorkflow">Export workflow JSON</button>
+            <button type="button" class="secondary-button" id="importWorkflow">Import workflow JSON</button>
+            <button type="button" class="secondary-button" id="newWorkflow">New project</button>
+            <input type="file" id="workflowFile" accept=".json,application/json" hidden>
+        </div>
+        <p class="fluid-status" id="saveStatus" role="status"></p>
+    </section>
+
+    <section class="content-card" id="worked-example" aria-labelledby="workedHeading">
+        <h2 id="workedHeading">Worked example</h2>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>Transfer water between open reservoirs at <strong>24 L/min</strong>. The receiving surface is <strong>3.5 m</strong> above the supply surface. Use \(\rho=998\ \mathrm{kg/m^3}\), \(\mu=1.0\ \mathrm{mPa\cdot s}\), \(g=9.80665\ \mathrm{m/s^2}\), and pump efficiency \(65\%\). All three runs have assumed absolute roughness \(0.045\ \mathrm{mm}\).</p>
+            <div class="fluid-table-wrap" tabindex="0" role="region" aria-label="Worked example pipe dimensions">
+                <table class="fluid-table">
+                    <caption>Example pipe inputs in flow order</caption>
+                    <thead><tr><th scope="col">Segment</th><th scope="col">Internal diameter</th><th scope="col">Straight length</th><th scope="col">ΣK</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row">S1 Transfer main</th><td>32 mm</td><td>8 m</td><td>1.5</td></tr>
+                        <tr><th scope="row">S2 Service run</th><td>25 mm</td><td>14 m</td><td>4</td></tr>
+                        <tr><th scope="row">S3 Discharge</th><td>20 mm</td><td>4 m</td><td>2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Find</h3>
+            <p>Find each segment’s flow regime and loss, the total friction head, and the head, pressure rise and power required at the pump.</p>
+
+            <h3>Solution</h3>
+            <p>Convert flow to cubic metres per second. The SI viscosity is \(0.001\ \mathrm{Pa\cdot s}\), and the roughness is \(0.000045\ \mathrm{m}\).</p>
+            <div>\[ Q=\frac{24}{1000(60)}=0.000400\ \mathrm{m^3/s} \]</div>
+            <p>Use the internal diameters in metres and \(v=Q/A=4Q/(\pi D^2)\). Velocities below are in m/s.</p>
+            <div>\[
+                \begin{aligned}
+                v_1&=\frac{4(0.0004)}{\pi(0.032)^2}=0.49736\\
+                v_2&=\frac{4(0.0004)}{\pi(0.025)^2}=0.81487\\
+                v_3&=\frac{4(0.0004)}{\pi(0.020)^2}=1.27324
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                \mathrm{Re}_1&=\frac{998(0.49736)(0.032)}{0.001}\approx15884\\
+                \mathrm{Re}_2&=\frac{998(0.81487)(0.025)}{0.001}\approx20331\\
+                \mathrm{Re}_3&=\frac{998(1.27324)(0.020)}{0.001}\approx25414
+                \end{aligned}
+            \]</div>
+            <p>All three runs are turbulent. In Colebrook–White, let \(x=1/\sqrt{f_D}\). Using an initial value of 6 and iterating \(x\) in the right-hand side below gives \(x_1=5.77684\), \(x_2=5.83655\), and \(x_3=5.85179\). The workflow solves the same equation by bisection.</p>
+            <div>\[
+                x=-2\log_{10}\!\left(\frac{\epsilon/D}{3.7}+\frac{2.51x}{\mathrm{Re}}\right)
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                a_1&=\frac{0.00140625}{3.7}+\frac{2.51(6)}{15884}\\
+                x_{1,\mathrm{next}}&=-2\log_{10}(a_1)\approx5.75348\\
+                f_{D,1}&=\frac{1}{5.77683874^2}\approx0.0299654\\
+                f_{D,2}&=\frac{1}{5.83655279^2}\approx0.0293553\\
+                f_{D,3}&=\frac{1}{5.85178681^2}\approx0.0292027
+                \end{aligned}
+            \]</div>
+            <p>The velocity pressure \(p_{v,i}=\rho v_i^2/2\) is \(123.4357\), \(331.3452\), and \(808.9483\ \mathrm{Pa}\), respectively. Multiply by \(f_{D,i}L_i/D_i\) for major loss and by \(\sum K_i\) for minor loss. The following losses are in pascals.</p>
+            <div>\[
+                \begin{aligned}
+                \Delta p_{m,1}&=(0.02996536)\frac{8}{0.032}\\
+                             &\quad{}\cdot(123.4357)\approx924.70\\
+                \Delta p_{K,1}&=(1.5)(123.4357)\approx185.15\\
+                \Delta p_{m,2}&=(0.02935534)\frac{14}{0.025}\\
+                             &\quad{}\cdot(331.3452)\approx5446.98\\
+                \Delta p_{K,2}&=(4)(331.3452)\approx1325.38\\
+                \Delta p_{m,3}&=(0.02920270)\frac{4}{0.020}\\
+                             &\quad{}\cdot(808.9483)\approx4724.70\\
+                \Delta p_{K,3}&=(2)(808.9483)\approx1617.90
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                \Delta p_f&\approx1109.85+6772.36+6342.59\\
+                           &\approx14224.81\ \mathrm{Pa}\\
+                h_f&=\frac{14224.81}{998(9.80665)}\\
+                   &\approx1.45343\ \mathrm{m}\\
+                H_p&=1.45343+3.50=4.95343\ \mathrm{m}
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                \Delta p_p&=998(9.80665)(4.95343)\\
+                           &\approx48.4794\ \mathrm{kPa}\\
+                P_h&=(0.0004)(48479.4)\\
+                   &\approx19.3918\ \mathrm W\\
+                P_s&=\frac{19.3918}{0.65}\approx29.8335\ \mathrm W
+                \end{aligned}
+            \]</div>
+
+            <h3>Result</h3>
+            <p>At 24 L/min, the series path loses <strong>1.45343 m</strong> of friction head. The specified lift brings the required pump head to <strong>4.95343 m</strong>, equivalent to <strong>48.4794 kPa</strong>. Hydraulic output is <strong>19.3918 W</strong> and estimated shaft input is <strong>29.8335 W</strong> at 65% pump efficiency.</p>
+        </div>
+    </section>
+</main>
+<footer class="site-footer">
+    <nav class="footer-links" aria-label="Related engineering tools">
+        <a href="../calculators/pipe-flow.html">Pipe Flow</a>
+        <a href="../calculators/pipe-pressure-drop.html">Pipe Pressure Drop</a>
+        <a href="../calculators/pump-hydraulic-power.html">Pump Hydraulic Power</a>
+    </nav>
+</footer>
+
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/fluid-thermal-calculations.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/fluid-system-core.js"></script>
+<script src="../js/fluid-system-project.js"></script>
+<script src="../js/fluid-system-diagram.js"></script>
+<script src="../js/fluid-system-report.js"></script>
+<script src="../js/study-chart.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/fluid-system-page.js"></script>
+</body>
+</html>
