@@ -1,12 +1,13 @@
 import fs from 'node:fs';
+import { VirtualConsole } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { loadCalculatorPage } from '../helpers/browser-test-utils.js';
 
-function open(path, setup) {
+function open(path, setup, options) {
     const source = fs.readFileSync(path, 'utf8');
     const scripts = [...source.matchAll(/<script src="(?:\.\.\/)?(js\/[^"]+)"><\/script>/g)]
         .map((match) => match[1]).filter((script) => !script.includes('katex'));
-    return loadCalculatorPage(path, scripts, setup);
+    return loadCalculatorPage(path, scripts, setup, options);
 }
 
 function enter(page, values) {
@@ -20,6 +21,13 @@ function enter(page, values) {
 function calculate(page) {
     page.document.querySelector('button[type=submit]').click();
     return page.document.querySelector('#result').textContent;
+}
+
+function tabStorage() {
+    const data = new Map();
+    return (window) => Object.defineProperty(window, 'sessionStorage', { value: {
+        getItem: (key) => data.get(key) ?? null, setItem: (key, value) => data.set(key, value), removeItem: (key) => data.delete(key)
+    } });
 }
 
 const cases = [
@@ -68,10 +76,7 @@ describe.each(cases)('%s standalone page', (id, values, expected, invalidField) 
 });
 
 it('transfers canonical flow and pressure, permits edits, and retains provenance in report JSON', () => {
-    const data = new Map();
-    const setup = (window) => Object.defineProperty(window, 'sessionStorage', { value: {
-        getItem: (key) => data.get(key) ?? null, setItem: (key, value) => data.set(key, value), removeItem: (key) => data.delete(key)
-    } });
+    const setup = tabStorage();
     const upstream = open('calculators/pipe-flow.html', setup);
     enter(upstream, { 'units-flow': 'GPM', diameter: 100, density: 1000, dynamicViscosity: 1, flow: 3 * Math.PI / 3.785411784 });
     expect(calculate(upstream)).toContain('Laminar');
@@ -96,6 +101,62 @@ it('transfers canonical flow and pressure, permits edits, and retains provenance
     expect(snapshot.warnings.join(' ')).toContain('From Pipe Pressure Drop & Fittings');
     expect(snapshot.warnings.join(' ')).toContain('overridden');
     for (const page of [upstream, segment, pump]) page.dom.window.close();
+});
+
+it('hands off both calculated results through the transfer buttons, with GPM, kinematic viscosity and overrides', () => {
+    const setup = tabStorage();
+    const virtualConsole = new VirtualConsole();
+    const errors = [];
+    virtualConsole.on('jsdomError', (error) => errors.push(error.message));
+    const pages = [];
+    const openInTab = (id) => {
+        const page = open('calculators/' + id + '.html', setup, { virtualConsole });
+        pages.push(page);
+        return page;
+    };
+
+    try {
+        const upstream = openInTab('pipe-flow');
+        enter(upstream, { 'units-flow': 'GPM', diameter: 100, density: 1000,
+            viscosityMode: 'Kinematic', kinematicViscosity: 2, flow: 2 });
+        expect(calculate(upstream)).toContain('Laminar');
+        const sendFlow = upstream.document.querySelector('#expansionTransfer button');
+        expect(sendFlow.textContent).toBe('Send flow and fluid properties to Pipe Pressure Drop');
+        sendFlow.click();
+
+        // jsdom reports cross-document navigation without loading the destination.
+        // Open that page against the same tab storage to exercise the receive path.
+        const segment = openInTab('pipe-pressure-drop');
+        const field = (id) => segment.document.getElementById(id);
+        expect(field('units-flow').value).toBe('L/min');
+        expect(field('flow').valueAsNumber).toBeCloseTo(7.570823568, 10);
+        expect(field('diameter').valueAsNumber).toBe(100);
+        expect(field('density').valueAsNumber).toBe(1000);
+        expect(field('viscosityMode').value).toBe('Kinematic');
+        expect(field('kinematicViscosity').valueAsNumber).toBe(2);
+        expect(field('dynamicViscosity').disabled).toBe(true);
+        expect(field('length').value).toBe('');
+        expect(field('transferContext').textContent).toContain('From Pipe Flow & Reynolds Number');
+
+        enter(segment, { flow: 12, kinematicViscosity: 4, length: 10, roughness: 0 });
+        expect(field('transferContext').textContent).toContain('Volumetric flow 7.570824 L/min (overridden)');
+        expect(field('transferContext').textContent).toContain('Kinematic viscosity 2 cSt (overridden)');
+        expect(calculate(segment)).toContain('0.003259493 kPa');
+        const sendPressure = segment.document.querySelector('#expansionTransfer button');
+        expect(sendPressure.textContent).toBe('Use segment loss as pump pressure rise');
+        sendPressure.click();
+
+        const pump = openInTab('pump-hydraulic-power');
+        expect(pump.document.getElementById('flow').valueAsNumber).toBeCloseTo(12, 10);
+        expect(pump.document.getElementById('pressure').valueAsNumber).toBeCloseTo(0.00325949323452, 12);
+        expect(pump.document.getElementById('efficiency').value).toBe('');
+        enter(pump, { 'units-pressure': 'Pa', pressure: 50000, efficiency: 80 });
+        expect(pump.document.getElementById('transferContext').textContent).toMatch(/From Pipe Pressure Drop & Fittings.*Pressure rise .*Pa \(overridden\)/);
+        expect(calculate(pump)).toContain('0.0125 kW');
+        expect(errors).toEqual(Array(2).fill('Not implemented: navigation to another Document'));
+    } finally {
+        for (const page of pages) page.dom.window.close();
+    }
 });
 
 it('combines the category filter with catalog search', async () => {

@@ -354,8 +354,17 @@
             row.appendChild(unit);
         }
         label.appendChild(row);
-        label.dataset.studyField = input.id;
-        return label;
+        if (!input.help) {
+            label.dataset.studyField = input.id;
+            return label;
+        }
+        const group = el("div");
+        group.dataset.studyField = input.id;
+        const help = el("small", null, input.help);
+        help.id = "study-" + scenario.id + "-" + input.id + "-help";
+        field.setAttribute("aria-describedby", help.id);
+        group.append(label, help);
+        return group;
     }
 
     function find(id) { return current().scenarios.find((s) => s.id === id); }

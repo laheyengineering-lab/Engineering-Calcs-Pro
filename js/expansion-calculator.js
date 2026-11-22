@@ -109,6 +109,11 @@
             element.step = definition.id === "count" ? "1" : "any";
             fields[definition.id] = element;
         }
+        if (definition.help) {
+            const help = append(row, "small", definition.help);
+            help.id = definition.id + "-help";
+            fields[definition.id].setAttribute("aria-describedby", help.id);
+        }
     }
 
     for (const [key, group] of Object.entries(adapter.groups)) {

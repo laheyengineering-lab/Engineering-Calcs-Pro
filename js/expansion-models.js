@@ -220,6 +220,7 @@ const expansionModels = (() => {
                     active: (values) => values.arrangement !== "Close to wall"
                 }),
                 input("horizontalSpacing", "Horizontal center-to-center spacing between adjacent fasteners", "distance", {
+                    help: "This spacing documents the fastener layout. Changing it leaves the calculated demands unchanged in this centered-load model.",
                     active: (values) => values.arrangement === "Symmetric two-row mount" && values.count > 2,
                     sweepable: false
                 }),
