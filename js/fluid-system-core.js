@@ -171,8 +171,7 @@
                 const result = computePipePressureDrop({ ...pipe, flow, density, [viscosityMode]: viscosity });
                 if (![result.major, result.minor, result.total, result.headLoss, result.velocity].every(Number.isFinite)
                     || (flow > 0 && !(result.reynolds > 0 && Number.isFinite(result.darcyFactor)))
-                    || !fitsDisplay(result.headLoss, "distance") || !fitsDisplay(result.area, "area")
-                    || !fitsDisplay(result.velocity, "velocity")) {
+                    || !fitsDisplay(result.headLoss, "distance")) {
                     throw new Error("The solution is outside the numerical range. Check the units and geometry.");
                 }
                 if (result.regime === "Transitional") {

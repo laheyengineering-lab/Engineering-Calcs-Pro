@@ -184,6 +184,16 @@ describe('series engineering balances', () => {
         expect(result.segments[1].reynolds).toBeCloseTo(20331.0890503, 6);
         expect(result.totals.frictionPressure).toBeCloseTo(14224.807033, 5);
     });
+
+    it('keeps valid SI results independent of output display range', () => {
+        const inputs = laminar();
+        inputs.flow = 0;
+        inputs.units.diameter = 'm';
+        inputs.segments[0].diameter = 1e152;
+        const result = solve(inputs);
+        // The area is finite in SI even though its projection into mm² overflows.
+        expect(solve(model.changeUnits(inputs, 'area', 'mm²'))).toEqual(result);
+    });
 });
 
 describe('validation and sensitivity', () => {

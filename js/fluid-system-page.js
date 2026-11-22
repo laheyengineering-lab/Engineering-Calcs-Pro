@@ -11,6 +11,7 @@
     const form = byId("analysisForm");
     const segmentList = byId("segmentList");
     const format = report.formatValue;
+    const outputUnitGroups = new Set(["pressure", "power", "velocity", "area"]);
 
     let storage;
     try { storage = window.localStorage; } catch { /* The store reports access errors. */ }
@@ -393,9 +394,20 @@
             markDirty();
         } else if (target.dataset.unit) {
             const group = target.dataset.unit;
+            const configuration = active();
             try {
-                const inputs = model.changeUnits(active().inputs, group, target.value);
-                if (inputs === active().inputs) return;
+                const inputs = model.changeUnits(configuration.inputs, group, target.value);
+                if (inputs === configuration.inputs) return;
+                if (outputUnitGroups.has(group)) {
+                    replaceConfiguration({ ...configuration, inputs });
+                    // The input values and input units that produced the samples still match.
+                    if (sweep?.basis === configuration.inputs) sweep = { ...sweep, basis: inputs };
+                    renderResults();
+                    renderComparison();
+                    renderSweep();
+                    markDirty();
+                    return;
+                }
                 editInputs(inputs, group === "flow");
                 renderSystemInputs();
                 refreshSegmentValues();

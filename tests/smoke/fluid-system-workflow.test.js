@@ -165,6 +165,86 @@ it('compares edited alternatives, clears the sweep, and reloads distinct calcula
     }
 });
 
+it('updates output units and exports the same solved analysis and sweep in the selected units', async () => {
+    const fixture = open();
+    const { click, set, segment, id, text, storage, window } = fixture;
+    let reportPage;
+    try {
+        click('loadExample');
+        click('calculate');
+        click('duplicateConfig');
+        set('configName', '25 mm discharge');
+        set(segment(2, 'diameter'), 25);
+        click('calculate');
+        set('sweepStart', 0);
+        set('sweepEnd', 48);
+        set('sweepCount', 3);
+        click('runSweep');
+        set('sweepMetric', 'shaftPower');
+        id('includeComparison').checked = true;
+        click('addToReport');
+
+        const calculate = vi.spyOn(window.FormulaFoundryFluidSystem, 'calculate');
+        const runSweep = vi.spyOn(window.FormulaFoundryFluidSystem, 'runSweep');
+        set('unit-power', 'kW');
+        expect(id('addToReport').disabled).toBe(false);
+        expect(text('resultHighlights')).toContain('0.0272959 kW');
+        expect(text('systemDiagram')).toContain('Shaft power 0.0273 kW');
+        expect(text('comparisonTables')).toContain('Shaft power (kW)');
+        expect(text('comparisonTables')).toContain('0.0298335');
+        expect(text('sweepFigure')).toContain('Estimated shaft power (kW)');
+        expect(text('sweepTable')).toContain('0.0272959');
+
+        set('unit-pressure', 'bar');
+        expect(id('addToReport').disabled).toBe(false);
+        expect(text('headBalance')).toContain('0.443558 bar');
+        expect(text('segmentResults')).toContain('Total loss (bar)');
+        set('unit-velocity', 'ft/s');
+        set('unit-area', 'mm²');
+        expect(text('segmentResults')).toContain('Area (mm²)');
+        expect(text('segmentResults')).toContain('Velocity (ft/s)');
+        expect(text('comparisonTables')).toContain('Peak velocity (ft/s)');
+        expect(id('sweepOutput').hidden).toBe(false);
+        expect(calculate).not.toHaveBeenCalled();
+        expect(runSweep).not.toHaveBeenCalled();
+        click('addToReport');
+
+        reportPage = open('report.html', storage);
+        const reportWindow = reportPage.window;
+        reportWindow.URL.createObjectURL = vi.fn(() => 'blob:report');
+        reportWindow.URL.revokeObjectURL = vi.fn();
+        vi.spyOn(reportWindow.HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+        reportPage.click('exportProject');
+        const [[blob]] = reportWindow.URL.createObjectURL.mock.calls;
+        const source = await new Promise((resolve, reject) => {
+            const reader = new reportWindow.FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsText(blob);
+        });
+        const parsed = reportWindow.FormulaFoundryReport.parseProjectJSON(source);
+        expect(parsed.ok).toBe(true);
+        const [original, converted] = parsed.project.entries;
+        const shaftPower = (entry) => entry.outputs.find(({ label }) => label === 'Estimated shaft power');
+        const pumpPressure = (entry) => entry.outputs.find(({ label }) => label === 'Equivalent pump pressure rise');
+        expect(shaftPower(original).unit).toBe('W');
+        expect(pumpPressure(original).unit).toBe('kPa');
+        expect(shaftPower(converted).unit).toBe('kW');
+        expect(shaftPower(converted).value).toBeCloseTo(0.0272958859678, 12);
+        expect(pumpPressure(converted).unit).toBe('bar');
+        expect(pumpPressure(converted).value).toBeCloseTo(0.4435581469766, 12);
+        expect(converted.diagram.model.powerUnit).toBe('kW');
+        expect(converted.diagram.model.shaftPower).toBeCloseTo(0.0272958859678, 12);
+        expect(converted.tables).toHaveLength(5);
+        expect(converted.chart.yLabel).toBe('Estimated shaft power (kW)');
+        expect(converted.chart.points.map(({ x }) => x)).toEqual([0, 24, 48]);
+        expect(converted.chart.points[1].y).toBeCloseTo(0.0272958859678, 12);
+    } finally {
+        fixture.dom.window.close();
+        reportPage?.dom.window.close();
+    }
+});
+
 it('validates imports before replacement and keeps malformed files from touching the saved copy', async () => {
     const fixture = open();
     const { click, id, set, text, storage, window } = fixture;
