@@ -16,8 +16,13 @@
         const mag = Math.pow(10, Math.floor(Math.log10(raw)));
         const norm = raw / mag;
         const step = (norm >= 5 ? 5 : norm >= 2 ? 2 : 1) * mag;
+        if (!Number.isFinite(step) || step === 0) return [min, max];
         const ticks = [];
-        for (let v = Math.ceil(min / step - 1e-9) * step; v <= max + step * 1e-9; v += step) ticks.push(Number(v.toPrecision(12)));
+        for (let v = Math.ceil(min / step - 1e-9) * step; v <= max + step * 1e-9; v += step) {
+            ticks.push(Number(v.toPrecision(12)));
+            // A narrow range at a large offset can have a step below float precision.
+            if (v + step === v) return [min, max];
+        }
         return ticks;
     }
 
@@ -49,9 +54,14 @@
         if (xMin === xMax) { xMin -= 1; xMax += 1; }
         let yMin = ys.length ? Math.min.apply(null, ys) : 0;
         let yMax = ys.length ? Math.max.apply(null, ys) : 1;
-        if (yMin === yMax) { const pad = Math.abs(yMin) * 0.1 || 1; yMin -= pad; yMax += pad; }
+        if (yMin === yMax) {
+            const pad = Math.abs(yMin) * 0.1 || 1;
+            if (Number.isFinite(yMin - pad)) yMin -= pad;
+            if (Number.isFinite(yMax + pad)) yMax += pad;
+        }
         const yPad = (yMax - yMin) * 0.05;
-        yMin -= yPad; yMax += yPad;
+        if (Number.isFinite(yMin - yPad)) yMin -= yPad;
+        if (Number.isFinite(yMax + yPad)) yMax += yPad;
         const sx = (x) => m.left + (x - xMin) / (xMax - xMin) * (W - m.left - m.right);
         const sy = (y) => H - m.bottom - (y - yMin) / (yMax - yMin) * (H - m.top - m.bottom);
 
