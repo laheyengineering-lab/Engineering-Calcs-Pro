@@ -211,6 +211,86 @@ const calculators = [
         related: [],
         keywords: ["drawing", "sheet metal", "forming", "draw ratio", "punch", "die"],
         status: "coming-soon"
+    },
+    {
+        id: "pipe-flow",
+        name: "Pipe Flow & Reynolds Number",
+        shortDescription: "Find flow area, mean velocity and Reynolds number for a full circular pipe.",
+        description: "Find flow area, mean velocity and Reynolds number for a full circular pipe.",
+        category: "Fluid Mechanics",
+        path: "calculators/pipe-flow.html",
+        related: ["pipe-pressure-drop", "pump-hydraulic-power"],
+        keywords: ["pipe", "reynolds", "laminar", "turbulent", "velocity", "viscosity"]
+    },
+    {
+        id: "pipe-pressure-drop",
+        name: "Pipe Pressure Drop & Fittings",
+        shortDescription: "Estimate straight-pipe friction and fitting losses with Darcy–Weisbach.",
+        description: "Estimate straight-pipe friction and fitting losses with Darcy–Weisbach.",
+        category: "Fluid Mechanics",
+        path: "calculators/pipe-pressure-drop.html",
+        related: ["pipe-flow", "pump-hydraulic-power"],
+        keywords: ["pipe", "darcy", "colebrook", "fittings", "roughness", "pressure", "head"]
+    },
+    {
+        id: "pump-hydraulic-power",
+        name: "Pump Hydraulic Power",
+        shortDescription: "Calculate hydraulic output, required shaft power and shaft energy.",
+        description: "Calculate hydraulic output, required shaft power and shaft energy.",
+        category: "Fluid Mechanics",
+        path: "calculators/pump-hydraulic-power.html",
+        related: ["pipe-pressure-drop", "pipe-flow"],
+        keywords: ["pump", "hydraulic", "horsepower", "efficiency", "energy", "duty", "head"]
+    },
+    {
+        id: "hydraulic-cylinder-speed",
+        name: "Hydraulic Cylinder Speed & Cycle Time",
+        shortDescription: "Estimate stroke speeds, chamber volumes and theoretical travel times.",
+        description: "Estimate stroke speeds, chamber volumes and theoretical travel times.",
+        category: "Fluid Power",
+        path: "calculators/hydraulic-cylinder-speed.html",
+        related: ["cylinder-force", "pneumatic-air-consumption", "pump-hydraulic-power"],
+        keywords: ["cylinder", "hydraulic", "stroke", "cycle", "extension", "retraction", "piston"]
+    },
+    {
+        id: "pneumatic-air-consumption",
+        name: "Pneumatic Air Consumption",
+        shortDescription: "Calculate theoretical cylinder air use at explicitly entered reference conditions.",
+        description: "Calculate theoretical cylinder air use at explicitly entered reference conditions.",
+        category: "Fluid Power",
+        path: "calculators/pneumatic-air-consumption.html",
+        related: ["hydraulic-cylinder-speed", "cylinder-force"],
+        keywords: ["pneumatic", "cylinder", "air", "compressor", "consumption", "free-air", "reference"]
+    },
+    {
+        id: "multilayer-insulation",
+        name: "Multilayer Insulation R-Value & U-Factor",
+        shortDescription: "Combine up to six planar material layers and optional surface films.",
+        description: "Combine up to six planar material layers and optional surface films.",
+        category: "Thermal / HVAC",
+        path: "calculators/multilayer-insulation.html",
+        related: ["wall-heat-loss"],
+        keywords: ["insulation", "R-value", "U-factor", "conduction", "resistance", "building"]
+    },
+    {
+        id: "wall-heat-loss",
+        name: "Wall / Building Assembly Heat Loss",
+        shortDescription: "Estimate signed steady-state heat loss or gain through an assembly.",
+        description: "Estimate signed steady-state heat loss or gain through an assembly.",
+        category: "Thermal / HVAC",
+        path: "calculators/wall-heat-loss.html",
+        related: ["multilayer-insulation"],
+        keywords: ["wall", "building", "heat", "loss", "gain", "HVAC", "transmittance", "energy"]
+    },
+    {
+        id: "wall-mounting",
+        name: "Wall Mounting & Anchor Load Assessment",
+        shortDescription: "Estimate fastener demand for centered static loads and supported bearing arrangements.",
+        description: "Estimate fastener demand for centered static loads and supported bearing arrangements.",
+        category: "Practical Engineering",
+        path: "calculators/wall-mounting.html",
+        related: ["moment", "thread-strength"],
+        keywords: ["wall", "shelf", "anchor", "drywall", "stud", "picture", "fastener", "eccentric"]
     }
 ];
 

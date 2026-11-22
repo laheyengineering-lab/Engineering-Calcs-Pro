@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadCalculatorPage, getResultText, setInputValue, setSelectValue, extractNumber } from '../helpers/browser-test-utils.js';
 
-const scripts = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', 'js/cylinder-force.js'];
+const scripts = ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', 'js/cylinder-geometry.js', 'js/cylinder-force.js'];
 
 function run(values, units = {}) {
     const { document, window } = loadCalculatorPage('calculators/cylinder-force.html', scripts);

@@ -899,3 +899,38 @@ const thermalProperties = [
     "thermalExpansionCoefficient",
     "thermalConductivity"
 ];
+
+// Fluid and thermal quantities use SI base units. Gallons are US liquid
+// gallons, horsepower is mechanical, and BTU uses the International Table.
+const fluidThermalUnits = {
+    flow: { "m³/s": 1, "L/min": 1 / 60000, GPM: 0.003785411784 / 60, CFM: 0.3048 ** 3 / 60 },
+    velocity: { "m/s": 1, "ft/s": 0.3048 },
+    density: { "kg/m³": 1, "lb/ft³": 0.45359237 / 0.3048 ** 3 },
+    dynamicViscosity: { "Pa·s": 1, "mPa·s": 0.001, cP: 0.001, "lbf·s/ft²": forceUnits.lbf / 0.3048 ** 2 },
+    kinematicViscosity: { "m²/s": 1, cSt: 1e-6, "ft²/s": 0.3048 ** 2 },
+    volume: { "m³": 1, L: 0.001, "ft³": 0.3048 ** 3, "US gal": 0.003785411784 },
+    power: { W: 1, kW: 1000, hp: 550 * forceUnits.lbf * 0.3048 },
+    heatRate: { W: 1, kW: 1000, "BTU/h": 1055.05585262 / 3600 },
+    energy: { J: 1, kJ: 1000, kWh: 3600000, BTU: 1055.05585262 },
+    conductivity: { "W/(m·K)": 1, "BTU/(h·ft·°F)": 1055.05585262 * 1.8 / (3600 * 0.3048) },
+    resistance: { "m²·K/W": 1, "h·ft²·°F/BTU": 3600 * 0.3048 ** 2 / (1.8 * 1055.05585262) },
+    transmittance: { "W/(m²·K)": 1, "BTU/(h·ft²·°F)": 1055.05585262 * 1.8 / (3600 * 0.3048 ** 2) },
+    area: { ...areaUnits, "ft²": 0.3048 ** 2 },
+    duration: { s: 1, min: 60, h: 3600 },
+    frequency: { "cycles/min": 1 / 60, "cycles/s": 1 },
+    temperatureInterval: { K: 1, "°C": 1, "°F": 1 / 1.8 }
+};
+
+function convertAbsoluteTemperature(value, fromUnit) {
+    if (fromUnit === "K") return value;
+    if (fromUnit === "°C") return value + 273.15;
+    if (fromUnit === "°F") return (value - 32) / 1.8 + 273.15;
+    return NaN;
+}
+
+function convertAbsoluteTemperatureToUnit(kelvin, toUnit) {
+    if (toUnit === "K") return kelvin;
+    if (toUnit === "°C") return kelvin - 273.15;
+    if (toUnit === "°F") return (kelvin - 273.15) * 1.8 + 32;
+    return NaN;
+}

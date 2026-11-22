@@ -17,7 +17,7 @@ const calculatorPages = [
     ['calculators/thread-strength.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thread-strength-calculation.js', 'js/thread-strength.js']],
     ['calculators/hertzian-contact.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/hertzian-contact.js']],
     ['calculators/differential-thermal-expansion.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/differential-thermal-expansion.js']],
-    ['calculators/cylinder-force.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/cylinder-force.js']],
+    ['calculators/cylinder-force.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/cylinder-geometry.js', 'js/cylinder-force.js']],
     ['calculators/thick-walled-cylinder.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/thick-walled-cylinder-calculation.js', 'js/thick-walled-cylinder.js']]
 ];
 

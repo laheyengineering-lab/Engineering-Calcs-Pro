@@ -11,10 +11,11 @@ function readRepoFile(relativePath) {
     return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
 }
 
-function createDomFromHtml(relativeHtmlPath) {
+function createDomFromHtml(relativeHtmlPath, virtualConsole) {
     return new JSDOM(readRepoFile(relativeHtmlPath), {
         runScripts: 'dangerously',
-        url: `file://${path.join(repoRoot, relativeHtmlPath)}`
+        url: `file://${path.join(repoRoot, relativeHtmlPath)}`,
+        virtualConsole
     });
 }
 
@@ -30,8 +31,9 @@ function dispatchDomContentLoaded(window) {
     window.document.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true }));
 }
 
-export function loadCalculatorPage(htmlRelativePath, scriptRelativePaths) {
-    const dom = createDomFromHtml(htmlRelativePath);
+export function loadCalculatorPage(htmlRelativePath, scriptRelativePaths, beforeScripts, { virtualConsole } = {}) {
+    const dom = createDomFromHtml(htmlRelativePath, virtualConsole);
+    beforeScripts?.(dom.window);
     evaluateScripts(dom.window, scriptRelativePaths);
     dispatchDomContentLoaded(dom.window);
 

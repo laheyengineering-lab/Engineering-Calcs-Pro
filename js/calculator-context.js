@@ -134,8 +134,8 @@
             const sym = document.createElement('span');
             sym.className = 'context-symbol';
             sym.textContent = '\\( ' + symbol + ' \\)';
-            li.appendChild(sym);
-            li.appendChild(document.createTextNode(' ' + description));
+            if (symbol) li.appendChild(sym);
+            li.appendChild(document.createTextNode((symbol ? ' ' : '') + description));
             if (units) {
                 const u = document.createElement('span');
                 u.className = 'context-units';
@@ -202,7 +202,13 @@
         context.className = 'calculator-context';
         context.setAttribute('aria-label', 'Calculation context');
 
-        const summary = SUMMARIES[currentSlug()];
+        const slug = currentSlug();
+        const model = typeof expansionModels === "undefined" ? null : expansionModels[slug];
+        const summary = model ? {
+            eq: [{ tex: model.equations[0], text: model.method }],
+            inputs: model.activeInputs({}).filter((input) => !input.options).slice(0, 4)
+                .map((input) => ["", input.label, input.group ? model.groups[input.group].default : input.unit])
+        } : SUMMARIES[slug];
         if (summary) {
             buildRegistryContent(context, summary);
         } else {

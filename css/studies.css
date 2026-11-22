@@ -77,3 +77,5 @@
 .sd-label { fill: #26282b; font-size: 11px; }
 .sd-note { fill: #555; font-size: 10.5px; }
 .sd-dim-label { fill: #26282b; font-size: 12px; font-weight: 600; }
+
+.scenario-inputs [data-study-field][hidden] { display: none; }

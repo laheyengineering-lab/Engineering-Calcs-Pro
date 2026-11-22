@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydraulic Cylinder Speed &amp; Cycle Time | Formula Foundry</title>
+<meta name="description" content="Estimate stroke speeds, chamber volumes and theoretical travel times.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hydraulic Cylinder Speed &amp; Cycle Time | Formula Foundry">
+<meta property="og:description" content="Estimate stroke speeds, chamber volumes and theoretical travel times.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<div class="container" id="main">
+<a href="../index.html#catalog" class="back-link">← All calculators</a>
+<header class="calculator-header">
+    <h1>Hydraulic Cylinder Speed &amp; Cycle Time</h1>
+    <p>Estimate stroke speeds, chamber volumes and theoretical travel times.</p>
+</header>
+<section class="content-card calculator-box" data-expansion="hydraulic-cylinder-speed">
+    <div class="calculator-layout">
+        <div class="theory-column">
+            <h2>Engineering theory</h2>
+            <p id="calculationMethod"></p>
+            <div id="expansionEquations"></div>
+            <figure class="expansion-diagram">
+                <div data-diagram="hydraulic-cylinder-speed"></div>
+                <figcaption>Illustrative schematic. Dimensions and spacing are symbolic.</figcaption>
+            </figure>
+            <h3>Assumptions and limitations</h3>
+            <ul id="expansionAssumptions"></ul>
+        </div>
+        <div class="calculator-column">
+            <h2>Calculator inputs</h2>
+            <p id="transferContext" role="status" hidden></p>
+            <form id="expansionForm" novalidate>
+                <div id="expansionInputs"></div>
+                <details class="expansion-units">
+                    <summary>Units</summary>
+                    <div id="expansionUnits"></div>
+                </details>
+                <div class="button-row">
+                    <button type="submit">Calculate</button>
+                    <button type="reset">Reset</button>
+                </div>
+            </form>
+            <div id="result" class="result-panel" aria-live="polite">Ready to calculate.</div>
+            <div id="expansionTransfer"></div>
+        </div>
+    </div>
+</section>
+<section class="content-card">
+    <h2>Worked example</h2>
+    <p>For a 100 mm bore, 60 mm rod and 200 mm stroke, the swept volumes are 1.571 L and 1.005 L. At 6 L/min each way, travel times are 15.71 s and 10.05 s.</p>
+    <h2>Practical application</h2>
+    <p>Estimate actuator travel from independently specified extension and retraction flows.</p>
+    <h2>Related calculators</h2>
+    <ul><li><a href="cylinder-force.html">Hydraulic/Pneumatic Cylinder Force</a></li><li><a href="pneumatic-air-consumption.html">Pneumatic Air Consumption</a></li><li><a href="pump-hydraulic-power.html">Pump Hydraulic Power</a></li></ul>
+    <h2>Reference</h2>
+    <p><a href="https://search.worldcat.org/isbn/9780135136904">Anthony Esposito, Fluid Power with Applications, 7th edition, Pearson</a></p>
+</section>
+</div>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/cylinder-geometry.js"></script>
+<script src="../js/fluid-thermal-calculations.js"></script>
+<script src="../js/expansion-models.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/expansion-diagrams.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/fluid-system-transfer.js"></script>
+<script src="../js/expansion-calculator.js"></script>
+<script src="../js/calculator-context.js"></script>
+</body>
+</html>

@@ -29,7 +29,7 @@ Categorical selections are saved as strings alongside the existing numeric-or-bl
 
 Cylinder-force is a static pressure-area calculation and does not check rod buckling, seal limits, pressure ratings, or speed. Differential Thermal Expansion reports free expansion only; restraint, contact, or mechanical loading changes movement and may introduce stress not represented by the model. Press-fit calculations use the selected centralized material's E, ν, and optional Sy; there is no custom-material-property or temperature correction in the study model. The press-fit screening factor compares interface hoop stress with yield and is not a code factor of safety. Hertz sphere and cylinder results are distinct models; line and point-contact scenarios cannot be compared directly. Approximate Hertz maximum-shear results retain the calculator's ν ≈ 0.3 coefficients. Beam deflection supports only the calculator's full-span point/uniform loads with pin/roller or fixed-free supports. Neither beam model evaluates shear deformation, buckling, plasticity, fatigue, stress concentrations, dynamic response, or non-ideal supports.
 
-## Expansion to all 18 active calculators
+## Additional mechanical, materials and manufacturing calculators
 Eleven further calculators were audited and integrated; none were deferred. Each had its calculation extracted into a DOM-free `js/<name>-calculation.js` engine that the calculator page and the adapter both call (page behaviour and numerical results are unchanged; parity tests compare page and adapter output).
 
 | Calculator (`id`) | Engine | Categorical / conditional inputs | Key outputs | Notes and limitations |
@@ -48,8 +48,12 @@ Eleven further calculators were audited and integrated; none were deferred. Each
 
 Scenarios whose models differ (mode, end condition, method, condition, strength source) carry a `comparisonKey`, and the core refuses to compare them even when units match. Categorical inputs are never sweepable.
 
+## Fluid, thermal and practical calculators
+
+The eight [expansion calculators](fluid-thermal-practical-calculators.md) use the standalone calculators’ unit-aware adapters and SI engines. Choice fields select the physical model and remain fixed during a sweep. Inputs from inactive modes are excluded from saved numerical results and cannot be swept. Horizontal mounting layout spacing and integer fastener counts stay fixed. Nonphysical sample inputs yield gaps with the solver’s validation message. Scenario reports capture the active inputs, equations, assumptions, warnings, numeric results and a reusable schematic.
+
 ### Unsupported calculators
-None of the 18 active calculators is currently unsupported.
+All 26 active calculators have adapters.
 
 ## Architecture
 - `js/design-study-core.js` - DOM-free data model, adapter registry, comparison, sweep, persistence/validation and report-snapshot builders (`window.FormulaFoundryStudies`).

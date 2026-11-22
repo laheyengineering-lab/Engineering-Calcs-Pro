@@ -39,17 +39,12 @@ function cylinderForceError(message) {
 // Pure SI math: bore, rod in m, pressure in Pa, efficiency as fraction (or null).
 function computeCylinderForce({ bore, rod, pressure, efficiency = null }) {
     if (![bore, rod, pressure].every(Number.isFinite)) throw new Error("Bore diameter, rod diameter and pressure must be valid numbers.");
-    if (bore <= 0) throw new Error("Bore diameter must be greater than zero.");
-    if (rod < 0) throw new Error("Rod diameter cannot be negative.");
-    if (rod >= bore) throw new Error("Rod diameter must be smaller than the bore diameter.");
+    const { pistonArea, rodArea, annularArea } = computeCylinderAreas(bore, rod);
     if (pressure <= 0) throw new Error("Working pressure must be greater than zero.");
     if (efficiency !== null && (!Number.isFinite(efficiency) || efficiency <= 0 || efficiency > 1)) {
         throw new Error("Efficiency must be greater than 0 % and no more than 100 %.");
     }
 
-    const pistonArea = Math.PI * bore * bore / 4;
-    const rodArea = Math.PI * rod * rod / 4;
-    const annularArea = pistonArea - rodArea;
     const extensionForce = pressure * pistonArea;
     const retractionForce = pressure * annularArea;
 

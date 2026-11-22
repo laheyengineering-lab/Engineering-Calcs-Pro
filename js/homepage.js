@@ -1,12 +1,20 @@
 const container = document.querySelector(".card-container");
 const searchInput = document.getElementById("searchInput");
 const searchStatus = document.getElementById("searchStatus");
+const categoryFilter = document.getElementById("categoryFilter");
 const emptyState = document.getElementById("emptyState");
 
 validateCalculatorData(calculators);
 
 // Cache static categories
 const CATEGORIES = [...new Set(calculators.map(c => c.category))];
+
+for (const category of CATEGORIES) {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+}
 
 // Debounce timer for search
 let searchDebounceTimer;
@@ -29,7 +37,9 @@ function buildHomepage(searchText = "") {
     const query = searchText.trim().toLowerCase();
     let total = 0;
 
+    const selectedCategory = categoryFilter.value;
     CATEGORIES.forEach(category => {
+        if (selectedCategory && selectedCategory !== category) return;
         const categoryCalcs = calculators.filter(calc =>
             calc.category === category && calculatorMatches(calc, query)
         );
@@ -82,12 +92,14 @@ function buildHomepage(searchText = "") {
     });
 
     if (total === 0) {
-        emptyState.textContent = `No calculators match "${searchText.trim()}". Try a different name or keyword, such as torque, beam, or stress.`;
+        emptyState.textContent = selectedCategory
+            ? "No calculators in this category match the search."
+            : 'No calculators match "' + searchText.trim() + '". Try another name or keyword.';
         emptyState.hidden = false;
         searchStatus.textContent = "No calculators found.";
     } else {
         emptyState.hidden = true;
-        searchStatus.textContent = query
+        searchStatus.textContent = query || selectedCategory
             ? `${total} calculator${total === 1 ? "" : "s"} found.`
             : "";
     }
@@ -101,4 +113,9 @@ searchInput.addEventListener("input", () => {
     searchDebounceTimer = setTimeout(() => {
         buildHomepage(searchInput.value);
     }, 150);
+});
+
+categoryFilter.addEventListener("change", () => {
+    clearTimeout(searchDebounceTimer);
+    buildHomepage(searchInput.value);
 });

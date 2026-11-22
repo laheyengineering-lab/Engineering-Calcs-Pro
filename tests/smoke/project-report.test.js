@@ -11,6 +11,7 @@ function memoryStorage() {
 
 function open(page, script, storage) {
     const calculationScripts = {
+        'cylinder-force': ['js/cylinder-geometry.js'],
         'hertzian-contact': ['js/hertzian-contact-calculation.js'],
         'press-fit': ['js/press-fit-calculation.js'],
         'thick-walled-cylinder': ['js/thick-walled-cylinder-calculation.js']

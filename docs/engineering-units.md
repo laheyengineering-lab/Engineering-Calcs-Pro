@@ -302,17 +302,11 @@ The existing suite covers the shared core in `tests/core/engineering-units.test.
 
 `engineering-units.js` is already structured in a way that makes it straightforward to extend. The following directions are natural next steps as the calculator collection grows.
 
-### Add More Unit Categories
+### Fluid and thermal conversions
 
-The existing conversion tables all follow the same pattern. Adding support for new physical quantities means adding a new constant object and a new conversion function in the same style:
+`fluidThermalUnits` contains multiplicative factors to SI for volumetric flow, velocity, density, dynamic and kinematic viscosity, volume, area, power, heat-transfer rate, energy, conductivity, areal thermal resistance and transmittance, duration, cycle frequency and temperature intervals. Expansion adapters reuse distance for hydraulic head and stress conversions for pressure. GPM and US gal mean US liquid gallons, hp means mechanical horsepower, and BTU uses the International Table definition. A pneumatic reference flow still requires explicit pressure and temperature.
 
-- `velocityUnits` (m/s base) — for flow and dynamics calculators
-- `powerUnits` (W base) — for motor and energy calculators
-- `energyUnits` (J base) — for thermodynamic calculators
-- `pressureDropUnits` — for fluid system calculators
-- `angularUnits` (rad base) — for rotation and gear calculators
-- `viscosityUnits` — for lubrication and fluid film calculators
-- `frequencyUnits` (Hz base) — for vibration and fatigue calculators
+`convertAbsoluteTemperature(value, unit)` converts °C, °F or K to absolute kelvin. `convertAbsoluteTemperatureToUnit(kelvin, unit)` converts back. For a temperature difference, use the interval factors or `convertTemperatureChange`. The legacy conversion APIs remain available.
 
 ### Expand the Material Database
 

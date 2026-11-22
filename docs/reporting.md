@@ -32,5 +32,9 @@ Print output flows naturally: the project summary and index stay compact, short 
 ## Calculator integration
 Structured calculators call `FormulaFoundryReport.declareStructured()` and `FormulaFoundryReport.recordResult(snapshot)` after a successful calculation and `clearResult()` on reset/failure. Other calculators are captured by scraping the visible inputs, result panel and equations. Include `js/report-builder.js` before `</body>`.
 
+## Fluid, thermal and practical snapshots
+
+All eight [expansion calculators](fluid-thermal-practical-calculators.md) capture structured active inputs, numerical outputs with units, equations, methodology and warning text plus a static schematic. Fluid transfers add the source and overrides to the warning text. Design Studies scenario reports include the same schematic. The diagram registry adds identifiers while retaining PR #39’s schema 1 and its existing import and export behavior.
+
 ## Tests
 `tests/core/report-builder.test.js`, `tests/smoke/project-report.test.js`, `tests/smoke/new-calculators-registry.test.js`.

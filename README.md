@@ -10,10 +10,11 @@ Formula Foundry is a browser-based engineering workspace that helps mechanical e
 
 ## What you can do today
 
-- **Engineering calculators:** 18 active calculators covering mechanical, materials, fastener, and manufacturing topics. The searchable homepage catalog also marks three planned calculators as Coming Soon (placeholders only); see [`js/calculator-data.js`](js/calculator-data.js) for the current catalog.
-- **Interactive diagrams:** Beam Deflection diagrams show supported beam/load cases and let users explore span and, where applicable, load through accessible controls. Beam Bending Stress diagrams show section geometry and axes. Diagram shapes are explanatory, not additional calculation models.
-- **Design Studies:** Save calculator scenarios, compare calculated scenarios against a baseline, and sweep supported continuous inputs to explore model results. Adapters currently support seven calculators. Sweeps are calculations at sampled values, not physical tests.
-- **Project reports:** Collect calculator and study snapshots, annotate and reorder entries, and print or save through the browser's print dialog. Formula Foundry does not generate PDF files itself.
+- **Engineering calculators:** 26 active calculators covering mechanical, materials, fasteners, manufacturing, fluid mechanics, fluid power, thermal/HVAC and practical engineering. The searchable homepage catalog also marks three planned calculators as Coming Soon (placeholders only); see [`js/calculator-data.js`](js/calculator-data.js) for the current catalog.
+- **Engineering diagrams:** Calculator pages and Design Studies show engineering schematics. Supported interactive diagrams include keyboard-accessible geometry and load controls.
+- **Design Studies:** Save calculator scenarios, compare calculated scenarios against a baseline, and sweep supported continuous inputs to explore model results. Adapters support all 26 active calculators. Sweeps are calculations at sampled values, not physical tests.
+- **Project reports:** Collect calculator and study snapshots, annotate and reorder entries, export and import portable Project Report JSON, and print or save through the browser's print dialog. Formula Foundry does not generate PDF files itself.
+- **Connected fluid calculations:** Explicitly send validated values from Pipe Flow to Pipe Pressure Drop and then Pump Hydraulic Power. Downstream values remain editable and reports retain transfer context.
 - **Shared engineering utilities:** Centralized unit conversions and material data, common calculator helpers, shared SVG diagram utilities, and KaTeX equation rendering.
 - **Static site:** Plain HTML, CSS, and JavaScript with no application framework or production build step.
 
@@ -76,6 +77,7 @@ tests/                                                     Vitest + jsdom tests
 - [Interactive diagrams](docs/interactive-diagrams.md) — shared SVG framework and diagram patterns.
 - [Design Studies](docs/design-studies.md) — adapters, scenario comparison, sweeps, persistence, and report integration.
 - [Project reporting](docs/reporting.md) — report snapshots and print workflow.
+- [Fluid, thermal and practical calculators](docs/fluid-thermal-practical-calculators.md) — catalog, models, worked cases and transfer workflow.
 - [Engineering units](docs/engineering-units.md) — shared conversion and material utilities.
 - [Branding](docs/branding.md) — asset layout and usage.
 

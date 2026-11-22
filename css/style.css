@@ -1592,3 +1592,21 @@ footer,
 }
 
 .material-data-note { display: block; margin-top: 4px; font-size: 13px; color: var(--ff-ink, inherit); opacity: 0.8; }
+
+/* Static schematics and unit controls for the fluid and thermal calculators. */
+.expansion-diagram { margin: 1rem 0; }
+.expansion-diagram figcaption { font-size: .875rem; }
+.expansion-svg { width: 100%; }
+.expansion-svg .expansion-line { stroke: currentColor; stroke-width: 1.8; fill: none; }
+.expansion-svg .expansion-label { fill: currentColor; font: 14px system-ui, sans-serif; }
+.expansion-units { margin-block: 1rem; }
+.expansion-units summary { cursor: pointer; }
+.expansion-field { display: grid; gap: .25rem; margin-block: .65rem; }
+.expansion-field[hidden] { display: none; }
+.expansion-field label { font-weight: 600; }
+.expansion-field input, .expansion-field select { width: 100%; min-width: 0; }
+#expansionTransfer { margin-block: .85rem; }
+#transferContext { overflow-wrap: anywhere; }
+
+.hero #categoryFilter { width: min(100%, 20rem); }
+.hero label[for="categoryFilter"] { margin-top: .65rem; }

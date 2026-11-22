@@ -62,7 +62,9 @@
         "bearing-life", "beam-bending-stress", "bolt-torque", "column-buckling", "cylinder-force",
         "differential-thermal-expansion", "factor-of-safety", "fillet-weld", "hertzian-contact", "moment",
         "press-fit", "shaft-torsion", "spring-calculations", "stress-strain", "thermal-expansion",
-        "thick-walled-cylinder", "thick-walled-cylinder-plot", "thread-strength"
+        "thick-walled-cylinder", "thick-walled-cylinder-plot", "thread-strength",
+        "pipe-flow", "pipe-pressure-drop", "pump-hydraulic-power", "hydraulic-cylinder-speed",
+        "pneumatic-air-consumption", "multilayer-insulation", "wall-heat-loss", "wall-mounting"
     ];
 
     // Model data for calculator diagrams: plain keys with finite numbers, short strings, or small numeric arrays.
