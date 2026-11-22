@@ -2,7 +2,7 @@
 
 **Calculate it. Explore it. Compare it. Explain it.**
 
-Formula Foundry is a browser-based engineering workspace that helps mechanical engineers, designers, machinists, and students calculate results, explore how they change, compare design options, and communicate the decisions behind them. It started as a set of standalone calculators and is growing into a connected workflow: calculators, interactive diagrams, Design Studies, and project reports.
+Formula Foundry is a browser-based engineering workspace for engineers, designers, machinists, students, technicians, and makers. Calculate results, explore changes with live diagrams, compare options in Design Studies, and document decisions in Project Reports.
 
 **Live site:** [engineering-calcs-pro.vercel.app](https://engineering-calcs-pro.vercel.app)
 
@@ -10,9 +10,10 @@ Formula Foundry is a browser-based engineering workspace that helps mechanical e
 
 ## What you can do today
 
-- **Engineering calculators:** 26 active calculators covering mechanical, materials, fasteners, manufacturing, fluid mechanics, fluid power, thermal/HVAC and practical engineering. The searchable homepage catalog also marks three planned calculators as Coming Soon (placeholders only); see [`js/calculator-data.js`](js/calculator-data.js) for the current catalog.
-- **Engineering diagrams:** Calculator pages and Design Studies show engineering schematics. Supported interactive diagrams include keyboard-accessible geometry and load controls.
-- **Design Studies:** Save calculator scenarios, compare calculated scenarios against a baseline, and sweep supported continuous inputs to explore model results. Adapters support all 26 active calculators. Sweeps are calculations at sampled values, not physical tests.
+- **Engineering calculators** cover mechanical, materials, fasteners, manufacturing, fluid mechanics, fluid power, thermal/HVAC, practical engineering, and electrical engineering. The searchable homepage includes 36 active calculators and three Coming Soon placeholders. [Calculator registry](js/calculator-data.js)
+- **Electrical Engineering** includes ten introductory tools for DC circuits, voltage drop, RC and RL transients, AC impedance and power, and nominal speaker loads. Edit 2–12 resistors in Circuit Studio and explore a live schematic with branch measurements, conservation checks, and optional solution steps. [Electrical models and references](docs/electrical-calculators.md)
+- **Engineering diagrams** show calculator systems and Design Study scenarios. Interactive graphics include keyboard-accessible geometry, load, and circuit controls.
+- **Design Studies** supports all 36 active calculators. Save scenarios, compare results against a baseline, and sample continuous inputs within a chosen configuration.
 - **Project reports:** Collect calculator and study snapshots, annotate and reorder entries, export and import portable Project Report JSON, and print or save through the browser's print dialog. Formula Foundry does not generate PDF files itself.
 - **Connected fluid calculations:** Explicitly send validated values from Pipe Flow to Pipe Pressure Drop and then Pump Hydraulic Power. Downstream values remain editable and reports retain transfer context.
 - **Shared engineering utilities:** Centralized unit conversions and material data, common calculator helpers, shared SVG diagram utilities, and KaTeX equation rendering.
@@ -64,6 +65,7 @@ index.html, about.html, references.html, methodology.html  Static site pages
 calculators/                                               Calculator pages
 css/style.css                                              Shared site and calculator styles
 css/studies.css, css/study-chart.css, css/report.css       Study, chart, and report styles
+css/electrical.css                                         Electrical calculator layouts
 js/                                                        Shared utilities and calculator scripts
 design-studies.html, report.html                          Study and report workspaces
 docs/                                                      Architecture and usage guides
@@ -78,10 +80,11 @@ tests/                                                     Vitest + jsdom tests
 - [Design Studies](docs/design-studies.md) — adapters, scenario comparison, sweeps, persistence, and report integration.
 - [Project reporting](docs/reporting.md) — report snapshots and print workflow.
 - [Fluid, thermal and practical calculators](docs/fluid-thermal-practical-calculators.md) — catalog, models, worked cases and transfer workflow.
+- [Electrical engineering calculators](docs/electrical-calculators.md) — circuit topologies, worked cases, applicability, and sources.
 - [Engineering units](docs/engineering-units.md) — shared conversion and material utilities.
 - [Branding](docs/branding.md) — asset layout and usage.
 
-New calculators should be registered in `js/calculator-data.js` and use `js/engineering-units.js` for shared engineering units and materials. To make a calculator available in Design Studies, provide a DOM-free calculation entry point and integrate it through `js/design-study-adapters.js`; see the linked guides for details.
+Register new calculators in `js/calculator-data.js` and use `js/engineering-units.js` for shared units and materials. Design Studies adapters call DOM-free calculation engines and can share input and output definitions with calculator pages. [Calculator development guide](docs/calculator-development-guide.md)
 
 ## License
 

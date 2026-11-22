@@ -201,6 +201,7 @@
                 mutateScenario(scenario.id, (s) => S.setScenarioUnit(adapter, s, key, select.value));
                 refreshCardStatus(card, scenario.id);
             });
+            label.dataset.unitGroup = key;
             label.appendChild(select);
             unitRow.appendChild(label);
         });
@@ -274,7 +275,7 @@
                 option.value = value;
                 field.appendChild(option);
             });
-            field.value = scenario.inputs[input.id] || (adapter.activeInputs ? input.options[0] : "");
+            field.value = scenario.inputs[input.id] || (adapter.activeInputs ? (input.default ?? input.options[0]) : "");
         } else {
             field.type = "number";
             field.step = "any";
@@ -343,6 +344,12 @@
                         }
                     });
                 }
+                for (const choice of adapter.inputs.filter((def) => def.availableOptions)) {
+                    const available = choice.availableOptions(next.inputs);
+                    if (next.inputs[choice.id] !== null && !available.includes(next.inputs[choice.id])) {
+                        next = S.setScenarioInput(adapter, next, choice.id, available[0]);
+                    }
+                }
                 return next;
             });
             refreshCardStatus(card, scenario.id);
@@ -391,12 +398,25 @@
         adapter.inputs.forEach((input) => {
             const unit = card.querySelector('[data-input-unit="' + input.id + '"]');
             if (unit) unit.textContent = S.unitOfInput(adapter, input, scenario.units);
+            if (input.availableOptions) {
+                const select = card.querySelector('[data-input-id="' + input.id + '"]');
+                const available = input.availableOptions(scenario.inputs);
+                for (const option of select.options) option.hidden = option.disabled = !available.includes(option.value);
+                select.value = scenario.inputs[input.id] || input.default;
+            }
         });
         if (adapter.activeInputs) {
-            const active = new Set(adapter.activeInputs(scenario.inputs).map((input) => input.id));
+            const activeInputs = adapter.activeInputs(scenario.inputs);
+            const active = new Set(activeInputs.map((input) => input.id));
             card.querySelectorAll("[data-study-field]").forEach((label) => {
                 label.hidden = !active.has(label.dataset.studyField);
             });
+            if (adapter.activeUnitsOnly) {
+                const groups = new Set([...activeInputs, ...adapter.outputs].map((field) => field.group));
+                card.querySelectorAll("[data-unit-group]").forEach((label) => {
+                    label.hidden = !groups.has(label.dataset.unitGroup);
+                });
+            }
         }
         const results = card.querySelector('[data-role="results"]');
         results.textContent = "";

@@ -11,6 +11,7 @@ Every calculator page carries an engineering graphic. Graphics are native SVG, b
 | `js/diagram-renderers-loads.js` | Moment, bearing life, cylinder force, helical spring, shaft torsion. |
 | `js/diagram-renderers-fasteners.js` | Bolt torque, thread strength, fillet weld, press fit. |
 | `js/diagram-renderers-structural.js` | Column buckling, beam bending stress, stress-strain, thermal expansion, differential thermal expansion, factor of safety, Hertzian contact, thick-walled cylinder and its stress-vs-radius plot. |
+| `js/electrical-diagrams.js` | Electrical circuits and wiring, power triangle, RC and RL time plots, and series RLC frequency response. |
 | `js/calculator-diagram-pages.js` | One data-driven wiring script: per page, maps existing input fields to a model and declares optional range controls. |
 | `js/beam-deflection-diagram.js`, `js/beam-section-properties.js` | Original beam diagram and section drawings (kept; restyled in CSS to the shared language). |
 | `css/style.css` (`.ff-*` block) | Semantic tokens and classes for all graphics. |
@@ -74,6 +75,8 @@ Interactivity is limited to cases where it maps directly to an existing input fi
 | Shaft torsion | Interactive | Torque (sign sets twist direction) | Direction of twist and surface shear are intuitive. |
 | Press fit | Interactive | Diametral interference | Interference is exaggerated (labelled) but its relation to contact pressure is direct. |
 | Thermal expansion | Interactive | Temperature change | Free expansion versus restrained force. |
+| Circuit Studio | Interactive | Component count, series/parallel arrangement, source voltage, individual resistance values, open state | Shared wiring and symbol primitives render the actual branch configuration, component values, voltage labels, and current direction. |
+| Speaker impedance and divider | Interactive | Series/parallel and other circuit options, component values | Editing active fields rebuilds the selected circuit diagram. |
 | Moment, bearing life, bolt torque, thread strength, fillet weld, column buckling, beam bending stress, stress-strain, differential thermal expansion, factor of safety, Hertzian contact, thick-walled cylinder | Static | none | The system is fixed by the selected option; a slider would imply unmodelled degrees of freedom (e.g. moment has no angle input). |
 
 Range controls come from `bindFieldRanges()`: a labelled native `<input type="range">` (keyboard-operable with arrow/Home/End, visible focus, 44 px touch height, `aria-valuetext` with units). Moving a control writes the real input field, dispatches `input`, and calls the page's existing calculate function, but only if the user has already calculated. The slider range is an exploration aid; the numeric field remains unrestricted, and the slider is disabled while the field is empty or invalid.
@@ -81,6 +84,12 @@ Range controls come from `bindFieldRanges()`: a labelled native `<input type="ra
 ## Numerical plot: thick-walled cylinder
 
 The stress-versus-radius plot is calculated data. `thickCylinderRenderPlot()` samples `r.stressAt(r)` (the Lamé solution) at 41 points and mounts `thick-walled-cylinder-plot`. Axes are labelled with units, tension is positive, the zero line is drawn, radial, hoop and axial curves differ by line style and direct labels, and the y-range always includes zero. `tests/smoke/calculator-diagram-pages.test.js` checks the first and last samples against the closed-form values.
+
+## Circuit schematics and response plots
+
+Circuit diagrams use the shared scene and registry APIs. The electrical renderer draws resistor, source, capacitor, inductor, and speaker symbols with wiring, junctions, and polarity or current reference labels where applicable. Circuit Studio stacks series components or places parallel branches between shared vertical rails so the number of labels grows with the component count. Kirchhoff analysis retains fixed current arrows so a negative value identifies reverse flow.
+
+RC and RL plots use samples from the first-order time solutions. The series RLC plot samples impedance magnitude on a bounded logarithmic frequency axis. Each plot marks the selected operating point. Electrical figures are rendered from the same solved data used in the result panel. [Electrical models and references](electrical-calculators.md)
 
 ## Accessibility
 
@@ -91,7 +100,7 @@ The stress-versus-radius plot is calculated data. `thickCylinderRenderPlot()` sa
 
 ## Report integration
 
-Report snapshots store `diagram: { type: "calc-diagram", id, model[, companion] }` (`companion` is used for the thick-cylinder plot). Pages that record results explicitly (cylinder force, differential thermal expansion, Hertzian contact, thick-walled cylinder) pass `diagram`; scraped pages pick it up through the shared snapshot call. `report-builder.js` validates id and model (finite values only, bounded sizes, no markup, no nested objects), and `report-page.js` re-renders a fresh static SVG with strict `normalize()`. Entries saved before this change, and entries whose stored diagram no longer validates, render without a diagram and are otherwise unchanged. Report figures have no controls, avoid page breaks inside the figure, and force print colours.
+Report snapshots store `diagram: { type: "calc-diagram", id, model[, companion] }`. The optional companion is used for thick-cylinder and electrical response plots. Structured pages can pass the model explicitly, and scraped pages can capture it through the shared snapshot call. `report-builder.js` validates the diagram ID and bounded model data. `report-page.js` re-renders a static SVG with strict `normalize()`. Entries without a valid diagram still render their calculation content. Report figures have no controls, avoid page breaks inside the figure, and force print colours.
 
 Beam Deflection reports keep their existing `beam-deflection` snapshot.
 

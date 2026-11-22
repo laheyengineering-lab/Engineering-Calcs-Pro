@@ -19,7 +19,7 @@ describe('calculator metadata registry', () => {
         const { calculators, window } = loadHomepage();
         const ids = calculators.map((calculator) => calculator.id);
 
-        expect(calculators).toHaveLength(29);
+        expect(calculators).toHaveLength(39);
         expect(new Set(ids).size).toBe(ids.length);
         expect(window.validateCalculatorData(calculators)).toBe(true);
 
@@ -79,8 +79,8 @@ describe('calculator metadata registry', () => {
         const { document } = loadHomepage();
         const cards = [...document.querySelectorAll('.calculator-card')];
 
-        expect(cards).toHaveLength(29);
-        expect(cards.filter((card) => card.tagName === 'A')).toHaveLength(26);
+        expect(cards).toHaveLength(39);
+        expect(cards.filter((card) => card.tagName === 'A')).toHaveLength(36);
         expect(cards.filter((card) => card.tagName === 'DIV')).toHaveLength(3);
 
         const momentCard = cards.find((card) => card.querySelector('h3').textContent === 'Moment Calculator');

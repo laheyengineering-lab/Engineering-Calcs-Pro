@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Series RLC Impedance &amp; Resonance | Formula Foundry</title>
+<meta name="description" content="Compute complex impedance, RMS current and real power for a series RLC circuit, and explore its frequency response.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Series RLC Impedance &amp; Resonance | Formula Foundry">
+<meta property="og:description" content="Compute complex impedance, RMS current and real power for a series RLC circuit, and explore its frequency response.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/electrical.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<main class="container" id="main" data-electrical="rlc-impedance">
+    <a href="../index.html#catalog" class="back-link">← All calculators</a>
+    <header class="calculator-header">
+        <h1>Series RLC Impedance &amp; Resonance</h1>
+        <p>Compute complex impedance, RMS current and real power for a series RLC circuit, and explore its frequency response.</p>
+    </header>
+    <div class="electrical-workspace">
+        <section class="content-card calculator-column" aria-labelledby="electrical-input-heading">
+            <h2 id="electrical-input-heading">Inputs</h2>
+            <form id="electricalForm" novalidate>
+                <div id="electricalInputs"></div>
+                <div id="electricalComponents"></div>
+                <div id="electricalComponentActions" class="electrical-component-actions" hidden></div>
+                <details id="electricalOutputUnits" hidden>
+                    <summary>Result units</summary>
+                    <div></div>
+                </details>
+                <div class="button-row">
+                    <button type="reset" class="secondary-button">Reset inputs</button>
+                </div>
+            </form>
+            <noscript><p>Enable JavaScript to calculate and update the circuit.</p></noscript>
+        </section>
+        <section class="content-card electrical-analysis" aria-labelledby="electrical-analysis-heading">
+            <h2 id="electrical-analysis-heading">Circuit schematic</h2>
+            <figure id="electricalDiagram" class="ff-figure" hidden>
+                <div class="ff-diagram-host" data-diagram="rlc-impedance" tabindex="0" role="region" aria-label="Circuit schematic"></div>
+                <figcaption></figcaption>
+            </figure>
+            <p id="electricalStatus" class="electrical-visually-hidden" role="status"></p>
+            <div id="result" class="result-panel"></div>
+            <figure id="electricalPlot" class="ff-figure" hidden>
+                <div class="ff-diagram-host" data-diagram="rlc-impedance-plot" tabindex="0" role="region" aria-label="Response plot"></div>
+                <figcaption></figcaption>
+            </figure>
+            <details id="electricalSteps" class="electrical-steps" hidden>
+                <summary>Show solution steps</summary>
+                <ol></ol>
+            </details>
+        </section>
+    </div>
+    <section class="content-card theory-column" id="theory">
+        <h2>Engineering theory</h2>
+        <p id="electricalMethod"></p>
+        <div id="electricalEquations"></div>
+        <h3>Assumptions and limitations</h3>
+        <ul id="electricalAssumptions"></ul>
+    </section>
+    <section class="content-card">
+        <h2>Worked example</h2>
+        <p>With 10 Ω, 100 mH and 100 µF, resonance occurs at about 50.33 Hz. The inductive and capacitive reactances each have magnitude 31.62 Ω and cancel in series. A 10 V RMS source then drives 1 A RMS and dissipates 10 W in the resistor.</p>
+    </section>
+    <section class="content-card">
+        <h2>Related calculators</h2>
+        <ul>
+        <li><a href="ac-power-factor.html">AC Power &amp; Power Factor</a></li>
+        <li><a href="rl-transients.html">RL Circuit Transients</a></li>
+        <li><a href="rc-transients.html">RC Circuit Transients</a></li>
+        <li><a href="speaker-impedance.html">Speaker Impedance &amp; Amplifier Power</a></li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+        <li><a href="https://openstax.org/books/university-physics-volume-2/pages/15-3-rlc-series-circuits-with-ac">RLC series circuits with AC</a></li>
+        <li><a href="https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit">Resonance in an AC circuit</a></li>
+        </ul>
+    </section>
+</main>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/electrical-dc-calculations.js"></script>
+<script src="../js/electrical-transient-ac-calculations.js"></script>
+<script src="../js/electrical-practical-calculations.js"></script>
+<script src="../js/electrical-models.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/electrical-diagrams.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/electrical-calculator.js"></script>
+</body>
+</html>

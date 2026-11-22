@@ -203,7 +203,8 @@
         context.setAttribute('aria-label', 'Calculation context');
 
         const slug = currentSlug();
-        const model = typeof expansionModels === "undefined" ? null : expansionModels[slug];
+        const electrical = typeof electricalModels === "undefined" ? null : electricalModels[slug];
+        const model = electrical || (typeof expansionModels === "undefined" ? null : expansionModels[slug]);
         const summary = model ? {
             eq: [{ tex: model.equations[0], text: model.method }],
             inputs: model.activeInputs({}).filter((input) => !input.options).slice(0, 4)
