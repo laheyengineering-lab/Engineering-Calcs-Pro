@@ -63,6 +63,7 @@ function calculateFactorOfSafety() {
                 const property = strengthSource === "material-yield" ? "yieldStrength" : "tensileStrength";
                 const materialStrength = getMaterialProperty(fosMaterialSelect.value, property);
                 if (!Number.isFinite(materialStrength) || materialStrength <= 0) {
+                    window.FormulaFoundryCalculatorDiagramPage?.publish();
                     fosResultPanel.innerHTML = "<h3>Material Data Missing</h3><p>The selected material does not include that strength property. Use direct entry.</p>";
                     return;
                 }
@@ -71,6 +72,7 @@ function calculateFactorOfSafety() {
             const appliedStressValue = Number(fosAppliedStressInput.value);
 
             if (!Number.isFinite(strengthValue) || !Number.isFinite(appliedStressValue) || strengthValue <= 0 || appliedStressValue <= 0) {
+                window.FormulaFoundryCalculatorDiagramPage?.publish();
                 fosResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter positive strength and applied stress values.</p>";
                 return;
             }
@@ -104,6 +106,7 @@ function calculateFactorOfSafety() {
                 <p>FoS = ${strengthPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa / ${appliedStressPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa</p>
                 <p>= <strong>${fosValue.toLocaleString(undefined, { maximumFractionDigits: 6 })}</strong></p>
             `;
+            window.FormulaFoundryCalculatorDiagramPage?.publish({ factor: fosValue });
             return;
         }
 
@@ -111,6 +114,7 @@ function calculateFactorOfSafety() {
         const appliedLoadValue = Number(fosAppliedLoadInput.value);
 
         if (!Number.isFinite(failureLoadValue) || !Number.isFinite(appliedLoadValue) || failureLoadValue <= 0 || appliedLoadValue <= 0) {
+            window.FormulaFoundryCalculatorDiagramPage?.publish();
             fosResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter positive failure and applied load values.</p>";
             return;
         }
@@ -137,7 +141,9 @@ function calculateFactorOfSafety() {
             <p>FoS = ${failureLoadN.toLocaleString(undefined, { maximumFractionDigits: 2 })} N / ${appliedLoadN.toLocaleString(undefined, { maximumFractionDigits: 2 })} N</p>
             <p>= <strong>${fosValue.toLocaleString(undefined, { maximumFractionDigits: 6 })}</strong></p>
         `;
+        window.FormulaFoundryCalculatorDiagramPage?.publish({ factor: fosValue });
     } catch (error) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         fosResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
     }
 }

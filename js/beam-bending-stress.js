@@ -108,7 +108,15 @@ function calculateBeamBendingStress() {
             <p><small>Signed extreme-fiber stress; the opposite extreme fiber has equal magnitude and opposite sign. Linear elastic, prismatic-beam flexure assumptions apply; shear, local buckling, lateral-torsional buckling, fatigue, stress concentrations and deflection are not evaluated.</small></p>
         `;
 
+        window.FormulaFoundryCalculatorDiagramPage?.publish({ stress: stressOutput, stressUnit });
         if (window.FormulaFoundryReport) {
+            const diagram = window.FormulaFoundryReport.currentCalcDiagram?.() || {
+                type: "beam-section",
+                profile: sectionType,
+                dimensions,
+                axis,
+                unit: displayLengthUnit
+            };
             const inputs = [
                 { label: "Cross-section profile", value: bendingProfileNames[sectionType], unit: "" },
                 ...dimensionInputs,
@@ -133,13 +141,7 @@ function calculateBeamBendingStress() {
                 title: bendingProfileNames[sectionType] + " bending stress",
                 inputs,
                 outputs,
-                diagram: {
-                    type: "beam-section",
-                    profile: sectionType,
-                    dimensions,
-                    axis,
-                    unit: displayLengthUnit
-                },
+                diagram,
                 equations: window.FormulaFoundryBeamCalculations.bendingEquations(sectionType, axis),
                 assumptions: [
                     "Linear elastic material response and small deformation; prismatic cross-section and simple elastic flexure.",
@@ -150,7 +152,6 @@ function calculateBeamBendingStress() {
                 warnings: ["Verify the section properties and elastic-beam assumptions for the actual design."]
             });
         }
-        window.FormulaFoundryCalculatorDiagramPage?.publish({ stress: stressOutput, stressUnit });
         drawBeamSection();
     } catch (error) {
         window.FormulaFoundryCalculatorDiagramPage?.publish();

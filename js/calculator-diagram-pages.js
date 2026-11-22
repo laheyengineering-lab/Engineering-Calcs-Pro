@@ -258,7 +258,8 @@
             }
         },
         "factor-of-safety": {
-            watch: ["mode", "strength", "strengthUnit", "appliedStress", "appliedStressUnit", "failureLoad", "failureLoadUnit", "appliedLoad", "appliedLoadUnit"],
+            watch: ["mode", "strength", "strengthUnit", "appliedStress", "appliedStressUnit", "failureLoad", "failureLoadUnit", "appliedLoad", "appliedLoadUnit",
+                "strengthSource", "material"],
             model: () => {
                 const stress = str("mode") !== "load";
                 const capacityId = stress ? "strength" : "failureLoad";

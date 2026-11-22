@@ -46,7 +46,7 @@
                 const cx = 85 + index * 130;
                 const selected = c.id === m.condition;
                 const labelClass = selected ? "ff-label ff-label-strong ff-label-accent" : "ff-label ff-label-small";
-                if (selected) S.rect(cx - 58, 30, 116, 298, "ff-ghost-fill", { rx: 6 });
+                if (selected) S.rect(cx - 58, 30, 116, 306, "ff-ghost-fill", { rx: 6 });
                 S.centerline(cx, top - 10, cx, bottom + 1);
                 const points = [];
                 for (let i = 0; i <= 48; i += 1) {
