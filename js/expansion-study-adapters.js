@@ -1,7 +1,13 @@
 for (const adapter of Object.values(expansionModels)) {
+    function scenarioDiagram(scenario) {
+        const result = scenario?.status === "calculated" ? scenario.result : null;
+        const inputs = result ? Object.fromEntries(result.inputs.map(({ id, value }) => [id, value])) : scenario?.inputs ?? {};
+        const outputs = result ? Object.fromEntries(result.outputs.map(({ id, value }) => [id, value])) : {};
+        return window.FormulaFoundryExpansionDiagram(adapter.id, inputs, outputs, scenario?.units, scenario?.status);
+    }
     window.FormulaFoundryStudies.registerAdapter({
         ...adapter,
-        diagram: (inputs, outputs) => window.FormulaFoundryExpansionDiagram(adapter.id, inputs,
-            Object.fromEntries(outputs.map((output) => [output.id, output.value])))
+        scenarioDiagram,
+        reportDetails: (scenario) => ({ diagram: scenarioDiagram(scenario) })
     });
 }

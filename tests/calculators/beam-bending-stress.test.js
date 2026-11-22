@@ -9,8 +9,12 @@ import {
     setSelectValue
 } from '../helpers/browser-test-utils.js';
 
-function setup() {
-    return loadCalculatorPage('calculators/beam-bending-stress.html', ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js',     'js/engineering-diagram.js', 'js/beam-section-properties.js', 'js/beam-study-calculations.js', 'js/beam-section-ui.js', 'js/beam-bending-stress.js']);
+function setup(diagramScripts = []) {
+    return loadCalculatorPage('calculators/beam-bending-stress.html', [
+        'js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', 'js/engineering-diagram.js',
+        'js/beam-section-properties.js', 'js/beam-study-calculations.js', 'js/beam-section-ui.js', 'js/beam-bending-stress.js',
+        ...diagramScripts
+    ]);
 }
 
 describe('beam bending stress calculator', () => {
@@ -137,5 +141,27 @@ describe('beam bending stress calculator', () => {
         window.calculateBeamBendingStress();
         expect(store.load().entries[0].outputs.find((item) => item.label === 'Bending stress').value).toBeCloseTo(23.5785, 3);
         expect(store.load().entries[0].diagram.dimensions.diameter).toBeCloseTo(0.06, 12);
+    });
+
+    it('captures the modern diagram and its solved stress alongside the report’s unchanged numerical outputs', () => {
+        const { document, window } = setup([
+            'js/calculator-diagrams.js', 'js/diagram-renderers-structural.js', 'js/calculator-diagram-pages.js'
+        ]);
+        setInputValue(document, 'moment', -1000);
+        setInputValue(document, 'rectWidth', 50);
+        setInputValue(document, 'rectHeight', 100);
+        window.calculateBeamBendingStress();
+        document.querySelector('.add-to-report-button').click();
+        const entry = window.FormulaFoundryReport.store.load().entries[0];
+        expect(entry.diagram).toMatchObject({
+            type: 'calc-diagram', id: 'beam-bending-stress',
+            model: { profile: 'rectangular', axis: 'x', width: 50, height: 100, stressUnit: 'MPa' }
+        });
+        expect(entry.diagram.model.stress).toBeCloseTo(-12);
+        expect(entry.outputs.find((item) => item.label === 'Bending stress').value).toBeCloseTo(-12);
+        setInputValue(document, 'rectWidth', 80);
+        document.getElementById('rectWidth').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(document.querySelector('#calcDiagram svg').textContent).not.toContain('Signed Mc/I = -12 MPa');
+        expect(window.FormulaFoundryReport.store.load().entries[0].diagram.model.stress).toBeCloseTo(-12);
     });
 });

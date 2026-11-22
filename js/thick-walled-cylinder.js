@@ -17,14 +17,26 @@ function thickCylinderFmt(value) {
     return Number(value.toPrecision(6)).toLocaleString(undefined, { maximumSignificantDigits: 6 });
 }
 
+function thickCylinderClearResult() {
+    const plot = thickCylinderEl("plot");
+    plot.replaceChildren();
+    plot._ffDiagram = null;
+    if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
+}
+
+function thickCylinderMarkStale() {
+    const panel = thickCylinderEl("result");
+    if (!panel.querySelector(".result-value")) return;
+    panel.textContent = "Inputs changed. Calculate again to update the stress plot and results.";
+    thickCylinderClearResult();
+}
+
 function thickCylinderError(message) {
     thickCylinderEl("result").innerHTML = `
         <h3>Invalid Input</h3>
         <p>${escapeHtml(message)}</p>
     `;
-    thickCylinderEl("plot").innerHTML = "";
-    thickCylinderEl("plot")._ffDiagram = null;
-    if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
+    thickCylinderClearResult();
 }
 
 // Inline SVG: radial and hoop stress versus radius (values already in display units)
@@ -101,6 +113,11 @@ function calculateThickCylinder() {
 
     const s = (pa) => convertStressToUnit(pa, stressUnit);
     const radiusOut = (m) => convertDistanceToUnit(m, distanceUnit);
+    const plotStations = r.stations.map((v) => ({ x: radiusOut(v.r), radial: s(v.radial), hoop: s(v.hoop) }));
+    if (!Number.isFinite(s(r.axial)) || plotStations.some((v) => ![v.x, v.radial, v.hoop].every(Number.isFinite))) {
+        thickCylinderError("The calculated stresses or radii exceed the supported numerical range.");
+        return;
+    }
     const endText = endCondition === "closed" ? "closed ends (pressure acts on the end closures)" : "open / free ends (σ_z = 0)";
 
     const rows = [["Inner surface (r = a)", r.inner], ["Mid-wall", r.mid], ["Outer surface (r = b)", r.outer]];
@@ -124,7 +141,6 @@ function calculateThickCylinder() {
         <p><small>Elastic analytical stresses only. This is not a pressure-vessel code check and does not establish allowable pressure, fatigue life or safe operating limits.</small></p>
     `;
 
-    const plotStations = r.stations.map((v) => ({ x: radiusOut(v.r), radial: s(v.radial), hoop: s(v.hoop) }));
     thickCylinderRenderPlot(r, radiusOut, s, stressUnit, distanceUnit, plotStations);
 
     if (window.FormulaFoundryReport) {
@@ -133,7 +149,7 @@ function calculateThickCylinder() {
             { label: name + " hoop stress (σθ)", value: s(v.hoop), unit: stressUnit },
             { label: name + " axial stress (σz)", value: s(v.axial), unit: stressUnit }
         ];
-                const diagram = window.FormulaFoundryReport.currentCalcDiagram ? window.FormulaFoundryReport.currentCalcDiagram() : null;
+        const diagram = window.FormulaFoundryReport.currentCalcDiagram ? window.FormulaFoundryReport.currentCalcDiagram() : null;
         const plotSnapshot = window.FormulaFoundryCalculatorDiagrams && window.FormulaFoundryCalculatorDiagrams.snapshot(thickCylinderEl("plot"));
         if (diagram && plotSnapshot) diagram.companion = { id: plotSnapshot.id, model: plotSnapshot.model };
         window.FormulaFoundryReport.recordResult({
@@ -167,7 +183,11 @@ function resetThickCylinderCalculator() {
     thickCylinderEl("distanceUnit").value = "mm";
     thickCylinderEl("stressUnit").value = "MPa";
     thickCylinderEl("result").innerHTML = "Ready to calculate.";
-    thickCylinderEl("plot").innerHTML = "";
-    thickCylinderEl("plot")._ffDiagram = null;
-    if (window.FormulaFoundryReport) window.FormulaFoundryReport.clearResult();
+    thickCylinderClearResult();
+}
+
+for (const id of ["innerDiameter", "outerDiameter", "internalPressure", "externalPressure", "endCondition", "distanceUnit", "stressUnit"]) {
+    const field = thickCylinderEl(id);
+    field.addEventListener("input", thickCylinderMarkStale);
+    field.addEventListener("change", thickCylinderMarkStale);
 }

@@ -31,22 +31,26 @@ function calculateColumnBuckling() {
     const outerDiameter = Number(bucklingOuterDiameterInput.value);
 
     if (!material) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please select a material.</p>";
         return;
     }
 
     if (!(boundaryCondition in COLUMN_END_CONDITION_FACTORS)) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please select a valid boundary condition.</p>";
         return;
     }
 
     if (!Number.isFinite(length) || !Number.isFinite(outerDiameter) || length <= 0 || outerDiameter <= 0) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter positive length and outer diameter values.</p>";
         return;
     }
 
     const youngsModulusPa = getMaterialProperty(material, "youngsModulus");
     if (!Number.isFinite(youngsModulusPa) || youngsModulusPa <= 0) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         bucklingResultPanel.innerHTML = "<h3>Invalid Material Data</h3><p>Young's modulus is unavailable for the selected material.</p>";
         return;
     }
@@ -60,13 +64,15 @@ function calculateColumnBuckling() {
         if (sectionType !== "solid") {
             const innerDiameter = Number(bucklingInnerDiameterInput.value);
             if (!Number.isFinite(innerDiameter) || innerDiameter <= 0) {
-                bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter a positive inner diameter for hollow sections.</p>";
+                window.FormulaFoundryCalculatorDiagramPage?.publish();
+        bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter a positive inner diameter for hollow sections.</p>";
                 return;
             }
 
             innerDiameterM = convertDistance(innerDiameter, bucklingInnerDiameterUnitSelect.value);
             if (innerDiameterM >= outerDiameterM) {
-                bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Inner diameter must be less than outer diameter.</p>";
+                window.FormulaFoundryCalculatorDiagramPage?.publish();
+        bucklingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Inner diameter must be less than outer diameter.</p>";
                 return;
             }
         }
@@ -104,7 +110,9 @@ function calculateColumnBuckling() {
             <p>P<sub>cr</sub> = π² × ${youngsModulusPa.toLocaleString(undefined, { maximumFractionDigits: 2 })} Pa × ${inertiaM4.toExponential(6)} m⁴ / (${kFactor} × ${lengthM.toLocaleString(undefined, { maximumFractionDigits: 6 })} m)²</p>
             <p>= <strong>${criticalLoadOutput.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${escapeHtml(forceUnit)}</strong></p>
         `;
+        window.FormulaFoundryCalculatorDiagramPage?.publish({ critical: criticalLoadOutput, forceUnit });
     } catch (error) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         bucklingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
     }
 }

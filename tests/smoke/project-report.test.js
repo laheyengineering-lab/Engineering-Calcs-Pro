@@ -402,6 +402,89 @@ describe('report workspace page', () => {
         await vi.waitFor(() => expect(importButton.disabled).toBe(false));
     }
 
+    it('reconstructs a Beam Deflection study recorded in mixed units', () => {
+        const storage = memoryStorage();
+        const { window, document } = openWithPageScripts('design-studies.html', storage);
+        let reportPage;
+        try {
+            setInputValue(document, 'newStudyName', 'Tooling beam');
+            setSelectValue(document, 'newStudyCalculator', 'beam-deflection');
+            document.getElementById('newStudyForm').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+            document.getElementById('addScenario').click();
+
+            const card = document.querySelector('.scenario-card');
+            const set = (selector, value) => {
+                const field = card.querySelector(selector);
+                field.value = String(value);
+                field.dispatchEvent(new window.Event('change', { bubbles: true }));
+            };
+            for (const [group, unit] of Object.entries({ span: 'cm', distance: 'in', force: 'kN', modulus: 'GPa', deflection: 'mm' })) {
+                set('[data-unit-group="' + group + '"] select', unit);
+            }
+            for (const [id, value] of Object.entries({
+                loadingCase: 'cant-point', span: 200, pointLoad: -1, youngsModulus: 200,
+                sectionType: 'rectangular', section_width: 4, section_height: 4, bendingAxis: 'x'
+            })) {
+                set('[data-input-id="' + id + '"]', value);
+            }
+            const action = (label) => [...card.querySelectorAll('button')].find((button) => button.textContent === label);
+            action('Recalculate').click();
+            expect(card.querySelector('[data-role="status"]').textContent).toBe('Calculated');
+            action('Add to project report').click();
+
+            reportPage = openWithPageScripts('report.html', storage);
+            const report = reportPage.window.FormulaFoundryReport;
+            const project = report.store.load();
+            const [entry] = project.entries;
+            expect(entry.study.kind).toBe('scenario');
+            expect(entry.diagram).toMatchObject({
+                type: 'beam-deflection', caseId: 'cant-point', span: 2, spanUnit: 'm', load: -1000, loadUnit: 'N',
+                profile: 'rectangular', dimensions: { width: 0.1016, height: 0.1016 }, sectionUnit: 'm', deflectionUnit: 'mm'
+            });
+            const exactDeflection = 1000 * 2 ** 3 / (3 * 200e9 * (0.1016 ** 4 / 12));
+            expect(entry.diagram.maxDeflection).toBeCloseTo(exactDeflection * 1000, 10);
+            expect(report.parseProjectJSON(JSON.stringify(project)).project).toEqual(project);
+            expect(reportPage.document.querySelectorAll('.report-profile-diagram svg')).toHaveLength(2);
+        } finally {
+            window.close();
+            reportPage?.window.close();
+        }
+    });
+
+    it('imports a pre-modernization schema-v1 export and reconstructs all stored figures', async () => {
+        // Produced by the unmodified PR #41 calculator pages using their report export data.
+        const json = fs.readFileSync('tests/fixtures/project-report-before-graphics-2.json', 'utf8');
+        const expected = JSON.parse(json);
+        const loaded = openWithPageScripts('report.html', memoryStorage());
+        const { window, document } = loaded;
+        window.confirm = () => true;
+        try {
+            await chooseProject(loaded, new window.File([json], 'pre-modernization.json'));
+            expect(window.FormulaFoundryReport.store.load()).toEqual(expected);
+
+            for (const entry of expected.entries) {
+                const rendered = document.getElementById('entry-' + entry.id);
+                expect(rendered, entry.calculatorId).toBeTruthy();
+                const { diagram } = entry;
+                if (diagram.type === 'beam-deflection') {
+                    expect(rendered.querySelectorAll('.report-profile-diagram svg')).toHaveLength(2);
+                    expect(rendered.querySelector('.report-profile-diagram figcaption').textContent).toContain('cant-point');
+                } else {
+                    const ids = Array.from(rendered.querySelectorAll('.report-calc-diagram svg'), (svg) => svg.dataset.diagramId);
+                    expect(ids).toEqual([diagram.id, ...(diagram.companion ? [diagram.companion.id] : [])]);
+                }
+                expect(rendered.querySelector('.report-profile-diagram').innerHTML).not.toMatch(/NaN|Infinity|undefined/);
+                expect(rendered.querySelector('.report-profile-diagram input[type=range]')).toBeNull();
+            }
+            const plot = document.querySelector('[data-diagram-id="thick-walled-cylinder-plot"]');
+            expect(plot.textContent).toContain('Radius r (in)');
+            expect(plot.textContent).toContain('Stress (psi)');
+            expect(plot.querySelector('.ff-curve-axial')).toBeTruthy();
+        } finally {
+            window.close();
+        }
+    });
+
     function readBlob(window, blob) {
         return new Promise((resolve, reject) => {
             const reader = new window.FileReader();

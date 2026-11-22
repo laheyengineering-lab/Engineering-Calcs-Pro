@@ -20,7 +20,8 @@ function memoryStorage() {
 }
 
 function open(page, script, { diagrams = true, storage = memoryStorage() } = {}) {
-    const calc = script === 'cylinder-force' ? ['js/cylinder-geometry.js'] : fs.existsSync(`js/${script}-calculation.js`) ? [`js/${script}-calculation.js`] : [];
+    const engine = script === 'spring-calculations' ? 'spring-calculation' : `${script}-calculation`;
+    const calc = script === 'cylinder-force' ? ['js/cylinder-geometry.js'] : fs.existsSync(`js/${engine}.js`) ? [`js/${engine}.js`] : [];
     const scripts = diagrams ? [...DIAGRAM_SCRIPTS, ...calc, `js/${script}.js`] : ['js/engineering-units.js', 'js/calculator-utils.js', 'js/report-builder.js', ...calc, `js/${script}.js`];
     const loaded = loadCalculatorPage(`calculators/${page}.html`, scripts);
     loaded.window.FormulaFoundryReport.store.setStorage(storage);
@@ -52,6 +53,89 @@ describe('calculator diagram page wiring', () => {
         expect(after.outerHTML).not.toBe(before);
         expect(after.getAttribute('viewBox')).toMatch(/^0 0 [\d.]+ [\d.]+$/);
         expect(after.querySelector('title')).not.toBeNull();
+    });
+
+    it('shows current cylinder areas and forces, then drops them on output unit or geometry edits', () => {
+        const page = open('cylinder-force', 'cylinder-force');
+        const { window, document } = page;
+        const model = () => window.FormulaFoundryReport.currentCalcDiagram().model;
+        fillCylinder(page);
+        expect(model()).toMatchObject({ forceUnit: 'kN', areaUnit: 'cm²' });
+        expect(model().pistonArea).toBeCloseTo(78.539816);
+        expect(model().extensionForce).toBeCloseTo(78.539816);
+        expect(model().retractionForce).toBeCloseTo(58.904862);
+        setSelectValue(document, 'forceUnit', 'lbf');
+        expect(model().extensionForce).toBeUndefined();
+        expect(document.querySelector('.ff-diagram-status').textContent).toMatch(/Recalculate/);
+        window.calculateCylinderForce();
+        expect(model().forceUnit).toBe('lbf');
+        expect(model().extensionForce).toBeGreaterThan(17000);
+        setInputValue(document, 'rodDiameter', 150);
+        window.calculateCylinderForce();
+        expect(model().annularArea).toBeUndefined();
+        expect(document.querySelector('.ff-diagram-status').textContent).toMatch(/unavailable/);
+    });
+
+    it('refreshes signed Moment and rating-life labels only after a new calculation', () => {
+        const moment = open('moment', 'moment');
+        const model = (page) => page.window.FormulaFoundryReport.currentCalcDiagram().model;
+        setInputValue(moment.document, 'force', -120);
+        setInputValue(moment.document, 'distance', 0.5);
+        expect(model(moment).moment).toBeUndefined();
+        moment.window.calculateMoment();
+        expect(model(moment)).toMatchObject({ moment: -60, momentUnit: 'N·m' });
+        setInputValue(moment.document, 'force', 0);
+        moment.window.calculateMoment();
+        expect(model(moment)).toMatchObject({ force: 0 });
+        expect(model(moment).moment).toBeUndefined();
+        moment.window.resetMomentCalculator();
+        expect(moment.document.querySelector('.ff-diagram-status').hidden).toBe(true);
+
+        const bearing = open('bearing-life', 'bearing-life');
+        setInputValue(bearing.document, 'dynamicLoadRating', 50);
+        setInputValue(bearing.document, 'equivalentDynamicLoad', 10);
+        setInputValue(bearing.document, 'speed', 1200);
+        bearing.window.calculateBearingLife();
+        expect(model(bearing).lifeMillions).toBeCloseTo(125);
+        expect(model(bearing).lifeHours).toBeCloseTo(125e6 / 72000);
+        setSelectValue(bearing.document, 'bearingType', 'roller');
+        expect(model(bearing)).toMatchObject({ bearingType: 'roller' });
+        expect(model(bearing).lifeMillions).toBeUndefined();
+    });
+
+    it('clears spring deflection and shaft stress and twist on modulus edits', () => {
+        const spring = open('spring-calculations', 'spring-calculations');
+        const model = (page) => page.window.FormulaFoundryReport.currentCalcDiagram().model;
+        setInputValue(spring.document, 'wireDiameter', 5);
+        setInputValue(spring.document, 'meanCoilDiameter', 36);
+        setInputValue(spring.document, 'activeCoils', 7.5);
+        setInputValue(spring.document, 'appliedForce', 180);
+        setInputValue(spring.document, 'shearModulus', 79);
+        spring.window.calculateSpring();
+        expect(model(spring).deflection).toBeCloseTo(10.21);
+        setInputValue(spring.document, 'shearModulus', 80);
+        expect(model(spring).deflection).toBeUndefined();
+        expect(spring.document.querySelector('#calcDiagram .ff-ghost')).toBeNull();
+        setInputValue(spring.document, 'appliedForce', 0);
+        spring.window.calculateSpring();
+        expect(model(spring).deflection).toBe(0);
+
+        const shaft = open('shaft-torsion', 'shaft-torsion');
+        setSelectValue(shaft.document, 'shaftType', 'hollow');
+        setInputValue(shaft.document, 'torque', -350);
+        setInputValue(shaft.document, 'outerDiameter', 50);
+        setSelectValue(shaft.document, 'diameterUnit', 'mm');
+        setInputValue(shaft.document, 'innerDiameter', 1);
+        setSelectValue(shaft.document, 'innerDiameterUnit', 'in');
+        setInputValue(shaft.document, 'length', 0.5);
+        setInputValue(shaft.document, 'shearModulus', 80);
+        shaft.window.calculateShaftTorsion();
+        expect(model(shaft).twist).toBeLessThan(0);
+        expect(model(shaft).tauMax).toBeLessThan(0);
+        expect(model(shaft).inner).toBeCloseTo(25.4);
+        setInputValue(shaft.document, 'shearModulus', 81);
+        expect(model(shaft).twist).toBeUndefined();
+        expect(model(shaft).tauMax).toBeUndefined();
     });
 
     it('does not alter calculation output when the diagram scripts are absent', () => {
@@ -201,6 +285,52 @@ describe('thick-walled cylinder plot is a numerical result', () => {
         setInputValue(page.document, 'outerDiameter', 50);
         page.window.calculateThickCylinder();
         expect(page.document.querySelector('#plot svg')).toBeNull();
+    });
+
+    it('hides the saved stress plot on edit until recalculated and preserves the recorded report', () => {
+        const page = open('thick-walled-cylinder', 'thick-walled-cylinder');
+        const { window, document } = page;
+        const report = window.FormulaFoundryReport;
+        const diagrams = window.FormulaFoundryCalculatorDiagrams;
+        const plot = document.getElementById('plot');
+        fillThick(page);
+        expect(report.addCurrentResult().ok).toBe(true);
+        const saved = report.store.load().entries[0];
+        expect(saved.diagram.companion.model.axial).toBeCloseTo(100 / 3);
+
+        setSelectValue(document, 'stressUnit', 'psi');
+        document.getElementById('stressUnit').dispatchEvent(new window.Event('change', { bubbles: true }));
+        expect(plot.querySelector('svg')).toBeNull();
+        expect(diagrams.snapshot(plot)).toBeNull();
+        expect(document.getElementById('result').textContent).toContain('Calculate again');
+        expect(report.addCurrentResult().ok).toBe(false);
+
+        window.calculateThickCylinder();
+        expect(diagrams.snapshot(plot).model.stressUnit).toBe('psi');
+        expect(diagrams.snapshot(plot).model.samples[0][1]).toBeCloseTo(-100);
+        expect(report.store.load().entries).toEqual([saved]);
+
+        setInputValue(document, 'outerDiameter', '');
+        document.getElementById('outerDiameter').dispatchEvent(new window.Event('input', { bubbles: true }));
+        expect(diagrams.snapshot(plot)).toBeNull();
+        window.calculateThickCylinder();
+        expect(document.getElementById('result').textContent).toContain('Invalid Input');
+        expect(diagrams.snapshot(plot)).toBeNull();
+        window.close();
+    });
+
+    it('handles out-of-range stress computations without rendering non-finite plot data', () => {
+        for (const diagrams of [true, false]) {
+            const { window, document } = open('thick-walled-cylinder', 'thick-walled-cylinder', { diagrams });
+            setInputValue(document, 'innerDiameter', 1e200);
+            setInputValue(document, 'outerDiameter', 2e200);
+            setInputValue(document, 'internalPressure', 100);
+            window.calculateThickCylinder();
+            expect(document.getElementById('result').textContent).toContain('supported numerical range');
+            expect(document.querySelector('#plot svg')).toBeNull();
+            expect(window.FormulaFoundryReport.addCurrentResult().ok).toBe(false);
+            window.close();
+        }
     });
 });
 

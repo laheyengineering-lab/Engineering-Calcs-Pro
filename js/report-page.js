@@ -131,10 +131,9 @@
                 figure.appendChild(window.FormulaFoundryBeamDeflectionDiagram.render(doc, {
                     caseId: diagram.caseId,
                     span: diagram.span,
-                    spanDisplay: String(diagram.span),
                     lengthUnit: diagram.spanUnit,
                     load: diagram.load,
-                    loadLabel: diagram.caseId.endsWith("point") ? "P" : "w",
+                    loadUnit: diagram.loadUnit,
                     maxDeflection: diagram.maxDeflection,
                     deflectionUnit: diagram.deflectionUnit
                 }));

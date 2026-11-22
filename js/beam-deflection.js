@@ -60,10 +60,9 @@ function updateBeamDeflectionDiagram(recenterSpanRange = true, result = null, re
     host.replaceChildren(window.FormulaFoundryBeamDeflectionDiagram.render(document, {
         caseId: loadingCaseSelect.value,
         span: validSpan ? span : null,
-        spanDisplay: validSpan ? spanRaw : "",
         lengthUnit,
         load: Number.isFinite(load) ? load : null,
-        loadLabel: isPointLoad ? "P" : "w",
+        loadUnit,
         ...(result || {})
     }));
     const caption = document.getElementById("beamDiagramCaption");

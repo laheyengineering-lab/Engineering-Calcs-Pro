@@ -19,6 +19,7 @@ function updateSpringMaterial() {
 
 function springError(message) {
     springElement("result").innerHTML = `<h3>Invalid Input</h3><p>${escapeHtml(message)}</p>`;
+    window.FormulaFoundryCalculatorDiagramPage?.publish();
 }
 
 function calculateSpring() {
@@ -79,6 +80,7 @@ function calculateSpring() {
         <hr>
         <p><em>Static, elastic round-wire spring estimate only. Coil bind, buckling, fatigue, surge, and material allowable checks are not performed.</em></p>
     `;
+    window.FormulaFoundryCalculatorDiagramPage?.publish({ deflection: deflectionOutput });
 }
 
 function resetSpringCalculator() {
@@ -91,6 +93,7 @@ function resetSpringCalculator() {
     springElement("modulusUnit").value = "GPa";
     springElement("stressUnit").value = "MPa";
     springElement("result").textContent = "Ready to calculate.";
+    window.FormulaFoundryCalculatorDiagramPage?.reset?.();
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -57,6 +57,7 @@ function calculateStressStrain() {
     const outputUnit = stressStrainOutputUnitSelect.value;
     
     let resultHTML = "";
+    let diagramResult;
     
     try {
         if (mode === "stress") {
@@ -65,6 +66,7 @@ function calculateStressStrain() {
             const area = Number(stressStrainAreaInput.value);
             
             if (!Number.isFinite(force) || force === 0 || !Number.isFinite(area) || area <= 0) {
+                window.FormulaFoundryCalculatorDiagramPage?.publish();
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter both force and cross-sectional area.</p>
@@ -76,6 +78,7 @@ function calculateStressStrain() {
             const areaM2 = convertArea(area, areaUnit);
             const { stressPa } = computeStressStrain({ mode, forceN, areaM2 });
             const stressOutput = convertStressToUnit(stressPa, outputUnit);
+            diagramResult = { stress: stressOutput, stressUnit: outputUnit };
             
             resultHTML = `
                 <h3>Result</h3>
@@ -96,6 +99,7 @@ function calculateStressStrain() {
             const originalLength = Number(stressStrainLengthInput.value);
             
             if (!Number.isFinite(deltaL) || !Number.isFinite(originalLength) || originalLength <= 0) {
+                window.FormulaFoundryCalculatorDiagramPage?.publish();
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter change in length and original length.</p>
@@ -106,6 +110,7 @@ function calculateStressStrain() {
             const deltaLM = convertDistance(deltaL, deltaLengthUnit);
             const originalLengthM = convertDistance(originalLength, lengthUnit);
             const { strain } = computeStressStrain({ mode, deltaLengthM: deltaLM, originalLengthM });
+            diagramResult = { strain };
             
             resultHTML = `
                 <h3>Result</h3>
@@ -129,6 +134,7 @@ function calculateStressStrain() {
             
             if (!Number.isFinite(force) || force === 0 || !Number.isFinite(area) || area <= 0 ||
                 !Number.isFinite(strainValue) || strainValue === 0) {
+                window.FormulaFoundryCalculatorDiagramPage?.publish();
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter force, area, and strain.</p>
@@ -140,6 +146,7 @@ function calculateStressStrain() {
             const areaM2 = convertArea(area, areaUnit);
             const { modulusPa } = computeStressStrain({ mode, forceN, areaM2, strain: strainValue });
             const modulusOutput = convertStressToUnit(modulusPa, outputUnit);
+            diagramResult = { modulus: modulusOutput, modulusUnit: outputUnit };
             
             resultHTML = `
                 <h3>Result</h3>
@@ -164,6 +171,7 @@ function calculateStressStrain() {
             if (!Number.isFinite(force) || force === 0 || !Number.isFinite(area) || area <= 0 ||
                 !Number.isFinite(originalLength) || originalLength <= 0 ||
                 !Number.isFinite(youngsModulus) || youngsModulus <= 0) {
+                window.FormulaFoundryCalculatorDiagramPage?.publish();
                 stressStrainResultPanel.innerHTML = `
                     <h3>Invalid Input</h3>
                     <p>Please enter force, area, original length, and Young's modulus.</p>
@@ -177,7 +185,8 @@ function calculateStressStrain() {
             const modulusPa = convertModulus(youngsModulus, modulusUnit); // FIXED: Uses centralized conversion
             
             const { deltaLengthM: deltaLM } = computeStressStrain({ mode, forceN, areaM2, originalLengthM, modulusPa });
-            const deltaLmm = deltaLM * 1000; // Convert to mm for display
+            const deltaLmm = deltaLM * 1000;
+            diagramResult = { deltaLength: convertDistanceToUnit(deltaLM, lengthUnit) }; // Convert to mm for display
             
             resultHTML = `
                 <h3>Result</h3>
@@ -195,8 +204,10 @@ function calculateStressStrain() {
         }
         
         stressStrainResultPanel.innerHTML = resultHTML;
+        if (diagramResult) window.FormulaFoundryCalculatorDiagramPage?.publish(diagramResult);
         
     } catch (error) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         stressStrainResultPanel.innerHTML = `
             <h3>Calculation Error</h3>
             <p>${error.message}</p>

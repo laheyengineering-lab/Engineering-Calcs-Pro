@@ -44,6 +44,7 @@ function calculateThermalExpansion() {
     // Validate basic inputs
     if (!Number.isFinite(alpha) || alpha <= 0 || !Number.isFinite(originalLength) || originalLength <= 0 ||
         !Number.isFinite(temperatureChange)) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         thermalResultPanel.innerHTML = `
             <h3>Invalid Input</h3>
             <p>Please enter thermal expansion coefficient, original length, and temperature change.</p>
@@ -59,6 +60,7 @@ function calculateThermalExpansion() {
         // Validate the restrained-stress modulus before calculating (as before)
         const modulusValid = youngsModulusRaw !== "" && Number.isFinite(youngsModulus) && youngsModulus > 0;
         if (youngsModulusRaw !== "" && !modulusValid) {
+            window.FormulaFoundryCalculatorDiagramPage?.publish();
             thermalResultPanel.innerHTML = `
                 <h3>Invalid Input</h3>
                 <p>Young's modulus must be positive when restrained thermal stress is evaluated.</p>
@@ -121,8 +123,13 @@ function calculateThermalExpansion() {
         }
         
         thermalResultPanel.innerHTML = resultHTML;
-        
+        window.FormulaFoundryCalculatorDiagramPage?.publish({
+            deltaLength: deltaLOutput, deltaLengthUnit: outputLengthUnit,
+            stress: thermalStressOutput, stressUnit
+        });
+
     } catch (error) {
+        window.FormulaFoundryCalculatorDiagramPage?.publish();
         thermalResultPanel.innerHTML = `
             <h3>Calculation Error</h3>
             <p>${error.message}</p>

@@ -41,6 +41,7 @@ function dteFmt(value) {
 }
 
 function dteError(message) {
+    window.FormulaFoundryCalculatorDiagramPage?.publish();
     dteEl("result").innerHTML = `
         <h3>Invalid Input</h3>
         <p>${escapeHtml(message)}</p>
@@ -199,6 +200,10 @@ function calculateDifferentialThermalExpansion() {
     }
     html += `<p><small>Free expansion only. If the parts are restrained, in contact or loaded, the real movement differs and thermal stress develops; that is not solved here.</small></p>`;
     dteEl("result").innerHTML = html;
+    window.FormulaFoundryCalculatorDiagramPage?.publish({
+        expA: out(result.memberA.expansion),
+        ...(result.memberB ? { expB: out(result.memberB.expansion), diff: out(result.differential) } : {})
+    });
 
     if (window.FormulaFoundryReport) {
         const inputs = [

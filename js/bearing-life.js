@@ -12,6 +12,7 @@ const bearingSpeedUnitSelect = document.getElementById("speedUnit");
 const bearingResultPanel = document.getElementById("result");
 
 function calculateBearingLife() {
+    const drawing = window.FormulaFoundryCalculatorDiagramPage;
     const bearingType = bearingTypeSelect.value;
     const dynamicLoadRating = Number(bearingDynamicRatingInput.value);
     const equivalentDynamicLoad = Number(bearingEquivalentLoadInput.value);
@@ -19,11 +20,13 @@ function calculateBearingLife() {
 
     if (!(bearingType in BEARING_LIFE_EXPONENTS)) {
         bearingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please select a valid bearing type.</p>";
+        drawing?.publish();
         return;
     }
 
     if (!Number.isFinite(dynamicLoadRating) || !Number.isFinite(equivalentDynamicLoad) || !Number.isFinite(speed) || dynamicLoadRating <= 0 || equivalentDynamicLoad <= 0 || speed <= 0) {
         bearingResultPanel.innerHTML = "<h3>Invalid Input</h3><p>Please enter positive values for C, P, and rotational speed.</p>";
+        drawing?.publish();
         return;
     }
 
@@ -58,8 +61,10 @@ function calculateBearingLife() {
             <p>L<sub>10h</sub> = (${lifeMillionRevolutions.toLocaleString(undefined, { maximumFractionDigits: 6 })} × 10⁶) / (60 × ${speedRpm.toLocaleString(undefined, { maximumFractionDigits: 6 })} rpm)</p>
             <p>= <strong>${lifeHours.toLocaleString(undefined, { maximumFractionDigits: 3 })} h</strong></p>
         `;
+        drawing?.publish({ lifeMillions: lifeMillionRevolutions, lifeHours });
     } catch (error) {
         bearingResultPanel.innerHTML = `<h3>Calculation Error</h3><p>${escapeHtml(error.message)}</p>`;
+        drawing?.publish();
     }
 }
 
@@ -74,4 +79,5 @@ function resetBearingLifeCalculator() {
     bearingSpeedUnitSelect.value = "rpm";
 
     bearingResultPanel.innerHTML = "Ready to calculate.";
+    window.FormulaFoundryCalculatorDiagramPage?.reset?.();
 }

@@ -141,15 +141,37 @@ describe('calculator diagram renderers', () => {
         values.forEach((node) => expect(Number(node.getAttribute('x'))).toBeGreaterThanOrEqual(0));
     });
 
-    it('places spring annotations below the longest drawn spring and shows hollow-shaft inner-wall stress', () => {
-        const spring = registry.render(document, 'spring-calculations', { wire: 6, coil: 18, coils: 8, force: 100, distanceUnit: 'mm', forceUnit: 'N' });
-        const height = Number(spring.getAttribute('viewBox').split(' ')[3]);
-        const annotations = [...spring.querySelectorAll('text')].filter((node) => /Active coils|Free length|Elastic, static/.test(node.textContent));
-        expect(height).toBeGreaterThan(420);
-        expect(Math.min(...annotations.map((node) => Number(node.getAttribute('y'))))).toBeGreaterThan(350);
-        const shaft = registry.render(document, 'shaft-torsion', { shaftType: 'hollow', torque: 5, outer: 40, inner: 20, diameterUnit: 'mm', length: 1 });
-        expect(shaft.textContent).toContain('τinner');
+    it('puts spring values below the drawing and uses a shifted platen only for calculated compression', () => {
+        const model = { wire: 6, coil: 18, coils: 8, force: 100, distanceUnit: 'mm', forceUnit: 'N' };
+        const unloaded = registry.render(document, 'spring-calculations', model);
+        const loaded = registry.render(document, 'spring-calculations', { ...model, deflection: 12 });
+        const height = Number(loaded.getAttribute('viewBox').split(' ')[3]);
+        expect(unloaded.querySelector('.ff-ghost')).toBeNull();
+        expect(loaded.querySelector('.ff-ghost')).not.toBeNull();
+        expect(loaded.textContent).toContain('Axial deflection δ = 12 mm');
+        expect(loaded.textContent).toContain('free length is unspecified');
+        expect(loaded.querySelectorAll('.ff-helix-front .ff-wire-outline')).toHaveLength(16);
+        const seatBottom = Math.max(...Array.from(loaded.querySelectorAll('rect'), (rect) =>
+            Number(rect.getAttribute('y')) + Number(rect.getAttribute('height'))));
+        const annotation = [...loaded.querySelectorAll('text')].find((node) => /Active coils/.test(node.textContent));
+        const baseline = Number(annotation.getAttribute('y'));
+        expect(baseline).toBeGreaterThan(seatBottom);
+        expect(baseline).toBeLessThan(height);
+    });
+
+    it('uses the signed force and torque inputs for arrow directions and shows no load at zero', () => {
+        const drawn = (id, partial) => [1, -1, 0].map((sign) => registry.render(document, id,
+            id === 'moment' ? { ...partial, force: sign } : { ...partial, torque: sign }));
+        const tip = (svg, selector) => svg.querySelector(selector).getAttribute('points').split(' ')[0].split(',').map(Number);
+        const [positive, negative, zero] = drawn('moment', { distance: 1 });
+        expect(tip(positive, '.ff-arrow-force .ff-arrow-head')[1]).toBeLessThan(tip(negative, '.ff-arrow-force .ff-arrow-head')[1]);
+        expect(tip(positive, '.ff-arrow-moment .ff-arrow-head')[0]).toBeLessThan(tip(negative, '.ff-arrow-moment .ff-arrow-head')[0]);
+        expect(zero.querySelector('.ff-arrow-force, .ff-arrow-moment')).toBeNull();
+        const [shaftPositive, shaftNegative, shaftZero] = drawn('shaft-torsion', { shaftType: 'hollow', outer: 40, inner: 20 });
+        expect(shaftPositive.textContent).toContain('τinner');
         expect(registry.caption('shaft-torsion')).toContain('nonzero τ_inner');
+        expect(tip(shaftPositive, '.ff-arrow-stress .ff-arrow-head')[1]).toBeLessThan(tip(shaftNegative, '.ff-arrow-stress .ff-arrow-head')[1]);
+        expect(shaftZero.querySelector('.ff-arrow-stress, .ff-arrow-moment')).toBeNull();
     });
 
     it('describes factor of safety as a ratio, not a verdict', () => {

@@ -238,6 +238,7 @@
         actions.appendChild(button("Recalculate", () => {
             mutateScenario(scenario.id, (s) => S.calculateScenario(adapter, s));
             refreshCardStatus(card, scenario.id);
+            refreshContext();
         }, "primary-button"));
         actions.appendChild(button("Duplicate", () => {
             const copy = S.duplicateScenario(find(scenario.id));
@@ -251,7 +252,12 @@
             persist(); renderScenarios(); renderComparison(); renderSweepForm(); renderSavedSweeps();
         }));
         actions.appendChild(button("Add to project report", () => {
-            const result = S.scenarioReportSnapshot(current(), find(scenario.id));
+            const selected = find(scenario.id);
+            const result = S.scenarioReportSnapshot(current(), selected);
+            if (result.ok && !result.snapshot.diagram) {
+                const diagram = window.FormulaFoundryStudyContext?.diagramSnapshot(adapter, selected);
+                if (diagram) result.snapshot.diagram = diagram;
+            }
             addToReport(result);
         }));
         card.appendChild(actions);

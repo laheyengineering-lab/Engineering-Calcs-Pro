@@ -1,31 +1,33 @@
 # Engineering graphics
 
-Every calculator page carries an engineering graphic. Graphics are native SVG, built on the shared helpers in `js/engineering-diagram.js` and registered in `js/calculator-diagrams.js`. A graphic is a **view of calculator state**: it reads the existing input fields, never solves anything, and never stores a parallel state model. No rendering dependency and no build step are used.
+Every calculator page carries an engineering graphic. Graphics are native SVG, built on the shared helpers in `js/engineering-diagram.js` and registered in `js/calculator-diagrams.js`. A graphic is a **view of calculator state**. It reads the existing input fields and receives available results from the calculator. Rendering needs no dependency or build step.
 
 ## Architecture
 
 | File | Role |
 | --- | --- |
-| `js/engineering-diagram.js` | Shared scene and primitives (`FormulaFoundryDiagram`), plus the older `createSvg`, `add`, `bindSliderControl`. New: `scene()`, `bindFieldRanges()`, `rangeAround()`, `formatNumber()`. |
+| `js/engineering-diagram.js` | Shared scene and primitives (`FormulaFoundryDiagram`), including `scene()`, `bindFieldRanges()`, `rangeAround()` and `formatNumber()`. Also exports `createSvg`, `add` and `bindSliderControl`. |
 | `js/calculator-diagrams.js` | Registry (`FormulaFoundryCalculatorDiagrams`): `register`, `render`, `mount`, `attach`, `normalize`, `snapshot`, `caption`, `has`. |
 | `js/diagram-renderers-loads.js` | Moment, bearing life, cylinder force, helical spring, shaft torsion. |
 | `js/diagram-renderers-fasteners.js` | Bolt torque, thread strength, fillet weld, press fit. |
 | `js/diagram-renderers-structural.js` | Column buckling, beam bending stress, stress-strain, thermal expansion, differential thermal expansion, factor of safety, Hertzian contact, thick-walled cylinder and its stress-vs-radius plot. |
+| `js/expansion-diagrams.js` | Fluid, hydraulic, pneumatic, thermal and mounting schematics. |
 | `js/electrical-diagrams.js` | Electrical circuits and wiring, power triangle, RC and RL time plots, and series RLC frequency response. |
-| `js/calculator-diagram-pages.js` | One data-driven wiring script: per page, maps existing input fields to a model and declares optional range controls. |
-| `js/beam-deflection-diagram.js`, `js/beam-section-properties.js` | Original beam diagram and section drawings (kept; restyled in CSS to the shared language). |
+| `js/calculator-diagram-pages.js` | Maps existing inputs and published results to a model and declares optional range controls. |
+| `js/beam-deflection-diagram.js`, `js/beam-section-properties.js` | Four-case Beam Deflection graphic and shared beam section drawings. |
+| `js/design-study-graphics.js` | Maps original Design Study scenarios and saved result rows to the same graphics models. |
 | `css/style.css` (`.ff-*` block) | Semantic tokens and classes for all graphics. |
 
 ### Visual language
 
-Graphite outlines (`--ff-ink`), warm paper background (`--ff-paper`), copper accent (`--ff-accent`) for loads and selected features. Colour is never the only cue: forces are solid copper arrows, reactions are graphite arrows with open heads, pressure is a row of thin copper arrows, moments are curved arrows with a label, construction and ghost geometry are dashed or dash-dot, and every quantity is labelled. Text is 13–16 px in viewBox units; on screens under 560 px the SVG keeps a 430 px minimum width and its host scrolls horizontally rather than shrinking text below a legible size.
+Structural outlines use graphite on a warm drawing surface. Applied force and torque use copper, and reactions use graphite with open heads. Thin arrows mark pressure, dashed arrows indicate motion or flow, and dash-dot centerlines locate axes. Use neighboring views or reserved rows when numeric labels would crowd a section. Keep captions in normal text flow and describe any exaggerated geometry. Phone-width legacy and expansion figures preserve drawing scale and scroll within the figure. Printed figures fit the available width.
 
 ### Reusable primitives
 
 `FormulaFoundryDiagram.scene(document, { size: [w, h], label, title, description })` returns a context with a responsive `viewBox`, `<title>`/`<desc>`, `role="img"`, and these helpers:
 
 - Geometry: `line`, `rect`, `circle`, `path`, `polygon`, `polyline`, `group`, `text` (rich text: `A_p`, `σ_{max}`, `x^2`).
-- Force-like arrows: `arrow(x1, y1, x2, y2, { kind: "force" | "reaction" | "pressure" | "stress", label })`.
+- Force-like arrows: `arrow(x1, y1, x2, y2, { kind: "force" | "reaction" | "pressure" | "stress" | "flow" | "motion", label })`.
 - Moments: `momentArrow(cx, cy, r, fromDeg, toDeg, { ry, label })` for torque and bending moments (always curved, never axial).
 - Annotation: `dimension` (extension lines, arrowheads, text), `leader`, `centerline`, `construction`.
 - Sections: `hatchRect`, `hatchPath`, `groundHatch`.
@@ -51,7 +53,7 @@ Conventions:
 - `model` is small, serialisable data (finite numbers, short strings, short numeric arrays). `normalize(id, raw, strict)` enforces the schema: lenient on live pages (invalid fields are dropped and the renderer draws a generic state), strict for report snapshots (invalid models are rejected).
 - Missing or invalid values fall back to a neutral drawing and the label shows `—`; the renderer must never emit `NaN` or `Infinity`.
 - Proportions come from `helpers.ratio(value, reference, low, high, fallback)`, which clamps geometry to a drawable range and flags exaggeration. Exaggerated or schematic geometry is labelled in the drawing and the caption.
-- No engineering equations. Values such as `deflection`, `tauMax` or `stress` are read from the calculator's results, not recomputed. The only arithmetic is for drawing proportions.
+- No engineering equations. Values such as `deflection`, `tauMax` or `stress` are read from the calculator's results, not recomputed. Geometry can use unit conversion, section properties and bounded proportions.
 
 ## Page wiring and input mapping
 
@@ -61,7 +63,9 @@ Calculator pages have a figure at the top of `.calculator-column`:
 <figure class="ff-figure"><div id="calcDiagram" class="ff-diagram-host" data-diagram="moment"></div></figure>
 ```
 
-`calculator-diagram-pages.js` looks up `PAGES[id] = { watch, model(), commit?, ranges?, delegate? }`. `watch` lists the existing input ids, `model()` reads them into the registry model, and the figure refreshes on `input`/`change` and when `#result` changes. Hertzian contact has two hosts (line and point contact) and renders whichever is visible. If the diagram scripts are not loaded, the calculators work unchanged and the host stays empty.
+`calculator-diagram-pages.js` looks up `PAGES[id] = { watch, model(), commit?, ranges?, delegate? }`. `watch` lists the existing input ids, `model()` reads them into the registry model, and the figure refreshes on `input`/`change` and when `#result` changes. Hertzian contact switches between line- and point-contact hosts.
+
+The existing calculation publishes optional fields through `FormulaFoundryCalculatorDiagramPage.publish(fields)`. The page validates the fields and refreshes synchronously before report capture. A dependency edit clears the solved annotations and asks for recalculation. An invalid calculation calls `publish()` to clear results and show an input status. The calculator’s reset can call `reset()` to return to the initial drawing. Keep all result dependencies, including material and output-unit controls, in `watch` or `delegate`. Expansion figures take their status and values from the shared expansion form and existing result rows.
 
 ## Static and interactive graphics
 
@@ -83,7 +87,7 @@ Range controls come from `bindFieldRanges()`: a labelled native `<input type="ra
 
 ## Numerical plot: thick-walled cylinder
 
-The stress-versus-radius plot is calculated data. `thickCylinderRenderPlot()` samples `r.stressAt(r)` (the Lamé solution) at 41 points and mounts `thick-walled-cylinder-plot`. Axes are labelled with units, tension is positive, the zero line is drawn, radial, hoop and axial curves differ by line style and direct labels, and the y-range always includes zero. `tests/smoke/calculator-diagram-pages.test.js` checks the first and last samples against the closed-form values.
+The stress-versus-radius plot is calculated data. `thickCylinderRenderPlot()` samples `r.stressAt(r)` (the Lamé solution) at 41 points and mounts `thick-walled-cylinder-plot`. Edits hide the plot until another valid solve. Axes are labelled with units, tension is positive, the zero line is drawn, radial, hoop and axial curves differ by line style and direct labels, and the y-range always includes zero. `tests/smoke/calculator-diagram-pages.test.js` checks the first and last samples against the closed-form values.
 
 ## Circuit schematics and response plots
 
@@ -102,7 +106,9 @@ RC and RL plots use samples from the first-order time solutions. The series RLC 
 
 Report snapshots store `diagram: { type: "calc-diagram", id, model[, companion] }`. The optional companion is used for thick-cylinder and electrical response plots. Structured pages can pass the model explicitly, and scraped pages can capture it through the shared snapshot call. `report-builder.js` validates the diagram ID and bounded model data. `report-page.js` re-renders a static SVG with strict `normalize()`. Entries without a valid diagram still render their calculation content. Report figures have no controls, avoid page breaks inside the figure, and force print colours.
 
-Beam Deflection reports keep their existing `beam-deflection` snapshot.
+Beam Deflection reports keep their existing `beam-deflection` snapshot. Additive optional diagram fields fit the existing schema-v1 JSON format. Saved values are reused when available, and older snapshots still render from the fields they recorded.
+
+Design Studies passes current form geometry and uses saved output values and units only when the selected scenario is calculated. A stale scenario keeps its historical results in the results table. Adding a calculated scenario to the report captures a static figure with that result.
 
 ## Adding a graphic
 
@@ -113,33 +119,6 @@ Beam Deflection reports keep their existing `beam-deflection` snapshot.
 5. Add cases to `tests/core/calculator-diagrams.test.js` (minimum, typical, maximum, zero, negative, missing) and, when the page has controls, to `tests/smoke/calculator-diagram-pages.test.js`.
 6. Write the caption as a statement of simplifications, never beyond the calculator's equations.
 
-## Audit inventory
+## Graphics 2.0 review
 
-| Calculator | Physical system and model | Prior state | Graphic |
-| --- | --- | --- | --- |
-| Bolt torque | `T = K·D·F` nut-factor model | Early SVG | Joint section: head, shank, thread, clamped members, torque arc, tension F vs clamp force, friction interfaces. Marked conceptual; K lumps friction; grip length is not an input. |
-| Moment | `M = F·d` | Static SVG | Pivot, force, position vector, perpendicular arm, sign convention. The calculator has no angle input, so the oblique force is schematic. |
-| Bearing life | `L10` from rating C, equivalent load P | Static SVG | Race/rolling-element section, radial load, rating vs equivalent load. No contact analysis implied. |
-| Column buckling | Euler `Pcr = π²EI/(KL)²`, four ends | Missing | Four end conditions, centerline, illustrative mode shape, K, KL. |
-| Beam bending stress | `σ = M·c/I` | Section drawing | Selected section/axis, neutral axis, c, tension/compression regions, σmax location. |
-| Beam deflection | Four closed-form cases | Interactive SVG | Kept; restyled. |
-| Cylinder force | `F = p·A` | Missing | Bore, piston, rod, full-bore vs annular area, extend/retract. Efficiency does not change geometry. |
-| Differential thermal expansion | Free expansion of series sections | Missing | Two members, series sections, free expansion, differential. No restraint. |
-| Factor of safety | Capacity ÷ demand | Static SVG | Demand vs capacity bars, stress/load definitions; "ratio, not a verdict". |
-| Fillet weld | Throat-area shear | Missing | Section (leg w vs throat), plan view, length, load angle θ. |
-| Hertzian contact | Line and point contact | Static SVG | Both configurations, radii, force, contact width/radius, qualitative pressure inset. Elastic only. |
-| Press fit | Lamé thick-cylinder interface pressure | Missing | Shaft/hub section, interference, interface, press-in, retention. |
-| Shaft torsion | `τ = T·r/J` | Static SVG | Solid/hollow, torque and reaction, twist, surface τmax. |
-| Helical spring | `k = G d⁴ / 8 D³ N` | Missing | Coil geometry, d, D, outside diameter, load, deflection. |
-| Stress & strain | `σ = F/A`, `ε = ΔL/L` | Static SVG | Original vs deformed (exaggerated, stated), area, gauge length, ΔL vs ε. No material curve. |
-| Thermal expansion | `ΔL = α L ΔT` | Static SVG | Free vs fully restrained; thermal stress only in the restrained case. |
-| Thick-walled cylinder | Lamé stresses | Plot only | Section with radii, pressures, σr/σθ and the axial condition; stress-vs-radius plot is calculated data. |
-| Thread strength | Tensile and stripping areas | Missing | Engagement section, tensile vs stripping failure region. Approximate area model; no thread-by-thread load. |
-
-## Flagged model ambiguities
-
-- Moment has no force-angle or sign input; the angled force and counter-clockwise positive sign are conventions, labelled as schematic.
-- Helical spring has no free-length input; free length is not drawn as a value.
-- Bolt torque has no grip length input; the drawing is conceptual.
-- Thermal expansion uses a single temperature change (not initial and final temperatures).
-- Where a model is a simplification, the caption says so rather than depicting more detailed physics.
+The [36-calculator inventory](engineering-graphics-2-audit.md) records the baseline, decisions, additional annotations, preserved controls and model limits. The [Chromium gallery](graphics-2-gallery/) contains before and after captures.

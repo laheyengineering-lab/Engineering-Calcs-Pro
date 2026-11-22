@@ -1267,16 +1267,16 @@ footer,
     width: min(100%, 680px);
     margin: var(--space-4) auto;
     padding: var(--space-3);
+    overflow-x: auto;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    background: var(--color-surface-muted);
+    background: var(--ff-paper);
 }
 
 .beam-interactive-diagram svg {
     display: block;
     width: 100%;
     height: auto;
-    overflow: visible;
 }
 
 .beam-interactive-diagram figcaption {
@@ -1294,83 +1294,12 @@ footer,
     touch-action: pan-y;
 }
 
-.beam-diagram-heading {
-    fill: var(--ff-ink, #26282b);
-    font-size: 17px;
-    font-weight: 700;
-}
-
-.beam-diagram-member {
-    stroke: var(--ff-ink, #26282b);
-    stroke-width: 7;
-    stroke-linecap: round;
-}
-
-.beam-diagram-support,
-.beam-diagram-fixed-support {
-    fill: #efeae1;
-    stroke: var(--ff-ink, #26282b);
-    stroke-width: 2;
-    stroke-linejoin: round;
-}
-
-.beam-diagram-roller {
-    fill: #fff;
-    stroke: var(--ff-ink, #26282b);
-    stroke-width: 2;
-}
-
-.beam-diagram-hatch {
-    stroke: var(--ff-line-soft, #8a8f95);
-    stroke-width: 1.3;
-}
-
-.beam-diagram-load {
-    fill: var(--ff-accent, #c05621);
-    stroke: var(--ff-accent, #c05621);
-    stroke-width: 2.8;
-    stroke-linejoin: round;
-}
-
-.beam-diagram-load-label,
-.beam-diagram-result {
-    fill: #26282b;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.beam-diagram-load-label {
-    fill: var(--ff-accent-dark, #9c4519);
-    font-weight: 700;
-}
-
-.beam-diagram-label,
-.beam-diagram-note {
-    fill: var(--ff-ink-soft, #5c6066);
-    font-size: 13px;
-}
-
-.beam-diagram-note {
-    font-style: italic;
-}
-
-.beam-diagram-deflection {
-    fill: none;
-    stroke: var(--ff-accent, #c05621);
-    stroke-width: 2.4;
-    stroke-dasharray: 7 5;
-    stroke-linecap: round;
-}
-
-.beam-diagram-dimension {
-    stroke: var(--ff-ink, #26282b);
-    stroke-width: 1.2;
-}
-
-.beam-diagram-dimension-label {
-    fill: #26282b;
-    font-size: 14px;
-    font-weight: 600;
+@media screen and (max-width: 560px) {
+    .beam-interactive-diagram #beamDiagram { overflow-x: auto; overscroll-behavior-x: contain; }
+    .beam-interactive-diagram > .ff-diagram,
+    .beam-interactive-diagram #beamDiagram > .ff-diagram {
+        min-width: 500px;
+    }
 }
 
 .beam-axis {
@@ -1445,6 +1374,17 @@ footer,
     color: var(--color-text-muted);
     font-size: var(--text-sm);
     line-height: 1.45;
+}
+
+.ff-diagram-status {
+    margin: var(--space-2) 0 0;
+    color: var(--ff-ink-soft);
+    font-size: var(--text-sm);
+}
+
+.ff-diagram-host:focus-visible {
+    outline: 2px solid var(--ff-accent-dark);
+    outline-offset: 2px;
 }
 
 .ff-diagram {
@@ -1571,13 +1511,15 @@ footer,
 .ff-diagram-control input[type="range"]:focus-visible { outline: 3px solid var(--ff-accent); outline-offset: 2px; }
 .ff-diagram-control output { min-width: 5.5em; font-variant-numeric: tabular-nums; text-align: right; }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
     .ff-diagram-control { grid-template-columns: 1fr auto; }
     .ff-diagram-control input[type="range"] { grid-column: 1 / -1; grid-row: 2; }
     .ff-figure { padding: var(--space-2); }
     /* Keep drawing text legible: scroll horizontally rather than shrinking into overlaps. */
-    .ff-figure .ff-diagram-host { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
-    .ff-figure .ff-diagram-host > .ff-diagram { min-width: 560px; }
+    .ff-figure .ff-diagram-host,
+    .plot-box:has(> .ff-diagram) { overflow-x: auto; overscroll-behavior-x: contain; }
+    .ff-figure .ff-diagram-host > .ff-diagram,
+    .plot-box > .ff-diagram { min-width: 560px; }
 }
 
 @media print {
@@ -1594,11 +1536,6 @@ footer,
 .material-data-note { display: block; margin-top: 4px; font-size: 13px; color: var(--ff-ink, inherit); opacity: 0.8; }
 
 /* Static schematics and unit controls for the fluid and thermal calculators. */
-.expansion-diagram { margin: 1rem 0; }
-.expansion-diagram figcaption { font-size: .875rem; }
-.expansion-svg { width: 100%; }
-.expansion-svg .expansion-line { stroke: currentColor; stroke-width: 1.8; fill: none; }
-.expansion-svg .expansion-label { fill: currentColor; font: 14px system-ui, sans-serif; }
 .expansion-units { margin-block: 1rem; }
 .expansion-units summary { cursor: pointer; }
 .expansion-field { display: grid; gap: .25rem; margin-block: .65rem; }
