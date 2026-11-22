@@ -291,6 +291,106 @@ const calculators = [
         path: "calculators/wall-mounting.html",
         related: ["moment", "thread-strength"],
         keywords: ["wall", "shelf", "anchor", "drywall", "stud", "picture", "fastener", "eccentric"]
+    },
+    {
+        id: "ohms-law",
+        name: "Ohm’s Law & Electrical Power",
+        shortDescription: "Solve voltage, current, resistance, and power from a selected pair.",
+        description: "Solve voltage, current, resistance, and power from a selected pair.",
+        category: "Electrical Engineering",
+        path: "calculators/ohms-law.html",
+        related: ["circuit-studio", "electrical-divider", "ac-power-factor"],
+        keywords: ["ohm", "resistor", "voltage", "current", "watt", "passive sign"]
+    },
+    {
+        id: "circuit-studio",
+        name: "Series & Parallel Circuit Studio",
+        shortDescription: "Edit a resistor network and see its schematic, quantities, and conservation checks update live.",
+        description: "Edit a resistor network and see its schematic, quantities, and conservation checks update live.",
+        category: "Electrical Engineering",
+        path: "calculators/circuit-studio.html",
+        related: ["ohms-law", "kirchhoff-circuit", "electrical-divider", "speaker-impedance"],
+        keywords: ["resistors", "series", "parallel", "equivalent resistance", "short circuit", "open circuit"]
+    },
+    {
+        id: "kirchhoff-circuit",
+        name: "Kirchhoff’s Laws & DC Circuit Analysis",
+        shortDescription: "Find node voltages and signed branch currents in a two-loop DC circuit.",
+        description: "Find node voltages and signed branch currents in a two-loop DC circuit.",
+        category: "Electrical Engineering",
+        path: "calculators/kirchhoff-circuit.html",
+        related: ["circuit-studio", "electrical-divider", "ohms-law"],
+        keywords: ["kcl", "kvl", "nodal", "mesh", "two loop", "node potential"]
+    },
+    {
+        id: "electrical-divider",
+        name: "Voltage & Current Divider",
+        shortDescription: "Analyze unloaded, loaded, and tapped voltage dividers or a parallel current divider.",
+        description: "Analyze unloaded, loaded, and tapped voltage dividers or a parallel current divider.",
+        category: "Electrical Engineering",
+        path: "calculators/electrical-divider.html",
+        related: ["circuit-studio", "kirchhoff-circuit", "dc-wire-voltage-drop"],
+        keywords: ["voltage divider", "current divider", "tap", "loading error", "branch current"]
+    },
+    {
+        id: "dc-wire-voltage-drop",
+        name: "DC Wire Voltage Drop",
+        shortDescription: "Estimate round-trip conductor loss and terminal voltage for a low-voltage DC run.",
+        description: "Estimate round-trip conductor loss and terminal voltage for a low-voltage DC run.",
+        category: "Electrical Engineering",
+        path: "calculators/dc-wire-voltage-drop.html",
+        related: ["ohms-law", "electrical-divider"],
+        keywords: ["awg", "wire gauge", "copper", "aluminum", "resistivity", "round trip"]
+    },
+    {
+        id: "rc-transients",
+        name: "RC Circuit Transients",
+        shortDescription: "Explore capacitor charge, discharge, and stored energy after a DC source step.",
+        description: "Explore capacitor charge, discharge, and stored energy after a DC source step.",
+        category: "Electrical Engineering",
+        path: "calculators/rc-transients.html",
+        related: ["rl-transients", "rlc-impedance", "circuit-studio"],
+        keywords: ["capacitor", "exponential", "charging", "discharge", "time constant", "settling"]
+    },
+    {
+        id: "rl-transients",
+        name: "RL Circuit Transients",
+        shortDescription: "Plot current buildup or decay and inductor voltage after a DC source step.",
+        description: "Plot current buildup or decay and inductor voltage after a DC source step.",
+        category: "Electrical Engineering",
+        path: "calculators/rl-transients.html",
+        related: ["rc-transients", "rlc-impedance", "circuit-studio"],
+        keywords: ["inductor", "coil", "magnetic energy", "time constant", "decay", "settling"]
+    },
+    {
+        id: "rlc-impedance",
+        name: "Series RLC Impedance & Resonance",
+        shortDescription: "Calculate complex impedance, phase, resonance, and RMS response versus frequency.",
+        description: "Calculate complex impedance, phase, resonance, and RMS response versus frequency.",
+        category: "Electrical Engineering",
+        path: "calculators/rlc-impedance.html",
+        related: ["ac-power-factor", "rc-transients", "rl-transients", "speaker-impedance"],
+        keywords: ["phasor", "reactance", "rms", "frequency response", "quality factor", "resonant frequency"]
+    },
+    {
+        id: "ac-power-factor",
+        name: "AC Power & Power Factor",
+        shortDescription: "Calculate real, reactive, and apparent power and see the signed power triangle.",
+        description: "Calculate real, reactive, and apparent power and see the signed power triangle.",
+        category: "Electrical Engineering",
+        path: "calculators/ac-power-factor.html",
+        related: ["rlc-impedance", "ohms-law", "speaker-impedance"],
+        keywords: ["single phase", "watt", "var", "volt ampere", "rms", "leading", "lagging"]
+    },
+    {
+        id: "speaker-impedance",
+        name: "Speaker Impedance & Amplifier Power",
+        shortDescription: "Explore nominal series and parallel speaker loads and estimated per-speaker power.",
+        description: "Explore nominal series and parallel speaker loads and estimated per-speaker power.",
+        category: "Electrical Engineering",
+        path: "calculators/speaker-impedance.html",
+        related: ["circuit-studio", "ohms-law", "rlc-impedance"],
+        keywords: ["audio", "speakers", "amplifier", "impedance", "wiring", "channel load"]
     }
 ];
 

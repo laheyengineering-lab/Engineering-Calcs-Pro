@@ -19,7 +19,7 @@ const ElectricalDC = (() => {
     }
 
     const sum = (values) => values.reduce((total, value) => total + value, 0);
-    const zero = (value) => value === 0 ? 0 : value;
+    const canonicalZero = (value) => value === 0 ? 0 : value;
 
     function ohmsLaw({ known, voltage, current, resistance: ohms, power, polarity = 1 }) {
         const knownPairs = ['VI', 'VR', 'VP', 'IR', 'IP', 'RP'];
@@ -90,8 +90,8 @@ const ElectricalDC = (() => {
             throw new Error('The result falls below the supported numeric range. Check the input magnitudes.');
         }
         return {
-            voltage: zero(voltage), current: zero(current), resistance: zero(ohms),
-            power: zero(power), sourcePower: zero(-power),
+            voltage: canonicalZero(voltage), current: canonicalZero(current), resistance: canonicalZero(ohms),
+            power: canonicalZero(power), sourcePower: canonicalZero(-power),
             warnings: ohms === 0 ? ['An ideal short can carry the specified current at zero voltage and dissipates no power.'] : []
         };
     }
@@ -128,7 +128,8 @@ const ElectricalDC = (() => {
     function component(index, ohms, voltage, current) {
         const power = voltage === null || current === 0 ? 0 : voltage * current;
         checkResults([voltage, current, power]);
-        return { id: `R${index + 1}`, resistance: zero(ohms), voltage: zero(voltage), current: zero(current), power: zero(power) };
+        return { id: `R${index + 1}`, resistance: canonicalZero(ohms), voltage: canonicalZero(voltage),
+            current: canonicalZero(current), power: canonicalZero(power) };
     }
 
     function parallelComponents(resistances, voltage, shortCurrent = 0) {
@@ -196,14 +197,17 @@ const ElectricalDC = (() => {
         const determinant = left * center + left * right + center * right;
         if (determinant === 0) throw new Error('The resistance ratios exceed the supported precision for the circuit equations.');
         const voltageDifference = leftVoltage - rightVoltage;
-        const sharedTerm = Number.isFinite(voltageDifference) ? center * voltageDifference : center * leftVoltage - center * rightVoltage;
         // Divide the individual voltage terms by the resistance scale before
         // adding to avoid overflowing a sum of large voltages in Cramer's rule.
-        const leftCurrent = (right * (leftVoltage / scale) + sharedTerm / scale) / determinant;
-        const rightCurrent = (left * (rightVoltage / scale) - sharedTerm / scale) / determinant;
+        const leftScaledVoltage = leftVoltage / scale;
+        const rightScaledVoltage = rightVoltage / scale;
+        const sharedTerm = Number.isFinite(voltageDifference) ? center * (voltageDifference / scale)
+            : center * leftScaledVoltage - center * rightScaledVoltage;
+        const leftCurrent = (right * leftScaledVoltage + sharedTerm) / determinant;
+        const rightCurrent = (left * rightScaledVoltage - sharedTerm) / determinant;
         // Solve for I1 + I3 directly to preserve a small center current when
         // opposing source currents are much larger than that center current.
-        const centerCurrent = (right * (leftVoltage / scale) + left * (rightVoltage / scale)) / determinant;
+        const centerCurrent = (right * leftScaledVoltage + left * rightScaledVoltage) / determinant;
         const currents = [leftCurrent, centerCurrent, rightCurrent];
         const branches = resistances.map((value, index) => component(index, value, value * currents[index], currents[index]));
         const [leftDrop, centerDrop, rightDrop] = branches.map((part) => part.voltage);
@@ -212,8 +216,8 @@ const ElectricalDC = (() => {
         const leftKvlResidual = leftVoltage - leftDrop - centerDrop;
         const rightKvlResidual = rightVoltage - rightDrop - centerDrop;
         const totalPower = sum(branches.map((part) => part.power));
-        const leftSourcePower = zero(-leftVoltage * leftCurrent);
-        const rightSourcePower = zero(-rightVoltage * rightCurrent);
+        const leftSourcePower = canonicalZero(-leftVoltage * leftCurrent);
+        const rightSourcePower = canonicalZero(-rightVoltage * rightCurrent);
         const sourcePower = leftSourcePower + rightSourcePower;
         const powerResidual = sourcePower + totalPower;
         checkResults([kclResidual, leftKvlResidual, rightKvlResidual, totalPower, sourcePower, powerResidual]);

@@ -33,6 +33,7 @@ describe('Ohm’s law and passive DC power', () => {
         expect(ohmsLaw({ known: 'IR', resistance: 0, current: 5 })).toMatchObject({ voltage: 0, power: 0 });
         expect(ohmsLaw({ known: 'IP', current: 5, power: 0 })).toMatchObject({ voltage: 0, resistance: 0 });
         expect(ohmsLaw({ known: 'VI', voltage: 0, current: 5 })).toMatchObject({ resistance: 0, power: 0 });
+        expect(ohmsLaw({ known: 'VI', voltage: 0, current: -5 })).toMatchObject({ resistance: 0, power: 0 });
         expect(ohmsLaw({ known: 'VR', voltage: 0, resistance: 4 })).toMatchObject({ current: 0, power: 0 });
     });
 
@@ -111,6 +112,12 @@ describe('series and parallel resistor networks', () => {
         expect(twelve.components[11]).toMatchObject({ id: 'R12', resistance: 24 });
     });
 
+    it('keeps a finite parallel solution when unscaled conductance would overflow', () => {
+        const solved = resistorNetwork({ mode: 'parallel', sourceVoltage: 1e-310, resistances: [1e-310, 1e-310] });
+        expect(solved.totalCurrent).toBeCloseTo(2, 10);
+        expect(solved.components.map((part) => part.current)).toEqual([1, 1]);
+    });
+
     it.each([
         [{ mode: 'series', sourceVoltage: 12, resistances: [0, 0] }, /no finite current/i],
         [{ mode: 'parallel', sourceVoltage: 12, resistances: [0, 2] }, /no finite current/i],
@@ -150,6 +157,34 @@ describe('two-loop Kirchhoff analysis', () => {
         expect(solved.branches[1].current).toBeCloseTo(13 / 3, 12);
         expect(solved.branches[1].power).toBe(0);
         expect(solved.kclResidual).toBeCloseTo(0, 12);
+
+        // With the left arm shorted, A = 8 V. R2 draws 2 A and current
+        // of 7/3 A exits through R3 toward the right source at 1 V.
+        const leftShort = kirchhoff({ ...circuit, leftResistance: 0 });
+        expect(leftShort.nodes.center).toBe(8);
+        expect(leftShort.branches[0].current).toBeCloseTo(13 / 3, 12);
+        expect(leftShort.branches[2].current).toBeCloseTo(-7 / 3, 12);
+    });
+
+    it('retains a small center current with much larger opposing source currents', () => {
+        // The symmetric side resistors form a 1 V, 0.5 nΩ Thevenin
+        // equivalent at center. The center current is 1 V / (1 GΩ + 0.5 nΩ).
+        const solved = kirchhoff({ leftResistance: 1e-9, centerResistance: 1e9, rightResistance: 1e-9,
+            leftVoltage: 2, rightVoltage: 0 });
+        expect(solved.nodes.center).toBeCloseTo(1, 12);
+        expect(solved.branches[1].current).toBeCloseTo(1e-9, 17);
+        expect(solved.branches[2].current).toBeCloseTo(-1e9, 5);
+    });
+
+    it('avoids an intermediate overflow in a finite mesh solution', () => {
+        // Equal side R values with opposite source voltages set A = 0 V.
+        // Each arm carries 0.9 A, for a total 1.62e308 W of resistor power.
+        const solved = kirchhoff({ leftResistance: 1e308, centerResistance: 1e308, rightResistance: 1e308,
+            leftVoltage: 9e307, rightVoltage: -9e307 });
+        expect(solved.nodes.center).toBe(0);
+        expect(solved.branches[0].current).toBeCloseTo(0.9, 12);
+        expect(solved.branches[2].current).toBeCloseTo(-0.9, 12);
+        expect(solved.totalPower / 1.62e308).toBeCloseTo(1, 12);
     });
 
     it('explains singular and inconsistent combinations of ideal sources and shorts', () => {

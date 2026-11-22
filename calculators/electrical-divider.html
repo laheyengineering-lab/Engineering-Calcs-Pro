@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voltage &amp; Current Divider | Formula Foundry</title>
+<meta name="description" content="Find tap voltage in series, predict the effect of a load and calculate DC current sharing in parallel.">
+<meta property="og:site_name" content="Formula Foundry">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Voltage &amp; Current Divider | Formula Foundry">
+<meta property="og:description" content="Find tap voltage in series, predict the effect of a load and calculate DC current sharing in parallel.">
+<meta property="og:image" content="/assets/brand/logos/formula-foundry-logo-horizontal.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#26282B">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/electrical.css">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/icons/formula-foundry-favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/icons/formula-foundry-favicon-180.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#catalog" aria-current="true">Calculators</a>
+            <a href="../about.html">About</a>
+            <a href="../references.html">References</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</div>
+<main class="container" id="main" data-electrical="electrical-divider">
+    <a href="../index.html#catalog" class="back-link">← All calculators</a>
+    <header class="calculator-header">
+        <h1>Voltage &amp; Current Divider</h1>
+        <p>Find tap voltage in series, predict the effect of a load and calculate DC current sharing in parallel.</p>
+    </header>
+    <div class="electrical-workspace">
+        <section class="content-card calculator-column" aria-labelledby="electrical-input-heading">
+            <h2 id="electrical-input-heading">Inputs</h2>
+            <form id="electricalForm" novalidate>
+                <div id="electricalInputs"></div>
+                <div id="electricalComponents"></div>
+                <div id="electricalComponentActions" class="electrical-component-actions" hidden></div>
+                <details id="electricalOutputUnits" hidden>
+                    <summary>Result units</summary>
+                    <div></div>
+                </details>
+                <div class="button-row">
+                    <button type="reset" class="secondary-button">Reset inputs</button>
+                </div>
+            </form>
+            <noscript><p>Enable JavaScript to calculate and update the circuit.</p></noscript>
+        </section>
+        <section class="content-card electrical-analysis" aria-labelledby="electrical-analysis-heading">
+            <h2 id="electrical-analysis-heading">Circuit schematic</h2>
+            <figure id="electricalDiagram" class="ff-figure" hidden>
+                <div class="ff-diagram-host" data-diagram="electrical-divider" tabindex="0" role="region" aria-label="Circuit schematic"></div>
+                <figcaption></figcaption>
+            </figure>
+            <p id="electricalStatus" class="electrical-visually-hidden" role="status"></p>
+            <div id="result" class="result-panel"></div>
+            <figure id="electricalPlot" class="ff-figure" hidden>
+                <div class="ff-diagram-host" data-diagram="electrical-divider-plot" tabindex="0" role="region" aria-label="Response plot"></div>
+                <figcaption></figcaption>
+            </figure>
+            <details id="electricalSteps" class="electrical-steps" hidden>
+                <summary>Show solution steps</summary>
+                <ol></ol>
+            </details>
+        </section>
+    </div>
+    <section class="content-card theory-column" id="theory">
+        <h2>Engineering theory</h2>
+        <p id="electricalMethod"></p>
+        <div id="electricalEquations"></div>
+        <h3>Assumptions and limitations</h3>
+        <ul id="electricalAssumptions"></ul>
+    </section>
+    <section class="content-card">
+        <h2>Worked example</h2>
+        <p>A 12 V supply and two 1 kΩ resistors give a 6 V unloaded tap. Adding a 1 kΩ load across the lower resistor reduces its effective resistance to 500 Ω, yielding 4 V. The output changes by −2 V, or −33.3% of the unloaded value.</p>
+    </section>
+    <section class="content-card">
+        <h2>Related calculators</h2>
+        <ul>
+        <li><a href="circuit-studio.html">Series &amp; Parallel Circuit Studio</a></li>
+        <li><a href="kirchhoff-circuit.html">Kirchhoff’s Laws &amp; DC Circuit Analysis</a></li>
+        <li><a href="dc-wire-voltage-drop.html">DC Wire Voltage Drop</a></li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+        <li><a href="https://openstax.org/books/university-physics-volume-2/pages/10-2-resistors-in-series-and-parallel">Resistors in series and parallel</a></li>
+        <li><a href="https://openstax.org/books/university-physics-volume-2/pages/10-3-kirchhoffs-rules">Kirchhoff’s rules</a></li>
+        </ul>
+    </section>
+</main>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-data.js"></script>
+<script src="../js/electrical-dc-calculations.js"></script>
+<script src="../js/electrical-transient-ac-calculations.js"></script>
+<script src="../js/electrical-practical-calculations.js"></script>
+<script src="../js/electrical-models.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/electrical-diagrams.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/calculator-context.js"></script>
+<script src="../js/katex-loader.js"></script>
+<script src="../js/electrical-calculator.js"></script>
+</body>
+</html>

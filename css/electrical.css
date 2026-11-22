@@ -1,0 +1,110 @@
+.electrical-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
+    align-items: start;
+    gap: var(--space-5);
+    margin-bottom: var(--space-5);
+}
+
+.electrical-workspace > .content-card { margin-bottom: 0; }
+.electrical-field { display: grid; gap: var(--space-1); }
+.electrical-field[hidden], .electrical-component[hidden] { display: none; }
+.electrical-field label { font-size: var(--text-sm); }
+.electrical-field select { width: 100%; }
+.electrical-field input, .electrical-field select { min-width: 0; }
+.electrical-field small { color: var(--color-text-muted); }
+#electricalInputs, #electricalComponents { display: grid; gap: var(--space-3); }
+#electricalComponents:not(:empty) { margin-top: var(--space-3); }
+
+.electrical-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+}
+
+.electrical-entry select { width: auto; }
+.electrical-fixed-unit { font-size: var(--text-sm); }
+
+.electrical-component {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-muted);
+}
+
+[data-electrical="circuit-studio"] .electrical-component {
+    grid-template-columns: minmax(5.75rem, 0.75fr) minmax(0, 1.35fr);
+}
+
+.electrical-component input[type="number"], .electrical-component select { padding-inline: var(--space-2); }
+.electrical-component input[type="number"] { appearance: textfield; }
+.electrical-component input[type="number"]::-webkit-inner-spin-button,
+.electrical-component input[type="number"]::-webkit-outer-spin-button { appearance: none; margin: 0; }
+
+.electrical-component-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block: var(--space-3);
+}
+
+.electrical-component-actions[hidden] { display: none; }
+.electrical-component-actions button { padding-inline: var(--space-3); font-size: var(--text-sm); }
+#electricalOutputUnits { margin-block: var(--space-3); }
+#electricalOutputUnits .electrical-field { margin-block: var(--space-2); }
+[data-electrical] .button-row { margin-bottom: 0; }
+
+.electrical-analysis .ff-figure { width: 100%; }
+.electrical-analysis .ff-diagram-host, .electrical-table-scroll { overflow-x: auto; overscroll-behavior-x: contain; }
+.electrical-analysis .ff-diagram-host:focus-visible, .electrical-table-scroll:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--space-1);
+}
+
+.electrical-result-items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+}
+
+.electrical-result-items > div { border-top: 1px solid var(--color-border); padding-top: var(--space-2); }
+.electrical-result-items dt { color: var(--color-text-muted); font-size: var(--text-sm); }
+.electrical-result-items .result-value { margin: var(--space-1) 0 0; font-size: var(--text-lg); }
+.electrical-warnings { margin-bottom: 0; padding-left: var(--space-5); }
+.electrical-problem { color: var(--color-error); margin-bottom: 0; }
+
+.electrical-table-scroll { margin-top: var(--space-4); }
+.electrical-table-scroll table { margin: 0; font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.electrical-table-scroll th, .electrical-table-scroll td { padding: var(--space-2); }
+.electrical-table-scroll caption { text-align: left; font-weight: 600; margin-bottom: var(--space-2); }
+.electrical-steps { margin-top: var(--space-4); }
+.electrical-steps li + li { margin-top: var(--space-2); }
+[data-electrical] summary { cursor: pointer; }
+.electrical-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .electrical-workspace { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+}
+
+@media (max-width: 700px) {
+    .electrical-analysis .ff-figure .ff-diagram-host > .electrical-svg { min-width: 340px; }
+    [data-electrical="circuit-studio"] .ff-figure .ff-diagram-host > .electrical-svg { min-width: 280px; }
+    .electrical-analysis .ff-figure .ff-diagram-host > .electrical-wide-svg { min-width: 410px; }
+}
+
+@media (max-width: 345px) {
+    [data-electrical="circuit-studio"] .electrical-component { grid-template-columns: minmax(0, 1fr); }
+    .electrical-result-items { grid-template-columns: minmax(0, 1fr); }
+}

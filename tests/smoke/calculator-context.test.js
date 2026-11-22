@@ -20,7 +20,7 @@ describe('calculator context block', () => {
         pages.forEach((page) => {
             const path = 'calculators/' + page;
             const source = fs.readFileSync(path, 'utf8');
-            const scripts = source.includes('data-expansion=')
+            const scripts = /data-(expansion|electrical)=/.test(source)
                 ? [...source.matchAll(/<script src="\.\.\/(js\/[^"]+)"><\/script>/g)].map((match) => match[1]).filter((script) => !script.includes('katex'))
                 : ['js/calculator-context.js'];
             const { document } = loadCalculatorPage(path, scripts);
