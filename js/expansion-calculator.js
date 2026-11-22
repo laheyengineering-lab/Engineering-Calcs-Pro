@@ -9,7 +9,9 @@
     const transferAction = byId("expansionTransfer");
     const transferContext = byId("transferContext");
     const report = window.FormulaFoundryReport;
+    const diagrams = window.FormulaFoundryCalculatorDiagrams;
     const diagramHost = host.querySelector("[data-diagram]");
+    diagramHost.closest("figure").querySelector("figcaption").textContent = diagrams.caption(adapter.id);
     const units = {};
     const fields = {};
     let transfer = null;
@@ -44,9 +46,9 @@
         return data;
     }
 
-    function draw(inputs, outputs) {
-        const diagram = window.FormulaFoundryExpansionDiagram(adapter.id, inputs, outputs);
-        window.FormulaFoundryCalculatorDiagrams.mount(diagramHost, diagram.id, diagram.model);
+    function draw(inputs, outputs, status) {
+        const diagram = window.FormulaFoundryExpansionDiagram(adapter.id, inputs, outputs, units, status);
+        diagrams.mount(diagramHost, diagram.id, diagram.model);
         return diagram;
     }
 
@@ -63,13 +65,13 @@
                 fields[definition.id].labels[0].textContent = definition.label + " (" + unit + ")";
             }
         }
-        draw(inputs);
+        draw(inputs, undefined, resultPanel.dataset.resultState);
     }
 
     function stale() {
-        if (resultPanel.dataset.calculated) {
+        if (resultPanel.dataset.resultState === "calculated") {
             resultPanel.textContent = "Inputs changed. Calculate again to update the result.";
-            delete resultPanel.dataset.calculated;
+            resultPanel.dataset.resultState = "stale";
         }
         transferAction.replaceChildren();
         report.clearResult();
@@ -178,6 +180,7 @@
             transfer = null;
             transferContext.hidden = true;
             stale();
+            delete resultPanel.dataset.resultState;
             refresh();
             resultPanel.textContent = "Ready to calculate.";
         });
@@ -206,7 +209,7 @@
                 const messages = append(resultPanel, "ul");
                 for (const warning of warnings) append(messages, "li", warning);
             }
-            resultPanel.dataset.calculated = "true";
+            resultPanel.dataset.resultState = "calculated";
             const provenance = transferSummary(inputs);
             report.recordResult({
                 calculatorId: adapter.id, calculatorName: adapter.name, title: adapter.name, path: adapter.path,
@@ -219,6 +222,8 @@
             resultPanel.replaceChildren();
             append(resultPanel, "h3", "Check inputs");
             append(resultPanel, "p", error.message);
+            resultPanel.dataset.resultState = "error";
+            draw(inputs, undefined, "error");
         }
     });
 

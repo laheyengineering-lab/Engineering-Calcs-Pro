@@ -44,6 +44,12 @@ const cases = [
     ['wall-mounting', { arrangement: 'Symmetric two-row mount', weight: 200, offset: 0.3, spacing: 0.15, horizontalSpacing: 0.2, count: 4 }, '200 N', 'spacing']
 ];
 
+const legacyModels = {
+    'wall-heat-loss': { direction: 'Gain' },
+    'wall-mounting': { arrangement: 'Symmetric two-row mount' },
+    'multilayer-insulation': { layers: 2 }
+};
+
 describe.each(cases)('%s standalone page', (id, values, expected, invalidField) => {
     it('calculates, labels the diagram, captures a portable structured snapshot and clears invalid results', () => {
         const page = open('calculators/' + id + '.html');
@@ -65,14 +71,76 @@ describe.each(cases)('%s standalone page', (id, values, expected, invalidField) 
         const imported = report.parseProjectJSON(JSON.stringify(project));
         expect(imported.ok, imported.error).toBe(true);
         expect(imported.project.entries[0].diagram).toEqual(snapshot.diagram);
+        expect(snapshot.diagram.model).not.toEqual(legacyModels[id] ?? {});
+        const oldProject = JSON.parse(JSON.stringify(project));
+        oldProject.entries[0].diagram.model = legacyModels[id] ?? {};
+        const legacy = report.parseProjectJSON(JSON.stringify(oldProject));
+        expect(legacy.ok, legacy.error).toBe(true);
+        const graphics = window.FormulaFoundryCalculatorDiagrams;
+        const rebuilt = graphics.render(document, id, legacy.project.entries[0].diagram.model);
+        expect(rebuilt.querySelector('desc')).toBeTruthy();
+        expect(rebuilt.outerHTML).not.toMatch(/NaN|Infinity|undefined/);
 
         enter(page, { [invalidField]: -1 });
+        const drawing = () => document.querySelector('[data-diagram] svg');
+        expect(drawing().textContent).toContain('Inputs changed. Recalculate to refresh results.');
         expect(calculate(page)).toContain('Check inputs');
+        expect(drawing().textContent).toContain('Check inputs to calculate results.');
         document.querySelector('.add-to-report-button').click();
         expect(report.store.count()).toBe(1);
         expect(document.querySelector('#expansionTransfer').children).toHaveLength(0);
         page.dom.window.close();
     });
+});
+
+it('uses current Design Study units and saved results for heat-flow annotations', () => {
+    const { window, document } = open('design-studies.html');
+    const studies = window.FormulaFoundryStudies;
+    const context = window.FormulaFoundryStudyContext;
+    const report = window.FormulaFoundryReport;
+    const adapter = studies.getAdapter('wall-heat-loss');
+    const draft = studies.createScenario(adapter, 'Cold room', {
+        thermalMode: 'Effective R-value', resistance: 2, area: 20, inside: 32, outside: 68, duration: 1
+    }, { temperature: '°F', interval: '°F' });
+    const current = studies.calculateScenario(adapter, draft);
+    const study = studies.addScenario(studies.createStudy('Wall heat transfer', adapter.id), current);
+    const store = studies.createStudyStore(null);
+    store.save([study]);
+    const saved = store.load().studies[0].scenarios[0];
+    const diagram = (scenario) => context.renderDiagram(document, adapter, scenario).querySelector('svg');
+
+    try {
+        expect(saved.status).toBe('calculated');
+        const gain = diagram(saved);
+        expect(gain.textContent).toContain('Ti = 32 °F');
+        expect(gain.textContent).toContain('ΔT = -36 °F');
+        expect(gain.textContent).toContain('Heat rate = -200 W');
+        expect(gain.textContent).toContain('Heat gains indoors');
+
+        const snapshot = studies.scenarioReportSnapshot(study, saved);
+        expect(snapshot.ok).toBe(true);
+        expect(snapshot.snapshot.diagram.model).toMatchObject({ inside: 32, outside: 68, temperatureUnit: '°F', intervalUnit: '°F', direction: 'Gain' });
+        expect(report.addSnapshot(snapshot.snapshot).ok).toBe(true);
+        const imported = report.parseProjectJSON(JSON.stringify(report.store.load()));
+        expect(imported.ok, imported.error).toBe(true);
+        expect(imported.project.entries[0].outputs).toEqual(snapshot.snapshot.outputs);
+
+        const stale = studies.setScenarioInput(adapter, saved, 'outside', 14);
+        expect(stale.status).toBe('stale');
+        expect(stale.result).toEqual(saved.result);
+        const pending = diagram(stale);
+        expect(pending.textContent).toContain('To = 14 °F');
+        expect(pending.textContent).toContain('Heat rate = —');
+        expect(pending.querySelector('.ff-arrow-force')).toBeNull();
+        expect(studies.scenarioReportSnapshot(study, stale).ok).toBe(false);
+
+        const loss = diagram(studies.calculateScenario(adapter, stale));
+        expect(loss.textContent).toContain('Heat leaves indoors');
+        expect(loss.textContent).toContain('Heat rate = 100 W');
+        expect(report.store.load().entries[0].diagram.model.direction).toBe('Gain');
+    } finally {
+        window.close();
+    }
 });
 
 it('transfers canonical flow and pressure, permits edits, and retains provenance in report JSON', () => {
@@ -168,5 +236,58 @@ it('combines the category filter with catalog search', async () => {
     await new Promise((resolve) => setTimeout(resolve, 200));
     expect(page.document.querySelectorAll('.calculator-card')).toHaveLength(1);
     expect(page.document.querySelector('.calculator-card').href).toContain('pneumatic-air-consumption.html');
+    page.dom.window.close();
+});
+
+it('shows current pipe diameter, the stopped case and only fresh computed area', () => {
+    const page = open('calculators/pipe-flow.html');
+    const drawing = () => page.document.querySelector('[data-diagram] svg');
+    expect(drawing().textContent).toContain('A = —');
+    enter(page, { diameter: 100, density: 1000, dynamicViscosity: 1, flow: 0 });
+    expect(calculate(page)).toContain('No flow');
+    expect(drawing().querySelectorAll('.ff-arrow-flow')).toHaveLength(0);
+    expect(drawing().textContent).toContain('A = 0.007854 m²');
+    enter(page, { 'units-diameter': 'in', diameter: 2 });
+    expect(drawing().textContent).toContain('D = 2 in');
+    expect(drawing().textContent).toContain('A = —');
+    enter(page, { diameter: 1e-9, flow: 1e-23 });
+    calculate(page);
+    expect(drawing().textContent).toContain('D = 1e-9 in');
+    expect(drawing().outerHTML).not.toMatch(/NaN|Infinity|undefined/);
+    enter(page, { diameter: Number.MAX_VALUE });
+    expect(drawing().outerHTML).not.toMatch(/NaN|Infinity|undefined/);
+    page.dom.window.close();
+});
+
+it('updates the hydraulic rod section and shows only the entered stroke in speed mode', () => {
+    const page = open('calculators/hydraulic-cylinder-speed.html');
+    const drawing = () => page.document.querySelector('[data-diagram] svg');
+    const rodHeight = () => Number(drawing().querySelector('[data-feature="rod"]').getAttribute('height'));
+    enter(page, { bore: 100, rod: 20, stroke: 200, extensionFlow: 6, retractionFlow: 6 });
+    const narrow = rodHeight();
+    enter(page, { rod: 80, motionMode: 'Speed', retractionSpeed: 0.1 });
+    expect(rodHeight()).toBeGreaterThan(narrow);
+    calculate(page);
+    expect(drawing().querySelectorAll('.ff-arrow-motion')).toHaveLength(1);
+    expect(drawing().textContent).toContain('Speed = 0.1 m/s');
+    expect(drawing().textContent).toContain('Time = 2 s');
+    enter(page, { rod: 120 });
+    expect(calculate(page)).toContain('must be smaller than the bore');
+    expect(drawing().textContent).toContain('Ød = —');
+    expect(drawing().querySelectorAll('.ff-arrow-motion')).toHaveLength(0);
+    expect(drawing().textContent).toContain('Time = —');
+    page.dom.window.close();
+});
+
+it('preserves configured layer numbers and the distinction between layer and film resistances', () => {
+    const page = open('calculators/multilayer-insulation.html');
+    const drawing = () => page.document.querySelector('[data-diagram] svg');
+    enter(page, { thickness1: 100, conductivity1: 0.04, layerMode6: 'Direct R-value', resistance6: 0.2, insideFilm: 0.13 });
+    expect(drawing().textContent).toContain('Layer 6 · R = 0.2 m²·K/W');
+    expect(drawing().textContent).not.toContain('Layer 2');
+    calculate(page);
+    expect(drawing().textContent).toContain('Layer 1 · R = 2.5 m²·K/W');
+    expect(drawing().textContent).toContain('Inside film = 0.13 m²·K/W');
+    expect(drawing().textContent).toContain('Total R = 2.83 m²·K/W');
     page.dom.window.close();
 });
