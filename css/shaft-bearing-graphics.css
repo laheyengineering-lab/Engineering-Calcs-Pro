@@ -1,0 +1,69 @@
+.shaft-assembly-figure {
+    width: 100%;
+    margin-inline: 0;
+}
+
+.shaft-assembly-figure .ff-diagram-host,
+.shaft-plot {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+.shaft-load-station[role="button"] {
+    cursor: pointer;
+    outline: none;
+}
+
+.shaft-load-station[role="button"]:is(:hover, :focus-visible, [aria-pressed="true"]) .shaft-station-badge {
+    stroke: var(--ff-ink);
+    stroke-width: 3;
+}
+
+.shaft-load-station[role="button"]:is(:focus-visible, [aria-pressed="true"]) .shaft-station-guide {
+    stroke: var(--ff-accent-dark);
+    stroke-width: 2;
+}
+
+.shaft-arrow-selected .ff-arrow-shaft {
+    stroke: var(--ff-accent-dark);
+    stroke-width: 4;
+}
+
+.shaft-arrow-selected .ff-arrow-head {
+    fill: var(--ff-accent-dark);
+}
+
+.shaft-plots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+}
+
+.shaft-plot {
+    min-width: 0;
+    margin: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--ff-paper);
+}
+
+.shaft-plot:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: 2px;
+}
+
+@media (max-width: 880px) {
+    .shaft-plots {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media screen and (max-width: 720px) {
+    .shaft-assembly-figure .ff-diagram-host > .ff-diagram {
+        min-width: 660px;
+    }
+
+    .shaft-plot > .ff-diagram {
+        min-width: 460px;
+    }
+}

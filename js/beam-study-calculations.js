@@ -46,15 +46,19 @@
         return root.BeamSectionProperties.equations(sectionType).concat([bendingEquation(axis)]);
     }
 
-    function computeBendingStress({ sectionType, dimensions, momentNm, axis }) {
-        if (!Number.isFinite(momentNm)) throw new Error("Bending moment must be finite.");
+    function bendingStressFromSection(momentNm, properties, axis) {
         if (axis !== "x" && axis !== "y") throw new Error("Select a supported bending axis.");
-        const properties = root.BeamSectionProperties.calculate(sectionType, dimensions);
         const inertiaM4 = axis === "x" ? properties.inertiaX : properties.inertiaY;
         const cM = axis === "x" ? properties.extremeFiberX : properties.extremeFiberY;
         const stressPa = momentNm * cM / inertiaM4;
         if (!Number.isFinite(stressPa)) throw new Error("The resulting bending stress is outside the supported numerical range.");
         return { properties, inertiaM4, cM, stressPa };
+    }
+
+    function computeBendingStress({ sectionType, dimensions, momentNm, axis }) {
+        if (!Number.isFinite(momentNm)) throw new Error("Bending moment must be finite.");
+        if (axis !== "x" && axis !== "y") throw new Error("Select a supported bending axis.");
+        return bendingStressFromSection(momentNm, root.BeamSectionProperties.calculate(sectionType, dimensions), axis);
     }
 
     function computeDeflection({ caseId, spanM, modulusPa, inertiaM4, loadSI }) {
@@ -86,5 +90,7 @@
         };
     }
 
-    root.FormulaFoundryBeamCalculations = { cases, bendingEquation, bendingEquations, computeBendingStress, computeDeflection };
+    root.FormulaFoundryBeamCalculations = {
+        cases, bendingEquation, bendingEquations, bendingStressFromSection, computeBendingStress, computeDeflection
+    };
 })(window);

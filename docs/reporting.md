@@ -46,5 +46,9 @@ Electrical snapshots use Project Report schema 1. The report renderer reads the 
 
 Fluid System Designer appends the active calculated configuration with the design conditions, ordered geometry, segment flow and loss tables, head balance, pump duty, equations, limitations and a reconstructible schematic. Include saved alternatives with the comparison checkbox. A current flow sweep adds its sample data and selected plot. The entry survives schema-v1 export, import and printing. [Fluid System Designer](fluid-system-workflow.md)
 
+## Shaft & Bearing System Designer snapshots
+
+Each analysis adds one schema-v1 entry with the shaft geometry, material condition and property basis, signed transverse loads, torque stations, bearing inputs, and calculated results. The report reconstructs the assembly schematic and plots the saved nominal equivalent stress samples. The signed transverse and bending results, configuration comparison, and diameter sweep use the existing report tables. Reports preserve the selected presentation units at the time of capture. [Shaft & Bearing System Designer](shaft-bearing-workflow.md)
+
 ## Tests
 `tests/core/report-builder.test.js`, `tests/smoke/project-report.test.js`, `tests/smoke/new-calculators-registry.test.js`.

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Analyze a simply supported shaft, compare design alternatives, and document bearing reactions, stress, deflection and basic rating life.">
+    <meta name="theme-color" content="#26282B">
+    <title>Shaft &amp; Bearing System Designer | Formula Foundry</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/study-chart.css">
+    <link rel="stylesheet" href="../css/fluid-system.css">
+    <link rel="stylesheet" href="../css/shaft-bearing.css">
+    <link rel="stylesheet" href="../css/shaft-bearing-graphics.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/brand/icons/formula-foundry-icon.svg">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to Shaft &amp; Bearing System Designer</a>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="../index.html" aria-label="Formula Foundry home">
+            <img class="brand-logo" src="../assets/brand/logos/formula-foundry-logo-horizontal-reversed.svg" alt="Formula Foundry" width="274" height="34">
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="../index.html#catalog">Calculators</a>
+            <a class="workflows-nav-link" href="fluid-system.html">Workflows</a>
+            <a href="../methodology.html">Methodology</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container fluid-workspace shaft-workspace" id="main">
+    <header class="calculator-header fluid-intro">
+        <p class="fluid-eyebrow">Engineering Workflows</p>
+        <h1>Shaft &amp; Bearing System Designer</h1>
+        <p>Trace applied loads to bearing reactions, nominal shaft stress, deflection and basic bearing rating life. Compare changes to a uniform circular shaft supported at two bearings.</p>
+    </header>
+    <nav class="fluid-jump" aria-label="Workspace sections">
+        <a href="#project">Project</a>
+        <a href="#shaft">Shaft</a>
+        <a href="#loads">Loads &amp; torque</a>
+        <a href="#bearings">Bearings</a>
+        <a href="#results">Results</a>
+        <a href="#comparison">Comparison</a>
+        <a href="#report">Report &amp; export</a>
+        <a href="#worked-example">Worked example</a>
+    </nav>
+    <noscript><p class="error">Enable JavaScript to edit and calculate a shaft system.</p></noscript>
+    <p id="projectLoadStatus" class="fluid-status" role="status"></p>
+
+    <form id="analysisForm" novalidate>
+        <section class="content-card fluid-section" id="project">
+            <div class="fluid-section-heading">
+                <h2>Project definition</h2>
+                <a href="#worked-example">Open worked example</a>
+            </div>
+            <div class="fluid-fields">
+                <div><label for="projectTitle">Project title</label><input id="projectTitle" data-meta="title" maxlength="100"></div>
+                <div><label for="projectDescription">Application description</label><textarea id="projectDescription" data-meta="description" rows="2" maxlength="400"></textarea></div>
+                <div><label for="projectNotes">Operating notes</label><textarea id="projectNotes" data-meta="notes" rows="2" maxlength="800"></textarea></div>
+                <div><label for="configSelect">Configuration in editor</label><select id="configSelect"></select></div>
+                <div><label for="configName">Configuration name</label><input id="configName" maxlength="70"></div>
+            </div>
+            <details class="fluid-disclosure">
+                <summary>Input units</summary>
+                <div class="fluid-fields shaft-unit-fields" id="inputUnits"></div>
+            </details>
+        </section>
+
+        <section class="content-card fluid-section" id="shaft">
+            <h2>Shaft geometry &amp; material</h2>
+            <div class="fluid-fields">
+                <div><label for="span">Bearing span (<span data-unit-label="length"></span>)</label><input id="span" data-input="span" data-quantity="length" type="number" min="0" step="any" required></div>
+                <div><label for="section">Circular cross-section</label><select id="section" data-input="section"><option value="solid">Solid</option><option value="hollow">Hollow</option></select></div>
+                <div><label for="outerDiameter">Outside diameter (<span data-unit-label="diameter"></span>)</label><input id="outerDiameter" data-input="outerDiameter" data-quantity="diameter" type="number" min="0" step="any" required></div>
+                <div id="insideDiameterField" hidden><label for="innerDiameter">Inside diameter (<span data-unit-label="diameter"></span>)</label><input id="innerDiameter" data-input="innerDiameter" data-quantity="diameter" type="number" min="0" step="any"></div>
+                <div><label for="speed">Shaft speed (<span data-unit-label="speed"></span>)</label><input id="speed" data-input="speed" data-quantity="speed" type="number" min="0" step="any" required></div>
+                <div><label for="materialId">Material condition</label><select id="materialId"></select></div>
+                <div class="fluid-span-all shaft-material-basis" id="materialBasis"></div>
+                <div>
+                    <label for="youngModulus">Young’s modulus (<span data-unit-label="modulus"></span>)</label>
+                    <input id="youngModulus" data-property="youngModulus" data-quantity="modulus" type="number" min="0" step="any" aria-describedby="basis-youngModulus">
+                    <small id="basis-youngModulus"></small>
+                </div>
+                <div>
+                    <label for="shearModulus">Shear modulus (<span data-unit-label="modulus"></span>)</label>
+                    <input id="shearModulus" data-property="shearModulus" data-quantity="modulus" type="number" min="0" step="any" aria-describedby="basis-shearModulus">
+                    <small id="basis-shearModulus"></small>
+                </div>
+                <div>
+                    <label for="yieldStrength">Yield strength (<span data-unit-label="strength"></span>)</label>
+                    <input id="yieldStrength" data-property="yieldStrength" data-quantity="strength" type="number" min="0" step="any" aria-describedby="basis-yieldStrength">
+                    <small id="basis-yieldStrength"></small>
+                </div>
+                <div>
+                    <label for="density">Density (<span data-unit-label="density"></span>)</label>
+                    <input id="density" data-property="density" data-quantity="density" type="number" min="0" step="any" aria-describedby="basis-density">
+                    <small id="basis-density"></small>
+                </div>
+                <div class="fluid-span-all fluid-actions">
+                    <button id="resetMaterial" type="button" class="secondary-button">Restore preset properties</button>
+                    <p class="fluid-help">Edit any property to override the preset. A blank property omits results that depend on it.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-card fluid-section" id="loads">
+            <h2>Applied loads &amp; torque</h2>
+            <p>Measure <strong>+X</strong> from Bearing A toward B. Enter signed components along <strong>+Y</strong> (up in the schematic) and <strong>+Z</strong> (right-hand transverse axis, shown upward in its own view). Enter the transverse loads directly.</p>
+            <div id="loadList"></div>
+            <template id="loadTemplate">
+                <fieldset class="fluid-segment shaft-load">
+                    <legend></legend>
+                    <div class="fluid-segment-description">
+                        <div><label>Name</label><input data-load-field="name" maxlength="50"></div>
+                        <div><label>Description (optional)</label><input data-load-field="notes" maxlength="160"></div>
+                    </div>
+                    <div class="fluid-segment-dimensions shaft-load-values">
+                        <div><label>Position from A (<span data-unit-label="length"></span>)</label><input data-load-field="position" data-quantity="length" type="number" min="0" step="any" required></div>
+                        <div><label>Force Y (<span data-unit-label="force"></span>)</label><input data-load-field="fy" data-quantity="force" type="number" step="any" required></div>
+                        <div><label>Force Z (<span data-unit-label="force"></span>)</label><input data-load-field="fz" data-quantity="force" type="number" step="any" required></div>
+                    </div>
+                    <div class="fluid-segment-actions">
+                        <button type="button" class="secondary-button" data-load-action="duplicate">Duplicate</button>
+                        <button type="button" class="secondary-button" data-load-action="up">Move up</button>
+                        <button type="button" class="secondary-button" data-load-action="down">Move down</button>
+                        <button type="button" class="secondary-button" data-load-action="remove">Remove</button>
+                    </div>
+                </fieldset>
+            </template>
+            <div class="fluid-actions">
+                <button id="addLoad" type="button" class="secondary-button">Add point load</button>
+                <p class="fluid-help">Up to eight loads. Stations may coincide, including at a support.</p>
+            </div>
+            <div class="fluid-editor">
+                <h3>Torque transmission</h3>
+                <p class="fluid-help">Positive introduction torque follows the right-hand rule about +X. Place the introduction station to the left of the extraction station. The extraction torque is equal and opposite. Enter zero torque to omit transmission.</p>
+                <div class="fluid-fields">
+                    <div><label for="torqueValue">Introduction torque (<span data-unit-label="torque"></span>)</label><input id="torqueValue" data-input="torque.value" data-quantity="torque" type="number" step="any" required></div>
+                    <div><label for="torqueStart">Introduction position (<span data-unit-label="length"></span>)</label><input id="torqueStart" data-input="torque.start" data-quantity="length" type="number" min="0" step="any"></div>
+                    <div><label for="torqueEnd">Extraction position (<span data-unit-label="length"></span>)</label><input id="torqueEnd" data-input="torque.end" data-quantity="length" type="number" min="0" step="any"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-card fluid-section" id="bearings">
+            <h2>Bearing properties</h2>
+            <p class="fluid-help">Enter manufacturer ratings for each bearing. The simplified equivalent load uses the radial reaction magnitude. Target life is in operating hours.</p>
+            <div class="shaft-bearing-fields" id="bearingFields"></div>
+            <template id="bearingTemplate">
+                <fieldset class="fluid-segment"><legend></legend>
+                    <div class="fluid-fields">
+                        <div><label>Bearing type</label><select data-bearing-field="type"><option value="ball">Ball</option><option value="roller">Roller</option></select></div>
+                        <div><label>Dynamic rating C (<span data-unit-label="force"></span>)</label><input data-bearing-field="dynamicRating" data-quantity="force" type="number" min="0" step="any" required></div>
+                        <div><label>Static rating C₀ (<span data-unit-label="force"></span>, optional)</label><input data-bearing-field="staticRating" data-quantity="force" type="number" min="0" step="any"></div>
+                        <div><label>Target rating life (h, optional)</label><input data-bearing-field="targetHours" type="number" min="0" step="any"></div>
+                    </div>
+                </fieldset>
+            </template>
+            <div class="fluid-calculate">
+                <a class="fluid-action-link" href="#shaftDiagram">View assembly schematic</a>
+                <button type="submit" id="calculate">Calculate shaft system</button>
+            </div>
+            <div id="analysisErrors" role="alert" tabindex="-1"></div>
+        </section>
+    </form>
+
+    <section class="content-card fluid-section" id="results">
+        <h2 id="resultsHeading" tabindex="-1">Calculated results</h2>
+        <p id="resultStatus" class="fluid-status" role="status"></p>
+        <details class="fluid-disclosure">
+            <summary>Result units</summary>
+            <div class="fluid-fields shaft-unit-fields" id="outputUnits"></div>
+        </details>
+        <figure class="ff-figure shaft-assembly-figure">
+            <div class="ff-diagram-host" id="shaftDiagram" tabindex="0" role="region" aria-label="Shaft assembly schematic"></div>
+            <figcaption id="shaftCaption">Shaft assembly schematic. Select a load station to edit its numeric inputs.</figcaption>
+        </figure>
+        <div id="resultSummary" hidden>
+            <dl id="resultHighlights" class="fluid-highlights"></dl>
+            <ul id="resultWarnings" class="warning" hidden></ul>
+            <div id="bearingResults"></div>
+            <div id="sectionResults"></div>
+            <div id="deflectionResults"></div>
+            <h3>Shaft profiles</h3>
+            <p class="fluid-help">The plots show signed components and one-sided values at jumps. Bending and equivalent stresses are nominal outer-fiber magnitudes.</p>
+            <div id="shaftPlots" class="shaft-plots"></div>
+        </div>
+        <details class="fluid-disclosure">
+            <summary>Engineering assumptions &amp; limitations</summary>
+            <ul>
+                <li>Two ideal radial supports with zero transverse displacement. The analyzed shaft is uniform and lies between the supports. Only entered forces contribute to equilibrium. Shaft mass excludes attached components, and its self-weight is excluded unless represented by an applied load.</li>
+                <li>Euler–Bernoulli bending assumes a slender shaft, small deflections and linear elastic response. Shear deformation, bearing compliance and rotor dynamics are excluded.</li>
+                <li>Nominal von Mises stress and yield strength provide a static ductile yield assessment. Stationary transverse loads on a rotating shaft may produce fully reversed bending. Fatigue, keyways, shoulders, notches, splines, surface finish and residual stresses are excluded.</li>
+                <li>Basic L10 is the rating life associated with 90% survival of a population of individually evaluated bearings under the stated load. Axial forces, preload, lubrication, contamination, misalignment, operating temperature and limiting speed are excluded. Unloaded theoretical results omit real operating loads.</li>
+            </ul>
+        </details>
+    </section>
+
+    <section class="content-card fluid-section" id="comparison">
+        <h2>Design alternatives &amp; sensitivity</h2>
+        <div class="fluid-actions">
+            <button id="duplicateConfig" type="button">Duplicate configuration</button>
+            <button id="setBaseline" type="button" class="secondary-button">Set active as baseline</button>
+            <button id="removeConfig" type="button" class="secondary-button">Delete active alternative</button>
+            <a href="#configSelect" class="fluid-action-link">Choose configuration to edit</a>
+        </div>
+        <p id="configurationStatus" class="fluid-status" role="status"></p>
+        <div id="comparisonTables"></div>
+        <p class="fluid-help">Percentage change uses the selected baseline. A dash denotes a missing value. Percentages appear when both values are available and the baseline is nonzero.</p>
+        <div class="fluid-sensitivity">
+            <h3>Outside-diameter sweep</h3>
+            <p class="fluid-help">The sweep holds the inside diameter fixed for hollow shafts. With unchanged applied forces, radial bearing reactions are independent of shaft diameter.</p>
+            <form id="sweepForm" class="fluid-fields" novalidate>
+                <div><label for="sweepStart">Start diameter (<span data-unit-label="outputDiameter"></span>)</label><input id="sweepStart" type="number" min="0" step="any"></div>
+                <div><label for="sweepEnd">End diameter (<span data-unit-label="outputDiameter"></span>)</label><input id="sweepEnd" type="number" min="0" step="any"></div>
+                <div><label for="sweepCount">Samples (2–30)</label><input id="sweepCount" type="number" min="2" max="30" step="1" value="11"></div>
+                <div class="fluid-span-all"><button id="runSweep" type="submit" disabled>Run diameter sweep</button></div>
+            </form>
+            <p id="sweepStatus" class="fluid-status" role="status"></p>
+            <div id="sweepOutput" hidden>
+                <label for="sweepMetric">Plot quantity</label>
+                <select id="sweepMetric"></select>
+                <figure id="sweepFigure" class="fluid-chart" aria-label="Diameter sensitivity plot" tabindex="0"></figure>
+                <div id="sweepTable"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card fluid-section" id="report">
+        <h2>Reports &amp; project export</h2>
+        <h3>Project Report</h3>
+        <p class="fluid-help">Capture the active analysis, with the comparison and current diameter sweep when selected.</p>
+        <div class="fluid-actions">
+            <button id="addReport" type="button" disabled>Add analysis to Project Report</button>
+            <a href="../report.html" class="fluid-action-link">Open Project Report</a>
+        </div>
+        <label class="fluid-check"><input id="includeComparison" type="checkbox" checked> Include configuration comparison</label>
+        <label class="fluid-check"><input id="includeSweep" type="checkbox" checked> Include current diameter sweep</label>
+        <p id="reportStatus" class="fluid-status" role="status"></p>
+
+        <h3>Workflow project</h3>
+        <p class="fluid-help">Save one project on this browser or use workflow JSON to move configurations between browsers. Saved calculations are recomputed from their inputs on reload.</p>
+        <div class="fluid-actions">
+            <button id="saveProject" type="button">Save locally</button>
+            <button id="reloadProject" type="button" class="secondary-button">Reload saved project</button>
+            <button id="exportProject" type="button" class="secondary-button">Export workflow JSON</button>
+        </div>
+        <div class="shaft-import"><label for="importProject">Import workflow JSON</label><input id="importProject" type="file" accept=".json,application/json"></div>
+        <p id="saveStatus" class="fluid-status" role="status"></p>
+    </section>
+
+    <section class="content-card" id="worked-example" aria-labelledby="workedHeading">
+        <h2 id="workedHeading">Worked example</h2>
+        <div class="button-row">
+            <button type="button" id="loadExample">Load Worked Example</button>
+        </div>
+        <div class="example-box">
+            <h3>Given</h3>
+            <p>A packaging conveyor drive shaft uses a solid cold-drawn AISI 1018 steel bar of diameter <strong>40 mm</strong>, with two radial bearing supports <strong>0.60 m</strong> apart. Use the shared preset's nominal \(E=205\ \mathrm{GPa}\) and \(G=80\ \mathrm{GPa}\), typical \(S_y=370\ \mathrm{MPa}\), and typical \(\rho=7870\ \mathrm{kg/m^3}\). The yield strength is representative of this material condition and can vary with bar size.</p>
+            <p>The gear is \(a=0.24\ \mathrm{m}\) from Bearing A and \(b=0.36\ \mathrm{m}\) from Bearing B. The specified force components are \(F_y=-1600\ \mathrm{N}\) and \(F_z=+1200\ \mathrm{N}\). A positive \(110\ \mathrm{N\cdot m}\) torque is introduced at \(x=0.10\ \mathrm m\) and the same magnitude is extracted at \(x=0.52\ \mathrm m\). Speed is <strong>900 rpm</strong>. Bearing A is a ball bearing with \(C=8.4\ \mathrm{kN}\) and \(C_0=6.0\ \mathrm{kN}\). Bearing B is a roller bearing with \(C=6.4\ \mathrm{kN}\) and \(C_0=9.6\ \mathrm{kN}\). The target basic rating life for each bearing is <strong>10,000 h</strong>.</p>
+            <h3>Find</h3>
+            <p>Find the shaft reactions, bending and nominal combined stresses, nominal static yield ratio, displacement, angle of twist and basic rating life of each bearing. Compare the results with a solid 50 mm shaft under the same loads.</p>
+            <h3>Solution</h3>
+            <h4>Reactions and bending</h4>
+            <p>Take moments about A and sum forces in each transverse plane. A signed moment component is named for its transverse force plane. Bearing load is the length of the reaction vector.</p>
+            <div>\[
+                \begin{aligned}
+                R_{By}&=-(-1600)(0.24)/0.60=+640\ \mathrm N\\
+                R_{Ay}&=-(-1600)-640=+960\ \mathrm N\\
+                R_{Bz}&=-(1200)(0.24)/0.60=-480\ \mathrm N\\
+                R_{Az}&=-(1200)-(-480)=-720\ \mathrm N\\
+                P_A&=\sqrt{960^2+(-720)^2}=1200\ \mathrm N\\
+                P_B&=\sqrt{640^2+(-480)^2}=800\ \mathrm N
+                \end{aligned}
+            \]</div>
+            <p>The two signed moment components grow in magnitude up to the load and then decrease linearly to zero at B. The resultant at the gear is therefore the maximum. The two components are in N·m.</p>
+            <div>\[
+                \begin{aligned}
+                M_{y\text{ plane}}&=(960)(0.24)=+230.4\\
+                M_{z\text{ plane}}&=(-720)(0.24)=-172.8\\
+                M_{\max}&=\sqrt{230.4^2+(-172.8)^2}\\
+                        &=288\ \mathrm{N\cdot m}
+                \end{aligned}
+            \]</div>
+            <h4>Section properties and nominal stresses</h4>
+            <p>Use the radius \(c=D/2=0.020\ \mathrm m\). The elastic section modulus is \(W=I/c\). The gear falls inside the torque path, so both nominal bending and torsional stresses act at \(x=0.24\ \mathrm m\).</p>
+            <div>\[
+                \begin{aligned}
+                A&=\pi(0.04)^2/4=1.25664\times10^{-3}\ \mathrm{m^2}\\
+                I&=\pi(0.04)^4/64=1.25664\times10^{-7}\ \mathrm{m^4}\\
+                J&=2I=2.51327\times10^{-7}\ \mathrm{m^4}\\
+                W&=I/0.020=6.28319\times10^{-6}\ \mathrm{m^3}
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                \sigma_b&=\frac{288}{6.28319\times10^{-6}}
+                         =45.837\ \mathrm{MPa}\\
+                \tau&=\frac{110(0.020)}{2.51327\times10^{-7}}
+                      =8.754\ \mathrm{MPa}\\
+                \sigma_{\rm vm}&=\sqrt{45.837^2+3(8.754)^2}
+                                 =48.279\ \mathrm{MPa}\\
+                n_y&=370/48.279=7.664
+                \end{aligned}
+            \]</div>
+            <p>The nominal static yield ratio uses the stated indicative yield strength. When the transverse load stays fixed in space as the shaft rotates, a point on the shaft surface may experience fully reversed bending.</p>
+            <h4>Deflection and angle of twist</h4>
+            <p>For the simply supported point-load case use the right-hand deflection branch, \(x\ge a\), with \(u=L-x\). Let \(\delta_\perp\) be either signed transverse displacement component and \(F_\perp\) its applied force component. The resultant force magnitude is \(2000\ \mathrm N\). The left-hand branch increases in displacement magnitude up to the gear. The right-hand branch is zero at B and reaches its maximum magnitude where its derivative is zero.</p>
+            <div>\[
+                \begin{aligned}
+                EI&=(205\times10^9)(1.25664\times10^{-7})\\
+                  &\approx25761.1\ \mathrm{N\cdot m^2}\\
+                \delta_\perp(x)&=\frac{F_\perp a u(L^2-a^2-u^2)}{6EIL}
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                \delta_y(a)&=\frac{(-1600)(0.24)(0.36)}{6(25761.1)(0.60)}
+                            (0.60^2-0.24^2-0.36^2)\\
+                          &=-0.25758\ \mathrm{mm}\\
+                \delta_z(a)&=\frac{1200}{-1600}\delta_y(a)=+0.19318\ \mathrm{mm}
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                \frac{d}{du}\big[u(L^2-a^2-u^2)\big]&=L^2-a^2-3u^2=0\\
+                u_*&=\sqrt{(0.60^2-0.24^2)/3}=0.31749\ \mathrm m\\
+                x_*&=0.60-0.31749=0.28251\ \mathrm m
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                \delta_{\max}&=\frac{2000(0.24)(0.31749)}{6(25761.1)(0.60)}\\
+                             &\quad{}\cdot(0.60^2-0.24^2-0.31749^2)\\
+                             &=0.33128\ \mathrm{mm}\\
+                \theta&=\frac{110(0.52-0.10)}{(80\times10^9)(2.51327\times10^{-7})}\\
+                       &=0.0022978\ \mathrm{rad}=0.13165^\circ
+                \end{aligned}
+            \]</div>
+            <h4>Individual bearing rating lives</h4>
+            <p>With steady radial loading only, use \(P=P_0=|\mathbf R|\). The basic rating life exponent is 3 for the ball bearing and \(10/3\) for the roller bearing. Life is in millions of revolutions before conversion at the shaft speed \(n\). The basic static ratio is \(s_0=C_0/P_0\).</p>
+            <div>\[
+                \begin{aligned}
+                L_{10,A}&=(8400/1200)^3=343\\
+                L_{10,B}&=(6400/800)^{10/3}=1024\\
+                L_{10h,A}&=\frac{343\times10^6}{60(900)}=6351.85\ \mathrm h\\
+                L_{10h,B}&=\frac{1024\times10^6}{60(900)}=18962.96\ \mathrm h
+                \end{aligned}
+            \]</div>
+            <div>\[
+                \begin{aligned}
+                C_{\rm req}&=P\left(\frac{60n L_{10h,\rm target}}{10^6}\right)^{1/p}\\
+                C_{\rm req,A}&=1200(540)^{1/3}=9.772\ \mathrm{kN}\\
+                C_{\rm req,B}&=800(540)^{3/10}=5.282\ \mathrm{kN}\\
+                s_{0,A}&=6000/1200=5.0\\
+                s_{0,B}&=9600/800=12.0
+                \end{aligned}
+            \]</div>
+            <h3>Result</h3>
+            <p>The 40 mm shaft reaches <strong>48.279 MPa</strong> nominal equivalent stress and a static yield ratio of <strong>7.664</strong> at the gear. Maximum displacement is <strong>0.33128 mm</strong> at <strong>282.51 mm</strong> from A. The torque path twists by <strong>0.13165°</strong>. Bearing A reaches <strong>6351.85 h</strong> and Bearing B reaches <strong>18962.96 h</strong> of basic rating life. A falls below the 10,000 h target and B exceeds it. These are statistical rating lives for the individual bearings.</p>
+            <p>For a solid 50 mm shaft, linear elastic nominal stress scales with \(D^{-3}\). Displacement and twist scale with \(D^{-4}\). Shaft mass scales with \(D^2\). The same specified transverse loads give the same reactions and bearing lives.</p>
+            <div>\[
+                \begin{aligned}
+                \sigma_{\rm vm,50}&=48.279(40/50)^3=24.719\ \mathrm{MPa}\\
+                \delta_{\max,50}&=0.33128(40/50)^4=0.13569\ \mathrm{mm}\\
+                \theta_{50}&=0.131654(40/50)^4=0.05393^\circ\\
+                m_{40}&=(7870)(1.25664\times10^{-3})(0.60)=5.934\ \mathrm{kg}\\
+                m_{50}&=5.934(50/40)^2=9.272\ \mathrm{kg}
+                \end{aligned}
+            \]</div>
+        </div>
+        <h3>References</h3>
+        <ul>
+            <li>Classical beam deflection and circular-section properties. <a href="https://www.mheducation.com/highered/mhp/product/roark-s-formulas-stress-strain-9e">Roark's Formulas for Stress and Strain</a></li>
+            <li>Elastic circular-shaft torsion and distortion-energy yield theory. <a href="https://www.mheducation.com/highered/product/shigleys-mechanical-engineering-design-nisbett.html">Shigley's Mechanical Engineering Design</a></li>
+            <li>Basic rating life and static load basis for rolling bearings. <a href="https://www.iso.org/standard/38102.html">ISO 281:2007</a> and <a href="https://www.iso.org/standard/38101.html">ISO 76:2006</a></li>
+        </ul>
+    </section>
+</main>
+<footer class="site-footer">
+    <nav class="footer-links" aria-label="Related engineering tools">
+        <a href="fluid-system.html">Fluid System Designer</a>
+        <a href="../calculators/shaft-torsion.html">Shaft Torsion</a>
+        <a href="../calculators/beam-deflection.html">Beam Deflection</a>
+        <a href="../calculators/bearing-life.html">Bearing Life</a>
+    </nav>
+</footer>
+
+<script src="../js/katex-loader.js"></script>
+<script src="../js/engineering-units.js"></script>
+<script src="../js/calculator-utils.js"></script>
+<script src="../js/engineering-diagram.js"></script>
+<script src="../js/calculator-diagrams.js"></script>
+<script src="../js/beam-section-properties.js"></script>
+<script src="../js/beam-study-calculations.js"></script>
+<script src="../js/shaft-torsion-calculation.js"></script>
+<script src="../js/bearing-life-calculation.js"></script>
+<script src="../js/factor-of-safety-calculation.js"></script>
+<script src="../js/shaft-bearing-core.js"></script>
+<script src="../js/shaft-bearing-project.js"></script>
+<script src="../js/shaft-bearing-example.js"></script>
+<script src="../js/study-chart.js"></script>
+<script src="../js/shaft-bearing-diagram.js"></script>
+<script src="../js/report-builder.js"></script>
+<script src="../js/shaft-bearing-report.js"></script>
+<script src="../js/shaft-bearing-page.js"></script>
+</body>
+</html>

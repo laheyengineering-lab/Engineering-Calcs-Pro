@@ -1,0 +1,36 @@
+.shaft-unit-fields { padding-bottom: var(--space-3); }
+.shaft-load-values { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.shaft-load[data-selected="true"] { border-color: var(--color-accent); }
+.shaft-load input:focus { scroll-margin-block: 5rem; }
+.shaft-bearing-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.shaft-bearing-fields .fluid-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.shaft-bearing-fields .fluid-segment { margin-top: 0; }
+.shaft-material-basis { padding: var(--space-3); background: var(--color-surface-muted); border-left: 3px solid var(--color-border); }
+.shaft-material-basis p { margin-block: 0 var(--space-1); }
+.shaft-material-basis p:last-child { margin-bottom: 0; }
+.shaft-import { margin-top: var(--space-3); }
+.shaft-import label { display: block; font-weight: 650; }
+.shaft-import input { max-width: 100%; }
+.shaft-workspace [data-kind="error"] { color: var(--color-error); }
+.shaft-workspace #analysisErrors:empty { display: none; }
+.shaft-workspace #analysisErrors { margin-top: var(--space-3); }
+.shaft-workspace .fluid-table td { min-width: 7rem; overflow-wrap: anywhere; }
+.shaft-workspace .fluid-table th { min-width: 6rem; overflow-wrap: anywhere; }
+.shaft-workspace .fluid-table th:first-child { min-width: 10rem; }
+.shaft-workspace .shaft-comparison thead th[scope="col"] { min-width: 10rem; }
+.shaft-workspace .shaft-baseline { display: block; color: var(--color-text-muted); font-weight: normal; }
+.shaft-workspace #resultWarnings { padding-left: var(--space-6); }
+.shaft-workspace .worked-example-math,
+.shaft-workspace #worked-example .katex-display { overflow-x: auto; overflow-y: hidden; }
+.shaft-workspace .fluid-calculate > a { margin-right: auto; }
+
+@media (max-width: 800px) {
+    .shaft-bearing-fields { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .shaft-load-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 450px) {
+    .shaft-bearing-fields .fluid-fields, .shaft-load-values { grid-template-columns: minmax(0, 1fr); }
+    .shaft-load-values label { min-height: auto; }
+    .shaft-workspace .fluid-jump { gap: 0 var(--space-3); }
+}
