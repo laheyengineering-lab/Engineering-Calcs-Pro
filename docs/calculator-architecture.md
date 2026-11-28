@@ -39,7 +39,7 @@ Formula Foundry is a static browser application built from plain HTML, CSS, and 
 ```text
 index.html, about.html, references.html, methodology.html
 calculators/*.html                         Standalone calculator pages
-workflows/fluid-system.html                Engineering workflow workspace
+workflows/                                 Fluid System and Shaft & Bearing workspaces
 design-studies.html, report.html           Study and report workspaces
 css/style.css                              Shared site and calculator styles
 css/studies.css, css/study-chart.css,
@@ -60,6 +60,7 @@ tests/{core,calculators,smoke,helpers}/    Vitest + jsdom tests
 - **Interactive diagrams:** `js/engineering-diagram.js` provides shared SVG creation and accessible pointer/keyboard control helpers. Calculator-specific rendering lives in `js/beam-deflection-diagram.js` and `js/beam-section-properties.js`; diagrams display calculator state and do not act as separate solvers.
 - **Design Studies:** `js/design-study-core.js` owns the DOM-free scenario model, comparison/sweep logic, validation, and local persistence. `js/design-study-adapters.js` integrates supported calculator engines. `js/design-studies.js` and `design-studies.html` provide the workspace UI; `js/study-chart.js` and `css/study-chart.css` render sweep charts.
 - **Engineering Workflows:** Fluid System Designer combines the existing Pipe Flow, Pipe Pressure Drop and Pump Hydraulic Power engines, applies a closed-loop or open-transfer head balance, and supports local projects, alternative comparison, sensitivity, and report snapshots. [Fluid System Designer](fluid-system-workflow.md)
+- **Shaft & Bearing System Designer** combines shared circular section, bending stress, torsion, yield ratio and bearing rating life calculations with a two-plane shaft solver. Its configurations retain SI inputs and independent unit preferences. The live SVGs, diameter sweep and schema-v1 Project Report snapshots use the solved model. [Shaft & Bearing System Designer](shaft-bearing-workflow.md)
 - **Project reports:** `js/report-builder.js` captures and stores snapshots; `js/report-page.js` renders the editable report and its diagrams/charts. `report.html` and `css/report.css` provide the report page and print layout. PDF output uses the browser's print dialog.
 
 The site is static HTML, CSS, and JavaScript with no application backend, framework, or production build step. The test suite uses npm/Vitest; npm is not required to serve the site.

@@ -95,6 +95,12 @@ Circuit diagrams use the shared scene and registry APIs. The electrical renderer
 
 RC and RL plots use samples from the first-order time solutions. The series RLC plot samples impedance magnitude on a bounded logarithmic frequency axis. Each plot marks the selected operating point. Electrical figures are rendered from the same solved data used in the result panel. [Electrical models and references](electrical-calculators.md)
 
+## Shaft and bearing graphics
+
+The assembly in `js/shaft-bearing-diagram.js` uses two orthogonal projections, a circular section view, and a dimensioned bearing span. Station markers retain their axial positions. Numbered load controls fan out when stations are close or coincident and select the corresponding numeric inputs by mouse or keyboard. The section and arrow sizes are illustrative. The viewport scrolls inside the figure on narrow screens to keep labels readable.
+
+The solved station profile supplies every plotted shear force, bending moment, internal torque, equivalent stress, and displacement. Repeated axial coordinates carry the left and right limits at jumps. Project Report reconstructs the assembly from bounded registry data and uses the shared Study chart to draw a saved equivalent stress profile with critical stations retained.
+
 ## Accessibility
 
 - Every SVG has `role="img"`, `<title>`, `<desc>`, and a `viewBox` with `preserveAspectRatio="xMidYMid meet"`.

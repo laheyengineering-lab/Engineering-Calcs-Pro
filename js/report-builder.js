@@ -67,7 +67,7 @@
         "pneumatic-air-consumption", "multilayer-insulation", "wall-heat-loss", "wall-mounting",
         "ohms-law", "circuit-studio", "kirchhoff-circuit", "electrical-divider", "dc-wire-voltage-drop",
         "rc-transients", "rl-transients", "rlc-impedance", "ac-power-factor", "speaker-impedance",
-        "rc-transients-response", "rl-transients-response", "rlc-impedance-response", "fluid-system"
+        "rc-transients-response", "rl-transients-response", "rlc-impedance-response", "fluid-system", "shaft-bearing"
     ];
 
     // Model data for calculator diagrams: plain keys with finite numbers, short strings, or small numeric arrays.

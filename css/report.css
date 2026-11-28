@@ -110,7 +110,7 @@
     text-align: left;
 }
 
-.report-calc-diagram:has([data-diagram-id="fluid-system"]) {
+.report-calc-diagram:has([data-diagram-id="fluid-system"], [data-diagram-id="shaft-bearing"]) {
     max-width: 796px;
 }
 

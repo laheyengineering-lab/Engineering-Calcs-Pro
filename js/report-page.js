@@ -76,11 +76,14 @@
         return wrapper;
     }
 
-    function chartSection(chart) {
+    function chartSection(chart, calculatorId) {
         if (!chart || !window.FormulaFoundryChart) return null;
         const figure = el("figure", "report-chart");
         figure.appendChild(window.FormulaFoundryChart.createLineChart(doc, chart));
-        figure.appendChild(el("figcaption", null, chart.title + ". Samples are joined only where consecutive calculations succeeded; no values between samples were calculated. The numerical data are listed in the table."));
+        const caption = calculatorId === "shaft-bearing"
+            ? "The plot connects the saved profile samples. A vertical segment marks a change in equivalent stress at a torque boundary."
+            : "Samples are joined only where consecutive calculations succeeded; no values between samples were calculated. The numerical data are listed in the table.";
+        figure.appendChild(el("figcaption", null, chart.title + ". " + caption));
         return figure;
     }
 
@@ -247,7 +250,7 @@
         section.appendChild(itemsTable("Inputs", entry.inputs));
         section.appendChild(itemsTable("Results", entry.outputs));
         (entry.tables || []).forEach((table) => section.appendChild(dataTable(table)));
-        const chartFigure = chartSection(entry.chart);
+        const chartFigure = chartSection(entry.chart, entry.calculatorId);
         if (chartFigure) section.appendChild(chartFigure);
 
         if (entry.equations.length) {
